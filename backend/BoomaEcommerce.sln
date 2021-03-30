@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoomaEcommerce.Core", "Boom
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Services", "BoomaEcommerce.Services\BoomaEcommerce.Services.csproj", "{3871FC87-0AFE-4B82-950E-5613CC77FD32}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{26D5B64C-2933-4473-A03A-98BEEE36A2D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BommaEcommerce.Services.Tests", "BommaEcommerce.Services.Tests\BommaEcommerce.Services.Tests.csproj", "{01A5728B-D735-4DCC-ABCC-87845114FE1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BommaEcommerce.Domain.Tests", "BommaEcommerce.Domain.Tests\BommaEcommerce.Domain.Tests.csproj", "{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,11 +39,23 @@ Global
 		{3871FC87-0AFE-4B82-950E-5613CC77FD32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3871FC87-0AFE-4B82-950E-5613CC77FD32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3871FC87-0AFE-4B82-950E-5613CC77FD32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C9EE9ECD-5B0D-4081-AAC8-D8F7BD395122}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
 	EndGlobalSection
 EndGlobal
