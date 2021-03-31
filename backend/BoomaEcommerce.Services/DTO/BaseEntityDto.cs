@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class UserDto : BaseEntityDto
+    public class BaseEntityDto
     {
+        public Guid Guid { get; set; }
     }
 }
