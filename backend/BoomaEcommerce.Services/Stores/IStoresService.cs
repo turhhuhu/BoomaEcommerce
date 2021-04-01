@@ -17,7 +17,7 @@ namespace BoomaEcommerce.Services.Stores
         /// A task that represents the asynchronous operation
         /// The task result contains the stores collection.
         /// </returns>
-        Task<IReadOnlyCollection<StoreDto>> GetAllStoreAsync();
+        Task<IReadOnlyCollection<StoreDto>> GetAllStoresAsync();
 
         /// <summary>
         /// Gets a store by guid.
