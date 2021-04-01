@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BommaEcommerce.Data\BommaEcommerce.Data.csproj" />
+    <ProjectReference Include="..\BommaEcommerce.Data\BoomaEcommerce.Data.csproj" />
     <ProjectReference Include="..\BoomaEcommerce.Domain\BoomaEcommerce.Domain.csproj" />
   </ItemGroup>
 
