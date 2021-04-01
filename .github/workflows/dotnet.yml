@@ -7,12 +7,16 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  build:
+  build-and-test:
     defaults:
       run:
         working-directory: backend
+    
         
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: 
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
     - uses: actions/cache@v2
