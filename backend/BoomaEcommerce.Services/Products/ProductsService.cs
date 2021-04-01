@@ -9,6 +9,11 @@ namespace BoomaEcommerce.Services.Products
 {
     public class ProductsService : IProductsService
     {
+        public Task CreateStoreProductAsync(ProductDto product)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync()
         {
             throw new NotImplementedException();

@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace BommaEcommerce.Services.Tests
+namespace BoomaEcommerce.Services.Tests
 {
     public class ComplaintsServiceTests
     {
