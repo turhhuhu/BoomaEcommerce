@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class ProductDto
+    public class ProductDto : BaseEntityDto
     {
+        
     }
 }

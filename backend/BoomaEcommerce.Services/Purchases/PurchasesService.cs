@@ -2,16 +2,44 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.External;
+using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Services.Purchases
 {
     public class PurchasesService : IPurchasesService
     {
-        public Task CreatePurchaseAsync(PurchaseDto purchase)
+        private readonly IMapper _mapper;
+        private readonly ILogger<PurchasesService> _logger;
+        private readonly IPaymentClient _paymentClient;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<Purchase> _purchaseRepository;
+        public PurchasesService(IMapper mapper, ILogger<PurchasesService> logger,
+            IPaymentClient paymentClient, IRepository<User> userRepository, IRepository<Product> productRepository,
+            IRepository<Purchase> purchaseRepository)
         {
-            throw new NotImplementedException();
+            _mapper = mapper;
+            _logger = logger;
+            _paymentClient = paymentClient;
+            _userRepository = userRepository;
+            _productRepository = productRepository;
+            _purchaseRepository = purchaseRepository;
+        }
+        public async Task CreatePurchaseAsync(PurchaseDto purchaseDto)
+        {
+            // TODO: might need to validate purchaseDto
+            var purchase = _mapper.Map<Purchase>(purchaseDto);
+            purchase.Buyer = await _userRepository.FindByIdAsync(purchase.Buyer.Guid);
+            purchase.ProductsPurchases
+                .ForEach(async x => x.Product = await _productRepository.FindByIdAsync(x.Product.Guid));
+            await purchase.MakePurchase();
+            await _paymentClient.Pay(purchase);
+            await _purchaseRepository.InsertOneAsync(purchase);
         }
 
         public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(string userId)
