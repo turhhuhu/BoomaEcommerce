@@ -11,7 +11,7 @@ namespace BoomaEcommerce.Domain
         public User Buyer { get; set; }
         public double TotalPrice { get; set; }
 
-        public Task MakePurchase()
+        public Task<bool> MakePurchase()
         {
             return PurchaseProducts();
         }

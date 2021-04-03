@@ -17,7 +17,9 @@ namespace BoomaEcommerce.Domain
         
         public double CalculatePrice(int amount)
         {
-            return Price * Amount; // Might need to change to use the product discount type
+            // TODO: Might need to change to use the product discount type
+            // TODO: Might need to check for amount validation
+            return Price * amount; 
         }
         public bool PurchaseAmount(int amount)
         {
@@ -32,7 +34,7 @@ namespace BoomaEcommerce.Domain
 
         public bool ValidateAmount(int amount)
         {
-            return amount <= Amount;
+            return amount > 0 && amount <= Amount;
         }
     }
 }
