@@ -29,22 +29,18 @@ namespace BoomaEcommerce.Services.Users
             _soRepository = soRepository;
         }
 
-        public async Task<List<object>> GetAllSellersInformation(Guid storeGuid)
+        public async Task<List<User>> GetAllSellersInformation(Guid storeGuid)
         {
             try
             {
-                var managers = await _smRepository.FilterByAsync(storeManagement =>
-                    storeManagement.Store.Id == storeGuid);
-                var owners = await _soRepository.FilterByAsync(storeOwnership =>
-                    storeOwnership.Store.Id == storeGuid);
+                var managers =  _smRepository.FilterByAsync(storeManagement =>
+                    storeManagement.Store.Id == storeGuid, storeManagement => storeManagement.User);
+                var owners =  _soRepository.FilterByAsync(storeOwnership =>
+                    storeOwnership.Store.Id == storeGuid, storeOwnership => storeOwnership.User);
+
+                return (await Task.WhenAll(managers, owners)).SelectMany(x => x).ToList();
 
                 // Seller - A seller is either an Owner or a Manager.
-
-                var sellers = new List<object>();
-                sellers.AddRange(managers.ToList());
-                sellers.AddRange(owners.ToList());
-
-                return sellers;
             }
             catch (Exception e)
             {
