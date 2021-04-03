@@ -52,7 +52,7 @@ namespace BoomaEcommerce.Services.Purchases
             try
             {
                 var purchaseHistory =
-                    await _purchaseRepository.FilterByAsync(purchase => purchase.Guid.ToString().Equals(userId));
+                    await _purchaseRepository.FilterByAsync(purchase => purchase.Buyer.Guid.Equals(userId));
                 var purchaseHistoryDtoList = _mapper.Map<List<PurchaseDto>>(purchaseHistory);
                 return purchaseHistoryDtoList;
             }
