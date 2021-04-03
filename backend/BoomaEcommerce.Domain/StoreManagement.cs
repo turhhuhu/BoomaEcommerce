@@ -12,14 +12,14 @@ namespace BoomaEcommerce.Domain
         public List<StoreManagementPermission> Permissions { get; set; }
 
 
-        public async Task<bool> AddPermissions(List<StoreManagementPermission> permissions)
+        public bool AddPermissions(List<StoreManagementPermission> permissions)
         {
             Permissions.AddRange(permissions);
             Permissions.Distinct();
             return true;
         }
 
-        public async Task<bool> RemovePermissions(List<StoreManagementPermission> permissions)
+        public bool RemovePermissions(List<StoreManagementPermission> permissions)
         {
             foreach (var per in permissions)
             {

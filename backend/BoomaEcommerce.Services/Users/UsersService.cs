@@ -41,7 +41,7 @@ namespace BoomaEcommerce.Services.Users
                     return false;
                 }
 
-                var succAddPermissions = await manager.AddPermissions(permissions);
+                var succAddPermissions = manager.AddPermissions(permissions);
 
                 if (!succAddPermissions) return false;
 
@@ -70,7 +70,7 @@ namespace BoomaEcommerce.Services.Users
                     return false;
                 }
 
-                var suRemovePermissions = await manager.RemovePermissions(permissions);
+                var suRemovePermissions = manager.RemovePermissions(permissions);
 
                 if (!suRemovePermissions) return false;
 
