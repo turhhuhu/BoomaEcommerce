@@ -2,12 +2,89 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using BoomaEcommerce.Data;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.Stores;
+using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Services.Users
 {
     public class UsersService : IUsersService
     {
+        private readonly ILogger<StoresService> _logger;
+        private readonly IMapper _mapper;
+        private readonly IRepository<StoreManagement> _smRepository;
+
+        public UsersService(ILogger<StoresService> logger,
+            IMapper mapper,
+            IRepository<StoreManagement> smRepository)
+        {
+            _logger = logger;
+            _mapper = mapper;
+            _smRepository = smRepository;
+        }
+
+        public async Task<bool> AddManagerPermissions(Guid smGuid, Guid storeGuid,
+            List<StoreManagementPermission> permissions)
+        {
+            try
+            {
+                var manager = await _smRepository.FindOneAsync(storeManagement =>
+                    storeManagement.Store.Id == storeGuid &&
+                    storeManagement.User.Id == smGuid);
+
+
+                if (manager == null)
+                {
+                    return false;
+                }
+
+                var succAddPermissions = await manager.AddPermissions(permissions);
+
+                if (!succAddPermissions) return false;
+
+                await _smRepository.ReplaceOneAsync(manager);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveManagerPermissions(Guid smGuid, Guid storeGuid, List<StoreManagementPermission> permissions)
+        {
+            try
+            {
+                var manager = await _smRepository.FindOneAsync(storeManagement =>
+                    storeManagement.Store.Id == storeGuid &&
+                    storeManagement.User.Id == smGuid);
+
+
+                if (manager == null)
+                {
+                    return false;
+                }
+
+                var suRemovePermissions = await manager.RemovePermissions(permissions);
+
+                if (!suRemovePermissions) return false;
+
+                await _smRepository.ReplaceOneAsync(manager);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return false;
+            }
+        }
+
         public Task CreateStoreAsync(string userId, StoreDto store)
         {
             throw new NotImplementedException();
