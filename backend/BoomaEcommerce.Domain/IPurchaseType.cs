@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain
 {
-    interface IPurchaseType
+    public interface IPurchaseType
     {
     }
 }

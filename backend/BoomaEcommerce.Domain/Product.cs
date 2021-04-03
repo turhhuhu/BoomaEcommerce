@@ -1,11 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain
 {
-    public class Product
+    public class Product : BaseEntity
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Store Store { get; init; }
+        public double Price { get; set; }
+        public int Amount { get; set; }
+        public SemaphoreSlim ProductLock { get; set; }
+        
+        public double CalculatePrice(int amount)
+        {
+            return Price * Amount; // Might need to change to use the product discount type
+        }
+        public bool PurchaseAmount(int amount)
+        {
+            if (!ValidateAmount(amount))
+            {
+                return false;
+            }
+
+            Amount -= amount;
+            return true;
+        }
+
+        public bool ValidateAmount(int amount)
+        {
+            return amount <= Amount;
+        }
     }
 }
