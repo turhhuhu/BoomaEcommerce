@@ -25,6 +25,11 @@ namespace BoomaEcommerce.Services.Stores
             _storeRepo = storeRepo;
         }
 
+        public Task CreateStoreAsync(string userId, StoreDto store)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IReadOnlyCollection<StoreDto>> GetAllStoresAsync()
         {
             throw new NotImplementedException();
