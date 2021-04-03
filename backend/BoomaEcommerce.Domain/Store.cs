@@ -5,13 +5,12 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain
 {
-    public class Store
+    public class Store : BaseEntity
     {
-        public Guid Id { get; set; }
-
+        
         public Store(Guid guid)
         {
-            this.Id = guid;
+            this.Guid = guid;
         }
     }
 }

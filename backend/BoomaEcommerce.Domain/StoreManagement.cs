@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain
 {
-    public class StoreManagement
+    public class StoreManagement : BaseEntity
     {
         public User User { get; set; }
         public Store Store { get; set; }
