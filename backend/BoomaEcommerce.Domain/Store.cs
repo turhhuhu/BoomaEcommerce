@@ -7,5 +7,11 @@ namespace BoomaEcommerce.Domain
 {
     public class Store
     {
+        public Guid Id { get; set; }
+
+        public Store(Guid storeGuid)
+        {
+            Id = storeGuid;
+        }
     }
 }
