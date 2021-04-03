@@ -32,8 +32,8 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 var manager = await _smRepository.FindOneAsync(storeManagement =>
-                    storeManagement.Store.Id == storeGuid &&
-                    storeManagement.User.Id == smGuid);
+                    storeManagement.Store.Guid == storeGuid &&
+                    storeManagement.User.Guid == smGuid);
 
 
                 if (manager == null)
@@ -61,8 +61,8 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 var manager = await _smRepository.FindOneAsync(storeManagement =>
-                    storeManagement.Store.Id == storeGuid &&
-                    storeManagement.User.Id == smGuid);
+                    storeManagement.Store.Guid == storeGuid &&
+                    storeManagement.User.Guid == smGuid);
 
 
                 if (manager == null)
