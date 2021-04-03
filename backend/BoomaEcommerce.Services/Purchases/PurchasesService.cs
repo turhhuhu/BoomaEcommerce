@@ -47,9 +47,21 @@ namespace BoomaEcommerce.Services.Purchases
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyCollection<PurchaseDto>> GetUserPurchaseHistoryAsync(string userId)
+        async public Task<IReadOnlyCollection<PurchaseDto>> GetUserPurchaseHistoryAsync(string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var purchaseHistory =
+                    await _purchaseRepository.FilterByAsync(purchase => purchase.Guid.ToString().Equals(userId));
+                var purchaseHistoryDtoList = _mapper.Map<List<PurchaseDto>>(purchaseHistory);
+                return purchaseHistoryDtoList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+            
         }
 
         public Task<IReadOnlyCollection<PurchaseDto>> GetStorePurchaseHistoryAsync(Guid storeGuid)
