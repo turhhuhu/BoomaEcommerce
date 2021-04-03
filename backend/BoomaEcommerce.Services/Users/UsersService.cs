@@ -13,11 +13,11 @@ namespace BoomaEcommerce.Services.Users
 {
     public class UsersService : IUsersService
     {
-        private readonly ILogger<StoresService> _logger;
+        private readonly ILogger<StoreManagement> _logger;
         private readonly IMapper _mapper;
         private readonly IRepository<StoreManagement> _smRepository;
 
-        public UsersService(ILogger<StoresService> logger,
+        public UsersService(ILogger<StoreManagement> logger,
             IMapper mapper,
             IRepository<StoreManagement> smRepository)
         {
