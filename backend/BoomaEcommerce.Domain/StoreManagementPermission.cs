@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain
 {
-    public enum StoreManagementPermission
+    public class StoreManagementPermission : BaseEntity
     {
+         
     }
 }
