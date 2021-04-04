@@ -45,7 +45,7 @@ namespace BoomaEcommerce.Services.Stores
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null; //?
+                return null; 
             }
         }
 
