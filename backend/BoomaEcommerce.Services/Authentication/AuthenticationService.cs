@@ -52,7 +52,7 @@ namespace BoomaEcommerce.Services.Authentication
             {
                 return new AuthenticationResponse
                 {
-                    Errors = new[] { "Username or password is wrong." }
+                    Errors = new[] { "Bad username or password." }
                 };
             }
 
