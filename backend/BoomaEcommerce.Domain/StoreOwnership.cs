@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain
 {
-    public class StoreOwnership
+    public class StoreOwnership : StoreSeller
     {
-        public User User { get; set; }
         public Store Store { get; set; }
         public List<StoreManagementPermission> Permissions { get; set; }
     }

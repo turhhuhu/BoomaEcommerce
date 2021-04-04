@@ -29,17 +29,37 @@ namespace BoomaEcommerce.Services.Users
             _soRepository = soRepository;
         }
 
-        public async Task<List<User>> GetAllSellersInformation(Guid storeGuid)
+        public async Task<StoreSellersResponse> GetAllSellersInformation(Guid storeGuid)
         {
             try
             {
-                var managers =  _smRepository.FilterByAsync(storeManagement =>
-                    storeManagement.Store.Id == storeGuid, storeManagement => storeManagement.User);
-                var owners =  _soRepository.FilterByAsync(storeOwnership =>
-                    storeOwnership.Store.Id == storeGuid, storeOwnership => storeOwnership.User);
+                var managersTask = _smRepository.FilterByAsync(storeManagement =>
+                   storeManagement.Store.Id == storeGuid, storeManagement => 
+                    new StoreManagement
+                    {
+                        Guid = storeManagement.Guid,
+                        User = storeManagement.User
+                    });
 
-                return (await Task.WhenAll(managers, owners)).SelectMany(x => x).ToList();
+                var ownersTask =  _soRepository.FilterByAsync(storeOwnership =>
+                    storeOwnership.Store.Id == storeGuid, storeOwnership =>
+                    new StoreOwnership
+                    {
+                        Guid = storeOwnership.Guid,
+                        User = storeOwnership.User
+                    });
 
+                var managers = (await managersTask).ToList();
+                var owners = (await ownersTask).ToList();
+
+
+                var storeManagementDtos =  _mapper.Map<List<StoreManagementDto>>(managers);
+                var storeOwnerDtos = _mapper.Map<List<StoreOwnershipDto>>(owners);
+                return new StoreSellersResponse
+                {
+                    StoreManagers = storeManagementDtos,
+                    StoreOwners = storeOwnerDtos
+                };
                 // Seller - A seller is either an Owner or a Manager.
             }
             catch (Exception e)
