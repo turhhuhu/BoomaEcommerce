@@ -16,11 +16,6 @@ namespace BoomaEcommerce.Domain
             Amount = amount;
         }
 
-        public PurchaseProduct(Product product)
-        {
-            Product = product;
-        }
-
         public async Task<double> CalculatePriceAsync()
         {
             await Product.ProductLock.WaitAsync();

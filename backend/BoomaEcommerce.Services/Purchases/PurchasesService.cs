@@ -37,7 +37,10 @@ namespace BoomaEcommerce.Services.Purchases
             purchase.Buyer = await _userRepository.FindByIdAsync(purchase.Buyer.Guid);
             purchase.ProductsPurchases
                 .ForEach(async x => x.Product = await _productRepository.FindByIdAsync(x.Product.Guid));
-            await purchase.MakePurchase();
+            if (!await purchase.MakePurchase())
+            {
+                //TODO: rollback transaction
+            }
             await _paymentClient.Pay(purchase);
             await _purchaseRepository.InsertOneAsync(purchase);
         }
