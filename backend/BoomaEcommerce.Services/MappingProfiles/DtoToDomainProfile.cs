@@ -17,10 +17,11 @@ namespace BoomaEcommerce.Services.MappingProfiles
         public DtoToDomainProfile()
         {
             CreateMap<UserDto, User>();
-            CreateMap<PurchaseDto, Purchase>();
             CreateMap<ProductDto, Product>();
-            CreateMap<PurchaseProductDto, PurchaseProduct>();
-            CreateMap<UserDto, User>();
+            CreateMap<PurchaseProductDto, PurchaseProduct>().ForMember(dest => dest.Product,
+                opt =>
+                    opt.MapFrom(x => new Product{Guid = x.ProductDto.Guid}));
+            CreateMap<PurchaseDto, Purchase>();
         }
     }
 }

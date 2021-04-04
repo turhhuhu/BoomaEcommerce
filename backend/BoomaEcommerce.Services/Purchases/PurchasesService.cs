@@ -47,6 +47,7 @@ namespace BoomaEcommerce.Services.Purchases
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 //TODO: rollback transaction
             }
             try
@@ -55,8 +56,10 @@ namespace BoomaEcommerce.Services.Purchases
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 //TODO: rollback transaction
             }
+            
         }
 
         public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(string userId)

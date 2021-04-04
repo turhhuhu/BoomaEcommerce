@@ -31,7 +31,6 @@ namespace BoomaEcommerce.Services.Tests
         {
             var mapperConfig = new MapperConfiguration(x =>
             {
-                x.AddProfile(new DomainToDtoProfile());
                 x.AddProfile(new DtoToDomainProfile());
             });
             var mapper = mapperConfig.CreateMapper();
@@ -97,8 +96,8 @@ namespace BoomaEcommerce.Services.Tests
 
             testProducts.ForEach(x => x.Amount.Should().Be(5));
             _userRepositoryMock.Invocations.Count.Should().Be(1);
-            _productRepositoryMock.Invocations.Count.Should().Be(1);
-            _purchaseRepositoryMock.Invocations.Count.Should().Be(purchaseDtoFixture.ProductsPurchases.Count);
+            _productRepositoryMock.Invocations.Count.Should().Be(purchaseDtoFixture.ProductsPurchases.Count);
+            _purchaseRepositoryMock.Invocations.Count.Should().Be(1);
 
         }
 
