@@ -4,10 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Data
 {
-    public interface IRepository<T>
+    public interface IRepository<T> where T : BaseEntity
     {
         /// <summary>
         /// Filters T entities by a filter predicate expression.

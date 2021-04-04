@@ -8,10 +8,6 @@ namespace BoomaEcommerce.Services.Users
 {
     public class UsersService : IUsersService
     {
-        public Task CreateStoreAsync(string userId, StoreDto store)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<ShoppingCartDto> GetShoppingCartAsync(string userId)
         {

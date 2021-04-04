@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Services.DTO;
 
-namespace BoomaEcommerce.Services
+namespace BoomaEcommerce.Services.Authentication
 {
     public interface IAuthenticationService
     {
-        Task RegisterAsync(string username, string password);
-        Task<AuthenticationToken> LoginAsync(string username, string password);
+        Task<AuthenticationResponse> RegisterAsync(string username, string password);
+        Task<AuthenticationResponse> LoginAsync(string username, string password);
     }
 }

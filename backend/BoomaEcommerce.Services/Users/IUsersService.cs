@@ -9,15 +9,6 @@ namespace BoomaEcommerce.Services.Users
 {
     public interface IUsersService
     {
-        /// <summary>
-        /// Creates a store for a registered user.
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="store"></param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// </returns>
-        Task CreateStoreAsync(string userId, StoreDto store);
 
         /// <summary>
         /// Gets shopping cart by user guid.
