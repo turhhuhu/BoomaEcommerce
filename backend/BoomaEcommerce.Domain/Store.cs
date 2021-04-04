@@ -8,5 +8,8 @@ namespace BoomaEcommerce.Domain
 {
     public class Store : BaseEntity
     {
+        public string StoreName { get; set; }
+        public string Description { get; set; }
+        public User StoreFounder { get; set; }
     }
 }
