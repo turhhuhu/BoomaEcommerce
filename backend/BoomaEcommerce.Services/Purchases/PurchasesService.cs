@@ -41,8 +41,22 @@ namespace BoomaEcommerce.Services.Purchases
             {
                 //TODO: rollback transaction
             }
-            await _paymentClient.Pay(purchase);
-            await _purchaseRepository.InsertOneAsync(purchase);
+            try
+            {
+                await _paymentClient.Pay(purchase);
+            }
+            catch (Exception e)
+            {
+                //TODO: rollback transaction
+            }
+            try
+            {
+                await _purchaseRepository.InsertOneAsync(purchase);
+            }
+            catch (Exception e)
+            {
+                //TODO: rollback transaction
+            }
         }
 
         public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(string userId)
