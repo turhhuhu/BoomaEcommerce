@@ -8,52 +8,30 @@ namespace BoomaEcommerce.Domain
 {
     public class Purchase : BaseEntity
     {
-        public List<PurchaseProduct> ProductsPurchases { get; set; }
+        public List<StorePurchase> StorePurchases { get; set; }
         public User Buyer { get; set; }
         public double TotalPrice { get; set; }
 
         public Task<bool> MakePurchase()
         {
-            return PurchaseProducts();
+            return PurchaseStoreProducts();
         }
 
-        private async Task<bool> PurchaseProducts()
+        private async Task<bool> PurchaseStoreProducts()
         {
-            var orderedProductsPurchases = ProductsPurchases
-                .OrderBy( x => x.Product.Id).ToList();
-            
-            await LockProducts(orderedProductsPurchases);
-
-            if (!CanPurchase(orderedProductsPurchases))
+            if (!CanPurchase(StorePurchases))
             {
                 return false;
             }
-            
-            var res = orderedProductsPurchases.All(x => x.Purchase());
-            
-            ReleaseProducts(orderedProductsPurchases);
-            return res;
-        }
 
-        private static void ReleaseProducts(IEnumerable<PurchaseProduct> orderedProductsPurchases)
-        {
-            foreach (var productsPurchase in orderedProductsPurchases)
-            {
-                productsPurchase.Product.ProductLock.Release();
-            }
+            var results = await Task.WhenAll(StorePurchases.Select(x => x.PurchaseProducts()));
+            return results.All(x => x);
         }
+        
 
-        private static async Task LockProducts(IEnumerable<PurchaseProduct> orderedProductsPurchases)
+        private bool CanPurchase(List<StorePurchase> storePurchases)
         {
-            foreach (var productsPurchase in orderedProductsPurchases)
-            {
-                await productsPurchase.Product.ProductLock.WaitAsync();
-            }
-        }
-
-        private bool CanPurchase(List<PurchaseProduct> orderedProductsPurchases)
-        {
-            return orderedProductsPurchases.All(x => x.ValidatePurchase());
+            return StorePurchases.All(x => x.CanPurchase());
         }
     }
 

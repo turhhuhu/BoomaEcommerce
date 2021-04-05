@@ -21,7 +21,7 @@ namespace BommaEcommerce.Domain.Tests
             return _fixture.Build<Product>()
                 .With(x => x.Amount, 10)
                 .With(x => x.Price, 10)
-                .With(x => x.ProductLock, new SemaphoreSlim(3))
+                .With(x => x.ProductLock, new SemaphoreSlim(30))
                 .Create();
         }
 
@@ -49,10 +49,44 @@ namespace BommaEcommerce.Domain.Tests
             return invalidProductsPurchases;
         }
 
-        [Fact]
-        public async Task PurchaseProducts_ReturnsTrue_WhenProductsPurchasesAreValid()
+        private List<StorePurchase> GetTestValidStorePurchases()
         {
-            var sut = new Purchase {ProductsPurchases = GetTestValidProductsPurchases()};
+            var validStorePurchases = new List<StorePurchase>
+            {
+                _fixture.Build<StorePurchase>()
+                    .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
+                    .Create(),
+                _fixture.Build<StorePurchase>()
+                    .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
+                    .Create(),
+                _fixture.Build<StorePurchase>()
+                    .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
+                    .Create()
+            };
+            return validStorePurchases;
+        }
+        
+        private List<StorePurchase> GetTestInvalidStorePurchases()
+        {
+            var validStorePurchases = new List<StorePurchase>
+            {
+                _fixture.Build<StorePurchase>()
+                    .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
+                    .Create(),
+                _fixture.Build<StorePurchase>()
+                    .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
+                    .Create(),
+                _fixture.Build<StorePurchase>()
+                    .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
+                    .Create()
+            };
+            return validStorePurchases;
+        }
+
+        [Fact]
+        public async Task MakePurchase_ReturnsTrue_WhenStorePurchasesAreValid()
+        {
+            var sut = new Purchase {StorePurchases = GetTestValidStorePurchases()};
 
             var result = await sut.MakePurchase();
 
@@ -60,9 +94,9 @@ namespace BommaEcommerce.Domain.Tests
         }
         
         [Fact]
-        public async Task PurchaseProducts_ReturnsFalse_WhenProductsPurchasesAreInvalid()
+        public async Task MakePurchase_ReturnsFalse_WhenStorePurchasesAreInvalid()
         {
-            var sut = new Purchase {ProductsPurchases = GetTestInvalidProductsPurchases()};
+            var sut = new Purchase {StorePurchases = GetTestInvalidStorePurchases()};
 
             var result = await sut.MakePurchase();
 
