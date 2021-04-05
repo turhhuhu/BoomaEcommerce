@@ -9,26 +9,7 @@ namespace BoomaEcommerce.Domain
     {
         public User User { get; set; }
         public Store Store { get; set; }
-        public List<StoreManagementPermission> Permissions { get; set; }
-
-
-        public bool AddPermissions(List<StoreManagementPermission> permissions)
-        {
-            Permissions.AddRange(permissions);
-            Permissions.Distinct();
-            return true;
-        }
-
-        public bool RemovePermissions(List<StoreManagementPermission> permissions)
-        {
-            foreach (var per in permissions)
-            {
-                var succRemove = Permissions.Remove(per);
-                if (!succRemove) return false;
-            }
-            Permissions.Distinct();
-            return true;
-        }
+        public StoreManagementPermission Permissions { get; set; }
     }
 
 }
