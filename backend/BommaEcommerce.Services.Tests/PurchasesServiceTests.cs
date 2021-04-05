@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -45,11 +46,12 @@ namespace BoomaEcommerce.Services.Tests
                 .With(x => x.Guid, guid)
                 .With(x => x.Amount, 10)
                 .With(x => x.Price, 10)
-                .With(x => x.ProductLock, new SemaphoreSlim(10))
+                .With(x => x.ProductLock, new SemaphoreSlim(30))
                 .Create();
         }
-        
-        private List<PurchaseProductDto> getTestValidProductsPurchasesDtos()
+
+
+        private List<PurchaseProductDto> GetTestValidPurchaseProductsDtos()
         {
             var validProductsPurchasesDtos = new List<PurchaseProductDto>
             {
@@ -72,31 +74,47 @@ namespace BoomaEcommerce.Services.Tests
             return validProductsPurchasesDtos;
         }
 
+        private List<StorePurchaseDto> GetTestValidStorePurchasesDtos()
+        {
+            var validProductsPurchasesDtos = new List<StorePurchaseDto>
+            {
+                new() {ProductsPurchases = GetTestValidPurchaseProductsDtos()},
+                new() {ProductsPurchases = GetTestValidPurchaseProductsDtos()},
+                new() {ProductsPurchases = GetTestValidPurchaseProductsDtos()}
+            };
+            return validProductsPurchasesDtos;
+        }
+
         [Fact]
         public async Task CreatePurchaseAsync_ShouldDecreaseProductsAmount_WhenPurchaseDtoIsValid()
         {
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
-                .With(x => x.ProductsPurchases, getTestValidProductsPurchasesDtos())
+                .With(x => x.StorePurchases, GetTestValidStorePurchasesDtos())
                 .Create();
             _userRepositoryMock.Setup(x => x.FindByIdAsync(purchaseDtoFixture.Buyer.Guid))
                 .ReturnsAsync(_fixture.Build<User>()
                     .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
                     .Create());
             var testProducts = new List<Product>();
-            foreach (var purchaseProductDto in purchaseDtoFixture.ProductsPurchases)
+            foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
             {
-                var testProductGuid = purchaseProductDto.ProductDto.Guid;
-                var testProduct = GetTestProduct(testProductGuid);
-                _productRepositoryMock.Setup(x => x.FindByIdAsync(testProductGuid))
-                    .ReturnsAsync(testProduct);
-                testProducts.Add(testProduct);
+                foreach (var productsPurchaseDto in storePurchaseDto.ProductsPurchases)
+                {
+                    var testProductGuid = productsPurchaseDto.ProductDto.Guid;
+                    var testProduct = GetTestProduct(testProductGuid);
+                    _productRepositoryMock.Setup(x => x.FindByIdAsync(testProductGuid))
+                        .ReturnsAsync(testProduct);
+                    testProducts.Add(testProduct);
+                }
             }
             
             await _sut.CreatePurchaseAsync(purchaseDtoFixture);
 
             testProducts.ForEach(x => x.Amount.Should().Be(5));
             _userRepositoryMock.Invocations.Count.Should().Be(1);
-            _productRepositoryMock.Invocations.Count.Should().Be(purchaseDtoFixture.ProductsPurchases.Count);
+            var productAmount = purchaseDtoFixture.StorePurchases.Aggregate(0,
+                (count, storePurchase) => count + storePurchase.ProductsPurchases.Count);
+            _productRepositoryMock.Invocations.Count.Should().Be(productAmount);
             _purchaseRepositoryMock.Invocations.Count.Should().Be(1);
 
         }
