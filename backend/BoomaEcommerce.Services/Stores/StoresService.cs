@@ -57,7 +57,7 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var purchaseHistory = await _storePurchaseRepo.FilterByAsync(p => p.Store.Guid == storeGuid);
-                return _mapper.Map<IReadOnlyCollection<StorePurchaseDto>>(purchaseHistory);
+                return _mapper.Map<IReadOnlyCollection<StorePurchaseDto>>(purchaseHistory.ToList());
             }
             catch(Exception e)
             {
