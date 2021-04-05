@@ -59,7 +59,7 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var stores = await _storeRepo.FilterByAsync(s => true);
-                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores);
+                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores.ToList());
             }
             catch(Exception e)
             {
