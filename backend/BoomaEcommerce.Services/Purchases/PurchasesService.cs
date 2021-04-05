@@ -35,14 +35,37 @@ namespace BoomaEcommerce.Services.Purchases
             // TODO: might need to validate purchaseDto
             var purchase = _mapper.Map<Purchase>(purchaseDto);
             purchase.Buyer = await _userRepository.FindByIdAsync(purchase.Buyer.Guid);
-            purchase.ProductsPurchases
-                .ForEach(async x => x.Product = await _productRepository.FindByIdAsync(x.Product.Guid));
+            var purchaseProducts = purchase.StorePurchases
+                .SelectMany(x => 
+                    x.ProductsPurchases, (_, purchaseProduct) => purchaseProduct);
+            foreach (var purchaseProduct in purchaseProducts)
+            {
+                var product = purchaseProduct.Product;
+                purchaseProduct.Product = await _productRepository.FindByIdAsync(product.Guid);
+            }
             if (!await purchase.MakePurchase())
             {
                 //TODO: rollback transaction
             }
-            await _paymentClient.Pay(purchase);
-            await _purchaseRepository.InsertOneAsync(purchase);
+            try
+            {
+                await _paymentClient.Pay(purchase);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                //TODO: rollback transaction
+            }
+            try
+            {
+                await _purchaseRepository.InsertOneAsync(purchase);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                //TODO: rollback transaction
+            }
+            
         }
 
         public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(string userId)
