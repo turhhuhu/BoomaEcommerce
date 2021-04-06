@@ -14,6 +14,5 @@ namespace BoomaEcommerce.Domain
 
         public ConcurrentDictionary<Guid, StoreOwnership> StoreOwnerships { get; set; } = new();
         public ConcurrentDictionary<Guid, StoreManagement> StoreManagements { get; set; } = new();
-
     }
 }
