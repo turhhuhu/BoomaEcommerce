@@ -27,22 +27,6 @@ namespace BoomaEcommerce.Services.Products
             throw new NotImplementedException();
         }
 
-        public async Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid)
-        {
-            try
-            {
-                var products =  await _productRepo.FilterByAsync(p => p.Store.Guid == storeGuid);
-                return _mapper.Map<IReadOnlyCollection<ProductDto>>(products);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return null;
-            }
-        }
-
-
-
         public Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync()
         {
             throw new NotImplementedException();
