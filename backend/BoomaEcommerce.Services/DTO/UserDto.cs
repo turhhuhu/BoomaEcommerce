@@ -8,5 +8,6 @@ namespace BoomaEcommerce.Services.DTO
 {
     public class UserDto : BaseEntityDto
     {
+        
     }
 }

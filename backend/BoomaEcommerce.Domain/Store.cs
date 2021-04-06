@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Domain
 {
-    public class Store
+    public class Store : BaseEntity
     {
-        public Guid Id { get; set; }
+        public string StoreName { get; set; }
+        public string Description { get; set; }
+        public User StoreFounder { get; set; }
 
-        public Store(Guid storeGuid)
-        {
-            Id = storeGuid;
-        }
     }
 }

@@ -9,6 +9,15 @@ namespace BoomaEcommerce.Services.Stores
 {
     public interface IStoresService
     {
+        /// <summary>
+        /// Creates a store for a registered user.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="store"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// </returns>
+        Task CreateStoreAsync(string userId, StoreDto store);
 
         /// <summary>
         /// Gets all stores.
