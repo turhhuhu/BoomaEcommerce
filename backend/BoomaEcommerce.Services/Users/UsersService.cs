@@ -34,7 +34,7 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 var managersTask = _smRepository.FilterByAsync(storeManagement =>
-                   storeManagement.Store.Id == storeGuid, storeManagement => 
+                   storeManagement.Store.Guid == storeGuid, storeManagement => 
                     new StoreManagement
                     {
                         Guid = storeManagement.Guid,
@@ -42,7 +42,7 @@ namespace BoomaEcommerce.Services.Users
                     });
 
                 var ownersTask =  _soRepository.FilterByAsync(storeOwnership =>
-                    storeOwnership.Store.Id == storeGuid, storeOwnership =>
+                    storeOwnership.Store.Guid == storeGuid, storeOwnership =>
                     new StoreOwnership
                     {
                         Guid = storeOwnership.Guid,
