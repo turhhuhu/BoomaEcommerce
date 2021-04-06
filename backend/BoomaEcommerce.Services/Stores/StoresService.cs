@@ -37,9 +37,18 @@ namespace BoomaEcommerce.Services.Stores
             throw new NotImplementedException();
         }
 
-        public Task<StoreDto> GetStoreAsync(Guid storeGuid)
+        public async Task<StoreDto> GetStoreAsync(Guid storeGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var store = await _storeRepo.FindOneAsync(s => s.Guid == storeGuid);
+                return _mapper.Map<StoreDto>(store);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null; 
+            }
         }
 
         public Task DeleteStoreAsync(Guid storeGuid)
@@ -47,9 +56,18 @@ namespace BoomaEcommerce.Services.Stores
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
+        public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var stores = await _storeRepo.FilterByAsync(s => true);
+                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores.ToList());
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null; 
+            }
         }
 
         public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid)
