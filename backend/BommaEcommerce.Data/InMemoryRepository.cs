@@ -85,12 +85,11 @@ namespace BoomaEcommerce.Data
         public Task DeleteManyAsync(Expression<Func<T, bool>> predicate)
         {
             var pred = predicate.Compile();
-            foreach (var (guid, entity) in Entities)
+            var keysToRemove = Entities.Keys.Where(guid => pred(Entities[guid]));
+
+            foreach (var key in keysToRemove)
             {
-                if (pred(entity))
-                {
-                    Entities.Remove(guid, out _);
-                }
+                Entities.Remove(key, out _);
             }
             return Task.CompletedTask;
         }

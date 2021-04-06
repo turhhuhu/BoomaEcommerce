@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 
@@ -14,8 +16,6 @@ namespace BoomaEcommerce.Domain
 
         public ConcurrentDictionary<Guid, StoreOwnership> StoreOwnerships { get; set; } = new();
         public ConcurrentDictionary<Guid, StoreManagement> StoreManagements { get; set; } = new();
-
-       
     }
     
     
