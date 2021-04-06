@@ -5,6 +5,6 @@ namespace BoomaEcommerce.Services.External
 {
     public interface IPaymentClient
     {
-        public Task<bool> Pay(Purchase purchase);
+        public Task Pay(Purchase purchase);
     }
 }
