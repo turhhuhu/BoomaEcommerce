@@ -22,7 +22,7 @@ namespace BoomaEcommerce.Services.Users
         public UsersService(ILogger<StoreManagement> logger,
             IMapper mapper,
             IRepository<StoreManagement> smRepository,
-            IRepository<StoreManagementPermission> permRepository)
+            IRepository<StoreManagementPermission> permRepository,
             IRepository<StoreOwnership> soRepository)
         {
             _logger = logger;
