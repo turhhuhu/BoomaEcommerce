@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class StoreManagementDto
-    {    
+    public class StoreManagementDto : BaseEntityDto
+    {
+        public StoreDto Store { get; set; }
+        public UserDto User { get; set; }
     }
 }

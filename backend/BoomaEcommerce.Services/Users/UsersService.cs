@@ -6,30 +6,40 @@ using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
-using BoomaEcommerce.Services.Stores;
+using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.Purchases;
 using Microsoft.Extensions.Logging;
+using BoomaEcommerce.Services.Stores;
 
 namespace BoomaEcommerce.Services.Users
 {
     public class UsersService : IUsersService
-    {
-        private readonly ILogger<StoreManagement> _logger;
+    {        
         private readonly IMapper _mapper;
-        private readonly IRepository<StoreManagement> _smRepository;
-        private IRepository<StoreManagementPermission> _permissionsRepository;
-        private readonly IRepository<StoreOwnership> _soRepository;
+        private readonly ILogger<PurchasesService> _logger;
+        private readonly IPaymentClient _paymentClient;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<Purchase> _purchaseRepository;
+        private readonly IRepository<StoreOwnership> _storeOwnershipRepository;       
+        private readonly IRepository<StoreManagement> _storeManagementRepository;
+        private readonly IRepository<StoreManagementPermission> _permissionsRepository;
 
-        public UsersService(ILogger<StoreManagement> logger,
-            IMapper mapper,
-            IRepository<StoreManagement> smRepository,
-            IRepository<StoreManagementPermission> permRepository,
-            IRepository<StoreOwnership> soRepository)
+
+        public UsersService(IMapper mapper, ILogger<PurchasesService> logger,
+             IRepository<User> userRepository, IRepository<Product> productRepository,
+            IRepository<Purchase> purchaseRepository , IRepository<StoreOwnership> storeOwnershipRepository,
+             IRepository<StoreManagement> storeManagementRepository,
+             IRepository<StoreManagementPermission> permissionRepository)
         {
-            _logger = logger;
             _mapper = mapper;
-            _smRepository = smRepository;
-            _permissionsRepository = permRepository;
-            _soRepository = soRepository;
+            _logger = logger;
+            _userRepository = userRepository;
+            _productRepository = productRepository;
+            _purchaseRepository = purchaseRepository;
+            _storeOwnershipRepository = storeOwnershipRepository;
+            _storeManagementRepository = storeManagementRepository;
+            _permissionsRepository = permissionRepository;
         }
 
 
@@ -65,7 +75,7 @@ namespace BoomaEcommerce.Services.Users
         {
             try
             {
-                var managersTask = _smRepository.FilterByAsync(storeManagement =>
+                var managersTask = _storeManagementRepository.FilterByAsync(storeManagement =>
                    storeManagement.Store.Guid == storeGuid, storeManagement => 
                     new StoreManagement
                     {
@@ -73,7 +83,7 @@ namespace BoomaEcommerce.Services.Users
                         User = storeManagement.User
                     });
 
-                var ownersTask =  _soRepository.FilterByAsync(storeOwnership =>
+                var ownersTask =  _storeOwnershipRepository.FilterByAsync(storeOwnership =>
                     storeOwnership.Store.Guid == storeGuid, storeOwnership =>
                     new StoreOwnership
                     {
@@ -141,5 +151,87 @@ namespace BoomaEcommerce.Services.Users
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> NominateNewStoreOwner(Guid owner, StoreOwnershipDto newOwnerDto)
+        {
+            try
+            {
+                var ownerStoreOwnership = await ValidateInforamation(owner, newOwnerDto.Store.Guid, newOwnerDto.User.Guid);
+
+                if (ownerStoreOwnership == null)
+                    return false;
+                
+                var newOwner = _mapper.Map<StoreOwnership>(newOwnerDto);
+                ownerStoreOwnership.StoreOwnerships.TryAdd(newOwnerDto.Guid,newOwner);
+
+                await _storeOwnershipRepository.InsertOneAsync(newOwner);
+                return true;
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return false;
+            }
+        }
+        
+        public async Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newOwnerDto)
+        {
+            try
+            {
+                
+                var ownerStoreOwnership = await ValidateInforamation(owner, newOwnerDto.Store.Guid, newOwnerDto.User.Guid);
+
+                if (ownerStoreOwnership == null)
+                    return false;
+                
+                var newManager = _mapper.Map<StoreManagement>(newOwnerDto);
+                ownerStoreOwnership.StoreManagements.TryAdd(newOwnerDto.Guid,newManager);
+
+                await _storeManagementRepository.InsertOneAsync(newManager);
+                return true;
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return false;
+            }
+        }
+        
+        
+        
+        private async Task<StoreOwnership> ValidateInforamation(Guid ownerGuid, Guid StoreGuid, Guid userGuid)
+        {
+            try
+            {
+                //Checking if owner is owner in the relevant store 
+                var ownerStoreOwnership = await _storeOwnershipRepository.FindOneAsync(storeOwnership =>
+                    storeOwnership.User.Guid.Equals(ownerGuid) && storeOwnership.Store.Guid.Equals(StoreGuid));
+                
+                //checking if the new owner is not already a store owner or a store manager
+                var ownerShouldBeNull = await _storeOwnershipRepository.FindOneAsync(storeOwnership =>
+                    storeOwnership.User.Guid.Equals(userGuid) && storeOwnership.Store.Guid.Equals(StoreGuid));
+                var managerShouldBeNull = await _storeManagementRepository.FindOneAsync(sm =>
+                    sm.User.Guid.Equals(userGuid) && sm.Store.Guid.Equals(StoreGuid));
+                
+                if (ownerShouldBeNull != null || managerShouldBeNull != null || ownerStoreOwnership == null)
+                {
+                    return null;
+                }
+
+
+                return ownerStoreOwnership;
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
+        
+        
     }
 }
