@@ -9,6 +9,7 @@ using BommaEcommerce.Services.Tests;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.Products;
 using BoomaEcommerce.Services.Settings;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -60,20 +61,6 @@ namespace BoomaEcommerce.Services.Tests
             sub.Should().NotBeNull().And.Match<Claim>(claim => claim.Value.Equals(user.UserName));
             uniqueName.Should().NotBeNull().And.Match<Claim>(claim => claim.Value.Equals(user.UserName));
             guid.Should().NotBeNull().And.Match<Claim>(claim => claim.Value.Equals(user.Guid.ToString()));
-        }
-
-        [Fact]
-        public async Task Test()
-        {
-            var entities = new Dictionary<Guid, Product>();
-            var repoMock = DalMockFactory.MockRepository(entities);
-
-            var repo = repoMock.Object;
-            var product = new Product {Name = "kaki"};
-            await repo.InsertOneAsync(product);
-            await repo.InsertOneAsync(new Product { Name = "kaki" });
-            var x = await repo.FilterByAsync(x => x.Name == product.Name);
-            var prodFound = entities[product.Guid];
         }
 
     }
