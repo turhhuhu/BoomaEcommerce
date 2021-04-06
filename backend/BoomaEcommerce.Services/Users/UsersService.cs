@@ -23,12 +23,14 @@ namespace BoomaEcommerce.Services.Users
         private readonly IRepository<Purchase> _purchaseRepository;
         private readonly IRepository<StoreOwnership> _storeOwnershipRepository;       
         private readonly IRepository<StoreManagement> _storeManagementRepository;
+        private readonly IRepository<StoreManagementPermission> _permissionsRepository;
 
 
         public UsersService(IMapper mapper, ILogger<PurchasesService> logger,
              IRepository<User> userRepository, IRepository<Product> productRepository,
             IRepository<Purchase> purchaseRepository , IRepository<StoreOwnership> storeOwnershipRepository,
-             IRepository<StoreManagement> storeManagementRepository)
+             IRepository<StoreManagement> storeManagementRepository,
+             IRepository<StoreManagementPermission> permissionRepository)
         {
             _mapper = mapper;
             _logger = logger;
@@ -37,6 +39,7 @@ namespace BoomaEcommerce.Services.Users
             _purchaseRepository = purchaseRepository;
             _storeOwnershipRepository = storeOwnershipRepository;
             _storeManagementRepository = storeManagementRepository;
+            _permissionsRepository = permissionRepository;
         }
 
 
@@ -72,7 +75,7 @@ namespace BoomaEcommerce.Services.Users
         {
             try
             {
-                var managersTask = _smRepository.FilterByAsync(storeManagement =>
+                var managersTask = _storeManagementRepository.FilterByAsync(storeManagement =>
                    storeManagement.Store.Guid == storeGuid, storeManagement => 
                     new StoreManagement
                     {
@@ -80,7 +83,7 @@ namespace BoomaEcommerce.Services.Users
                         User = storeManagement.User
                     });
 
-                var ownersTask =  _soRepository.FilterByAsync(storeOwnership =>
+                var ownersTask =  _storeOwnershipRepository.FilterByAsync(storeOwnership =>
                     storeOwnership.Store.Guid == storeGuid, storeOwnership =>
                     new StoreOwnership
                     {
