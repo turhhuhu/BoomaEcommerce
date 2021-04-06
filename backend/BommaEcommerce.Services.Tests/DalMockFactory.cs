@@ -105,6 +105,10 @@ namespace BommaEcommerce.Services.Tests
                     It.IsAny<Expression<Func<TEntity, It.IsAnyType>>>()))
                 .ReturnsAsync((Expression<Func<TEntity, bool>> x, Expression<Func<TEntity, It.IsAnyType>> m) =>
                     entities.Values.Where(entity => x.Compile()(entity)).Select(entity => m.Compile()(entity)));
+
+            repoMock.Setup(x => x.FindAllAsync())
+                .ReturnsAsync(entities.Values);
+
             return repoMock;
         }
 
