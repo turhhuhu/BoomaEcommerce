@@ -46,7 +46,6 @@ namespace BoomaEcommerce.Services.Tests
                 .With(x => x.Guid, guid)
                 .With(x => x.Amount, 10)
                 .With(x => x.Price, 10)
-                .With(x => x.ProductLock, new SemaphoreSlim(30))
                 .Create();
         }
 
@@ -114,6 +113,7 @@ namespace BoomaEcommerce.Services.Tests
             _userRepositoryMock.Invocations.Count.Should().Be(1);
             var productAmount = purchaseDtoFixture.StorePurchases.Aggregate(0,
                 (count, storePurchase) => count + storePurchase.ProductsPurchases.Count);
+            _productRepositoryMock.VerifyAll();
             _productRepositoryMock.Invocations.Count.Should().Be(productAmount);
             _purchaseRepositoryMock.Invocations.Count.Should().Be(1);
 
