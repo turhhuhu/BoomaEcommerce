@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,17 +16,49 @@ namespace BoomaEcommerce.Services.Users
         private readonly ILogger<StoreManagement> _logger;
         private readonly IMapper _mapper;
         private readonly IRepository<StoreManagement> _smRepository;
+        private IRepository<StoreManagementPermission> _permissionsRepository;
         private readonly IRepository<StoreOwnership> _soRepository;
 
         public UsersService(ILogger<StoreManagement> logger,
             IMapper mapper,
             IRepository<StoreManagement> smRepository,
+            IRepository<StoreManagementPermission> permRepository,
             IRepository<StoreOwnership> soRepository)
         {
             _logger = logger;
             _mapper = mapper;
             _smRepository = smRepository;
+            _permissionsRepository = permRepository;
             _soRepository = soRepository;
+        }
+
+
+        public async Task<StoreManagementPermissionDto> GetPermissions(Guid smGuid)
+        {
+            try
+            {
+                var permission = await _permissionsRepository.FindOneAsync(perm => perm.Guid == smGuid);
+                return _mapper.Map<StoreManagementPermissionDto>(permission);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
+        public Task UpdatePermission(StoreManagementPermissionDto smpDto)
+        {
+            try
+            {
+                var permission = _mapper.Map<StoreManagementPermission>(smpDto);
+                return _permissionsRepository.ReplaceOneAsync(permission);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
         }
 
         public async Task<StoreSellersResponse> GetAllSellersInformation(Guid storeGuid)

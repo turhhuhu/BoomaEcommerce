@@ -10,5 +10,7 @@ namespace BoomaEcommerce.Domain
     {
         public User User { get; set; }
         public Store Store { get; set; }
+        public StoreManagementPermission Permissions { get; set; }
     }
+
 }
