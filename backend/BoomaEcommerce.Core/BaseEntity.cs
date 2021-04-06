@@ -8,6 +8,6 @@ namespace BoomaEcommerce.Core
 {
     public class BaseEntity
     {
-        public Guid Guid { get; set; }
+        public Guid Guid { get; set; } = Guid.NewGuid();
     }
 }

@@ -85,7 +85,6 @@ namespace BoomaEcommerce.Services.Authentication
 
             var user = new User
             {
-                Guid = Guid.NewGuid(),
                 UserName = username
             };
             var createdUser = await _userManager.CreateAsync(user, password);
