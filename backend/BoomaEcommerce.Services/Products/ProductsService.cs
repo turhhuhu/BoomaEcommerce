@@ -14,7 +14,7 @@ namespace BoomaEcommerce.Services.Products
     {
         private readonly ILogger<ProductsService> _logger;
         private readonly IMapper _mapper;
-        private readonly IRepository<Product> _productRepo; 
+        private readonly IRepository<Product> _productRepo;
 
         public ProductsService(ILogger<ProductsService> logger, IMapper mapper, IRepository<Product> productRepo)
         {

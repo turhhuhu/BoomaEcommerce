@@ -15,14 +15,16 @@ namespace BoomaEcommerce.Services.Stores
         private readonly ILogger<StoresService> _logger;
         private readonly IMapper _mapper;
         private readonly IRepository<Store> _storeRepo;
-
+        private readonly IRepository<StorePurchase> _storePurchaseRepo;
         public StoresService(ILogger<StoresService> logger,
             IMapper mapper,
-            IRepository<Store> storeRepo)
+            IRepository<Store> storeRepo,
+            IRepository<StorePurchase> storePurchasesRepo)
         {
             _logger = logger;
             _mapper = mapper;
             _storeRepo = storeRepo;
+            _storePurchaseRepo = storePurchasesRepo;
         }
 
         public Task CreateStoreAsync(string userId, StoreDto store)
@@ -49,5 +51,21 @@ namespace BoomaEcommerce.Services.Stores
         {
             throw new NotImplementedException();
         }
+
+        public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid)
+        {
+            try
+            {
+                var purchaseHistory = await _storePurchaseRepo.FilterByAsync(p => p.Store.Guid == storeGuid);
+                return _mapper.Map<IReadOnlyCollection<StorePurchaseDto>>(purchaseHistory.ToList());
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
+     
     }
 }
