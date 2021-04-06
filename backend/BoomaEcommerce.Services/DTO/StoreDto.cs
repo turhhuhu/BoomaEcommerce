@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class StoreDto
+    public class StoreDto : BaseEntityDto
     {
+        public string StoreName { get; set; }
+        public string Description { get; set; }
+        public UserDto StoreFounder { get; set; }
     }
 }
