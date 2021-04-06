@@ -29,64 +29,6 @@ namespace BoomaEcommerce.Services.Users
             _permissionsRepository = permRepository;
         }
 
-        public async Task<bool> AddManagerPermissions(Guid smGuid, Guid storeGuid,
-            List<StoreManagementPermission> permissions)
-        {
-            try
-            {
-                var manager = await _smRepository.FindOneAsync(storeManagement =>
-                    storeManagement.Store.Guid == storeGuid &&
-                    storeManagement.User.Guid == smGuid);
-
-
-                if (manager == null)
-                {
-                    return false;
-                }
-
-                var succAddPermissions = manager.AddPermissions(permissions);
-
-                if (!succAddPermissions) return false;
-
-                await _smRepository.ReplaceOneAsync(manager);
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return false;
-            }
-        }
-
-        public async Task<bool> RemoveManagerPermissions(Guid smGuid, Guid storeGuid, List<StoreManagementPermission> permissions)
-        {
-            try
-            {
-                var manager = await _smRepository.FindOneAsync(storeManagement =>
-                    storeManagement.Store.Guid == storeGuid &&
-                    storeManagement.User.Guid == smGuid);
-
-
-                if (manager == null)
-                {
-                    return false;
-                }
-
-                var suRemovePermissions = manager.RemovePermissions(permissions);
-
-                if (!suRemovePermissions) return false;
-
-                await _smRepository.ReplaceOneAsync(manager);
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return false;
-            }
-        }
 
         public async Task<StoreManagementPermissionDto> GetPermissions(Guid smGuid)
         {
