@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Domain
 {
-    public class BaseEntity
+    public class StoreSeller : BaseEntity
     {
-        public Guid Guid { get; set; }
+        public User User { get; set; }
     }
 }

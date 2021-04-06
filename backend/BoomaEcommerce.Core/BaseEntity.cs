@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Services.DTO
+namespace BoomaEcommerce.Core
 {
-    public class UserDto : BaseEntityDto
+    public class BaseEntity
     {
-        
+        public Guid Guid { get; set; } = Guid.NewGuid();
     }
 }

@@ -4,4 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BoomaEcommerce.Core\BoomaEcommerce.Core.csproj" />
+    <ProjectReference Include="..\BoomaEcommerce.Domain\BoomaEcommerce.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

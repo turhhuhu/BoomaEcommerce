@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Domain
 {
@@ -13,6 +14,9 @@ namespace BoomaEcommerce.Domain
             this.UserName = userName;
             this.Guid = guid;
         }
+
+        public string Name { get; set; }
+        public string LastName { get; set; }
 
     }
 }
