@@ -45,7 +45,7 @@ namespace BoomaEcommerce.Services.Products
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task DeleteProductAsync(Guid productGuid);
+        Task<bool> DeleteProductAsync(Guid productGuid);
 
         /// <summary>
         /// Updates a product by guid.
@@ -54,6 +54,6 @@ namespace BoomaEcommerce.Services.Products
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task UpdateProductAsync(ProductDto product);
+        Task<bool> UpdateProductAsync(ProductDto product);
     }
 }

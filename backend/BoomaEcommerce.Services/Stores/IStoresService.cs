@@ -23,12 +23,11 @@ namespace BoomaEcommerce.Services.Stores
         /// <summary>
         /// Creates a store for a registered user.
         /// </summary>
-        /// <param name="userId"></param>
         /// <param name="store"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task CreateStoreAsync(string userId, StoreDto store);
+        Task CreateStoreAsync(StoreDto store);
 
         /// <summary>
         /// Gets all stores.

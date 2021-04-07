@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
-using BommaEcommerce.Services.Tests;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.Settings;
@@ -77,6 +76,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var user = _fixture.Build<User>().Create();
+
+
             var userStore = new List<User>{user};
             var mockUserManager = DalMockFactory.MockUserManager(userStore);
             var loggerMock = new Mock<ILogger<AuthenticationService>>();
