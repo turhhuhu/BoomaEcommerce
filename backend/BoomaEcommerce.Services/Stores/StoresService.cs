@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Services.Stores
             _storeRepo = storeRepo;
         }
 
-        public async Task CreateStoreAsync(string userId, StoreDto store)
+        public async Task CreateStoreAsync(StoreDto store)
         {
             var newStore = _mapper.Map<Store>(store);
             try
