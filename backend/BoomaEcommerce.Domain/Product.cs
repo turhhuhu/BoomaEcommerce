@@ -15,6 +15,7 @@ namespace BoomaEcommerce.Domain
         public double Price { get; set; }
         public int Amount { get; set; }
         public SemaphoreSlim ProductLock { get; set; }
+        public bool IsSoftDeleted { get; set; }
         
         public double CalculatePrice(int amount)
         {
@@ -24,7 +25,7 @@ namespace BoomaEcommerce.Domain
         }
         public bool PurchaseAmount(int amount)
         {
-            if (!ValidateAmount(amount))
+            if (!ValidateAmount(amount) || IsSoftDeleted)
             {
                 return false;
             }

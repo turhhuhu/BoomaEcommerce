@@ -77,6 +77,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var user = _fixture.Build<User>().Create();
+
+
             var userStore = new List<User>{user};
             var mockUserManager = DalMockFactory.MockUserManager(userStore);
             var loggerMock = new Mock<ILogger<AuthenticationService>>();
