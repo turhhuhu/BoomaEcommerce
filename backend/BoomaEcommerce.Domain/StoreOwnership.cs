@@ -16,6 +16,14 @@ namespace BoomaEcommerce.Domain
 
         public ConcurrentDictionary<Guid, StoreOwnership> StoreOwnerships { get; set; } = new();
         public ConcurrentDictionary<Guid, StoreManagement> StoreManagements { get; set; } = new();
+
+        public (List<StoreOwnership>, List<StoreManagement>) GetSubordinates()
+        {
+            var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates()).ToList();
+            var owners = sellers.SelectMany(pair => pair.Item1).ToList();
+            var managers = sellers.SelectMany(pair => pair.Item2).ToList();
+            return (owners, managers);
+        }
     }
     
     
