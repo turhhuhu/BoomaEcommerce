@@ -1,20 +1,14 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
-using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Moq;
-using Expression = Castle.DynamicProxy.Generators.Emitters.SimpleAST.Expression;
 
-namespace BommaEcommerce.Services.Tests
+namespace BoomaEcommerce.Services.Tests
 {
     public static class DalMockFactory
     {
