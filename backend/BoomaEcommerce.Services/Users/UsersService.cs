@@ -17,7 +17,7 @@ namespace BoomaEcommerce.Services.Users
     {
         
         private readonly IMapper _mapper;
-        private readonly ILogger<PurchasesService> _logger;
+        private readonly ILogger<UsersService> _logger;
         private readonly IPaymentClient _paymentClient;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Product> _productRepository;
@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Services.Users
         private readonly IRepository<StoreManagement> _storeManagementRepository;
 
 
-        public UsersService(IMapper mapper, ILogger<PurchasesService> logger,
+        public UsersService(IMapper mapper, ILogger<UsersService> logger,
              IRepository<User> userRepository, IRepository<Product> productRepository,
             IRepository<Purchase> purchaseRepository , IRepository<StoreOwnership> storeOwnershipRepository,
              IRepository<StoreManagement> storeManagementRepository)
@@ -36,6 +36,21 @@ namespace BoomaEcommerce.Services.Users
             _userRepository = userRepository;
             _productRepository = productRepository;
             _purchaseRepository = purchaseRepository;
+            _storeOwnershipRepository = storeOwnershipRepository;
+            _storeManagementRepository = storeManagementRepository;
+        }
+
+        public UsersService(IRepository<StoreOwnership> storeOwnershipRepository,
+            IRepository<StoreManagement> storeManagementRepository)
+        {
+            _storeOwnershipRepository = storeOwnershipRepository;
+            _storeManagementRepository = storeManagementRepository;
+        }
+
+        public UsersService(IMapper mapper, ILogger<UsersService> logger, IRepository<StoreOwnership> storeOwnershipRepository, IRepository<StoreManagement> storeManagementRepository)
+        {
+            _mapper = mapper;
+            _logger = logger;
             _storeOwnershipRepository = storeOwnershipRepository;
             _storeManagementRepository = storeManagementRepository;
         }
