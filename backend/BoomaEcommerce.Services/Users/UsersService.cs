@@ -16,7 +16,7 @@ namespace BoomaEcommerce.Services.Users
     public class UsersService : IUsersService
     {        
         private readonly IMapper _mapper;
-        private readonly ILogger<PurchasesService> _logger;
+        private readonly ILogger<UsersService> _logger;
         private readonly IPaymentClient _paymentClient;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Product> _productRepository;
@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Services.Users
         private readonly IRepository<StoreManagementPermission> _permissionsRepository;
 
 
-        public UsersService(IMapper mapper, ILogger<PurchasesService> logger,
+        public UsersService(IMapper mapper, ILogger<UsersService> logger,
              IRepository<User> userRepository, IRepository<Product> productRepository,
             IRepository<Purchase> purchaseRepository , IRepository<StoreOwnership> storeOwnershipRepository,
              IRepository<StoreManagement> storeManagementRepository,
@@ -39,6 +39,24 @@ namespace BoomaEcommerce.Services.Users
             _purchaseRepository = purchaseRepository;
             _storeOwnershipRepository = storeOwnershipRepository;
             _storeManagementRepository = storeManagementRepository;
+            _permissionsRepository = permissionRepository;
+        }
+
+        public UsersService(IMapper mapper, ILogger<UsersService> logger,
+            IRepository<StoreOwnership> storeOwnershipRepository,
+            IRepository<StoreManagement> storeManagementRepository)
+        {
+            _mapper = mapper;
+            _logger = logger;
+            _storeOwnershipRepository = storeOwnershipRepository;
+            _storeManagementRepository = storeManagementRepository;
+        }
+
+        public UsersService(IMapper mapper, ILogger<UsersService> logger,
+            IRepository<StoreManagementPermission> permissionRepository)
+        {
+            _mapper = mapper;
+            _logger = logger;
             _permissionsRepository = permissionRepository;
         }
 
@@ -75,24 +93,13 @@ namespace BoomaEcommerce.Services.Users
         {
             try
             {
-                var managersTask = _storeManagementRepository.FilterByAsync(storeManagement =>
-                   storeManagement.Store.Guid == storeGuid, storeManagement => 
-                    new StoreManagement
-                    {
-                        Guid = storeManagement.Guid,
-                        User = storeManagement.User
-                    });
+                var managersTask = await _storeManagementRepository.FilterByAsync(storeManagement =>
+                    storeManagement.Store.Guid == storeGuid);
 
-                var ownersTask =  _storeOwnershipRepository.FilterByAsync(storeOwnership =>
-                    storeOwnership.Store.Guid == storeGuid, storeOwnership =>
-                    new StoreOwnership
-                    {
-                        Guid = storeOwnership.Guid,
-                        User = storeOwnership.User
-                    });
-
-                var managers = (await managersTask).ToList();
-                var owners = (await ownersTask).ToList();
+                var ownersTask = await _storeOwnershipRepository.FilterByAsync(storeOwnership =>
+                    storeOwnership.Store.Guid == storeGuid);
+                var managers = managersTask.ToList();
+                var owners = ownersTask.ToList();
 
 
                 var storeManagementDtos =  _mapper.Map<List<StoreManagementDto>>(managers);
@@ -102,6 +109,7 @@ namespace BoomaEcommerce.Services.Users
                     StoreManagers = storeManagementDtos,
                     StoreOwners = storeOwnerDtos
                 };
+
                 // Seller - A seller is either an Owner or a Manager.
             }
             catch (Exception e)

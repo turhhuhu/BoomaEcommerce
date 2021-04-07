@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,10 @@ namespace BoomaEcommerce.Services.MappingProfiles
         public DtoToDomainProfile()
         {
             CreateMap<UserDto, User>();
+            CreateMap<StoreDto, Store>();
+            CreateMap<StoreManagementDto, StoreManagement>();
+            CreateMap<StoreManagementPermissionDto, StoreManagementPermission>();
+            CreateMap<StoreOwnershipDto, StoreOwnership>();
             CreateMap<ProductDto, Product>();
             CreateMap<PurchaseProductDto, PurchaseProduct>().ForMember(dest => dest.Product,
                 opt =>
