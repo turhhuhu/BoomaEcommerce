@@ -81,5 +81,25 @@ namespace BoomaEcommerce.Services.Users
         /// </returns>
         Task UpdateUserInfoAsync(UserDto user);
 
+        /// <summary>
+        /// Adds a new owner to a store
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="newOwnerDto"></param>
+        /// <returns>
+        /// return bool that represents if the nomination process was successful
+        /// </returns>
+        Task<bool> NominateNewStoreOwner(Guid owner, StoreOwnershipDto newOwnerDto);
+        
+        /// <summary>
+        /// Adds a new manager to a store
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="newOwnerDto"></param>
+        /// <returns>
+        /// return bool that represents if the nomination process was successful
+        /// </returns>
+        Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newOwnerDto);
+
     }
 }

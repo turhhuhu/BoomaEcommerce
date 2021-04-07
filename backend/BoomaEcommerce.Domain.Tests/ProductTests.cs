@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace BommaEcommerce.Domain.Tests
+namespace BoomaEcommerce.Domain.Tests
 {
     public class ProductTests
     {

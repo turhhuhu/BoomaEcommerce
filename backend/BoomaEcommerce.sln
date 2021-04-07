@@ -13,9 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Services", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{26D5B64C-2933-4473-A03A-98BEEE36A2D8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BommaEcommerce.Services.Tests", "BommaEcommerce.Services.Tests\BommaEcommerce.Services.Tests.csproj", "{01A5728B-D735-4DCC-ABCC-87845114FE1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Services.Tests", "BoomaEcommerce.Services.Tests\BoomaEcommerce.Services.Tests.csproj", "{01A5728B-D735-4DCC-ABCC-87845114FE1F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BommaEcommerce.Domain.Tests", "BommaEcommerce.Domain.Tests\BommaEcommerce.Domain.Tests.csproj", "{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Domain.Tests", "BoomaEcommerce.Domain.Tests\BoomaEcommerce.Domain.Tests.csproj", "{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

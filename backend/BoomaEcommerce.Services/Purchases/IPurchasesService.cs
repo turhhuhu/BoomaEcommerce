@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Services.Purchases
         /// A task that represents the asynchronous operation
         /// The task result contains the purchase collection.
         /// </returns>
-        Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(string userId);
+        Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userId);
 
         /// <summary>
         /// Gets all store purchase history.

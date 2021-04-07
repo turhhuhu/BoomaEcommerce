@@ -10,6 +10,17 @@ namespace BoomaEcommerce.Data
 {
     public interface IRepository<T> where T : BaseEntity
     {
+
+
+        /// <summary>
+        /// Finds all entities.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains all the T entities that exist.
+        /// </returns>
+        Task<IEnumerable<T>> FindAllAsync();
+
         /// <summary>
         /// Filters T entities by a filter predicate expression.
         /// </summary>
