@@ -20,8 +20,8 @@ namespace BoomaEcommerce.Domain
         public (List<StoreOwnership>, List<StoreManagement>) GetSubordinates()
         {
             var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates()).ToList();
-            var owners = sellers.SelectMany(pair => pair.Item1).ToList();
-            var managers = sellers.SelectMany(pair => pair.Item2).ToList();
+            var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships.Values).ToList();
+            var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements.Values).ToList();
             return (owners, managers);
         }
     }
