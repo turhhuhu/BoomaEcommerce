@@ -90,7 +90,12 @@ namespace BoomaEcommerce.Services.Products
             try
             {
                 _logger.LogInformation($"Updating product with guid {productDto.Guid}");
-                var product = _mapper.Map<Product>(productDto);
+                var product = await _productRepo.FindByIdAsync(productDto.Guid);
+                
+                product.Name = productDto.Name ?? product.Name;
+                product.Amount = productDto.Amount ?? product.Amount;
+                product.Price = productDto.Price ?? product.Price;
+
                 await _productRepo.ReplaceOneAsync(product);
                 return true;
             }
