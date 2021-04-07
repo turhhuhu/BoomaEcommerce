@@ -61,6 +61,7 @@ namespace BoomaEcommerce.Services.Tests
                 .With(x => x.Guid, guid)
                 .With(x => x.Amount, 10)
                 .With(x => x.Price, 10)
+                .With(x => x.IsSoftDeleted, false)
                 .Create();
         }
 

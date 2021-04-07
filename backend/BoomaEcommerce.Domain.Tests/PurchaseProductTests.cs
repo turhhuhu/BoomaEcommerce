@@ -21,6 +21,8 @@ namespace BommaEcommerce.Domain.Tests
             return _fixture.Build<Product>()
                 .With(x => x.Amount, 10)
                 .With(x => x.Price, 10)
+                .With(x => x.IsSoftDeleted, false)
+                .With(x => x.ProductLock, new SemaphoreSlim(1))
                 .Create();
         }
 
