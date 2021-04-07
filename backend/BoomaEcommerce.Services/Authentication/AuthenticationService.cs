@@ -36,11 +36,14 @@ namespace BoomaEcommerce.Services.Authentication
 
         public async Task<AuthenticationResponse> LoginAsync(string username, string password)
         {
+            _logger.LogInformation($"Making attempt to log in for user: {username}");
+
             var existingUser = await _userManager.FindByNameAsync(username);
 
             if (existingUser == null)
             {
-                return new AuthenticationResponse
+                _logger.LogWarning($"User with username {username} does not exist in the system.");
+                return new AuthenticationResponse 
                 {
                     Errors = new[] { "Username doesn't exist." }
                 };
@@ -50,6 +53,7 @@ namespace BoomaEcommerce.Services.Authentication
 
             if (!userHasValidPassword)
             {
+                _logger.LogWarning($"Password for user with username {username} is incorrect.");
                 return new AuthenticationResponse
                 {
                     Errors = new[] { "Bad username or password." }
@@ -65,11 +69,14 @@ namespace BoomaEcommerce.Services.Authentication
 
         public async Task<AuthenticationResponse> RegisterAsync(string username, string password)
         {
+            _logger.LogInformation($"Making attempt to register user: {username}");
 
             var existingUser = await _userManager.FindByNameAsync(username);
 
             if (existingUser != null)
             {
+                _logger.LogInformation($"User with username {username} already exist in the system.");
+
                 return new AuthenticationResponse
                 {
                     Errors = new[] {"Username already exists."}
@@ -78,13 +85,13 @@ namespace BoomaEcommerce.Services.Authentication
 
             var user = new User
             {
-                Guid = Guid.NewGuid(),
                 UserName = username
             };
             var createdUser = await _userManager.CreateAsync(user, password);
 
             if (!createdUser.Succeeded)
             {
+                _logger.LogWarning($"Failed to register user with username {username}.");
                 return new AuthenticationResponse
                 {
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()

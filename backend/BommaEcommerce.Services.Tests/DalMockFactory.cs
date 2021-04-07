@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +18,9 @@ namespace BommaEcommerce.Services.Tests
 {
     public static class DalMockFactory
     {
-        public static Mock<UserManager<User>> MockUserManager(User user = null, List<User> ls = null)
+        public static Mock<UserManager<User>> MockUserManager(List<User> ls)
         {
-            if (user == null & ls == null)
+            if (ls == null)
             {
                 throw new NullReferenceException("User or user list must be provided to mock the UserManager.");
             }
@@ -35,7 +35,7 @@ namespace BommaEcommerce.Services.Tests
 
             mgr.Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success)
-                .Callback<User, string>((x, y) => ls?.Add(x));
+                .Callback<User, string>((x, y) => ls.Add(x));
 
             mgr.Setup(x => x.UpdateAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
@@ -43,10 +43,8 @@ namespace BommaEcommerce.Services.Tests
             mgr.Setup(userManager => userManager.CheckPasswordAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(true);
 
-            var foundUser = user ?? ls.First();
-
-            mgr.Setup(userManager => userManager.FindByNameAsync(foundUser.UserName))
-                .ReturnsAsync(user);
+            mgr.Setup(userManager => userManager.FindByNameAsync(It.IsAny<string>()))
+                .ReturnsAsync((string username) => ls.FirstOrDefault(usr => usr.UserName == username));
 
             return mgr;
         }
@@ -105,6 +103,10 @@ namespace BommaEcommerce.Services.Tests
                     It.IsAny<Expression<Func<TEntity, It.IsAnyType>>>()))
                 .ReturnsAsync((Expression<Func<TEntity, bool>> x, Expression<Func<TEntity, It.IsAnyType>> m) =>
                     entities.Values.Where(entity => x.Compile()(entity)).Select(entity => m.Compile()(entity)));
+
+            repoMock.Setup(x => x.FindAllAsync())
+                .ReturnsAsync(entities.Values);
+
             return repoMock;
         }
 
