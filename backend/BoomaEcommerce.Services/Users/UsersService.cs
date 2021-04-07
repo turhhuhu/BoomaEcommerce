@@ -14,8 +14,7 @@ using BoomaEcommerce.Services.Stores;
 namespace BoomaEcommerce.Services.Users
 {
     public class UsersService : IUsersService
-    {
-        
+    {        
         private readonly IMapper _mapper;
         private readonly ILogger<UsersService> _logger;
         private readonly IPaymentClient _paymentClient;
