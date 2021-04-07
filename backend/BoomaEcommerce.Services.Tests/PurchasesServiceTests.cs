@@ -15,29 +15,44 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using ILogger = Castle.Core.Logging.ILogger;
 
 namespace BoomaEcommerce.Services.Tests
 {
     public class PurchaseServiceTests
     {
-        private readonly PurchasesService _sut;
+
         private readonly Mock<ILogger<PurchasesService>> _loggerMock = new();
         private readonly Mock<IPaymentClient> _paymentClientMock = new();
-        private readonly Mock<IRepository<User>> _userRepositoryMock = new();
-        private readonly Mock<IRepository<Product>> _productRepositoryMock = new();
-        private readonly Mock<IRepository<Purchase>> _purchaseRepositoryMock = new();
         private readonly IFixture _fixture = new Fixture();
 
         public PurchaseServiceTests()
         {
+            
+        }
+
+        private IMapper getMapper()
+        {
             var mapperConfig = new MapperConfiguration(x =>
             {
                 x.AddProfile(new DtoToDomainProfile());
+                x.AddProfile(new DomainToDtoProfile());
             });
             var mapper = mapperConfig.CreateMapper();
-            
-            _sut = new PurchasesService(mapper, _loggerMock.Object, _paymentClientMock.Object,
-                _userRepositoryMock.Object, _productRepositoryMock.Object, _purchaseRepositoryMock.Object);
+            return mapper;
+        }
+
+        private Mock<IPurchaseUnitOfWork> SetUpRepositoriesMocks(IDictionary<Guid, Purchase> purchases, IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users)
+        {
+            var purchaseRepoMock = DalMockFactory.MockRepository(purchases);
+            var productRepoMock = DalMockFactory.MockRepository(products);
+            var userRepoMock = DalMockFactory.MockRepository(users);
+            var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
+            purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock.Object);
+            purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock.Object);
+            purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock.Object);
+            return purchaseUnitOfWork;
         }
         
         private Product GetTestProduct(Guid guid)
@@ -46,7 +61,6 @@ namespace BoomaEcommerce.Services.Tests
                 .With(x => x.Guid, guid)
                 .With(x => x.Amount, 10)
                 .With(x => x.Price, 10)
-                .With(x => x.ProductLock, new SemaphoreSlim(30))
                 .Create();
         }
 
@@ -88,35 +102,42 @@ namespace BoomaEcommerce.Services.Tests
         [Fact]
         public async Task CreatePurchaseAsync_ShouldDecreaseProductsAmount_WhenPurchaseDtoIsValid()
         {
+            var purchasesDict = new Dictionary<Guid, Purchase>();
+            var productDict = new Dictionary<Guid, Product>();
+            var userDict = new Dictionary<Guid, User>();
+            
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, GetTestValidStorePurchasesDtos())
                 .Create();
-            _userRepositoryMock.Setup(x => x.FindByIdAsync(purchaseDtoFixture.Buyer.Guid))
-                .ReturnsAsync(_fixture.Build<User>()
-                    .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
-                    .Create());
-            var testProducts = new List<Product>();
+            
+            var userFixture = _fixture.Build<User>()
+                .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
+                .Create();
+            userDict[purchaseDtoFixture.Buyer.Guid] = userFixture;
+            
             foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
             {
                 foreach (var productsPurchaseDto in storePurchaseDto.ProductsPurchases)
                 {
                     var testProductGuid = productsPurchaseDto.ProductDto.Guid;
                     var testProduct = GetTestProduct(testProductGuid);
-                    _productRepositoryMock.Setup(x => x.FindByIdAsync(testProductGuid))
-                        .ReturnsAsync(testProduct);
-                    testProducts.Add(testProduct);
+                    productDict[testProductGuid] = testProduct;
                 }
             }
-            
-            await _sut.CreatePurchaseAsync(purchaseDtoFixture);
 
-            testProducts.ForEach(x => x.Amount.Should().Be(5));
-            _userRepositoryMock.Invocations.Count.Should().Be(1);
-            var productAmount = purchaseDtoFixture.StorePurchases.Aggregate(0,
-                (count, storePurchase) => count + storePurchase.ProductsPurchases.Count);
-            _productRepositoryMock.Invocations.Count.Should().Be(productAmount);
-            _purchaseRepositoryMock.Invocations.Count.Should().Be(1);
+            var purchaseUnitOfWorkMock = SetUpRepositoriesMocks(purchasesDict, productDict, userDict);
+        
+            var sut = new PurchasesService(getMapper(), _loggerMock.Object,
+                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object);
 
+            await sut.CreatePurchaseAsync(purchaseDtoFixture);
+
+            foreach (var productDictValue in productDict.Values)
+            {
+                productDictValue.Amount.Should().Be(5);
+            }
+
+            purchasesDict[purchaseDtoFixture.Guid].Guid.Should().Be(purchaseDtoFixture.Guid);
         }
 
 
