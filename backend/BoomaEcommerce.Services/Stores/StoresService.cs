@@ -16,14 +16,17 @@ namespace BoomaEcommerce.Services.Stores
         private readonly IMapper _mapper;
         private readonly IRepository<Store> _storeRepo;
         private readonly IRepository<StoreOwnership> _storeOwnershipRepo; 
-
+        private readonly IRepository<StorePurchase> _storePurchaseRepo;
+        
         public StoresService(ILogger<StoresService> logger,
             IMapper mapper,
-            IRepository<Store> storeRepo)
+            IRepository<Store> storeRepo,
+            IRepository<StorePurchase> storePurchasesRepo)
         {
             _logger = logger;
             _mapper = mapper;
             _storeRepo = storeRepo;
+            _storePurchaseRepo = storePurchasesRepo;
         }
 
         public async Task CreateStoreAsync(StoreDto store)
@@ -53,24 +56,64 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public Task<IReadOnlyCollection<StoreDto>> GetAllStoresAsync()
+        public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Getting all stores.");
+                var stores = await _storeRepo.FindAllAsync();
+                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores.ToList());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to get stores", e.Message);
+                return null;
+            }
         }
 
-        public Task<StoreDto> GetStoreAsync(Guid storeGuid)
+        public async Task<StoreDto> GetStoreAsync(Guid storeGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var store = await _storeRepo.FindOneAsync(s => s.Guid == storeGuid);
+                return _mapper.Map<StoreDto>(store);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null; 
+            }
         }
 
-        public Task DeleteStoreAsync(Guid storeGuid)
+        public async Task<bool> DeleteStoreAsync(Guid storeGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation($"Deleting store with guid: {storeGuid}");
+                await _storeRepo.DeleteByIdAsync(storeGuid);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to delete store with guid {storeGuid}", e);
+                return false;
+            }
         }
 
-        public Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
+        public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var purchaseHistory = await _storePurchaseRepo.FilterByAsync(p => p.Store.Guid == storeGuid);
+                return _mapper.Map<IReadOnlyCollection<StorePurchaseDto>>(purchaseHistory.ToList());
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
         }
+
+     
     }
 }

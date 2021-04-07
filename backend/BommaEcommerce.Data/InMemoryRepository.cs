@@ -13,6 +13,11 @@ namespace BoomaEcommerce.Data
     {
         public ConcurrentDictionary<Guid, T> Entities { get; set; } = new();
 
+        public Task<IEnumerable<T>> FindAllAsync()
+        {
+            return Task.FromResult<IEnumerable<T>>(Entities.Values);
+        }
+
         public Task<IEnumerable<T>> FilterByAsync(Expression<Func<T, bool>> predicateExp)
         {
             var predicate = predicateExp.Compile();
@@ -85,12 +90,11 @@ namespace BoomaEcommerce.Data
         public Task DeleteManyAsync(Expression<Func<T, bool>> predicate)
         {
             var pred = predicate.Compile();
-            foreach (var (guid, entity) in Entities)
+            var keysToRemove = Entities.Keys.Where(guid => pred(Entities[guid]));
+
+            foreach (var key in keysToRemove)
             {
-                if (pred(entity))
-                {
-                    Entities.Remove(guid, out _);
-                }
+                Entities.Remove(key, out _);
             }
             return Task.CompletedTask;
         }
