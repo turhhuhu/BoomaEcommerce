@@ -11,7 +11,8 @@ namespace BoomaEcommerce.Domain
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public Store Store { get; init; }
+        public Store Store { get; set; }
+        public string Category { get; set; }
         public double Price { get; set; }
         public int Amount { get; set; }
         public SemaphoreSlim ProductLock { get; set; }

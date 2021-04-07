@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
-using BommaEcommerce.Services.Tests;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.Settings;
