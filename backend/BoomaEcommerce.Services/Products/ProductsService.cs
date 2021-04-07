@@ -72,7 +72,7 @@ namespace BoomaEcommerce.Services.Products
                 _logger.LogInformation($"Deleting product with guid {productGuid}");
                 var product = await _productRepo.FindByIdAsync(productGuid);
                 if (product == null) return false;
-
+                if (product.IsSoftDeleted) return false;
                 product.IsSoftDeleted = true;
 
                 await _productRepo.ReplaceOneAsync(product);
@@ -91,10 +91,11 @@ namespace BoomaEcommerce.Services.Products
             {
                 _logger.LogInformation($"Updating product with guid {productDto.Guid}");
                 var product = await _productRepo.FindByIdAsync(productDto.Guid);
-                
+                if (product.IsSoftDeleted) return false;
                 product.Name = productDto.Name ?? product.Name;
                 product.Amount = productDto.Amount ?? product.Amount;
                 product.Price = productDto.Price ?? product.Price;
+                product.Category = productDto.Category ?? product.Category;
 
                 await _productRepo.ReplaceOneAsync(product);
                 return true;
