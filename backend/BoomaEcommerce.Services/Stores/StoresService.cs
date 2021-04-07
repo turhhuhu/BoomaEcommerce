@@ -32,9 +32,19 @@ namespace BoomaEcommerce.Services.Stores
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyCollection<StoreDto>> GetAllStoresAsync()
+        public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Getting all stores.");
+                var stores = await _storeRepo.FindAllAsync();
+                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores.ToList());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to get stores", e.Message);
+                return null;
+            }
         }
 
         public async Task<StoreDto> GetStoreAsync(Guid storeGuid)
@@ -51,22 +61,18 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public Task DeleteStoreAsync(Guid storeGuid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
+        public async Task<bool> DeleteStoreAsync(Guid storeGuid)
         {
             try
             {
-                var stores = await _storeRepo.FilterByAsync(s => true);
-                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores.ToList());
+                _logger.LogInformation($"Deleting store with guid: {storeGuid}");
+                await _storeRepo.DeleteByIdAsync(storeGuid);
+                return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                _logger.LogError(e.Message);
-                return null; 
+                _logger.LogError($"Failed to delete store with guid {storeGuid}", e);
+                return false;
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class StoreDto : BaseEntityDto 
+    public class StoreManagementDto : BaseEntityDto
     {
+        public StoreDto Store { get; set; }
+        public UserDto User { get; set; }
     }
 }
