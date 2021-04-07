@@ -9,15 +9,25 @@ namespace BoomaEcommerce.Services.Stores
 {
     public interface IStoresService
     {
+
+        /// <summary>
+        /// Gets the store's purchase history.
+        /// </summary>
+        /// <param name="storeGuid"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the store purchase history collection.
+        /// </returns>
+        Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid);
+
         /// <summary>
         /// Creates a store for a registered user.
         /// </summary>
-        /// <param name="userId"></param>
         /// <param name="store"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task CreateStoreAsync(string userId, StoreDto store);
+        Task CreateStoreAsync(StoreDto store);
 
         /// <summary>
         /// Gets all stores.
@@ -26,7 +36,7 @@ namespace BoomaEcommerce.Services.Stores
         /// A task that represents the asynchronous operation
         /// The task result contains the stores collection.
         /// </returns>
-        Task<IReadOnlyCollection<StoreDto>> GetAllStoresAsync();
+        Task<IReadOnlyCollection<StoreDto>> GetStoresAsync();
 
         /// <summary>
         /// Gets a store by guid.
@@ -45,6 +55,6 @@ namespace BoomaEcommerce.Services.Stores
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task DeleteStoreAsync(Guid storeGuid);
+        Task<bool> DeleteStoreAsync(Guid storeGuid);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.Purchases;
 using Microsoft.Extensions.Logging;
-
+using BoomaEcommerce.Services.Stores;
 
 namespace BoomaEcommerce.Services.Users
 {
@@ -24,12 +24,14 @@ namespace BoomaEcommerce.Services.Users
         private readonly IRepository<Purchase> _purchaseRepository;
         private readonly IRepository<StoreOwnership> _storeOwnershipRepository;       
         private readonly IRepository<StoreManagement> _storeManagementRepository;
+        private readonly IRepository<StoreManagementPermission> _permissionsRepository;
 
 
         public UsersService(IMapper mapper, ILogger<UsersService> logger,
              IRepository<User> userRepository, IRepository<Product> productRepository,
             IRepository<Purchase> purchaseRepository , IRepository<StoreOwnership> storeOwnershipRepository,
-             IRepository<StoreManagement> storeManagementRepository)
+             IRepository<StoreManagement> storeManagementRepository,
+             IRepository<StoreManagementPermission> permissionRepository)
         {
             _mapper = mapper;
             _logger = logger;
@@ -38,6 +40,94 @@ namespace BoomaEcommerce.Services.Users
             _purchaseRepository = purchaseRepository;
             _storeOwnershipRepository = storeOwnershipRepository;
             _storeManagementRepository = storeManagementRepository;
+            _permissionsRepository = permissionRepository;
+        }
+
+
+        public async Task<StoreManagementPermissionDto> GetPermissions(Guid smGuid)
+        {
+            try
+            {
+                var permission = await _permissionsRepository.FindOneAsync(perm => perm.Guid == smGuid);
+                return _mapper.Map<StoreManagementPermissionDto>(permission);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
+        public Task UpdatePermission(StoreManagementPermissionDto smpDto)
+        {
+            try
+            {
+                var permission = _mapper.Map<StoreManagementPermission>(smpDto);
+                return _permissionsRepository.ReplaceOneAsync(permission);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
+        public async Task<StoreSellersResponse> GetAllSellersInformation(Guid storeGuid)
+        {
+            try
+            {
+                var managersTask = _storeManagementRepository.FilterByAsync(storeManagement =>
+                   storeManagement.Store.Guid == storeGuid, storeManagement => 
+                    new StoreManagement
+                    {
+                        Guid = storeManagement.Guid,
+                        User = storeManagement.User
+                    });
+
+                var ownersTask =  _storeOwnershipRepository.FilterByAsync(storeOwnership =>
+                    storeOwnership.Store.Guid == storeGuid, storeOwnership =>
+                    new StoreOwnership
+                    {
+                        Guid = storeOwnership.Guid,
+                        User = storeOwnership.User
+                    });
+
+                var managers = (await managersTask).ToList();
+                var owners = (await ownersTask).ToList();
+
+
+                var storeManagementDtos =  _mapper.Map<List<StoreManagementDto>>(managers);
+                var storeOwnerDtos = _mapper.Map<List<StoreOwnershipDto>>(owners);
+                return new StoreSellersResponse(storeOwnerDtos, storeManagementDtos);
+                // Seller - A seller is either an Owner or a Manager.
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
+        public async Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid)
+        {
+            try
+            {
+                var storeOwner = await _storeOwnershipRepository.FindByIdAsync(storeOwnerGuid);
+                var (storeOwnerships, storeManagements) = storeOwner.GetSubordinates();
+
+                return new StoreSellersResponse(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),
+                    _mapper.Map<List<StoreManagementDto>>(storeManagements));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to get all subordinate sellers for store owner with guid", e);
+                return null;
+            }
+        }
+
+        public Task CreateStoreAsync(string userId, StoreDto store)
+        {
+            throw new NotImplementedException();
         }
 
         public UsersService(IRepository<StoreOwnership> storeOwnershipRepository,
@@ -137,8 +227,6 @@ namespace BoomaEcommerce.Services.Users
                 return false;
             }
         }
-        
-        
         
         private async Task<StoreOwnership> ValidateInforamation(Guid ownerGuid, Guid StoreGuid, Guid userGuid)
         {

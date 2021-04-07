@@ -1,31 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture;
-using BoomaEcommerce.Domain;
-using FluentAssertions;
-using Xunit;
 
-namespace BommaEcommerce.Domain.Tests
+namespace BoomaEcommerce.Domain.Tests
 {
-    public class PurchaseTests
+    public static class TestData
     {
-        private readonly IFixture _fixture;
-        public PurchaseTests()
+        private static readonly IFixture Fixture = new Fixture();
+        public static Product GetTestProduct()
         {
-            _fixture = new Fixture();
-        }
-        
-        private Product GetTestProduct()
-        {
-            return _fixture.Build<Product>()
+            return Fixture.Build<Product>()
                 .With(x => x.Amount, 10)
                 .With(x => x.Price, 10)
-                .With(x => x.ProductLock, new SemaphoreSlim(30))
+                .With(x => x.IsSoftDeleted, false)
+                .With(x => x.ProductLock, new SemaphoreSlim(1))
                 .Create();
         }
-
-        private List<PurchaseProduct> GetTestValidProductsPurchases()
+        
+        public static List<PurchaseProduct> GetTestValidProductsPurchases()
         {
             var validProductsPurchases = new List<PurchaseProduct>
             {
@@ -36,8 +28,8 @@ namespace BommaEcommerce.Domain.Tests
 
             return validProductsPurchases;
         }
-        
-        private List<PurchaseProduct> GetTestInvalidProductsPurchases()
+
+        public static List<PurchaseProduct> GetTestInvalidProductsPurchases()
         {
             var invalidProductsPurchases = new List<PurchaseProduct>
             {
@@ -49,59 +41,40 @@ namespace BommaEcommerce.Domain.Tests
             return invalidProductsPurchases;
         }
 
-        private List<StorePurchase> GetTestValidStorePurchases()
+        public static List<StorePurchase> GetTestValidStorePurchases()
         {
             var validStorePurchases = new List<StorePurchase>
             {
-                _fixture.Build<StorePurchase>()
+                Fixture.Build<StorePurchase>()
                     .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
                     .Create(),
-                _fixture.Build<StorePurchase>()
+                Fixture.Build<StorePurchase>()
                     .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
                     .Create(),
-                _fixture.Build<StorePurchase>()
+                Fixture.Build<StorePurchase>()
                     .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
                     .Create()
             };
             return validStorePurchases;
         }
         
-        private List<StorePurchase> GetTestInvalidStorePurchases()
+        public static List<StorePurchase> GetTestInvalidStorePurchases()
         {
             var validStorePurchases = new List<StorePurchase>
             {
-                _fixture.Build<StorePurchase>()
+                Fixture.Build<StorePurchase>()
                     .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
                     .Create(),
-                _fixture.Build<StorePurchase>()
+                Fixture.Build<StorePurchase>()
                     .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
                     .Create(),
-                _fixture.Build<StorePurchase>()
+                Fixture.Build<StorePurchase>()
                     .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
                     .Create()
             };
             return validStorePurchases;
         }
-
-        [Fact]
-        public async Task MakePurchase_ReturnsTrue_WhenStorePurchasesAreValid()
-        {
-            var sut = new Purchase {StorePurchases = GetTestValidStorePurchases()};
-
-            var result = await sut.MakePurchase();
-
-            result.Should().BeTrue();
-        }
         
-        [Fact]
-        public async Task MakePurchase_ReturnsFalse_WhenStorePurchasesAreInvalid()
-        {
-            var sut = new Purchase {StorePurchases = GetTestInvalidStorePurchases()};
-
-            var result = await sut.MakePurchase();
-
-            result.Should().BeFalse();
-        }
-
+        
     }
 }

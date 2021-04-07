@@ -15,26 +15,62 @@ namespace BoomaEcommerce.Services.Stores
         private readonly ILogger<StoresService> _logger;
         private readonly IMapper _mapper;
         private readonly IRepository<Store> _storeRepo;
+        private readonly IRepository<StoreOwnership> _storeOwnershipRepo; 
         private readonly IRepository<StorePurchase> _storePurchaseRepo;
+        
         public StoresService(ILogger<StoresService> logger,
             IMapper mapper,
             IRepository<Store> storeRepo,
-            IRepository<StorePurchase> storePurchasesRepo)
+            IRepository<StorePurchase> storePurchasesRepo, 
+            IRepository<StoreOwnership> storeOwnershipRepo)
         {
             _logger = logger;
             _mapper = mapper;
             _storeRepo = storeRepo;
             _storePurchaseRepo = storePurchasesRepo;
+            _storeOwnershipRepo = storeOwnershipRepo;
         }
 
-        public Task CreateStoreAsync(string userId, StoreDto store)
+        public async Task CreateStoreAsync(StoreDto store)
         {
-            throw new NotImplementedException();
+            var newStore = _mapper.Map<Store>(store);
+            try
+            {
+                await _storeRepo.InsertOneAsync(newStore); 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message); 
+            }
+
+            var user = _mapper.Map<User>(newStore.StoreFounder);
+            var storeOwnerShip = new StoreOwnership();
+            storeOwnerShip.Store = newStore;
+            storeOwnerShip.User = user; 
+
+            try
+            {
+                await _storeOwnershipRepo.InsertOneAsync(storeOwnerShip); 
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
         }
 
-        public Task<IReadOnlyCollection<StoreDto>> GetAllStoresAsync()
+        public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Getting all stores.");
+                var stores = await _storeRepo.FindAllAsync();
+                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores.ToList());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to get stores", e.Message);
+                return null;
+            }
         }
 
         public async Task<StoreDto> GetStoreAsync(Guid storeGuid)
@@ -51,22 +87,18 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public Task DeleteStoreAsync(Guid storeGuid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
+        public async Task<bool> DeleteStoreAsync(Guid storeGuid)
         {
             try
             {
-                var stores = await _storeRepo.FilterByAsync(s => true);
-                return _mapper.Map<IReadOnlyCollection<StoreDto>>(stores.ToList());
+                _logger.LogInformation($"Deleting store with guid: {storeGuid}");
+                await _storeRepo.DeleteByIdAsync(storeGuid);
+                return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                _logger.LogError(e.Message);
-                return null; 
+                _logger.LogError($"Failed to delete store with guid {storeGuid}", e);
+                return false;
             }
         }
 

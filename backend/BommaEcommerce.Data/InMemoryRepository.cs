@@ -13,6 +13,11 @@ namespace BoomaEcommerce.Data
     {
         public ConcurrentDictionary<Guid, T> Entities { get; set; } = new();
 
+        public Task<IEnumerable<T>> FindAllAsync()
+        {
+            return Task.FromResult<IEnumerable<T>>(Entities.Values);
+        }
+
         public Task<IEnumerable<T>> FilterByAsync(Expression<Func<T, bool>> predicateExp)
         {
             var predicate = predicateExp.Compile();
