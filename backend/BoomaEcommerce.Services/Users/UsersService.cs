@@ -22,9 +22,8 @@ namespace BoomaEcommerce.Services.Users
         private readonly IRepository<StoreManagementPermission> _permissionsRepository;
 
 
-        public UsersService(IMapper mapper, ILogger<PurchasesService> logger,
-             IRepository<User> userRepository, IRepository<Product> productRepository,
-            IRepository<Purchase> purchaseRepository , IRepository<StoreOwnership> storeOwnershipRepository,
+        public UsersService(IMapper mapper, ILogger<PurchasesService> logger, 
+             IRepository<StoreOwnership> storeOwnershipRepository,
              IRepository<StoreManagement> storeManagementRepository,
              IRepository<StoreManagementPermission> permissionRepository)
         {
