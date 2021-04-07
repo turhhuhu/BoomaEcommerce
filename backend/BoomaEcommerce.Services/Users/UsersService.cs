@@ -17,10 +17,6 @@ namespace BoomaEcommerce.Services.Users
     {        
         private readonly IMapper _mapper;
         private readonly ILogger<PurchasesService> _logger;
-        private readonly IPaymentClient _paymentClient;
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<Purchase> _purchaseRepository;
         private readonly IRepository<StoreOwnership> _storeOwnershipRepository;       
         private readonly IRepository<StoreManagement> _storeManagementRepository;
         private readonly IRepository<StoreManagementPermission> _permissionsRepository;
@@ -34,9 +30,6 @@ namespace BoomaEcommerce.Services.Users
         {
             _mapper = mapper;
             _logger = logger;
-            _userRepository = userRepository;
-            _productRepository = productRepository;
-            _purchaseRepository = purchaseRepository;
             _storeOwnershipRepository = storeOwnershipRepository;
             _storeManagementRepository = storeManagementRepository;
             _permissionsRepository = permissionRepository;

@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Services.Stores
         private readonly ILogger<StoresService> _logger;
         private readonly IMapper _mapper;
         private readonly IRepository<Store> _storeRepo;
-        private readonly IRepository<StoreOwnership> _storeOwnershipRepo; 
+        private readonly IRepository<StoreOwnership> _storeOwnershipRepo;
         private readonly IRepository<StorePurchase> _storePurchaseRepo;
         
         public StoresService(ILogger<StoresService> logger,
