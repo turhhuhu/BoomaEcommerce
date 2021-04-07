@@ -21,12 +21,14 @@ namespace BoomaEcommerce.Services.Stores
         public StoresService(ILogger<StoresService> logger,
             IMapper mapper,
             IRepository<Store> storeRepo,
-            IRepository<StorePurchase> storePurchasesRepo)
+            IRepository<StorePurchase> storePurchasesRepo, 
+            IRepository<StoreOwnership> storeOwnershipRepo)
         {
             _logger = logger;
             _mapper = mapper;
             _storeRepo = storeRepo;
             _storePurchaseRepo = storePurchasesRepo;
+            _storeOwnershipRepo = storeOwnershipRepo;
         }
 
         public async Task CreateStoreAsync(StoreDto store)
