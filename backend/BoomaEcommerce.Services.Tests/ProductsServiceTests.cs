@@ -22,6 +22,7 @@ namespace BoomaEcommerce.Services.Tests
         [Fact]
         public async Task GetProductsFromStoreAsync_ReturnsAllNotSoftDeletedProductsFromGivenStore_WhenStoreExists()
         {
+            // Arrange
             var storeGuid = Guid.NewGuid();
             var notSoftDeletedProductGuidList = new List<Guid>();
             var productsDict = new Dictionary<Guid, Product>();
@@ -36,11 +37,13 @@ namespace BoomaEcommerce.Services.Tests
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Store = new Store{Guid =  storeGuid}, IsSoftDeleted = true});
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
-
+            
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
+            // Act
             var result = await sut.GetProductsFromStoreAsync(storeGuid);
-
+    
+            // Assert
             foreach (var productDto in result)
             {
                 productDto.Store.Guid.Should().Be(storeGuid);
@@ -50,68 +53,83 @@ namespace BoomaEcommerce.Services.Tests
         }
         
         [Fact]
-        public async Task GetProductsFromStoreAsync_ReturnsNull_WhenStoreDoesNotExists()
+        public async Task GetProductsFromStoreAsync_ReturnsEmptyCollection_WhenStoreDoesNotExists()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
-
+            
+            // Act
             var result = await sut.GetProductsFromStoreAsync(Guid.NewGuid());
 
+            // Assert
             result.Should().BeEmpty();
         }
         
         [Fact]
         public async Task GetProductAsync_ReturnsNotSafeDeletedProduct_WhenProductExistsAndNotSafeDeleted()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = TestData.GetTestProduct(productGuid);
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
+            // Act
             var result = await sut.GetProductAsync(productGuid);
 
+            // Assert
             result.Guid.Should().Be(productGuid);
         }
         
         [Fact]
         public async Task GetProductAsync_ReturnsNull_WhenProductDoesNotExist()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
-
+                
+            // Act
             var result = await sut.GetProductAsync(Guid.NewGuid());
 
+            // Assert
             result.Should().BeNull();
         }
         
         [Fact]
         public async Task GetProductAsync_ReturnsNull_WhenProductExistsButIsSafeDeleted()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
+            // Act
             var result = await sut.GetProductAsync(Guid.NewGuid());
 
+            // Assert
             result.Should().BeNull();
         }
 
         [Fact]
         public async Task DeleteProductAsync_ReturnTrueAndProductIsSafeDeleted_WhenProductExistsAndIsNotSafeDeleted()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = TestData.GetTestProduct(productGuid);
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
-
+            
+            // Act
             var result = await sut.DeleteProductAsync(productGuid);
 
+            // Assert
             result.Should().BeTrue();
             productsDict[productGuid].IsSoftDeleted.Should().BeTrue();
         }
@@ -119,26 +137,32 @@ namespace BoomaEcommerce.Services.Tests
         [Fact]
         public async Task DeleteProductAsync_ReturnFalse_WhenProductDoesntNotExist()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
-
+                
+            // Act
             var result = await sut.DeleteProductAsync(Guid.NewGuid());
 
+            // Assert
             result.Should().BeFalse();
         }
         
         [Fact]
         public async Task DeleteProductAsync_ReturnFalse_WhenProductExistsAndIsSafeDeleted()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
+            // Act
             var result = await sut.DeleteProductAsync(productGuid);
 
+            // Assert
             result.Should().BeFalse();
             productsDict.Keys.Should().Contain(productGuid);
         }
@@ -146,6 +170,7 @@ namespace BoomaEcommerce.Services.Tests
         [Fact]
         public async Task UpdateProductAsync_ReturnsNotSafeDeletedProduct_WhenProductExistsAndNotSafeDeleted()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productToReplaceGuid = Guid.NewGuid();
             productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid);
@@ -156,8 +181,10 @@ namespace BoomaEcommerce.Services.Tests
                 new ProductDto
                     {Guid = productToReplaceGuid, Amount = 5, Price = 5, Name = "ChessBoard", Category = "Chess"}; 
 
+            // Act
             var result = await sut.UpdateProductAsync(replacementProductDto);
 
+            // Assert
             result.Should().BeTrue();
             var resultProduct = productsDict[productToReplaceGuid];
             resultProduct.Amount.Should().Be(5);
@@ -169,29 +196,189 @@ namespace BoomaEcommerce.Services.Tests
         [Fact]
         public async Task UpdateProductAsync_ReturnsFalse_WhenProductDoesNotExist()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
+            // Act
             var result = await sut.UpdateProductAsync(new ProductDto{Guid = Guid.NewGuid()});
 
+            // Assert
             result.Should().BeFalse();
         }
         
         [Fact]
         public async Task UpdateProductAsync_ReturnsFalse_WhenProductExistsButIsSafeDeleted()
         {
+            // Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
             var productRepoMock = DalMockFactory.MockRepository(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
+            // Act
             var result = await sut.UpdateProductAsync(new ProductDto{Guid = productGuid});
 
+            // Assert
             result.Should().BeFalse();
         }
         
+        [Fact]
+        public async Task GetProductByNameAsync_ReturnsAllNotSoftDeletedProducts_WhenProductExistsWithTheGivenNameAndNotSafeDeleted()
+        {
+            // Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productName = "ChessBoard";
+            var notSoftDeletedProductGuidList = new List<Guid>();
+            for (var i = 0; i < 3; i++)
+            {
+                var notSoftDeletedProductGuid = Guid.NewGuid();
+                var notSoftDeletedProduct = 
+                    new Product{Guid = notSoftDeletedProductGuid, Name = productName, IsSoftDeleted = false};
+                productsDict.Add(notSoftDeletedProductGuid, notSoftDeletedProduct);
+                notSoftDeletedProductGuidList.Add(notSoftDeletedProductGuid);
+            }
+            var softDeletedProductGuid = Guid.NewGuid();
+            productsDict.Add(softDeletedProductGuid,
+                new Product{Guid = softDeletedProductGuid, Name = productName, IsSoftDeleted = true});
+            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+
+            // Act
+            var result = await sut.GetProductByNameAsync(productName);
+            
+            // Assert
+            foreach (var productDto in result)
+            {
+                productDto.Name.Should().Be(productName);
+                notSoftDeletedProductGuidList.Should().Contain(productDto.Guid);
+            }
+        }
         
+        [Fact]
+        public async Task GetProductByNameAsync_ReturnsEmptyCollection_WhenProductDoesNotExists()
+        {
+            // Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+
+            // Act
+            var result = await sut.GetProductByNameAsync("");
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+        
+        [Fact]
+        public async Task GetProductByCategoryAsync_ReturnsAllNotSoftDeletedProducts_WhenProductExistsWithTheGivenCategoryAndNotSafeDeleted()
+        {
+            // Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productCategory = "Chess";
+            var notSoftDeletedProductGuidList = new List<Guid>();
+            for (var i = 0; i < 3; i++)
+            {
+                var notSoftDeletedProductGuid = Guid.NewGuid();
+                var notSoftDeletedProduct = 
+                    new Product{Guid = notSoftDeletedProductGuid, Category = productCategory, IsSoftDeleted = false};
+                productsDict.Add(notSoftDeletedProductGuid, notSoftDeletedProduct);
+                notSoftDeletedProductGuidList.Add(notSoftDeletedProductGuid);
+            }
+            var softDeletedProductGuid = Guid.NewGuid();
+            productsDict.Add(softDeletedProductGuid,
+                new Product{Guid = softDeletedProductGuid, Category = productCategory, IsSoftDeleted = true});
+            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+
+            // Act
+            var result = await sut.GetProductByCategoryAsync(productCategory);
+            
+            // Assert
+            foreach (var productDto in result)
+            {
+                productDto.Category.Should().Be(productCategory);
+                notSoftDeletedProductGuidList.Should().Contain(productDto.Guid);
+            }
+        }
+        
+        [Fact]
+        public async Task GetProductByCategoryAsync_ReturnsEmptyCollection_WhenProductDoesNotExists()
+        {
+            // Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+
+            // Act
+            var result = await sut.GetProductByCategoryAsync("");
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+        
+        [Fact]
+        public async Task GetProductByKeywordAsync_ReturnsAllNotSoftDeletedProducts_WhenProductExistsWithTheGivenKeywordAndNotSafeDeleted()
+        {
+            // Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productCategory = "Chess";
+            var productName = "ChessBoard";
+            var keyWord = "Chess";
+            var notSoftDeletedProductGuidList = new List<Guid>();
+            for (var i = 0; i < 3; i++)
+            {
+                var notSoftDeletedProductGuid = Guid.NewGuid();
+                var notSoftDeletedProduct = 
+                    new Product{Guid = notSoftDeletedProductGuid, Name = "checkers",
+                        Category = productCategory, IsSoftDeleted = false};
+                productsDict.Add(notSoftDeletedProductGuid, notSoftDeletedProduct);
+                notSoftDeletedProductGuidList.Add(notSoftDeletedProductGuid);
+            }
+            for (var i = 0; i < 3; i++)
+            {
+                var notSoftDeletedProductGuid = Guid.NewGuid();
+                var notSoftDeletedProduct = 
+                    new Product{Guid = notSoftDeletedProductGuid, Name = productName,
+                        Category = "checkers", IsSoftDeleted = false};
+                productsDict.Add(notSoftDeletedProductGuid, notSoftDeletedProduct);
+                notSoftDeletedProductGuidList.Add(notSoftDeletedProductGuid);
+            }
+            var softDeletedProductGuid = Guid.NewGuid();
+            productsDict.Add(softDeletedProductGuid,
+                new Product{Guid = softDeletedProductGuid, Category = productCategory, IsSoftDeleted = true});
+            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+
+            // Act
+            var result = await sut.GetProductByKeywordAsync(productCategory);
+            
+            // Assert
+            foreach (var productDto in result)
+            {
+                productDto.Should().Match<ProductDto>(x => x.Category.Contains(keyWord) 
+                                                           || x.Name.Contains(keyWord));
+                notSoftDeletedProductGuidList.Should().Contain(productDto.Guid);
+            }
+        }
+        
+        [Fact]
+        public async Task GetProductByKeywordAsync_ReturnsEmptyCollection_WhenProductDoesNotExists()
+        {
+            // Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+
+            // Act
+            var result = await sut.GetProductByKeywordAsync("");
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+
+
     }
 }
