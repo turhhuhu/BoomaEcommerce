@@ -47,6 +47,7 @@ namespace BoomaEcommerce.Services.Purchases
                 if (!await purchase.MakePurchase())
                 {
                     //TODO: CancelTransaction
+                    return;
                 }
 
                 await _paymentClient.MakeOrder(purchase);
