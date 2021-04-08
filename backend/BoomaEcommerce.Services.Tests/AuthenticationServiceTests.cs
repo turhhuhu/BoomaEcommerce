@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
-using BommaEcommerce.Services.Tests;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.Settings;
@@ -22,51 +21,46 @@ namespace BoomaEcommerce.Services.Tests
 
         private readonly IFixture _fixture;
         private const string Secret = "aaaaaaaaaaaaaaaaaaa";
+
+        private List<User> _userStore;
+        private Mock<UserManager<User>> _mockUserManager;
+        private Mock<ILogger<AuthenticationService>> _loggerMock;
+        private AuthenticationService _authService;
+
         public AuthenticationServiceTests()
         {
             _fixture = new Fixture();
+            _userStore = new List<User>();
+            _mockUserManager = DalMockFactory.MockUserManager(_userStore);
+            _loggerMock = new Mock<ILogger<AuthenticationService>>();
+            _authService =
+                new AuthenticationService(_loggerMock.Object, _mockUserManager.Object,
+                    new JwtSettings { Secret = Secret, TokenExpirationHours = 1 });
         }
-
 
         [Fact]
         public async Task RegisterAsync_ReturnsSuccessfulResponse_WhenUserDoesNotExists()
         {
-            var userStore = new List<User>();
-
-            var mockUserManager = DalMockFactory.MockUserManager(userStore);
-            var loggerMock = new Mock<ILogger<AuthenticationService>>();
-
-            var authService =
-                new AuthenticationService(loggerMock.Object, mockUserManager.Object,
-                    new JwtSettings { Secret = Secret, TokenExpirationHours = 1 });
-
+            // Arrange
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Act
-            var response = await authService.RegisterAsync("user", "pass");
+            var response = await _authService.RegisterAsync("user", "pass");
 
             // Assert
             response.Success.Should().BeTrue();
             var token = tokenHandler.ReadJwtToken(response.Token);
-            ValidateTokenWithUser(token, userStore.First(usr => usr.UserName == "user"));
+            ValidateTokenWithUser(token, _userStore.First(usr => usr.UserName == "user"));
         }
 
         [Fact]
         public async Task RegisterAsync_ReturnsFailureResponse_WhenUserExists()
         {
-            var userStore = new List<User>();
 
-            var mockUserManager = DalMockFactory.MockUserManager(userStore);
-            var loggerMock = new Mock<ILogger<AuthenticationService>>();
-
-            var authService =
-                new AuthenticationService(loggerMock.Object, mockUserManager.Object,
-                    new JwtSettings { Secret = Secret, TokenExpirationHours = 1 });
-
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Failed());
             // Act
-            var response = await authService.RegisterAsync("user", "pass");
+            var response = await _authService.RegisterAsync("user", "pass");
 
             // Assert
             response.Success.Should().BeFalse();
@@ -77,19 +71,11 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var user = _fixture.Build<User>().Create();
-            var userStore = new List<User>{user};
-            var mockUserManager = DalMockFactory.MockUserManager(userStore);
-            var loggerMock = new Mock<ILogger<AuthenticationService>>();
-
-            var authService =
-                new AuthenticationService(loggerMock.Object, mockUserManager.Object,
-                    new JwtSettings { Secret = Secret, TokenExpirationHours = 1 });
-
+            _userStore.Add(user);
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Act
-            var response = await authService.LoginAsync(user.UserName, "pass");
-
+            var response = await _authService.LoginAsync(user.UserName, "pass");
 
             // Assert
             response.Success.Should().BeTrue();
@@ -100,51 +86,28 @@ namespace BoomaEcommerce.Services.Tests
         [Fact]
         public async Task LoginAsync_ReturnsFailureResponse_WhenUserDoesNotExists()
         {
-            // Arrange
-            var userStore = new List<User>();
-
-            var mockUserManager = DalMockFactory.MockUserManager(userStore);
-            var loggerMock = new Mock<ILogger<AuthenticationService>>();
-
-            var authService =
-                new AuthenticationService(loggerMock.Object, mockUserManager.Object,
-                    new JwtSettings { Secret = Secret, TokenExpirationHours = 1 });
-
-            var tokenHandler = new JwtSecurityTokenHandler();
 
             // Act
-            var response = await authService.LoginAsync("user", "pass");
-            var foundUser = userStore.FirstOrDefault(usr => usr.UserName == "user");
-
+            var response = await _authService.LoginAsync("user", "pass");
 
             // Assert
             response.Success.Should().BeFalse();
-            foundUser.Should().BeNull();
+            response.Token.Should().BeNull();
         }
 
         [Fact]
         public async Task LoginAsync_ReturnsFailureResponse_WhenPasswordIncorrect()
         {
-            // Arrange
-            var user = _fixture.Build<User>().Create();
-            var userStore = new List<User> { user };
 
-            var mockUserManager = DalMockFactory.MockUserManager(userStore);
-
-            mockUserManager.Setup(userManager => userManager.CheckPasswordAsync(It.IsAny<User>(), It.IsAny<string>()))
+            _mockUserManager.Setup(userManager => userManager.CheckPasswordAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(false);
 
-            var loggerMock = new Mock<ILogger<AuthenticationService>>();
-
-            var authService =
-                new AuthenticationService(loggerMock.Object, mockUserManager.Object,
-                    new JwtSettings { Secret = Secret, TokenExpirationHours = 1 });
-
             // Act
-            var response = await authService.LoginAsync("user", "wrong-pass");
+            var response = await _authService.LoginAsync("user", "wrong-pass");
 
             // Assert
             response.Success.Should().BeFalse();
+            response.Token.Should().BeNull();
         }
         private static void ValidateTokenWithUser(JwtSecurityToken token, User user)
         {
