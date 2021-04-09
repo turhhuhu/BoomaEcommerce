@@ -37,12 +37,14 @@ namespace BoomaEcommerce.Services.Purchases
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(x =>
                         x.ProductsPurchases, (_, purchaseProduct) => purchaseProduct);
-                
-                foreach (var purchaseProduct in purchaseProducts)
+
+                var taskList = purchaseProducts.Select(purchaseProduct => Task.Run(async () =>
                 {
                     var product = purchaseProduct.Product;
                     purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                }
+                }));
+
+                await Task.WhenAll(taskList);
 
                 if (!await purchase.MakePurchase())
                 {
@@ -52,7 +54,7 @@ namespace BoomaEcommerce.Services.Purchases
 
                 await _paymentClient.MakeOrder(purchase);
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
-                _purchaseUnitOfWork.Save();
+                _purchaseUnitOfWork.SaveAsync();
             }
             catch (Exception e)
             {
