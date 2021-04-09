@@ -12,5 +12,6 @@ namespace BoomaEcommerce.Domain
         public string Name { get; set; }
         public string LastName { get; set; }
 
+        
     }
 }

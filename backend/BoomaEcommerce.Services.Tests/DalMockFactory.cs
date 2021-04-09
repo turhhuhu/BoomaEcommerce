@@ -46,6 +46,10 @@ namespace BoomaEcommerce.Services.Tests
         public static Mock<IRepository<TEntity>> MockRepository<TEntity>(IDictionary<Guid, TEntity> entities)
             where TEntity : BaseEntity
         {
+            if (entities == null)
+            {
+                return null;
+            }
             var repoMock = new Mock<IRepository<TEntity>>();
             repoMock.Setup(x => x.DeleteByIdAsync(It.IsAny<Guid>()))
                 .Callback<Guid>(guid => entities.Remove(guid, out _));
@@ -103,6 +107,29 @@ namespace BoomaEcommerce.Services.Tests
 
             return repoMock;
         }
+        public static Mock<IStoreUnitOfWork> MockStoreUnitOfWork(
+            IDictionary<Guid, Store> stores,
+            IDictionary<Guid, StoreOwnership> storeOwnerships,
+            IDictionary<Guid, StorePurchase> storePurchases,
+            IDictionary<Guid, StoreManagement> storeManagements,
+            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions
 
+        )
+        {
+
+            var storeRepoMock = MockRepository(stores);
+            var storeOwnershipRepoMock = MockRepository(storeOwnerships);
+            var storePurchasesRepoMock = MockRepository(storePurchases);
+            var storeManagementRepoMock = MockRepository(storeManagements);
+            var storeManagementPermissionsRepoMock = MockRepository(storeManagementPermissions);
+
+            var storeUnitOfWorkMock = new Mock<IStoreUnitOfWork>();
+            storeUnitOfWorkMock.SetupGet(x => x.StoreRepo).Returns(storeRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.StoreOwnershipRepo).Returns(storeOwnershipRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.StorePurchaseRepo).Returns(storePurchasesRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.StoreManagementRepo).Returns(storeManagementRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
+            return storeUnitOfWorkMock;
+        }
     }
 }

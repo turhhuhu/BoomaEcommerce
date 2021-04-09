@@ -17,7 +17,14 @@ namespace BoomaEcommerce.Services.MappingProfiles
         public DomainToDtoProfile()
         {
             CreateMap<Store, StoreDto>();
+            CreateMap<User, UserDto>();
+            
+            CreateMap<StoreManagement, StoreManagementDto>();
+            CreateMap<StoreOwnership, StoreOwnershipDto>();
             CreateMap<Product, ProductDto>();
+            CreateMap<User, UserDto>();
+            CreateMap<StorePurchase, StorePurchaseDto>();
+            CreateMap<PurchaseProduct, PurchaseProductDto>(); //ask
         }
     }
 }

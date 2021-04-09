@@ -13,4 +13,5 @@ namespace BoomaEcommerce.Domain
         public User StoreFounder { get; set; }
         public float Rating { get; set; }
     }
+   
 }
