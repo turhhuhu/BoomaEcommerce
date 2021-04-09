@@ -4,14 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Data
 {
     public interface IPurchaseUnitOfWork
     {
         IRepository<Purchase> PurchaseRepository { get; set; }
-        IRepository<User> UserRepository { get; set; }
+        UserManager<User> UserRepository { get; set; }
         IRepository<Product> ProductRepository { get; set; }
-        void SaveAsync();
+        IRepository<ShoppingCart> ShoppingCartRepository { get; set; }
+        Task SaveAsync();
     }
 }

@@ -16,29 +16,37 @@ namespace BoomaEcommerce.Services.Purchases
         private readonly IMapper _mapper;
         private readonly ILogger<PurchasesService> _logger;
         private readonly IPaymentClient _paymentClient;
+        private readonly ISupplyClient _supplyClient;
         private readonly IPurchaseUnitOfWork _purchaseUnitOfWork;
-        public PurchasesService(IMapper mapper, ILogger<PurchasesService> logger,
-            IPaymentClient paymentClient, IPurchaseUnitOfWork purchaseUnitOfWork)
+
+        public PurchasesService(
+            IMapper mapper,
+            ILogger<PurchasesService> logger,
+            IPaymentClient paymentClient,
+            IPurchaseUnitOfWork purchaseUnitOfWork,
+            ISupplyClient supplyClient)
         {
             _mapper = mapper;
             _logger = logger;
             _paymentClient = paymentClient;
             _purchaseUnitOfWork = purchaseUnitOfWork;
+            _supplyClient = supplyClient;
         }
-        public async Task CreatePurchaseAsync(PurchaseDto purchaseDto)
+
+        public async Task<bool> CreatePurchaseAsync(PurchaseDto purchaseDto)
         {
             try
             {
-                // TODO: might need to validate purchaseDto
                 var purchase = _mapper.Map<Purchase>(purchaseDto);
                 
-                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid);
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
                 
                 var purchaseProducts = purchase.StorePurchases
-                    .SelectMany(x =>
-                        x.ProductsPurchases, (_, purchaseProduct) => purchaseProduct);
+                    .SelectMany(product =>
+                        product.ProductsPurchases, (_, purchaseProduct) => purchaseProduct);
 
-                var taskList = purchaseProducts.Select(purchaseProduct => Task.Run(async () =>
+                var taskList = purchaseProducts.Select(purchaseProduct => 
+                    Task.Run(async () =>
                 {
                     var product = purchaseProduct.Product;
                     purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
@@ -48,62 +56,67 @@ namespace BoomaEcommerce.Services.Purchases
 
                 if (!await purchase.MakePurchase())
                 {
-                    //TODO: CancelTransaction
-                    return;
+                    return false;
                 }
 
                 await _paymentClient.MakeOrder(purchase);
+
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
-                _purchaseUnitOfWork.SaveAsync();
+
+                await _purchaseUnitOfWork.ShoppingCartRepository
+                    .DeleteOneAsync(cart =>
+                    cart.User.Guid == purchase.Buyer.Guid);
+
+                await _supplyClient.NotifyOrder(purchase);
+
+                await _purchaseUnitOfWork.SaveAsync();
+
+
+                return true;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                _logger.LogError("Failed to make purchase.", e);
+                return false;
             }
 
         }
 
-        public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IReadOnlyCollection<PurchaseDto>> GetUserPurchaseHistoryAsync(Guid userId)
+        public async Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userGuid)
         {
             try
             {
                 var purchaseHistory =
-                    await _purchaseUnitOfWork.PurchaseRepository.FilterByAsync(purchase => purchase.Buyer.Guid == userId);
+                    await _purchaseUnitOfWork.PurchaseRepository.FilterByAsync(purchase =>
+                            purchase.Buyer.Guid == userGuid);
+
                 var purchaseHistoryDtoList = _mapper.Map<List<PurchaseDto>>(purchaseHistory);
                 return purchaseHistoryDtoList;
             }
             catch (Exception e)
             {
-                _logger.LogError("the following error occured during \"Get purchase history method\": {Error}", e.Message);
+                _logger.LogError("The following error occurred during when trying to get user purchase history for user: {userGuid}", userGuid, e);
                 return null;
             }
             
         }
 
-        public Task<IReadOnlyCollection<PurchaseDto>> GetStorePurchaseHistoryAsync(Guid storeGuid)
-        {
-            throw new NotImplementedException();
-        }
-
+        // function not supported yet.
         public Task<PurchaseDto> GetPurchaseAsync(Guid purchaseGuid)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
+        // function not supported yet.
         public Task DeletePurchaseAsync(Guid purchaseGuid)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
+        // function not supported yet.
         public Task UpdatePurchaseAsync(PurchaseDto purchase)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

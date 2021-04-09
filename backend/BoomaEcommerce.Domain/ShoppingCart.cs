@@ -9,6 +9,6 @@ namespace BoomaEcommerce.Domain
     public class ShoppingCart : BaseEntity
     {
         public User User { get; set; }
-        public List<ShoppingBasket> Baskets { get; set; }
+        public List<ShoppingBasket> Baskets { get; set; } = new();
     }
 }
