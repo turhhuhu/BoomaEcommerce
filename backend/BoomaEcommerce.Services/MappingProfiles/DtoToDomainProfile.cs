@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,15 +20,15 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StoreDto, Store>();
 
             CreateMap<ProductDto, Product>();
+            CreateMap<StoreDto,Store>();
             CreateMap<PurchaseProductDto, PurchaseProduct>().ForMember(dest => dest.Product,
                 opt =>
                     opt.MapFrom(x => new Product{Guid = x.ProductDto.Guid}));
             CreateMap<StorePurchaseDto, StorePurchase>();
             CreateMap<PurchaseDto, Purchase>();
-            
+            CreateMap<StorePurchaseDto, StorePurchase>();   
             CreateMap<StoreManagementDto, StoreManagement>();
             CreateMap<StoreOwnershipDto, StoreOwnership>();
-
 
         }
     }

@@ -78,7 +78,8 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var store = await _storeRepo.FindOneAsync(s => s.Guid == storeGuid);
-                return _mapper.Map<StoreDto>(store);
+                var ret1 = _mapper.Map<StoreDto>(store);
+                return ret1;
             }
             catch (Exception e)
             {
