@@ -18,7 +18,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
         {
             CreateMap<Store, StoreDto>();
             CreateMap<User, UserDto>();
-            
+            CreateMap<ShoppingBasket, ShoppingBasketDto>();
+            CreateMap<ShoppingCart, ShoppingCartDto>();
             CreateMap<StoreManagement, StoreManagementDto>();
             CreateMap<StoreOwnership, StoreOwnershipDto>();
             CreateMap<Product, ProductDto>();

@@ -11,5 +11,6 @@ namespace BoomaEcommerce.Services.DTO
         public string StoreName { get; set; }
         public string Description { get; set; }
         public UserDto StoreFounder { get; set; }
+        public string Rating { get; set; }
     }
 }
