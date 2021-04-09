@@ -17,40 +17,117 @@ namespace BoomaEcommerce.Services.Users
     {        
         private readonly IMapper _mapper;
         private readonly ILogger<UsersService> _logger;
+        private readonly IUserUnitOfWork _userUnitOfWork;
 
-        public UsersService(IMapper mapper, ILogger<UsersService> logger)
+
+        public UsersService(IMapper mapper, ILogger<UsersService> logger,
+             IUserUnitOfWork userUnitOfWork)
         {
             _mapper = mapper;
             _logger = logger;
+            _userUnitOfWork = userUnitOfWork;
         }
 
-        public Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid)
+        public async Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var shoppingCart = await _userUnitOfWork.ShoppingCartRepo
+                    .FindOneAsync(x => x.User.Guid == userGuid);
+                
+                if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
+                
+                shoppingCart = new ShoppingCart {User = new User {Guid = userGuid}};
+                await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
+                return _mapper.Map<ShoppingCartDto>(shoppingCart);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
 
-        public Task CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket)
+        public async Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasketDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var shoppingBasket = _mapper.Map<ShoppingBasket>(shoppingBasketDto);
+                var shoppingCart = await _userUnitOfWork.ShoppingCartRepo
+                    .FindOneAsync(x => x.Guid == shoppingCartGuid);
+                if (!shoppingCart.AddShoppingBasket(shoppingBasket))
+                {
+                    return false;
+                }
+                await _userUnitOfWork.ShoppingBasketRepo.InsertOneAsync(shoppingBasket);
+                await _userUnitOfWork.ShoppingCartRepo.ReplaceOneAsync(shoppingCart);
+                await _userUnitOfWork.SaveAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
-        public Task<ShoppingCartDto> GetShoppingCartAsync(string userId)
+        
+        public async Task<bool> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+            PurchaseProductDto purchaseProductDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
+                var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
+                    .FindOneAsync(x => x.Guid == shoppingBasketGuid);
+                if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
+                {
+                    return false;
+                }
+
+                await _userUnitOfWork.PurchaseProductRepo.InsertOneAsync(purchaseProduct);
+                await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
+                await _userUnitOfWork.SaveAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
-        public Task AddProductToShoppingBasketAsync(Guid shoppingBasketGuid, PurchaseProductDto purchaseProduct)
+        public async Task<bool> DeleteProductFromShoppingBasketAsync(Guid shoppingBasketGuid, Guid purchaseProductGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
+                    .FindOneAsync(x => x.Guid == shoppingBasketGuid);
+                if (!shoppingBasket.RemovePurchaseProduct(purchaseProductGuid))
+                {
+                    return false;
+                }
+                await _userUnitOfWork.ShoppingBasketRepo.InsertOneAsync(shoppingBasket);
+                await _userUnitOfWork.SaveAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
-        public Task DeleteProductFromShoppingBasketAsync(Guid shoppingBasketGuid, Guid purchaseProductGuid)
+        public async Task DeleteShoppingBasketAsync(Guid shoppingBasketGuid)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteShoppingBasketAsync(Guid shoppingBasketGuid)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                await _userUnitOfWork.ShoppingBasketRepo.DeleteOneAsync(x => x.Guid == shoppingBasketGuid);
+                await _userUnitOfWork.SaveAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         public Task<UserDto> GetUserInfoAsync(Guid userGuid)

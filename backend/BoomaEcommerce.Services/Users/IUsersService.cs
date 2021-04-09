@@ -28,7 +28,7 @@ namespace BoomaEcommerce.Services.Users
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket);
+        Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket);
 
         /// <summary>
         /// Adds a product to a user's shopping basket.
@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Services.Users
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task AddProductToShoppingBasketAsync(Guid shoppingBasketGuid, PurchaseProductDto purchaseProduct);
+        Task<bool> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid, PurchaseProductDto purchaseProduct);
 
         /// <summary>
         /// Deletes a product from a user's shopping basket.
@@ -48,7 +48,7 @@ namespace BoomaEcommerce.Services.Users
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task DeleteProductFromShoppingBasketAsync(Guid shoppingBasketGuid, Guid purchaseProductGuid);
+        Task<bool> DeleteProductFromShoppingBasketAsync(Guid shoppingBasketGuid, Guid purchaseProductGuid);
 
         /// <summary>
         /// Deletes a shopping basket in a user's shopping cart.
