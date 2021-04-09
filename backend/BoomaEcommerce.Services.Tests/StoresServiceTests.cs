@@ -42,7 +42,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var storesRepo = DalMockFactory.MockRepository(_EntitiesStores);
             var storesPurchaseRepo = DalMockFactory.MockRepository(_EntitiesStorePurchases);
-            var storesService = new StoresService(loggerMock.Object, mapper, storesRepo.Object, storesPurchaseRepo.Object);
+            var storesService = new StoresService(loggerMock.Object, mapper, storesRepo.Object, storesPurchaseRepo.Object, null);
 
             var res1 = await storesService.GetStoreAsync(s1.Guid);
             var expectedRes1 = mapper.Map<StoreDto>(s1);
@@ -107,7 +107,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var storesRepo = DalMockFactory.MockRepository(_EntitiesStores);
             var storesPurchaseRepo = DalMockFactory.MockRepository(_EntitiesStorePurchases);
-            var storesService = new StoresService(loggerMock.Object, mapper, storesRepo.Object, storesPurchaseRepo.Object);
+            var storesService = new StoresService(loggerMock.Object, mapper, storesRepo.Object, storesPurchaseRepo.Object, null);
 
             var res1 = await storesService.GetStorePurchaseHistory(s1.Guid);
             var expectedRes1 = new List<StorePurchaseDto>();
