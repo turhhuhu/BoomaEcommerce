@@ -43,6 +43,19 @@ namespace BoomaEcommerce.Domain.Tests
 
             result.Should().BeFalse();
         }
+        
+        [Theory]
+        [InlineData(10, 5)]
+        [InlineData(2, 1)]
+        [InlineData(5, 5)]
+        public void PurchaseAmount_ReturnFalse_WhenAmountIsValidButProductIsSafeDeleted(int initialAmount, int amount)
+        {
+            var sut = new Product {Amount = initialAmount, IsSoftDeleted = true};
+
+            var result = sut.PurchaseAmount(amount);
+
+            result.Should().BeFalse();
+        }
 
         [Theory]
         [InlineData(10, 5, 5)]

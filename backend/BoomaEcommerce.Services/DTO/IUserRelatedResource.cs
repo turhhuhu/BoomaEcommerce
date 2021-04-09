@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class ShoppingCartDto : IUserRelatedResource
+    public interface IUserRelatedResource
     {
         public UserDto User { get; set; }
     }

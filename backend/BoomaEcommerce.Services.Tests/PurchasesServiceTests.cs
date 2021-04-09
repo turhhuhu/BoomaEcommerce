@@ -48,6 +48,7 @@ namespace BoomaEcommerce.Services.Tests
         [Fact]
         public async Task CreatePurchaseAsync_ShouldDecreaseProductsAmount_WhenPurchaseDtoIsValid()
         {
+            // Arrange
             var purchasesDict = new Dictionary<Guid, Purchase>();
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
@@ -75,15 +76,61 @@ namespace BoomaEcommerce.Services.Tests
         
             var sut = new PurchasesService(_mapper, _loggerMock.Object,
                 _paymentClientMock.Object, purchaseUnitOfWorkMock.Object);
-
+            
+            // Act
             await sut.CreatePurchaseAsync(purchaseDtoFixture);
 
+            // Assert
             foreach (var productDictValue in productDict.Values)
             {
                 productDictValue.Amount.Should().Be(5);
             }
 
             purchasesDict[purchaseDtoFixture.Guid].Guid.Should().Be(purchaseDtoFixture.Guid);
+        }
+        
+        [Fact]
+        public async Task CreatePurchaseAsync_ShouldNotAddCreatePurchase_WhenPurchaseDtoIsInvalid()
+        {
+            // Arrange
+            var purchasesDict = new Dictionary<Guid, Purchase>();
+            var productDict = new Dictionary<Guid, Product>();
+            var userDict = new Dictionary<Guid, User>();
+            
+            var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
+                .With(x => x.StorePurchases, TestData.GetTestInvalidStorePurchasesDtos())
+                .Create();
+            
+            var userFixture = _fixture.Build<User>()
+                .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
+                .Create();
+            userDict[purchaseDtoFixture.Buyer.Guid] = userFixture;
+            
+            foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
+            {
+                foreach (var productsPurchaseDto in storePurchaseDto.ProductsPurchases)
+                {
+                    var testProductGuid = productsPurchaseDto.ProductDto.Guid;
+                    var testProduct = TestData.GetTestProduct(testProductGuid);
+                    productDict[testProductGuid] = testProduct;
+                }
+            }
+
+            var purchaseUnitOfWorkMock = SetUpRepositoriesMocks(purchasesDict, productDict, userDict);
+        
+            var sut = new PurchasesService(_mapper, _loggerMock.Object,
+                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object);
+            
+            // Act
+            await sut.CreatePurchaseAsync(purchaseDtoFixture);
+
+            // Assert
+            foreach (var productDictValue in productDict.Values)
+            {
+                productDictValue.Amount.Should().Be(10);
+            }
+
+            productDict.ContainsKey(purchaseDtoFixture.Guid).Should().BeFalse();
         }
 
 

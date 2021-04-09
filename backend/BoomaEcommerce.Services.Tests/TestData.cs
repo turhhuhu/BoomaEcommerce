@@ -55,6 +55,29 @@ namespace BoomaEcommerce.Services.Tests
             };
             return validProductsPurchasesDtos;
         }
+        
+        private static List<PurchaseProductDto> GetTestInvalidPurchaseProductsDtos()
+        {
+            var validProductsPurchasesDtos = new List<PurchaseProductDto>
+            {
+                new()
+                {
+                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Amount = 11
+                },
+                new()
+                {
+                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Amount = 11
+                },
+                new()
+                {
+                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Amount = 11
+                }
+            };
+            return validProductsPurchasesDtos;
+        }
 
         public static List<StorePurchaseDto> GetTestValidStorePurchasesDtos()
         {
@@ -66,5 +89,17 @@ namespace BoomaEcommerce.Services.Tests
             };
             return validProductsPurchasesDtos;
         }
+        
+        public static List<StorePurchaseDto> GetTestInvalidStorePurchasesDtos()
+        {
+            var validProductsPurchasesDtos = new List<StorePurchaseDto>
+            {
+                new() {ProductsPurchases = GetTestInvalidPurchaseProductsDtos()},
+                new() {ProductsPurchases = GetTestInvalidPurchaseProductsDtos()},
+                new() {ProductsPurchases = GetTestInvalidPurchaseProductsDtos()}
+            };
+            return validProductsPurchasesDtos;
+        }
+        
     }
 }
