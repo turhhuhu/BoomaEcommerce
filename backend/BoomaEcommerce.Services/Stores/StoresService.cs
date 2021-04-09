@@ -15,21 +15,47 @@ namespace BoomaEcommerce.Services.Stores
         private readonly ILogger<StoresService> _logger;
         private readonly IMapper _mapper;
         private readonly IRepository<Store> _storeRepo;
+        private readonly IRepository<StoreOwnership> _storeOwnershipRepo;
         private readonly IRepository<StorePurchase> _storePurchaseRepo;
+        
         public StoresService(ILogger<StoresService> logger,
             IMapper mapper,
             IRepository<Store> storeRepo,
-            IRepository<StorePurchase> storePurchasesRepo)
+            IRepository<StorePurchase> storePurchasesRepo, 
+            IRepository<StoreOwnership> storeOwnershipRepo)
         {
             _logger = logger;
             _mapper = mapper;
             _storeRepo = storeRepo;
             _storePurchaseRepo = storePurchasesRepo;
+            _storeOwnershipRepo = storeOwnershipRepo;
         }
 
-        public Task CreateStoreAsync(string userId, StoreDto store)
+        public async Task CreateStoreAsync(StoreDto store)
         {
-            throw new NotImplementedException();
+            var newStore = _mapper.Map<Store>(store);
+            try
+            {
+                await _storeRepo.InsertOneAsync(newStore); 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message); 
+            }
+
+            var user = _mapper.Map<User>(newStore.StoreFounder);
+            var storeOwnerShip = new StoreOwnership();
+            storeOwnerShip.Store = newStore;
+            storeOwnerShip.User = user; 
+
+            try
+            {
+                await _storeOwnershipRepo.InsertOneAsync(storeOwnerShip); 
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
         }
 
         public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()

@@ -15,6 +15,7 @@ namespace BoomaEcommerce.Domain
         public string Category { get; set; }
         public double Price { get; set; }
         public int Amount { get; set; }
+        public float Rating { get; set; }
         public SemaphoreSlim ProductLock { get; set; }
         public bool IsSoftDeleted { get; set; }
         

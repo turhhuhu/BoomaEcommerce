@@ -17,26 +17,18 @@ namespace BoomaEcommerce.Services.Users
     {        
         private readonly IMapper _mapper;
         private readonly ILogger<PurchasesService> _logger;
-        private readonly IPaymentClient _paymentClient;
-        private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<Purchase> _purchaseRepository;
         private readonly IRepository<StoreOwnership> _storeOwnershipRepository;       
         private readonly IRepository<StoreManagement> _storeManagementRepository;
         private readonly IRepository<StoreManagementPermission> _permissionsRepository;
 
 
-        public UsersService(IMapper mapper, ILogger<PurchasesService> logger,
-             IRepository<User> userRepository, IRepository<Product> productRepository,
-            IRepository<Purchase> purchaseRepository , IRepository<StoreOwnership> storeOwnershipRepository,
+        public UsersService(IMapper mapper, ILogger<PurchasesService> logger, 
+             IRepository<StoreOwnership> storeOwnershipRepository,
              IRepository<StoreManagement> storeManagementRepository,
              IRepository<StoreManagementPermission> permissionRepository)
         {
             _mapper = mapper;
             _logger = logger;
-            _userRepository = userRepository;
-            _productRepository = productRepository;
-            _purchaseRepository = purchaseRepository;
             _storeOwnershipRepository = storeOwnershipRepository;
             _storeManagementRepository = storeManagementRepository;
             _permissionsRepository = permissionRepository;
@@ -97,16 +89,29 @@ namespace BoomaEcommerce.Services.Users
 
                 var storeManagementDtos =  _mapper.Map<List<StoreManagementDto>>(managers);
                 var storeOwnerDtos = _mapper.Map<List<StoreOwnershipDto>>(owners);
-                return new StoreSellersResponse
-                {
-                    StoreManagers = storeManagementDtos,
-                    StoreOwners = storeOwnerDtos
-                };
+                return new StoreSellersResponse(storeOwnerDtos, storeManagementDtos);
                 // Seller - A seller is either an Owner or a Manager.
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
+        public async Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid)
+        {
+            try
+            {
+                var storeOwner = await _storeOwnershipRepository.FindByIdAsync(storeOwnerGuid);
+                var (storeOwnerships, storeManagements) = storeOwner.GetSubordinates();
+
+                return new StoreSellersResponse(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),
+                    _mapper.Map<List<StoreManagementDto>>(storeManagements));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to get all subordinate sellers for store owner with guid", e);
                 return null;
             }
         }
@@ -198,8 +203,6 @@ namespace BoomaEcommerce.Services.Users
                 return false;
             }
         }
-        
-        
         
         private async Task<StoreOwnership> ValidateInforamation(Guid ownerGuid, Guid StoreGuid, Guid userGuid)
         {
