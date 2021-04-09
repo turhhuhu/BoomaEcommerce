@@ -9,9 +9,9 @@ namespace BoomaEcommerce.Data
 {
     public interface IPurchaseUnitOfWork
     {
-        public IRepository<Purchase> PurchaseRepository { get; set; }
-        public IRepository<User> UserRepository { get; set; }
-        public IRepository<Product> ProductRepository { get; set; }
-        public void Save();
+        IRepository<Purchase> PurchaseRepository { get; set; }
+        IRepository<User> UserRepository { get; set; }
+        IRepository<Product> ProductRepository { get; set; }
+        void SaveAsync();
     }
 }
