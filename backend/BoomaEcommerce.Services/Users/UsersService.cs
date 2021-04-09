@@ -18,8 +18,7 @@ namespace BoomaEcommerce.Services.Users
         private readonly IMapper _mapper;
         private readonly ILogger<UsersService> _logger;
 
-
-        public UsersService(IMapper mapper, ILogger<PurchasesService> logger)
+        public UsersService(IMapper mapper, ILogger<UsersService> logger)
         {
             _mapper = mapper;
             _logger = logger;
@@ -31,6 +30,10 @@ namespace BoomaEcommerce.Services.Users
         }
 
         public Task CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<ShoppingCartDto> GetShoppingCartAsync(string userId)
         {
             throw new NotImplementedException();
         }

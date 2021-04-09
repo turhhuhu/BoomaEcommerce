@@ -161,13 +161,18 @@ namespace BoomaEcommerce.Services.Stores
                 var ownerStoreOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(storeOwnership =>
                     storeOwnership.User.Guid.Equals(ownerGuid) && storeOwnership.Store.Guid.Equals(StoreGuid));
 
+                if (ownerStoreOwnership == null)
+                {
+                    return null;
+                }
+
                 //checking if the new owner is not already a store owner or a store manager
                 var ownerShouldBeNull = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(storeOwnership =>
                     storeOwnership.User.Guid.Equals(userGuid) && storeOwnership.Store.Guid.Equals(StoreGuid));
-                var managerShouldBeNull = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(sm =>
+                var managerShouldBeNull = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(sm =>
                     sm.User.Guid.Equals(userGuid) && sm.Store.Guid.Equals(StoreGuid));
 
-                if (ownerShouldBeNull != null || managerShouldBeNull != null || ownerStoreOwnership == null)
+                if (ownerShouldBeNull != null || managerShouldBeNull != null)
                 {
                     return null;
                 }
