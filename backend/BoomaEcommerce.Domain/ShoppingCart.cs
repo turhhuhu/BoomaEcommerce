@@ -10,7 +10,6 @@ namespace BoomaEcommerce.Domain
     {
         public User User { get; set; }
         public List<ShoppingBasket> Baskets { get; set; } = new();
-
         public bool AddShoppingBasket(ShoppingBasket shoppingBasket)
         {
             if (shoppingBasket is null)
