@@ -159,16 +159,7 @@ namespace BoomaEcommerce.Services.Tests
 
            
             var matanUser = createUserObject("Matan");
-
-            /*var nikeStore = createStoreObject("nike");
-
-            var bennyUser = createUserObject("Benny");
             
-            var storeOwnershipMatanNike = createStoreOwnershipObject(nikeStore, matanUser);*/
-            
-
-            //EntitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
-
 
             var purchasesUnitOfWork = DalMockFactory.MockPurchasesUnitOfWork(entitiesPurchases, productDict, userDict);
 
