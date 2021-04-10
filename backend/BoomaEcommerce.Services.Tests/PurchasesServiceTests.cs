@@ -37,7 +37,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             var purchaseRepoMock = DalMockFactory.MockRepository(purchases);
             var productRepoMock = DalMockFactory.MockRepository(products);
-            var userRepoMock = DalMockFactory.MockRepository(users);
+            var userRepoMock = DalMockFactory.MockUserManager(users.Values.ToList());
             var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
             purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock.Object);
             purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock.Object);
@@ -52,6 +52,8 @@ namespace BoomaEcommerce.Services.Tests
             var purchasesDict = new Dictionary<Guid, Purchase>();
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
+
+            var supplyClientMock = new Mock<ISupplyClient>();
             
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, TestData.GetTestValidStorePurchasesDtos())
@@ -60,6 +62,7 @@ namespace BoomaEcommerce.Services.Tests
             var userFixture = _fixture.Build<User>()
                 .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
                 .Create();
+
             userDict[purchaseDtoFixture.Buyer.Guid] = userFixture;
             
             foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
@@ -75,7 +78,7 @@ namespace BoomaEcommerce.Services.Tests
             var purchaseUnitOfWorkMock = SetUpRepositoriesMocks(purchasesDict, productDict, userDict);
         
             var sut = new PurchasesService(_mapper, _loggerMock.Object,
-                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object);
+                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object, supplyClientMock.Object);
             
             // Act
             await sut.CreatePurchaseAsync(purchaseDtoFixture);
@@ -96,7 +99,8 @@ namespace BoomaEcommerce.Services.Tests
             var purchasesDict = new Dictionary<Guid, Purchase>();
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
-            
+            var supplyClientMock = new Mock<ISupplyClient>();
+
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, TestData.GetTestInvalidStorePurchasesDtos())
                 .Create();
@@ -119,7 +123,7 @@ namespace BoomaEcommerce.Services.Tests
             var purchaseUnitOfWorkMock = SetUpRepositoriesMocks(purchasesDict, productDict, userDict);
         
             var sut = new PurchasesService(_mapper, _loggerMock.Object,
-                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object);
+                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object, supplyClientMock.Object);
             
             // Act
             await sut.CreatePurchaseAsync(purchaseDtoFixture);
