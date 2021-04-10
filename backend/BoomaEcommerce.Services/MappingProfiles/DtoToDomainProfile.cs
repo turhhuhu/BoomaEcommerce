@@ -25,6 +25,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StorePurchaseDto, StorePurchase>();   
             CreateMap<StoreManagementDto, StoreManagement>();
             CreateMap<StoreOwnershipDto, StoreOwnership>();
+            CreateMap<StoreManagementPermissionDto, StoreManagementPermission>();
 
         }
     }

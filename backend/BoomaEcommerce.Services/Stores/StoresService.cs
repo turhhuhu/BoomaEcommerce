@@ -219,23 +219,26 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var managersTask = _storeUnitOfWork.StoreManagementRepo.FilterByAsync(storeManagement =>
-                   storeManagement.Store.Guid == storeGuid, storeManagement =>
-                    new StoreManagement
-                    {
-                        Guid = storeManagement.Guid,
-                        User = storeManagement.User
-                    });
+                    storeManagement.Store.Guid == storeGuid);
 
                 var ownersTask = _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(storeOwnership =>
-                   storeOwnership.Store.Guid == storeGuid, storeOwnership =>
-                   new StoreOwnership
-                   {
-                       Guid = storeOwnership.Guid,
-                       User = storeOwnership.User
-                   });
+                    storeOwnership.Store.Guid == storeGuid);
 
-                var managers = (await managersTask).ToList();
-                var owners = (await ownersTask).ToList();
+                var managers = (await managersTask).Select(storeManagement =>
+                   new StoreManagement
+                   {
+                       Guid = storeManagement.Guid,
+                       User = storeManagement.User,
+                       Store = storeManagement.Store
+                   }).ToList();
+
+                var owners = (await ownersTask).Select(storeOwnership =>
+                    new StoreOwnership
+                    {
+                        Guid = storeOwnership.Guid,
+                        User = storeOwnership.User,
+                        Store = storeOwnership.Store
+                    }).ToList();
 
 
                 var storeManagementDtos = _mapper.Map<List<StoreManagementDto>>(managers);
