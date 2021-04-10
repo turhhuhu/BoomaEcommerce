@@ -9,6 +9,7 @@ namespace BoomaEcommerce.Services.Settings
     public class JwtSettings
     {
         public string Secret { get; set; }
-        public double TokenExpirationHours { get; set; }
+        public TimeSpan TokenLifeTime { get; set; }
+        public int RefreshTokenExpirationMonthsAmount { get; set; }
     }
 }

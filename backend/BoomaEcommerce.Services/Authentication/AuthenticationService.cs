@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Settings;
@@ -21,20 +22,29 @@ namespace BoomaEcommerce.Services.Authentication
         private readonly ILogger<AuthenticationService> _logger;
         private readonly UserManager<User> _userManager;
         private readonly JwtSettings _jwtSettings;
+        private readonly TokenValidationParameters _tokenValidationParams;
+        private readonly IRepository<RefreshToken> _refreshTokenRepo;
 
-        public AuthenticationService(ILogger<AuthenticationService> logger,
+        public AuthenticationService(
+            ILogger<AuthenticationService> logger,
             UserManager<User> userManager,
-            JwtSettings jwtSettings)
+            JwtSettings jwtSettings,
+            TokenValidationParameters tokenValidationParams, 
+            IRepository<RefreshToken> refreshTokenRepo)
         {
             _logger = logger;
             _userManager = userManager;
             _jwtSettings = jwtSettings;
+            _tokenValidationParams = tokenValidationParams;
+            _refreshTokenRepo = refreshTokenRepo;
         }
         public AuthenticationService(ILogger<AuthenticationService> logger,
             UserManager<User> userManager,
-            IOptions<JwtSettings> jwtOptions) : this(logger, userManager, jwtOptions.Value) { }
+            IOptions<JwtSettings> jwtOptions, TokenValidationParameters tokenValidationParams,
+            IRepository<RefreshToken> refreshTokenRepo) 
+            : this(logger, userManager, jwtOptions.Value, tokenValidationParams, refreshTokenRepo) { }
 
-        public async Task<AuthenticationResponse> LoginAsync(string username, string password)
+        public async Task<AuthenticationResult> LoginAsync(string username, string password)
         {
             _logger.LogInformation($"Making attempt to log in for user: {username}");
 
@@ -43,7 +53,7 @@ namespace BoomaEcommerce.Services.Authentication
             if (existingUser == null)
             {
                 _logger.LogWarning($"User with username {username} does not exist in the system.");
-                return new AuthenticationResponse 
+                return new AuthenticationResult 
                 {
                     Errors = new[] { "Username doesn't exist." }
                 };
@@ -54,20 +64,16 @@ namespace BoomaEcommerce.Services.Authentication
             if (!userHasValidPassword)
             {
                 _logger.LogWarning($"Password for user with username {username} is incorrect.");
-                return new AuthenticationResponse
+                return new AuthenticationResult
                 {
                     Errors = new[] { "Bad username or password." }
                 };
             }
 
-            return new AuthenticationResponse
-            {
-                Success = true,
-                Token = GenerateToken(existingUser)
-            };
+            return await GenerateAuthResponseWithToken(existingUser);
         }
 
-        public async Task<AuthenticationResponse> RegisterAdminAsync(string username, string password)
+        public async Task<AuthenticationResult> RegisterAdminAsync(string username, string password)
         {
             _logger.LogInformation($"Making attempt to register admin: {username}");
             var existingUser = await _userManager.FindByNameAsync(username);
@@ -76,7 +82,7 @@ namespace BoomaEcommerce.Services.Authentication
             {
                 _logger.LogInformation($"Admin user with username {username} already exist in the system.");
 
-                return new AuthenticationResponse
+                return new AuthenticationResult
                 {
                     Errors = new[] { "Username already exists." }
                 };
@@ -90,7 +96,7 @@ namespace BoomaEcommerce.Services.Authentication
             if (!createdUser.Succeeded)
             {
                 _logger.LogWarning($"Failed to register admin user with username {username}.");
-                return new AuthenticationResponse
+                return new AuthenticationResult
                 {
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
                 };
@@ -100,20 +106,16 @@ namespace BoomaEcommerce.Services.Authentication
             if (roleResult == null || !roleResult.Succeeded)
             {
                 _logger.LogWarning($"Failed to add admin role to user with username {username}.");
-                return new AuthenticationResponse
+                return new AuthenticationResult
                 {
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
                 };
             }
 
-            return new AuthenticationResponse
-            {
-                Success = true,
-                Token = GenerateToken(user, UserRoles.AdminRole)
-            };
+            return await GenerateAuthResponseWithToken(user, UserRoles.AdminRole);
         }
 
-        public async Task<AuthenticationResponse> RegisterAsync(string username, string password)
+        public async Task<AuthenticationResult> RegisterAsync(string username, string password)
         {
             _logger.LogInformation($"Making attempt to register user: {username}");
 
@@ -123,7 +125,7 @@ namespace BoomaEcommerce.Services.Authentication
             {
                 _logger.LogInformation($"User with username {username} already exist in the system.");
 
-                return new AuthenticationResponse
+                return new AuthenticationResult
                 {
                     Errors = new[] {"Username already exists."}
                 };
@@ -138,21 +140,99 @@ namespace BoomaEcommerce.Services.Authentication
             if (!createdUser.Succeeded)
             {
                 _logger.LogWarning($"Failed to register user with username {username}.");
-                return new AuthenticationResponse
+                return new AuthenticationResult
                 {
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
                 };
             }
 
-            return new AuthenticationResponse
-            {
-                Success = true,
-                Token = GenerateToken(user)
-            };
+            return await GenerateAuthResponseWithToken(user);
         }
-        
 
-        private string GenerateToken(User user, params string[] roles)
+        public async Task<AuthenticationResult> RefreshJwtToken(string token, string refreshToken)
+        {
+            var validatedToken = GetClaimsFromToken(token);
+            var expirationClaim = validatedToken?.Claims.SingleOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp)?.Value;
+            if (validatedToken == null || expirationClaim == null)
+            {
+                _logger.LogWarning("Token: {token} is invalid.");
+                return new AuthenticationResult()
+                {
+                    Errors = new[] {"Invalid token"}
+                };
+            }
+
+            var expirationDateUnix = long.Parse(expirationClaim);
+            var expirationDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                .AddSeconds(expirationDateUnix)
+                .Subtract(_jwtSettings.TokenLifeTime);
+
+            if (expirationDateTimeUtc > DateTime.UtcNow)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] {"This token has not expired yet."}
+                };
+            }
+
+            var storedRefreshToken = await _refreshTokenRepo.FindOneAsync(rfToken => rfToken.Token == refreshToken);
+
+            if (DateTime.UtcNow > storedRefreshToken.ExpirationDate)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] {"This refresh token has expired."}
+                };
+            }
+
+            var jti = validatedToken.Claims.SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Jti)?.Value;
+
+            if (storedRefreshToken.Used)
+            {
+                return new AuthenticationResult {Errors = new[] {" This refresh token has been used."}};
+            }
+
+            if (storedRefreshToken.JwtId != jti)
+            {
+                return new AuthenticationResult {Errors = new[] {"This refresh token does not exist."}};
+            }
+
+            storedRefreshToken.Used = true;
+            await _refreshTokenRepo.ReplaceOneAsync(storedRefreshToken);
+            
+            var userGuid = validatedToken.Claims.Single(claim => claim.Type == "guid").Value;
+            var user = await _userManager.FindByIdAsync(userGuid);
+            var isAdmin = await _userManager.IsInRoleAsync(user, UserRoles.AdminRole);
+
+            return await (isAdmin
+                ? GenerateAuthResponseWithToken(user, UserRoles.AdminRole)
+                : GenerateAuthResponseWithToken(user));
+
+        }
+
+        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validationToken) =>
+            validationToken is JwtSecurityToken jwtSecurityToken &&
+            jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
+                StringComparison.InvariantCultureIgnoreCase);
+
+        private ClaimsPrincipal GetClaimsFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var claimsPrincipal = tokenHandler.ValidateToken(token, _tokenValidationParams, out var validatedToken);
+                return !IsJwtWithValidSecurityAlgorithm(validatedToken) 
+                    ? null 
+                    : claimsPrincipal;
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "Failed to read claims from token {token}", token);
+                return null;
+            }
+        }
+
+        private async Task<AuthenticationResult> GenerateAuthResponseWithToken(User user, params string[] roles)
         {
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -167,12 +247,37 @@ namespace BoomaEcommerce.Services.Authentication
                     new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
                     new Claim("guid", user.Guid.ToString())
                 }.Concat(roles.Select(role => new Claim(ClaimTypes.Role, role)))),
-                Expires = DateTime.UtcNow.AddHours(_jwtSettings.TokenExpirationHours),
+                Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifeTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor); 
-            return tokenHandler.WriteToken(token);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            var refreshToken = new RefreshToken
+            {
+                JwtId = token.Id,
+                User = user,
+                CreationDate = DateTime.UtcNow,
+                ExpirationDate = DateTime.UtcNow.AddMonths(_jwtSettings.RefreshTokenExpirationMonthsAmount),
+                Token = Guid.NewGuid().ToString()
+            };
+
+            try
+            {
+                await _refreshTokenRepo.InsertOneAsync(refreshToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get refresh {refreshToken}", refreshToken);
+            }
+
+            var tokenString = tokenHandler.WriteToken(token);
+            return new AuthenticationResult
+            {
+                Success = true,
+                Token = tokenString,
+                RefreshToken = refreshToken.Token
+            };
         }
     }
 }
