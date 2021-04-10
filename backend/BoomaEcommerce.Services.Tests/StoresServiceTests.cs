@@ -507,7 +507,7 @@ namespace BoomaEcommerce.Services.Tests
             //Act
             var result = await us.NominateNewStoreManager(bennyUser.Guid, newManager);//Fail : already a manager
             
-            //Asser
+            //Assert
             result.Should().BeFalse();
             
             
