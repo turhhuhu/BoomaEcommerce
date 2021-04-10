@@ -41,20 +41,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             
         }
-
-        private Mock<IPurchaseUnitOfWork> SetUpRepositoriesMocks(IDictionary<Guid, Purchase> purchases, IDictionary<Guid, Product> products,
-            IDictionary<Guid, User> users)
-        {
-            var purchaseRepoMock = DalMockFactory.MockRepository(purchases);
-            var productRepoMock = DalMockFactory.MockRepository(products);
-            var userRepoMock = DalMockFactory.MockUserManager(users.Values.ToList());
-            var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
-            purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock.Object);
-            purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock.Object);
-            purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock.Object);
-            return purchaseUnitOfWork;
-        }
-
+        
         [Fact]
         public async Task CreatePurchaseAsync_ShouldDecreaseProductsAmount_WhenPurchaseDtoIsValid()
         {
@@ -85,7 +72,7 @@ namespace BoomaEcommerce.Services.Tests
                 }
             }
 
-            var purchaseUnitOfWorkMock = SetUpRepositoriesMocks(purchasesDict, productDict, userDict);
+            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchasesDict, productDict, userDict);
         
             var sut = new PurchasesService(_mapper, _loggerMock.Object,
                 _paymentClientMock.Object, purchaseUnitOfWorkMock.Object, supplyClientMock.Object);
@@ -130,7 +117,7 @@ namespace BoomaEcommerce.Services.Tests
                 }
             }
 
-            var purchaseUnitOfWorkMock = SetUpRepositoriesMocks(purchasesDict, productDict, userDict);
+            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchasesDict, productDict, userDict);
         
             var sut = new PurchasesService(_mapper, _loggerMock.Object,
                 _paymentClientMock.Object, purchaseUnitOfWorkMock.Object, supplyClientMock.Object);
