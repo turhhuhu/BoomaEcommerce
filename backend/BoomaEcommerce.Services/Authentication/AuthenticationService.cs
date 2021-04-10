@@ -67,6 +67,52 @@ namespace BoomaEcommerce.Services.Authentication
             };
         }
 
+        public async Task<AuthenticationResponse> RegisterAdminAsync(string username, string password)
+        {
+            _logger.LogInformation($"Making attempt to register admin: {username}");
+            var existingUser = await _userManager.FindByNameAsync(username);
+
+            if (existingUser != null)
+            {
+                _logger.LogInformation($"Admin user with username {username} already exist in the system.");
+
+                return new AuthenticationResponse
+                {
+                    Errors = new[] { "Username already exists." }
+                };
+            }
+            var user = new AdminUser
+            {
+                UserName = username
+            };
+            var createdUser = await _userManager.CreateAsync(user, password);
+
+            if (!createdUser.Succeeded)
+            {
+                _logger.LogWarning($"Failed to register admin user with username {username}.");
+                return new AuthenticationResponse
+                {
+                    Errors = createdUser.Errors.Select(err => err.Description).ToArray()
+                };
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
+            if (roleResult == null || !roleResult.Succeeded)
+            {
+                _logger.LogWarning($"Failed to add admin role to user with username {username}.");
+                return new AuthenticationResponse
+                {
+                    Errors = createdUser.Errors.Select(err => err.Description).ToArray()
+                };
+            }
+
+            return new AuthenticationResponse
+            {
+                Success = true,
+                Token = GenerateToken(user, UserRoles.AdminRole)
+            };
+        }
+
         public async Task<AuthenticationResponse> RegisterAsync(string username, string password)
         {
             _logger.LogInformation($"Making attempt to register user: {username}");
@@ -104,11 +150,14 @@ namespace BoomaEcommerce.Services.Authentication
                 Token = GenerateToken(user)
             };
         }
+        
 
-        private string GenerateToken(User user)
+        private string GenerateToken(User user, params string[] roles)
         {
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -117,12 +166,13 @@ namespace BoomaEcommerce.Services.Authentication
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
                     new Claim("guid", user.Guid.ToString())
-                }),
+                }.Concat(roles.Select(role => new Claim(ClaimTypes.Role, role)))),
                 Expires = DateTime.UtcNow.AddHours(_jwtSettings.TokenExpirationHours),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
-           var token = tokenHandler.CreateToken(tokenDescriptor);
-           return tokenHandler.WriteToken(token);
+            var token = tokenHandler.CreateToken(tokenDescriptor); 
+            return tokenHandler.WriteToken(token);
         }
     }
 }
