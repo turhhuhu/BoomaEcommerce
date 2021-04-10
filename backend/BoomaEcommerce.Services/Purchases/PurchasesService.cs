@@ -76,7 +76,7 @@ namespace BoomaEcommerce.Services.Purchases
             }
             catch (Exception e)
             {
-                _logger.LogError("Failed to make purchase.", e);
+                _logger.LogError(e, "Failed to make purchase.");
                 return false;
             }
 
@@ -95,7 +95,7 @@ namespace BoomaEcommerce.Services.Purchases
             }
             catch (Exception e)
             {
-                _logger.LogError("The following error occurred during when trying to get user purchase history for user: {userGuid}", userGuid, e);
+                _logger.LogError(e, "The following error occurred during when trying to get user purchase history for user: {userGuid}", userGuid);
                 return null;
             }
             

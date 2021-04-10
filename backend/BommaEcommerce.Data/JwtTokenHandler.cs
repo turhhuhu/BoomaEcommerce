@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Domain
+namespace BoomaEcommerce.Data
 {
-    public class AuthenticationToken
+    class JwtTokenHandler
     {
-        public string Token { get; set; }
     }
 }

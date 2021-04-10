@@ -86,7 +86,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to delete store with guid {storeGuid}", e);
+                _logger.LogError(e, $"Failed to delete store with guid {storeGuid}");
                 return false;
             }
         }
@@ -262,7 +262,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError("Failed to get all subordinate sellers for store owner with guid", e);
+                _logger.LogError(e, "Failed to get all subordinate sellers for store owner with guid");
                 return null;
             }
         }

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class AuthenticationResponse
+    public class AuthenticationResult
     {
         public bool Success { get; set; } = false;
         public IList<string> Errors { get; set; }
         public string Token { get; set; }
+        public string RefreshToken { get; set; }
     }
 }
