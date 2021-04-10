@@ -134,5 +134,19 @@ namespace BoomaEcommerce.Services.Tests
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
             return storeUnitOfWorkMock;
         }
+        
+        
+        public static Mock<IPurchaseUnitOfWork> MockPurchasesUnitOfWork(IDictionary<Guid, Purchase> purchases, IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users)
+        {
+            var purchaseRepoMock = DalMockFactory.MockRepository(purchases);
+            var productRepoMock = DalMockFactory.MockRepository(products);
+            var userRepoMock = DalMockFactory.MockUserManager(users.Values.ToList());
+            var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
+            purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock.Object);
+            purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock.Object);
+            purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock.Object);
+            return purchaseUnitOfWork;
+        }
     }
 }

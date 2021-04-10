@@ -35,13 +35,13 @@ namespace BoomaEcommerce.Services.Tests
             Mock<ILogger<StoresService>> loggerMock = new Mock<ILogger<StoresService>>();
 
             Store s1 = new() { StoreName = "Benny Hadayag" };
-            Store s2 = new() { StoreName = "Nike" };
-            Store s3 = new() { StoreName = "Adidas" };
+            Store storeOwnershipBennyAdidas = new() { StoreName = "Nike" };
+            Store storeManagementsOmerAdidas = new() { StoreName = "Adidas" };
             Store s4 = new() { StoreName = "TopShop" };
 
             _EntitiesStores.Add(s1.Guid, s1);
-            _EntitiesStores.Add(s2.Guid, s2);
-            _EntitiesStores.Add(s3.Guid, s3);
+            _EntitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
+            _EntitiesStores.Add(storeManagementsOmerAdidas.Guid, storeManagementsOmerAdidas);
 
             var storeUnitOfWork =
                 DalMockFactory.MockStoreUnitOfWork(_EntitiesStores, null, _EntitiesStorePurchases, null, null);
@@ -58,8 +58,8 @@ namespace BoomaEcommerce.Services.Tests
             var res3 = await storesService.GetStoresAsync();
             List<StoreDto> expectedRes3 = new List<StoreDto>();
             expectedRes3.Add(mapper.Map<StoreDto>(s1));
-            expectedRes3.Add(mapper.Map<StoreDto>(s2));
-            expectedRes3.Add(mapper.Map<StoreDto>(s3));
+            expectedRes3.Add(mapper.Map<StoreDto>(storeOwnershipBennyAdidas));
+            expectedRes3.Add(mapper.Map<StoreDto>(storeManagementsOmerAdidas));
             res3.ToList().Should().BeEquivalentTo(expectedRes3);
         }
 
@@ -68,10 +68,10 @@ namespace BoomaEcommerce.Services.Tests
         {
             Mock<ILogger<StoresService>> loggerMock = new Mock<ILogger<StoresService>>();
             Store s1 = new() {};
-            Store s2 = new() {};
-            Store s3 = new() {};
+            Store storeOwnershipBennyAdidas = new() {};
+            Store storeManagementsOmerAdidas = new() {};
 
-            //store1 purchase 
+            //nikeStore purchase 
                 //p1 
             var pr1 = _fixture.Build<PurchaseProduct>().Create();
             var pr2 = _fixture.Build<PurchaseProduct>().Create();
@@ -95,19 +95,19 @@ namespace BoomaEcommerce.Services.Tests
 
             StorePurchase p2 = new() { ProductsPurchases = prList2, Store = s1 };
 
-            //store2 purchase 
+            //adidasStore purchase 
             var pr6 = _fixture.Build<PurchaseProduct>().Create();
             var prList3 = new List<PurchaseProduct>();
             prList3.Add(pr6);
 
-            StorePurchase p3 = new() { ProductsPurchases = prList3, Store = s2 };
+            StorePurchase p3 = new() { ProductsPurchases = prList3, Store = storeOwnershipBennyAdidas };
 
             _EntitiesStorePurchases.Add(p1.Guid, p1);
             _EntitiesStorePurchases.Add(p2.Guid, p2);
             _EntitiesStorePurchases.Add(p3.Guid, p3);
 
             _EntitiesStores.Add(s1.Guid,s1);
-            _EntitiesStores.Add(s2.Guid, s2);
+            _EntitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
 
             var storeUnitOfWork =
                 DalMockFactory.MockStoreUnitOfWork(_EntitiesStores, null, _EntitiesStorePurchases, null, null);
@@ -121,45 +121,37 @@ namespace BoomaEcommerce.Services.Tests
 
             res1.ToList().Should().BeEquivalentTo(expectedRes1);
 
-            var res2 = await storesService.GetStorePurchaseHistory(s2.Guid);
+            var res2 = await storesService.GetStorePurchaseHistory(storeOwnershipBennyAdidas.Guid);
             var expectedRes2 = new List<StorePurchaseDto>();
             expectedRes2.Add(mapper.Map<StorePurchaseDto>(p3));
 
             res2.ToList().Should().BeEquivalentTo(expectedRes2);
 
-            var res3 = await storesService.GetStorePurchaseHistory(s3.Guid);
+            var res3 = await storesService.GetStorePurchaseHistory(storeManagementsOmerAdidas.Guid);
             res3.Should().BeEmpty();
 
 
         }
 
         [Fact]
-        public async void NominateNewStoreOwnerTest_ReturnTrue_WhenAnOwnerNominatesNewOwnerThatDoesntHaveOtherResponsibility()
+        public async void NominateNewStoreOwner_ReturnTrue_NewOwnerDoesNotHaveOtherResponsibilities()
         {
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var nikeStore = createStoreObject("nike");
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var matanUser = createUserObject("Matan");
+            var bennyUser = createUserObject("Benny");
+            
+            var storeOwnershipMatanNike = createStoreOwnershipObject(nikeStore, matanUser);
+            
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
-
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
-
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
+            EntitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
+            
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
 
@@ -167,207 +159,188 @@ namespace BoomaEcommerce.Services.Tests
 
 
             //SUCCESS
-            StoreOwnership s22 = createStoreOwnershipObject(store1, u2);
-            var newOwner = mapper.Map<StoreOwnershipDto>(s22);
-            var result1 = await us.NominateNewStoreOwner(u1.Guid, newOwner);
-            result1.Should().BeTrue();
-
+            var storeOwnershipBennyNike = createStoreOwnershipObject(nikeStore, bennyUser);
+            var newOwner = mapper.Map<StoreOwnershipDto>(storeOwnershipBennyNike);
+            //Act
+            var result = await us.NominateNewStoreOwner(matanUser.Guid, newOwner);
+            
+            //Assert
+            result.Should().BeTrue();
+            var returnedValue = await storeUnitOfWork.Object.StoreOwnershipRepo.FindOneAsync(x => x.Guid == storeOwnershipBennyNike.Guid);
+            returnedValue.Should().NotBe(null);
 
         }
         [Fact]
-        public async void NominateNewStoreOwnerTest_ReturnFalse_ifOwnerOfAStoreTriesToNominateNewOwnerToAnotherStore()
+        public async void NominateNewStoreOwner_ReturnFalse_OwnerOfAStoreTriesToNominateNewOwnerToAnotherStore()
         {
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var nikeStore = createStoreObject("nike");
+            var adidasStore = createStoreObject("adidas");
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var bennyUser = createUserObject("Benny");
+            var oriUser = createUserObject("Ori");
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
+            
+            StoreOwnership storeOwnershipBennyAdidas = createStoreOwnershipObject(adidasStore, bennyUser);
+            
+            EntitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
+            
+            var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
 
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
+            var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
 
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
 
+            //FAIL:bennyUser is an owner of another store
+            var storeOwnershipOriNike = createStoreOwnershipObject(nikeStore, oriUser);
+            var newOwner = mapper.Map<StoreOwnershipDto>(storeOwnershipOriNike);
+            //Act
+            var result = await us.NominateNewStoreOwner(bennyUser.Guid, newOwner);
+            
+            //Assert
+            result.Should().BeFalse();
+            var returnedValue = await storeUnitOfWork.Object.StoreOwnershipRepo.FindOneAsync(x => x.Guid == storeOwnershipOriNike.Guid);
+            returnedValue.Should().Be(null);
+
+        }
+        [Fact]
+        public async void NominateNewStoreOwner_ReturnFalse_UserThatIsNotAnOwnerTriesToNominate()
+        {
+            // Arrange
+            var mapper = config.CreateMapper();
+
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+
+            var nikeStore = createStoreObject("nike");
+           
+            var oriUser = createUserObject("Ori");
+            var arikUser = createUserObject("Arik");
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
 
             var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
 
 
-            //FAIL:u2 is an owner of another store
-            StoreOwnership s4 = createStoreOwnershipObject(store1, u4);
-            var newOwner = mapper.Map<StoreOwnershipDto>(s4);
-            var result2 = await us.NominateNewStoreOwner(u2.Guid, newOwner);
-            result2.Should().BeFalse();
+            var storeOwnershipOriNike = createStoreOwnershipObject(nikeStore, oriUser);
+            var newOwner = mapper.Map<StoreOwnershipDto>(storeOwnershipOriNike);
+            
+            //Act
+            var result = await us.NominateNewStoreOwner(arikUser.Guid, newOwner);//FAIL:arikUser is not an owner wanted store
+            
+            //Assert
+            result.Should().BeFalse();
+            var returnedValue = await storeUnitOfWork.Object.StoreOwnershipRepo.FindOneAsync(x => x.Guid == storeOwnershipOriNike.Guid);
+            returnedValue.Should().Be(null);
+
+
 
         }
         [Fact]
-        public async void NominateNewStoreOwnerTest_ReturnFalse_ifUserThatIsntAnOwnerTriesToNominateNewOwner()
+        public async void NominateNewStoreOwner_ReturnFalse_OwnerTriesToNominateOtherOwner()
         {
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var adidasStore = createStoreObject("adidas");
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var matanUser = createUserObject("Matan");
+            var bennyUser = createUserObject("Benny");
+          
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
+            var storeOwnershipMatanAdidas = createStoreOwnershipObject(adidasStore, matanUser);
 
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
+            var storeOwnershipBennyAdidas = createStoreOwnershipObject(adidasStore, bennyUser);
 
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
+            EntitiesOwnerships[storeOwnershipMatanAdidas.Guid] = storeOwnershipMatanAdidas;
+            EntitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
 
             var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+            
+            var newOwner = mapper.Map<StoreOwnershipDto>(storeOwnershipBennyAdidas);
+            
+            //Act
+            var result = await us.NominateNewStoreOwner(matanUser.Guid, newOwner);//Fail : both are owners
+            //Assert
+            result.Should().BeFalse();
+            
+            
 
-
-            StoreOwnership s4 = createStoreOwnershipObject(store1, u4);
-            var newOwner = mapper.Map<StoreOwnershipDto>(s4);
-            var result3 = await us.NominateNewStoreOwner(u5.Guid, newOwner);//FAIL:u5 is not an owner wanted store
-            result3.Should().BeFalse();
-
+            
 
         }
         [Fact]
-        public async void NominateNewStoreOwnerTest_ReturnFalse_ifOwnerTriesToNominateNewOwnerThatIsAlreadyAnOwnerOfThatStore()
+        public async void NominateNewStoreOwner_ReturnFalse_OwnerTriesToNominateOtherStoreManager()
         {
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var adidasStore = createStoreObject("adidas");
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var bennyUser = createUserObject("Benny");
+            var omerUser = createUserObject("Omer");
+           
+            
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
+            var storeOwnershipBennyAdidas = createStoreOwnershipObject(adidasStore, bennyUser);
+            var storeManagementsOmerAdidas = createStoreManagementObject(adidasStore, omerUser);
 
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
-
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
+           
+            EntitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
+            EntitiesManagements[storeManagementsOmerAdidas.Guid] = storeManagementsOmerAdidas;
 
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
 
             var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+            
+            var storeOwnershipOmerAdidas = createStoreOwnershipObject(adidasStore, omerUser);
+            var newOwner = mapper.Map<StoreOwnershipDto>(storeOwnershipOmerAdidas);
+            //Act
+            var result = await us.NominateNewStoreOwner(bennyUser.Guid, newOwner);//Fail : already a manager
+            
+            //Assert
+            result.Should().BeFalse();
 
-
-            var newOwner = mapper.Map<StoreOwnershipDto>(s2);
-            var result4 = await us.NominateNewStoreOwner(u1.Guid, newOwner);//Fail : both are owners
-            result4.Should().BeFalse();
-
-
-
-        }
-        [Fact]
-        public async void NominateNewStoreOwnerTest_ReturnFalse_ifOwnerTriesToNominateNewOwnerThatIsAlreadyAStoreManagerOfThatStore()
-        {
-            var mapper = config.CreateMapper();
-
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
-
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
-
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
-
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
-
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
-
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
-
-
-            var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
-
-            var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
-
-
-
-            StoreOwnership s32 = createStoreOwnershipObject(store2, u3);
-            var newOwner = mapper.Map<StoreOwnershipDto>(s32);
-            var result5 = await us.NominateNewStoreOwner(u2.Guid, newOwner);//Fail : already a manager
-            result5.Should().BeFalse();
+            var returnedValue = await storeUnitOfWork.Object.StoreOwnershipRepo.FindOneAsync(x => x.Guid == storeOwnershipOmerAdidas.Guid);
+            returnedValue.Should().Be(null);
 
         }
 
 
         [Fact]
-        public async void NominateNewStoreManagerTest_ReturnTrue_WhenAnOwnerNominatesNewManagerThatDoesntHaveOtherResponsibility()
+        public async void NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities()
         {
-
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var nikeStore = createStoreObject("nike");
+            
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var matanUser = createUserObject("Matan");
+            var bennyUser = createUserObject("Benny");
+           
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
+            var storeOwnershipMatanNike = createStoreOwnershipObject(nikeStore, matanUser);
+           
 
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
-
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
+            EntitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
 
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
@@ -376,40 +349,71 @@ namespace BoomaEcommerce.Services.Tests
 
 
             //SUCCESS
-            StoreManagement s22 = createStoreManagementObject(store1, u2);
-            var newManager = mapper.Map<StoreManagementDto>(s22);
-            var result1 = await us.NominateNewStoreManager(u1.Guid, newManager);
-            result1.Should().BeTrue();
+            var storeManagementBennyNike = createStoreManagementObject(nikeStore, bennyUser);
+            var newManager = mapper.Map<StoreManagementDto>(storeManagementBennyNike);
+            
+            //Act
+            var result = await us.NominateNewStoreManager(matanUser.Guid, newManager);
+            
+            //Assert
+            result.Should().BeTrue();
+            var returnedValue = await storeUnitOfWork.Object.StoreManagementRepo.FindOneAsync(x => x.Guid == storeManagementBennyNike.Guid);
+            returnedValue.Should().NotBe(null);
+
 
         }
         [Fact]
-        public async void NominateNewStoreManagerTest_ReturnFalse_ifOwnerOfAStoreTriesToNominateNewManagerToAnotherStore()
+        public async void NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateNewManagerToAnotherStore()
         {
-
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var nikeStore = createStoreObject("nike");
+            var adidasStore = createStoreObject("adidas");
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var bennyUser = createUserObject("Benny");
+            var oriUser = createUserObject("Ori");
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
+           
+            var storeOwnershipBennyAdidas = createStoreOwnershipObject(adidasStore, bennyUser);
+           
+            EntitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
+            var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
 
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
+            var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+
+
+            //FAIL:bennyUser is an owner of another store
+            var storeManagementsOriNike = createStoreManagementObject(nikeStore, oriUser);
+            var newManager = mapper.Map<StoreManagementDto>(storeManagementsOriNike);
+            
+            //Act
+            var result = await us.NominateNewStoreManager(bennyUser.Guid, newManager);
+            
+            //Assert
+            result.Should().BeFalse();
+            var returnedValue = await storeUnitOfWork.Object.StoreManagementRepo.FindOneAsync(x => x.Guid == storeManagementsOriNike.Guid);
+            returnedValue.Should().Be(null);
+
+
+        }
+        [Fact]
+        public async void NominateNewStoreManager_ReturnFalse_UserThatINotAnOwnerTriesToNominate()
+        {
+            // Arrange
+            var mapper = config.CreateMapper();
+
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+
+            var nikeStore = createStoreObject("nike");
+            
+            var oriUser = createUserObject("Ori");
+            var arikUser = createUserObject("Arik");
 
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
@@ -417,84 +421,39 @@ namespace BoomaEcommerce.Services.Tests
             var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
 
 
-            //FAIL:u2 is an owner of another store
-            StoreManagement s4 = createStoreManagementObject(store1, u4);
-            var newManager = mapper.Map<StoreManagementDto>(s4);
-            var result2 = await us.NominateNewStoreManager(u2.Guid, newManager);
-            result2.Should().BeFalse();
-
-
-        }
-        [Fact]
-        public async void NominateNewStoreManagerTest_ReturnFalse_ifUserThatIsntAnOwnerTriesToNominateNewManager()
-        {
-
-            var mapper = config.CreateMapper();
-
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
-
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
-
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
-
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
-
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
-
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
-
-
-            var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
-
-            var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
-
-
-            StoreManagement s41 = createStoreManagementObject(store1, u4);
-            var newManager = mapper.Map<StoreManagementDto>(s41);
-            var result3 = await us.NominateNewStoreManager(u5.Guid, newManager);//FAIL:u5 is not an owner wanted store
-            result3.Should().BeFalse();
-
+            var storeManagementsOriNike = createStoreManagementObject(nikeStore, oriUser);
+            var newManager = mapper.Map<StoreManagementDto>(storeManagementsOriNike);
+            
+            //Act
+            var result = await us.NominateNewStoreManager(arikUser.Guid, newManager);//FAIL:arikUser is not an owner wanted store
+            
+            //Assert
+            result.Should().BeFalse();
+            var returnedValue = await storeUnitOfWork.Object.StoreManagementRepo.FindOneAsync(x => x.Guid == storeManagementsOriNike.Guid);
+            returnedValue.Should().Be(null);
 
         }
         [Fact]
-        public async void NominateNewStoreManagerTest_ReturnFalse_ifOwnerTriesToNominateNewManagerThatIsAlreadyAnOwnerOfThatStore()
+        public async void NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateOtherOwner()
         {
-
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var nikeStore = createStoreObject("nike");
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var matanUser = createUserObject("Matan");
+            var bennyUser = createUserObject("Benny");
+           
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
+            var storeOwnershipMatanNike = createStoreOwnershipObject(nikeStore, matanUser);
 
-            StoreOwnership s2 = createStoreOwnershipObject(store1, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
+            var storeOwnershipBennyAdidas = createStoreOwnershipObject(nikeStore, bennyUser);
 
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
+            EntitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
+            EntitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
 
@@ -502,41 +461,40 @@ namespace BoomaEcommerce.Services.Tests
 
 
 
-            StoreManagement m22 = createStoreManagementObject(store1, u2);
-            var newManager = mapper.Map<StoreManagementDto>(m22);
-            var result4 = await us.NominateNewStoreManager(u1.Guid, newManager);//Fail : both are owners
-            result4.Should().BeFalse();
+            var storeManagementBennyNike = createStoreManagementObject(nikeStore, bennyUser);
+            var newManager = mapper.Map<StoreManagementDto>(storeManagementBennyNike);
+            
+            //Act
+            var result = await us.NominateNewStoreManager(matanUser.Guid, newManager);//Fail : both are owners
+            
+            //Asser
+            result.Should().BeFalse();
 
+            var returnedValue = await storeUnitOfWork.Object.StoreManagementRepo.FindOneAsync(x => x.Guid == storeManagementBennyNike.Guid);
+            returnedValue.Should().Be(null);
 
         }
         [Fact]
-        public async void NominateNewStoreManagerTest_ReturnFalse_ifOwnerTriesToNominateNewManagerThatIsAlreadyAStoreManagerOfThatStore()
+        public async void NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateOtherStoreManager()
         {
-
+            // Arrange
             var mapper = config.CreateMapper();
 
-            Dictionary<Guid, StoreOwnership> EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
-            Dictionary<Guid, StoreManagement> EntitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var EntitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var EntitiesManagements = new Dictionary<Guid, StoreManagement>();
 
-            Store store1 = createStoreObject("nike");
-            Store store2 = createStoreObject("adidas");
+            var adidasStore = createStoreObject("adidas");
 
-            User u1 = createUserObject("Matan");
-            User u2 = createUserObject("Benny");
-            User u3 = createUserObject("Omer");
-            User u4 = createUserObject("Ori");
-            User u5 = createUserObject("Arik");
+            var bennyUser = createUserObject("Benny");
+            var omerUser = createUserObject("Omer");
 
-            StoreOwnership s11 = createStoreOwnershipObject(store1, u1);
-            StoreOwnership s12 = createStoreOwnershipObject(store2, u1);
+           
 
-            StoreOwnership s2 = createStoreOwnershipObject(store2, u2);
-            StoreManagement s3 = createStoreManagementObject(store2, u3);
-
-            EntitiesOwnerships[s11.Guid] = s11;
-            EntitiesOwnerships[s12.Guid] = s12;
-            EntitiesOwnerships[s2.Guid] = s2;
-            EntitiesManagements[s3.Guid] = s3;
+            var storeOwnershipBennyAdidas = createStoreOwnershipObject(adidasStore, bennyUser);
+            var storeManagementsOmerAdidas = createStoreManagementObject(adidasStore, omerUser);
+            
+            EntitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
+            EntitiesManagements[storeManagementsOmerAdidas.Guid] = storeManagementsOmerAdidas;
 
 
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(null, EntitiesOwnerships, null, EntitiesManagements, null);
@@ -544,10 +502,15 @@ namespace BoomaEcommerce.Services.Tests
             var us = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
 
 
-            StoreManagement s32 = createStoreManagementObject(store2, u3);
-            var newManager = mapper.Map<StoreManagementDto>(s32);
-            var result5 = await us.NominateNewStoreManager(u2.Guid, newManager);//Fail : already a manager
-            result5.Should().BeFalse();
+            var newManager = mapper.Map<StoreManagementDto>(storeManagementsOmerAdidas);
+            
+            //Act
+            var result = await us.NominateNewStoreManager(bennyUser.Guid, newManager);//Fail : already a manager
+            
+            //Assert
+            result.Should().BeFalse();
+            
+            
         }
         private Store createStoreObject(string storeName)
         {
