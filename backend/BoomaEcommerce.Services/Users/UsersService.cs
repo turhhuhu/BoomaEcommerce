@@ -96,7 +96,7 @@ namespace BoomaEcommerce.Services.Users
             }
         }
 
-        public async Task<bool> DeleteProductFromShoppingBasketAsync(Guid shoppingBasketGuid, Guid purchaseProductGuid)
+        public async Task<bool> DeletePurchaseProductFromShoppingBasketAsync(Guid shoppingBasketGuid, Guid purchaseProductGuid)
         {
             try
             {
@@ -106,7 +106,8 @@ namespace BoomaEcommerce.Services.Users
                 {
                     return false;
                 }
-                await _userUnitOfWork.ShoppingBasketRepo.InsertOneAsync(shoppingBasket);
+                await _userUnitOfWork.PurchaseProductRepo.DeleteOneAsync(x => x.Guid == purchaseProductGuid);
+                await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
                 await _userUnitOfWork.SaveAsync();
                 return true;
             }
@@ -117,16 +118,18 @@ namespace BoomaEcommerce.Services.Users
             }
         }
 
-        public async Task DeleteShoppingBasketAsync(Guid shoppingBasketGuid)
+        public async Task<bool> DeleteShoppingBasketAsync(Guid shoppingBasketGuid)
         {
             try
             {
                 await _userUnitOfWork.ShoppingBasketRepo.DeleteOneAsync(x => x.Guid == shoppingBasketGuid);
                 await _userUnitOfWork.SaveAsync();
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                return false;
             }
         }
 
