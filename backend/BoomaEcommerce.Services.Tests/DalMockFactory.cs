@@ -40,6 +40,9 @@ namespace BoomaEcommerce.Services.Tests
             mgr.Setup(userManager => userManager.FindByNameAsync(It.IsAny<string>()))
                 .ReturnsAsync((string username) => ls.FirstOrDefault(usr => usr.UserName == username));
 
+            mgr.Setup(userManager => userManager.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
             return mgr;
         }
 

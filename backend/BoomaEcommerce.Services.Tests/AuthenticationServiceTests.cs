@@ -65,6 +65,23 @@ namespace BoomaEcommerce.Services.Tests
             // Assert
             response.Success.Should().BeFalse();
         }
+        [Fact]
+        public async Task RegisterAdminAsync_ReturnsSuccessResponse_WhenUserDoNotExists()
+        {
+
+            // Arrange
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            // Act
+            var response = await _authService.RegisterAdminAsync("user", "pass");
+
+            // Assert
+            response.Success.Should().BeTrue();
+            var token = tokenHandler.ReadJwtToken(response.Token);
+            ValidateTokenWithUser(token, _userStore.First(usr => usr.UserName == "user"));
+            var adminRoleClaim = token.Claims.FirstOrDefault(claim => claim.Value == UserRoles.AdminRole );
+            adminRoleClaim.Should().NotBeNull();
+        }
 
         [Fact]
         public async Task LoginAsync_ReturnsSuccessfulResponse_WhenUserExists()
