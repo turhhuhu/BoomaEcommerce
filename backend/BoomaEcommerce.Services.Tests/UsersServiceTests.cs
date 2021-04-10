@@ -27,46 +27,47 @@ namespace BoomaEcommerce.Services.Tests
         IMapper Mapper = Config.CreateMapper();
 
         [Fact]
-        public async void GetSellersInformationTest_ShouldReturnStoreSellers_WhenStoreGuidIsValid()
+        public async void GetSellersInformation_ShouldReturnStoreSellers_WhenStoreExists()
         {
+            // Arrange 
             Mock<ILogger<UsersService>> loggerMock = new Mock<ILogger<UsersService>>();
-            Dictionary<Guid, StoreManagement> _EntitiesStoreManagements = new Dictionary<Guid, StoreManagement>();
-            Dictionary<Guid, StoreOwnership> _EntitiesStoreOwnerships = new Dictionary<Guid, StoreOwnership>();
+            Dictionary<Guid, StoreManagement> entitiesStoreManagements = new Dictionary<Guid, StoreManagement>();
+            Dictionary<Guid, StoreOwnership> entitiesStoreOwnerships = new Dictionary<Guid, StoreOwnership>();
 
-            Store s1 = GetStoreData("Nike");
+            Store storeNike = GetStoreData("Nike");
 
-            User u1 = GetUserData("Benny", "Skidanov", "BennySkidanov");
-            User u2 = GetUserData("Omer", "Kempner", "OmerKempner");
-            User u3 = GetUserData("Matan", "Hazan", "MatanHazan");
-            User u4 = GetUserData("Arye", "Shapiro", "BennySkidanov");
+            User uBenny = GetUserData("Benny", "Skidanov", "BennySkidanov");
+            User uOmer = GetUserData("Omer", "Kempner", "OmerKempner");
+            User uMatan = GetUserData("Matan", "Hazan", "MatanHazan");
+            User uArye = GetUserData("Arye", "Shapiro", "BennySkidanov");
 
-            StoreManagement sm1 = GetStoreManagementData(u1, s1);
-            StoreManagement sm2 = GetStoreManagementData(u2, s1);
-            StoreOwnership so3 = GetStoreOwnershipData(u3, s1);
-            StoreOwnership so4 = GetStoreOwnershipData(u4, s1);
+            StoreManagement smBenny = GetStoreManagementData(uBenny, storeNike);
+            StoreManagement smOmer = GetStoreManagementData(uOmer, storeNike);
+            StoreOwnership soMatan = GetStoreOwnershipData(uMatan, storeNike);
+            StoreOwnership soArye = GetStoreOwnershipData(uArye, storeNike);
 
-            _EntitiesStoreManagements[sm1.Guid] = sm1;
-            _EntitiesStoreManagements[sm2.Guid] = sm2;
-            _EntitiesStoreOwnerships[so3.Guid] = so3;
-            _EntitiesStoreOwnerships[so4.Guid] = so4;
+            entitiesStoreManagements[smBenny.Guid] = smBenny;
+            entitiesStoreManagements[smOmer.Guid] = smOmer;
+            entitiesStoreOwnerships[soMatan.Guid] = soMatan;
+            entitiesStoreOwnerships[soArye.Guid] = soArye;
 
 
-            var repoOwnerships = DalMockFactory.MockRepository(_EntitiesStoreOwnerships);
+            var repoOwnerships = DalMockFactory.MockRepository(entitiesStoreOwnerships);
 
-            var repoManagements = DalMockFactory.MockRepository(_EntitiesStoreManagements);
+            var repoManagements = DalMockFactory.MockRepository(entitiesStoreManagements);
 
             UsersService us = new (Mapper, loggerMock.Object, repoOwnerships.Object, repoManagements.Object);
 
             List<StoreManagementDto> lsm = new List<StoreManagementDto>
             {
-                Mapper.Map<StoreManagementDto>(sm1),
-                Mapper.Map<StoreManagementDto>(sm2)
+                Mapper.Map<StoreManagementDto>(smBenny),
+                Mapper.Map<StoreManagementDto>(smOmer)
             };
 
             List<StoreOwnershipDto> lso = new List<StoreOwnershipDto>
             {
-                Mapper.Map<StoreOwnershipDto>(so3),
-                Mapper.Map<StoreOwnershipDto>(so4)
+                Mapper.Map<StoreOwnershipDto>(soMatan),
+                Mapper.Map<StoreOwnershipDto>(soArye)
             };
 
             var expectedResponse = new StoreSellersResponse
@@ -75,41 +76,40 @@ namespace BoomaEcommerce.Services.Tests
                 StoreOwners = lso
             };
 
-            var response = await us.GetAllSellersInformation(s1.Guid);
+            // Act 
+            var response = await us.GetAllSellersInformation(storeNike.Guid);
 
+            // Assert
             response.Should().BeEquivalentTo(expectedResponse);
-
-
-            List<StoreManagementDto> lsm2 = new List<StoreManagementDto>();
-            lsm2.Add(Mapper.Map<StoreManagementDto>(sm2));
-
-            List<StoreOwnershipDto> lso2 = new List<StoreOwnershipDto>();
-            lso2.Add(Mapper.Map<StoreOwnershipDto>(so4));
         }
 
         [Fact]
-        public async void GetSellersInformationTest_ShouldReturnEmptyObject_WhenStoreGuidIsInvalid()
+        public async void GetSellersInformation_ShouldReturnEmptyObject_WhenStoreDoesNotExist()
         {
+            // Arrange 
             Mock<ILogger<UsersService>> loggerMock = new Mock<ILogger<UsersService>>();
-            Dictionary<Guid, StoreManagement> _EntitiesStoreManagements = new Dictionary<Guid, StoreManagement>();
-            Dictionary<Guid, StoreOwnership> _EntitiesStoreOwnerships = new Dictionary<Guid, StoreOwnership>();
+            Dictionary<Guid, StoreManagement> entitiesStoreManagements = new Dictionary<Guid, StoreManagement>();
+            Dictionary<Guid, StoreOwnership> entitiesStoreOwnerships = new Dictionary<Guid, StoreOwnership>();
 
-            var repoOwnerships = DalMockFactory.MockRepository(_EntitiesStoreOwnerships);
+            var repoOwnerships = DalMockFactory.MockRepository(entitiesStoreOwnerships);
 
-            var repoManagements = DalMockFactory.MockRepository(_EntitiesStoreManagements);
+            var repoManagements = DalMockFactory.MockRepository(entitiesStoreManagements);
 
             UsersService us = new(Mapper, loggerMock.Object, repoOwnerships.Object, repoManagements.Object);
 
-            var response = await us.GetAllSellersInformation(new Guid());
+            // Act 
+            var response = await us.GetAllSellersInformation(new Guid()); // Store Guid does not exist !!
 
+            // Assert 
             response.StoreOwners.Should().BeEmpty();
             response.StoreManagers.Should().BeEmpty();
         }
 
         [Fact]
-        public async void GetPermissionsTest_ShouldReturnCorrectPermissions_WhenSMGuidIsValid()
+        public async void GetPermissions_ShouldReturnCorrectPermissions_WhenSMExists()
         { 
-            Dictionary<Guid, StoreManagementPermission> _EntitiesStoreManagementPermissions =
+            // Arrange 
+            Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
             new Dictionary<Guid, StoreManagementPermission>();
 
             Mock<ILogger<UsersService>> loggerMock = new Mock<ILogger<UsersService>>();
@@ -126,46 +126,53 @@ namespace BoomaEcommerce.Services.Tests
             StoreManagementPermission smp1 = GetStoreManagementPermissionData(true, sm1);
             StoreManagementPermission smp2 = GetStoreManagementPermissionData(false, sm2);
 
-            _EntitiesStoreManagementPermissions[sm1.Guid] = smp1;
-            _EntitiesStoreManagementPermissions[sm2.Guid] = smp2;
+            entitiesStoreManagementPermissions[sm1.Guid] = smp1;
+            entitiesStoreManagementPermissions[sm2.Guid] = smp2;
 
 
-            var repoPermissions = DalMockFactory.MockRepository(_EntitiesStoreManagementPermissions);
+            var repoPermissions = DalMockFactory.MockRepository(entitiesStoreManagementPermissions);
 
             UsersService us = new(Mapper, loggerMock.Object, repoPermissions.Object);
 
+            // Act 
             var res1 = await us.GetPermissions(smp1.Guid);
             var res2 = await us.GetPermissions(smp2.Guid);
 
             var r1 = Mapper.Map<StoreManagementPermission>(res1);
             var r2 = Mapper.Map<StoreManagementPermission>(res2);
+            
+            // Assert
             r1.CanDoSomething.Should().BeTrue();
             r2.CanDoSomething.Should().BeFalse();
         }
 
         [Fact]
-        public async void GetPermissionsTest_ShouldReturnNull_WhenSMGuidIsInvalid()
+        public async void GetPermissions_ShouldReturnNull_WhenSMDoesNotExist()
         {
-            Dictionary<Guid, StoreManagementPermission> _EntitiesStoreManagementPermissions =
+            // Arrange 
+            Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
                 new Dictionary<Guid, StoreManagementPermission>();
 
             Mock<ILogger<UsersService>> loggerMock = new Mock<ILogger<UsersService>>();
 
-            var repoPermissions = DalMockFactory.MockRepository(_EntitiesStoreManagementPermissions);
+            var repoPermissions = DalMockFactory.MockRepository(entitiesStoreManagementPermissions);
 
             UsersService us = new(Mapper, loggerMock.Object, repoPermissions.Object);
 
+            // Act 
             var res1 = await us.GetPermissions(new Guid());
 
             var r1 = Mapper.Map<StoreManagementPermission>(res1);
 
+            // Assert
             r1.Should().BeNull();
         }
 
         [Fact]
-        public async void UpdatePermissionsTest_UpdatePermissionsCorrectly_WhenDtoIsValid()
+        public async void UpdatePermissions_UpdatePermissionsCorrectly_WhenStoreManagerDtoExist()
         {
-            Dictionary<Guid, StoreManagementPermission> _EntitiesStoreManagementPermissions =
+            // Arrange
+            Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
                 new Dictionary<Guid, StoreManagementPermission>();
 
             Mock<ILogger<UsersService>> loggerMock = new Mock<ILogger<UsersService>>();
@@ -178,12 +185,13 @@ namespace BoomaEcommerce.Services.Tests
 
             StoreManagementPermission smp1 = GetStoreManagementPermissionData(true, sm1);
 
-            _EntitiesStoreManagementPermissions[smp1.Guid] = smp1;
+            entitiesStoreManagementPermissions[smp1.Guid] = smp1;
 
-            var repoPermissions = DalMockFactory.MockRepository(_EntitiesStoreManagementPermissions);
+            var repoPermissions = DalMockFactory.MockRepository(entitiesStoreManagementPermissions);
 
             UsersService us = new(Mapper, loggerMock.Object, repoPermissions.Object);
 
+            // Act 
             var replace1 = await us.GetPermissions(smp1.Guid);
             replace1.CanDoSomething = false;
 
@@ -193,13 +201,15 @@ namespace BoomaEcommerce.Services.Tests
 
             var r1 = Mapper.Map<StoreManagementPermission>(res1);
 
+            // Assert
             r1.CanDoSomething.Should().BeFalse();
         }
 
         [Fact]
-        public async void UpdatePermissionsTest_UpdatePermissionNotUpdated_WhenSMDtoIsInvalid()
+        public async void UpdatePermissions_UpdatePermissionNotUpdated_WhenSMDoesNotExist()
         {
-            Dictionary<Guid, StoreManagementPermission> _EntitiesStoreManagementPermissions =
+            // Arrange
+            Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
                 new Dictionary<Guid, StoreManagementPermission>();
 
             Mock<ILogger<UsersService>> loggerMock = new Mock<ILogger<UsersService>>();
@@ -212,12 +222,13 @@ namespace BoomaEcommerce.Services.Tests
 
             StoreManagementPermission smp1 = GetStoreManagementPermissionData(true, sm1);
 
-            _EntitiesStoreManagementPermissions[smp1.Guid] = smp1;
+            entitiesStoreManagementPermissions[smp1.Guid] = smp1;
 
-            var repoPermissions = DalMockFactory.MockRepository(_EntitiesStoreManagementPermissions);
+            var repoPermissions = DalMockFactory.MockRepository(entitiesStoreManagementPermissions);
 
             UsersService us = new(Mapper, loggerMock.Object, repoPermissions.Object);
 
+            // Act 
             var replace1 = await us.GetPermissions(smp1.Guid);
             replace1.CanDoSomething = false;
 
@@ -227,6 +238,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var r1 = Mapper.Map<StoreManagementPermission>(res1);
 
+            // Assert 
             r1.CanDoSomething.Should().BeTrue();
         }
 
