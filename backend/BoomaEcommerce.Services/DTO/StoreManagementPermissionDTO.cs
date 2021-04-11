@@ -8,10 +8,11 @@ using BoomaEcommerce.Domain;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class StoreManagementPermissionDto
+    public class StoreManagementPermissionDto : BaseEntityDto
     {
-        public Guid Guid { get; set; }
         public bool CanDoSomething { get; set; }
-        public StoreManagementDto SmDto { get; set; }
+        public bool ExampleFlag1 { get; set; }
+        public bool ExampleFlag2 { get; set; }
+        public StoreManagementDto StoreManagement { get; set; }
     }
 }
