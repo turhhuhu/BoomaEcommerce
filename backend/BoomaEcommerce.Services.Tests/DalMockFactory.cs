@@ -101,7 +101,7 @@ namespace BoomaEcommerce.Services.Tests
                 .Callback<TEntity>(entity => entities[entity.Guid] = entity);
 
             repoMock.Setup(x => x.FilterByAsync(It.IsAny<Expression<Func<TEntity, bool>>>(), 
-                    It.IsAny<Expression<Func<TEntity, It.IsAnyType>>>()))
+                    (Expression<Func<TEntity, It.IsAnyType>>)It.IsAny<object>()))
                 .ReturnsAsync((Expression<Func<TEntity, bool>> x, Expression<Func<TEntity, It.IsAnyType>> m) =>
                     entities.Values.Where(entity => x.Compile()(entity)).Select(entity => m.Compile()(entity)));
 
