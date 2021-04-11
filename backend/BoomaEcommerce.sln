@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Domain", "BoomaEcommerce.Domain\BoomaEcommerce.Domain.csproj", "{B83207A5-5214-4D60-9791-5CC1DD1D4248}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Data", "BommaEcommerce.Data\BoomaEcommerce.Data.csproj", "{0CE7F16C-CD57-4DD8-A46C-3B444CFDB3CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Core", "BoomaEcommerce.Core\BoomaEcommerce.Core.csproj", "{13374879-3974-4451-A1ED-51BF024636D6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Services", "BoomaEcommerce.Services\BoomaEcommerce.Services.csproj", "{3871FC87-0AFE-4B82-950E-5613CC77FD32}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{26D5B64C-2933-4473-A03A-98BEEE36A2D8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Services.Tests", "BoomaEcommerce.Services.Tests\BoomaEcommerce.Services.Tests.csproj", "{01A5728B-D735-4DCC-ABCC-87845114FE1F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Domain.Tests", "BoomaEcommerce.Domain.Tests\BoomaEcommerce.Domain.Tests.csproj", "{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B83207A5-5214-4D60-9791-5CC1DD1D4248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B83207A5-5214-4D60-9791-5CC1DD1D4248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B83207A5-5214-4D60-9791-5CC1DD1D4248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B83207A5-5214-4D60-9791-5CC1DD1D4248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CE7F16C-CD57-4DD8-A46C-3B444CFDB3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CE7F16C-CD57-4DD8-A46C-3B444CFDB3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CE7F16C-CD57-4DD8-A46C-3B444CFDB3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CE7F16C-CD57-4DD8-A46C-3B444CFDB3CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13374879-3974-4451-A1ED-51BF024636D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13374879-3974-4451-A1ED-51BF024636D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13374879-3974-4451-A1ED-51BF024636D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13374879-3974-4451-A1ED-51BF024636D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3871FC87-0AFE-4B82-950E-5613CC77FD32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3871FC87-0AFE-4B82-950E-5613CC77FD32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3871FC87-0AFE-4B82-950E-5613CC77FD32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3871FC87-0AFE-4B82-950E-5613CC77FD32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{01A5728B-D735-4DCC-ABCC-87845114FE1F} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
+		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C9EE9ECD-5B0D-4081-AAC8-D8F7BD395122}
+	EndGlobalSection
+EndGlobal
