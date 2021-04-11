@@ -23,6 +23,9 @@ namespace BoomaEcommerce.Services.Tests
 
             mgr.Object.UserValidators.Add(new UserValidator<User>());
             mgr.Object.PasswordValidators.Add(new PasswordValidator<User>());
+            
+            mgr.Setup(userManger => userManger.FindByIdAsync(It.IsAny<string>()))
+                .ReturnsAsync((string guid) => ls.FirstOrDefault(x => x.Guid.ToString().Equals(guid)));
 
             mgr.Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
@@ -134,18 +137,21 @@ namespace BoomaEcommerce.Services.Tests
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
             return storeUnitOfWorkMock;
         }
-        
-        
-        public static Mock<IPurchaseUnitOfWork> MockPurchasesUnitOfWork(IDictionary<Guid, Purchase> purchases, IDictionary<Guid, Product> products,
-            IDictionary<Guid, User> users)
+
+
+        public static Mock<IPurchaseUnitOfWork> MockPurchasesUnitOfWork(IDictionary<Guid, Purchase> purchases,
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users, IDictionary<Guid, ShoppingCart> shoppingCarts)
         {
-            var purchaseRepoMock = DalMockFactory.MockRepository(purchases);
-            var productRepoMock = DalMockFactory.MockRepository(products);
-            var userRepoMock = DalMockFactory.MockUserManager(users.Values.ToList());
+            var purchaseRepoMock = MockRepository(purchases);
+            var productRepoMock = MockRepository(products);
+            var userRepoMock = MockUserManager(users.Values.ToList());
+            var shoppingCartMock = MockRepository(shoppingCarts);
             var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
-            purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock.Object);
-            purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock.Object);
-            purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock.Object);
+            purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock?.Object);
+            purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock?.Object);
+            purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
+            purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
             return purchaseUnitOfWork;
         }
     }

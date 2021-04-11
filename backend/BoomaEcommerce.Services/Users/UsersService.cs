@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                
                 return null;
             }
         }
@@ -66,7 +66,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "Failed to create shopping basket for shopping cart with Guid {ShoppingCartGuid}", shoppingCartGuid);
                 return false;
             }
         }
@@ -91,7 +91,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "Failed to add purchase product to shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
@@ -113,7 +113,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "Failed to Delete purchase product from shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
@@ -128,7 +128,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "Failed to Delete shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
