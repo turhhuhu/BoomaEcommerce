@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                
+                _logger.LogError(e, "Failed to get shopping cart for user with Guid {UserGuid}", userGuid);
                 return null;
             }
         }

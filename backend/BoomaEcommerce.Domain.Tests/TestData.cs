@@ -9,21 +9,22 @@ namespace BoomaEcommerce.Domain.Tests
         private static readonly IFixture Fixture = new Fixture();
         public static Product GetTestProduct()
         {
-            return Fixture.Build<Product>()
-                .With(x => x.Amount, 10)
-                .With(x => x.Price, 10)
-                .With(x => x.IsSoftDeleted, false)
-                .With(x => x.ProductLock, new SemaphoreSlim(1))
-                .Create();
+            return new ()
+            {
+                Amount = 10,
+                Price = 10,
+                IsSoftDeleted = false,
+                ProductLock = new SemaphoreSlim(1)
+            };
         }
         
         public static List<PurchaseProduct> GetTestValidProductsPurchases()
         {
             var validProductsPurchases = new List<PurchaseProduct>
             {
-                new(GetTestProduct(), 5),
-                new(GetTestProduct(), 5),
-                new(GetTestProduct(), 5)
+                new(GetTestProduct(), 5, 50),
+                new(GetTestProduct(), 5, 50),
+                new(GetTestProduct(), 5, 50)
             };
 
             return validProductsPurchases;
@@ -33,9 +34,9 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var invalidProductsPurchases = new List<PurchaseProduct>
             {
-                new(GetTestProduct(), 15),
-                new(GetTestProduct(), 5),
-                new(GetTestProduct(), 0)
+                new(GetTestProduct(), 15, 150),
+                new(GetTestProduct(), 5, 50),
+                new(GetTestProduct(), 0, 0)
             };
 
             return invalidProductsPurchases;
@@ -45,15 +46,21 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var validStorePurchases = new List<StorePurchase>
             {
-                Fixture.Build<StorePurchase>()
-                    .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
-                    .Create(),
-                Fixture.Build<StorePurchase>()
-                    .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
-                    .Create(),
-                Fixture.Build<StorePurchase>()
-                    .With(x => x.ProductsPurchases, GetTestValidProductsPurchases())
-                    .Create()
+                new ()
+                {
+                    PurchaseProducts = GetTestValidProductsPurchases(),
+                    TotalPrice = 150
+                },
+                new ()
+                {
+                    PurchaseProducts = GetTestValidProductsPurchases(),
+                    TotalPrice = 150
+                },
+                new ()
+                {
+                    PurchaseProducts = GetTestValidProductsPurchases(),
+                    TotalPrice = 150
+                }
             };
             return validStorePurchases;
         }
@@ -62,15 +69,18 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var validStorePurchases = new List<StorePurchase>
             {
-                Fixture.Build<StorePurchase>()
-                    .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
-                    .Create(),
-                Fixture.Build<StorePurchase>()
-                    .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
-                    .Create(),
-                Fixture.Build<StorePurchase>()
-                    .With(x => x.ProductsPurchases, GetTestInvalidProductsPurchases())
-                    .Create()
+                new ()
+                {
+                    PurchaseProducts = GetTestInvalidProductsPurchases()
+                },
+                new ()
+                {
+                    PurchaseProducts = GetTestInvalidProductsPurchases()
+                },
+                new ()
+                {
+                    PurchaseProducts = GetTestInvalidProductsPurchases()
+                }
             };
             return validStorePurchases;
         }

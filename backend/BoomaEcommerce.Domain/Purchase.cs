@@ -10,11 +10,27 @@ namespace BoomaEcommerce.Domain
     {
         public List<StorePurchase> StorePurchases { get; set; }
         public User Buyer { get; set; }
-        public double TotalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
 
         public Task<bool> MakePurchase()
         {
-            return PurchaseStoreProducts();
+            return !ValidatePrice() ? Task.FromResult(false) : PurchaseStoreProducts();
+        }
+
+        public bool ValidatePrice()
+        {
+            var calculatedTotalPrice = 0.0m;
+            foreach (var storePurchase in StorePurchases)
+            {
+                if (!storePurchase.ValidatePrice())
+                {
+                    return false;
+                }
+
+                calculatedTotalPrice += storePurchase.TotalPrice;
+            }
+
+            return TotalPrice == calculatedTotalPrice;
         }
 
         private async Task<bool> PurchaseStoreProducts()
@@ -24,7 +40,7 @@ namespace BoomaEcommerce.Domain
                 return false;
             }
 
-            var results = await Task.WhenAll(StorePurchases.Select(x => x.PurchaseProducts()));
+            var results = await Task.WhenAll(StorePurchases.Select(x => x.PurchaseAllProducts()));
             return results.All(x => x);
         }
         
