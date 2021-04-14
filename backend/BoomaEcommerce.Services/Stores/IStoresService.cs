@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
 
@@ -28,6 +29,33 @@ namespace BoomaEcommerce.Services.Stores
         /// A task that represents the asynchronous operation
         /// </returns>
         Task CreateStoreAsync(StoreDto store);
+
+        /// <summary>
+        /// Creates a product in a store.
+        /// </summary>
+        /// <param name="productDto"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// </returns>
+        Task<bool> CreateStoreProductAsync(ProductDto productDto);
+
+        /// <summary>
+        /// Deletes a product by guid.
+        /// </summary>
+        /// <param name="productGuid"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// </returns>
+        Task<bool> DeleteProductAsync(Guid productGuid);
+
+        /// <summary>
+        /// Updates a product by guid.
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// </returns>
+        Task<bool> UpdateProductAsync(ProductDto product);
 
         /// <summary>
         /// Gets all stores.
@@ -71,11 +99,11 @@ namespace BoomaEcommerce.Services.Stores
         /// Adds a new manager to a store
         /// </summary>
         /// <param name="owner"></param>
-        /// <param name="newOwnerDto"></param>
+        /// <param name="newManagementDto"></param>
         /// <returns>
         /// return bool that represents if the nomination process was successful
         /// </returns>
-        Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newOwnerDto);
+        Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newManagementDto);
 
         /// <summary>
         /// Get of all subordinates under the store owner provided
@@ -86,5 +114,10 @@ namespace BoomaEcommerce.Services.Stores
         /// returns a store seller response containing all subordinates of the owner requested.
         /// </returns>
         Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid);
+
+        Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid);
+        Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid);
+        Task<ProductDto> GetStoreProduct(Guid productGuid);
+
     }
 }

@@ -10,5 +10,6 @@ namespace BoomaEcommerce.Services.DTO
     {
         public StoreDto Store { get; set; }
         public UserDto User { get; set; }
+        public StoreManagementPermissionDto Permissions { get; set; }
     }
 }

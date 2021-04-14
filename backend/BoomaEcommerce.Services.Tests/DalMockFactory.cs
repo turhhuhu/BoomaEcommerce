@@ -118,7 +118,8 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StoreOwnership> storeOwnerships,
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
-            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions
+            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions,
+            IDictionary<Guid, Product> products
 
         )
         {
@@ -128,13 +129,15 @@ namespace BoomaEcommerce.Services.Tests
             var storePurchasesRepoMock = MockRepository(storePurchases);
             var storeManagementRepoMock = MockRepository(storeManagements);
             var storeManagementPermissionsRepoMock = MockRepository(storeManagementPermissions);
-
+            var productsRepoMock = MockRepository(products);
             var storeUnitOfWorkMock = new Mock<IStoreUnitOfWork>();
             storeUnitOfWorkMock.SetupGet(x => x.StoreRepo).Returns(storeRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StoreOwnershipRepo).Returns(storeOwnershipRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StorePurchaseRepo).Returns(storePurchasesRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementRepo).Returns(storeManagementRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.ProductRepo).Returns(productsRepoMock?.Object);
+
             return storeUnitOfWorkMock;
         }
 
