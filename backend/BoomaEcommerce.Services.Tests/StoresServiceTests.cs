@@ -73,34 +73,34 @@ namespace BoomaEcommerce.Services.Tests
 
             //nikeStore purchase 
                 //p1 
-            var pr1 = _fixture.Build<PurchaseProduct>().Create();
-            var pr2 = _fixture.Build<PurchaseProduct>().Create();
-            var pr3 = _fixture.Build<PurchaseProduct>().Create();
+            var pr1 = new PurchaseProduct();
+            var pr2 = new PurchaseProduct();
+            var pr3 = new PurchaseProduct();
 
             var prList1 = new List<PurchaseProduct>();
             prList1.Add(pr1);
             prList1.Add(pr2);
             prList1.Add(pr3);
 
-            StorePurchase p1 = new() {ProductsPurchases = prList1 , Store = s1};
+            StorePurchase p1 = new() {PurchaseProducts = prList1 , Store = s1};
                
                 //p2
-            var pr4 = _fixture.Build<PurchaseProduct>().Create();
-            var pr5 = _fixture.Build<PurchaseProduct>().Create(); 
+            var pr4 = new PurchaseProduct();
+            var pr5 = new PurchaseProduct(); 
 
             var prList2 = new List<PurchaseProduct>();
             prList2.Add(pr4);
             prList2.Add(pr5);
             
 
-            StorePurchase p2 = new() { ProductsPurchases = prList2, Store = s1 };
+            StorePurchase p2 = new() { PurchaseProducts = prList2, Store = s1 };
 
             //adidasStore purchase 
-            var pr6 = _fixture.Build<PurchaseProduct>().Create();
+            var pr6 = new PurchaseProduct();
             var prList3 = new List<PurchaseProduct>();
             prList3.Add(pr6);
 
-            StorePurchase p3 = new() { ProductsPurchases = prList3, Store = storeOwnershipBennyAdidas };
+            StorePurchase p3 = new() { PurchaseProducts = prList3, Store = storeOwnershipBennyAdidas };
 
             _EntitiesStorePurchases.Add(p1.Guid, p1);
             _EntitiesStorePurchases.Add(p2.Guid, p2);

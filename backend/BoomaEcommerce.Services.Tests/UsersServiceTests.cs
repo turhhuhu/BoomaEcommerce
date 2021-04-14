@@ -77,7 +77,8 @@ namespace BoomaEcommerce.Services.Tests
             var shoppingCart = new ShoppingCart {User = new User {Guid = userGuid}};
             shoppingCartsDict[shoppingCart.Guid] = shoppingCart;
             var shoppingBasketGuid = Guid.NewGuid();
-            var shoppingBasketDto = new ShoppingBasketDto{Guid = shoppingBasketGuid};
+            var shoppingBasketDto = 
+                new ShoppingBasketDto{Guid = shoppingBasketGuid, Store = new StoreDto{Guid = Guid.NewGuid()}};
             var sut = GetUserService(shoppingBasketDict, shoppingCartsDict, null);
             
             // Act
@@ -86,7 +87,7 @@ namespace BoomaEcommerce.Services.Tests
             // Assert
             result.Should().BeTrue();
             shoppingBasketDict[shoppingBasketGuid].Guid.Should().Be(shoppingBasketGuid);
-            shoppingCart.Baskets.Contains(shoppingBasketDict[shoppingBasketGuid]).Should().BeTrue();
+            shoppingCart.StoreGuidToBaskets.ContainsKey(shoppingBasketDto.Store.Guid).Should().BeTrue();
         }
         [Fact]
         public async Task CreateShoppingBasketAsync_ReturnsFalse_WhenShoppingCartDoesNotExists()
@@ -125,7 +126,7 @@ namespace BoomaEcommerce.Services.Tests
             // Assert
             result.Should().BeTrue();
             purchaseProductDict[purchaseProductGuid].Guid.Should().Be(purchaseProductGuid);
-            shoppingBasket.PurchaseProducts.Contains(purchaseProductDict[purchaseProductGuid]).Should().BeTrue();
+            shoppingBasket.PurchaseProducts.ContainsKey(purchaseProductGuid).Should().BeTrue();
         }
         
         [Fact]
@@ -157,7 +158,7 @@ namespace BoomaEcommerce.Services.Tests
             purchaseProductDict[purchaseProductGuid] = purchaseProduct;
             var shoppingBasketGuid = Guid.NewGuid();
             var shoppingBasket = new ShoppingBasket {Guid = shoppingBasketGuid};
-            shoppingBasket.PurchaseProducts.Add(purchaseProduct);
+            shoppingBasket.AddPurchaseProduct(purchaseProduct);
             shoppingBasketDict[shoppingBasketGuid] = shoppingBasket;
             var sut = GetUserService(shoppingBasketDict, null, purchaseProductDict);
             
@@ -166,8 +167,8 @@ namespace BoomaEcommerce.Services.Tests
 
             // Assert
             result.Should().BeTrue();
-            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContain(purchaseProduct);
-            purchaseProductDict.Keys.Should().NotContain(purchaseProductGuid);
+            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContainKey(purchaseProductGuid);
+            purchaseProductDict.Should().NotContainKey(purchaseProductGuid);
         }
         
         [Fact]
@@ -189,8 +190,8 @@ namespace BoomaEcommerce.Services.Tests
 
             // Assert
             result.Should().BeFalse();
-            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContain(purchaseProduct);
-            purchaseProductDict.Keys.Should().Contain(purchaseProductGuid);
+            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContainKey(purchaseProductGuid);
+            purchaseProductDict.Should().ContainKey(purchaseProductGuid);
         }
         
         [Fact]

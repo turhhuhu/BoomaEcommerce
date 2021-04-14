@@ -23,14 +23,38 @@ namespace BoomaEcommerce.Services.Products
             _mapper = mapper;
             _productRepo = productRepo;
         }
-        public Task CreateStoreProductAsync(ProductDto product)
+        public async Task<bool> CreateStoreProductAsync(ProductDto productDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var product = _mapper.Map<Product>(productDto);
+                if (!product.ValidateStorePolicy() || !product.ValidateAmount())
+                {
+                    return false;
+                }
+                await _productRepo.InsertOneAsync(product);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e,"Failed to create product with Guid {ProductGuid}," +
+                                   " for store with guid {StoreGuid}", productDto.Guid, productDto.Store.Guid);
+                return false;
+            }
         }
 
-        public Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync()
+        public async Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var products = await _productRepo.FindAllAsync();
+                return _mapper.Map<IReadOnlyCollection<ProductDto>>(products);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get all products");
+                return null;
+            }
         }
 
         public async Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid)

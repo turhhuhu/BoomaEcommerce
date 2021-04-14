@@ -42,8 +42,8 @@ namespace BoomaEcommerce.Services.Purchases
                 purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
                 
                 var purchaseProducts = purchase.StorePurchases
-                    .SelectMany(product =>
-                        product.ProductsPurchases, (_, purchaseProduct) => purchaseProduct);
+                    .SelectMany(storePurchase =>
+                        storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
                 var taskList = purchaseProducts.Select(purchaseProduct => 
                     Task.Run(async () =>

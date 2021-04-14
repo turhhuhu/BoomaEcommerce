@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,26 +11,15 @@ namespace BoomaEcommerce.Domain
     public class ShoppingBasket : BaseEntity
     {
         public Store Store { get; set; }
-        public List<PurchaseProduct> PurchaseProducts { get; set; } = new();
+        public ConcurrentDictionary<Guid, PurchaseProduct> PurchaseProducts { get; set; } = new();
 
         public bool AddPurchaseProduct(PurchaseProduct purchaseProduct)
         {
-            if (purchaseProduct is null)
-            {
-                return false;
-            }
-            PurchaseProducts.Add(purchaseProduct);
-            return true;
+            return purchaseProduct is not null && PurchaseProducts.TryAdd(purchaseProduct.Guid ,purchaseProduct);
         }
         public bool RemovePurchaseProduct(Guid purchaseProductGuid)
         {
-            var purchaseProduct = PurchaseProducts.Find(x => x.Guid == purchaseProductGuid);
-            if (purchaseProduct is null)
-            {
-                return false;
-            }
-            PurchaseProducts.Remove(purchaseProduct);
-            return true;
+            return PurchaseProducts.TryRemove(purchaseProductGuid, out _);
         }
     }
 }
