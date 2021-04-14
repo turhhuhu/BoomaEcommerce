@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Exceptions;
 using BoomaEcommerce.Services.Products;
-using Microsoft.AspNetCore.Authorization;
 
 namespace BoomaEcommerce.Services.Stores
 {
     class SecuredStoreService : SecuredServiceBase, IStoresService
     {
         private readonly IStoresService _storeService;
-        public SecuredStoreService(ClaimsPrincipal claims, IStoresService storeService) : base(claims)
+        public SecuredStoreService(ClaimsPrincipal claimsPrincipal, IStoresService storeService) : base(claimsPrincipal)
         {
             _storeService = storeService;
         }
@@ -38,10 +34,11 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
-            CheckAuthorized(method);
+            // authentication
+            CheckAuthenticated();
 
-            var userGuid = Claims.GetUserGuid();
+            // specific authorization
+            var userGuid = ClaimsPrincipal.GetUserGuid();
             var storeOwner = await _storeService.GetStoreOwnerShip(storeGuid, userGuid);
             if (storeOwner != null)
             {
@@ -52,17 +49,14 @@ namespace BoomaEcommerce.Services.Stores
 
         public Task CreateStoreAsync(StoreDto store)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(CreateStoreProductAsync));
-            CheckAuthorized(method);
-
+            CheckAuthenticated();
             return _storeService.CreateStoreAsync(store);
         }
 
         public async Task<bool> CreateStoreProductAsync(ProductDto product)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(CreateStoreProductAsync));
-            CheckAuthorized(method);
-            var userGuid = Claims.GetUserGuid();
+            CheckAuthenticated();
+            var userGuid = ClaimsPrincipal.GetUserGuid();
 
             if (await CanPerformSellerAction(management => management.CanAddProduct, product.Store.Guid))
             {
@@ -74,9 +68,8 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> DeleteProductAsync(Guid productGuid)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
-            CheckAuthorized(method);
-            var userGuid = Claims.GetUserGuid();
+            CheckAuthenticated();
+            var userGuid = ClaimsPrincipal.GetUserGuid();
 
             var product = await _storeService.GetStoreProduct(productGuid);
 
@@ -90,9 +83,8 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> UpdateProductAsync(ProductDto product)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(UpdateProductAsync));
-            CheckAuthorized(method);
-            var userGuid = Claims.GetUserGuid();
+            CheckAuthenticated();
+            var userGuid = ClaimsPrincipal.GetUserGuid();
 
             if (await CanPerformSellerAction(management => management.CanUpdateProduct, product.Store.Guid))
             {
@@ -104,7 +96,7 @@ namespace BoomaEcommerce.Services.Stores
 
         private async Task<bool> CanPerformSellerAction(Func<StoreManagementPermissionDto, bool> actionPredicate, Guid storeGuid)
         {
-            var userGuid = Claims.GetUserGuid();
+            var userGuid = ClaimsPrincipal.GetUserGuid();
             var ownership = await _storeService.GetStoreOwnerShip(userGuid, storeGuid);
             if (ownership == null)
             {
@@ -127,7 +119,9 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> DeleteStoreAsync(Guid storeGuid)
         {
-            var userGuid = Claims.GetUserGuid();
+            CheckAuthenticated();
+
+            var userGuid = ClaimsPrincipal.GetUserGuid();
 
             var store = await _storeService.GetStoreAsync(storeGuid);
             if (store.StoreFounder.Guid == userGuid)
@@ -139,35 +133,31 @@ namespace BoomaEcommerce.Services.Stores
 
         public Task<bool> NominateNewStoreOwner(Guid owner, StoreOwnershipDto newOwnerDto)
         {
+            CheckAuthenticated();
             return _storeService.NominateNewStoreOwner(owner, newOwnerDto);
         }
 
         public Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newManagementDto)
         {
+            CheckAuthenticated();
             return _storeService.NominateNewStoreManager(owner, newManagementDto);
         }
 
         public Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
-            CheckAuthorized(method);
-
+            CheckAuthenticated();
             return _storeService.GetAllSubordinateSellers(storeOwnerGuid);
         }
 
         public Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
-            CheckAuthorized(method);
-
+            CheckAuthenticated();
             return _storeService.GetStoreOwnerShip(userGuid, storeGuid);
         }
 
         public Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid)
         {
-            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
-            CheckAuthorized(method);
-
+            CheckAuthenticated();
             return _storeService.GetStoreManagement(userGuid, storeGuid);
         }
 

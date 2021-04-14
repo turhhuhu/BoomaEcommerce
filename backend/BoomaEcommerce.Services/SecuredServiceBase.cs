@@ -15,11 +15,11 @@ namespace BoomaEcommerce.Services
 {
     public class SecuredServiceBase
     {
-        protected readonly ClaimsPrincipal Claims;
+        protected readonly ClaimsPrincipal ClaimsPrincipal;
 
-        protected SecuredServiceBase(ClaimsPrincipal claims)
+        protected SecuredServiceBase(ClaimsPrincipal claimsPrincipal)
         {
-            Claims = claims;
+            ClaimsPrincipal = claimsPrincipal;
         }
 
         protected static ClaimsPrincipal ParseClaimsPrincipal(string token)
@@ -31,22 +31,22 @@ namespace BoomaEcommerce.Services
             return claimsPrincipal;
         }
 
-        protected void CheckAuthorized(MethodInfo method)
+        protected bool CheckRoleAuthorized(MethodInfo method)
         {
-            if (Claims.Identity?.IsAuthenticated == false || !Claims.HasClaim(claim => claim.Type == "guid"))
-            {
-                throw new UnAuthenticatedException();
-            }
-
             var authAttributes = method.GetCustomAttributes<AuthorizeAttribute>(true);
             var roles = authAttributes
                 .SelectMany(x => x.Roles?.Split(','))
                 .Where(role => role != null);
 
-            var isInRoles = roles.All(role => Claims.IsInRole(role));
-            if (!isInRoles)
+            return roles.Any(role => ClaimsPrincipal.IsInRole(role));
+        }
+
+        protected void CheckAuthenticated()
+        {
+            if (ClaimsPrincipal.Identity?.IsAuthenticated == false ||
+                !ClaimsPrincipal.HasClaim(claim => claim.Type == "guid"))
             {
-                throw new UnAuthorizedException($"Roles are missing for user {Claims.GetUserGuid()} to use the resource.");
+                throw new UnAuthenticatedException();
             }
         }
     }
