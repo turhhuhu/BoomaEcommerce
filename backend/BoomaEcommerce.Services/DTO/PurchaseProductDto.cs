@@ -10,5 +10,7 @@ namespace BoomaEcommerce.Services.DTO
     {
         public ProductDto ProductDto { get; set; }
         public int Amount { get; set; }
+        
+        public decimal Price { get; set; }
     }
 }

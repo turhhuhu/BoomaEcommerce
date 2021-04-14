@@ -10,11 +10,13 @@ namespace BoomaEcommerce.Domain
     {
         public Product Product { get; set; }
         public int Amount { get; set; }
+        public decimal Price { get; set; }
 
-        public PurchaseProduct(Product product, int amount)
+        public PurchaseProduct(Product product, int amount, decimal price)
         {
             Product = product;
             Amount = amount;
+            Price = price;
         }
 
         public PurchaseProduct()
@@ -22,7 +24,7 @@ namespace BoomaEcommerce.Domain
             
         }
 
-        public async Task<double> CalculatePriceAsync()
+        public async Task<decimal> CalculatePriceAsync()
         {
             await Product.ProductLock.WaitAsync();
             var price = Product.CalculatePrice(Amount);
@@ -37,7 +39,13 @@ namespace BoomaEcommerce.Domain
 
         public bool ValidatePurchase()
         {
-            return Product.ValidateAmount(Amount);
+            return Product.ValidateAmountToPurchase(Amount);
         }
+
+        public bool ValidatePrice()
+        {
+            return Price == Product.CalculatePrice(Amount);
+        }
+        
     }
 }

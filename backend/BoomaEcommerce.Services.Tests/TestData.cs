@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using AutoFixture;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
@@ -11,25 +12,29 @@ namespace BoomaEcommerce.Services.Tests
         private static readonly IFixture Fixture = new Fixture();
         public static Product GetTestProduct(Guid guid)
         {
-            return Fixture.Build<Product>()
-                .With(x => x.Guid, guid)
-                .With(x => x.Amount, 10)
-                .With(x => x.Price, 10)
-                .With(x => x.IsSoftDeleted, false)
-                .With(x => x.Name, "Test")
-                .With(x => x.Category, "TestCategory")
-                .Create();
+            return new ()
+            {
+                Guid = guid,
+                Amount = 10,
+                Price = 10,
+                IsSoftDeleted = false,
+                ProductLock = new SemaphoreSlim(1),
+                Name = "Test",
+                Category = "TestCategory"
+            };
         }
         
         public static Product GetTestProductFromStore(Guid productGuid, Guid storeGuid)
         {
-            return Fixture.Build<Product>()
-                .With(x => x.Store, new Store{Guid = storeGuid})
-                .With(x => x.Guid, productGuid)
-                .With(x => x.Amount, 10)
-                .With(x => x.Price, 10)
-                .With(x => x.IsSoftDeleted, false)
-                .Create();
+            return new ()
+            {
+                Store = new Store{Guid = storeGuid},
+                Guid = productGuid,
+                Amount = 10,
+                ProductLock = new SemaphoreSlim(1),
+                Price = 10,
+                IsSoftDeleted = false,
+            };
         }
 
 
@@ -40,17 +45,20 @@ namespace BoomaEcommerce.Services.Tests
                 new()
                 {
                     ProductDto = new ProductDto{Guid = Guid.NewGuid()},
-                    Amount = 5
+                    Amount = 5,
+                    Price = 50
                 },
                 new()
                 {
                     ProductDto = new ProductDto{Guid = Guid.NewGuid()},
-                    Amount = 5
+                    Amount = 5,
+                    Price = 50
                 },
                 new()
                 {
                     ProductDto = new ProductDto{Guid = Guid.NewGuid()},
-                    Amount = 5
+                    Amount = 5,
+                    Price = 50
                 }
             };
             return validProductsPurchasesDtos;
@@ -58,34 +66,37 @@ namespace BoomaEcommerce.Services.Tests
         
         private static List<PurchaseProductDto> GetTestInvalidPurchaseProductsDtos()
         {
-            var validProductsPurchasesDtos = new List<PurchaseProductDto>
+            var invalidProductsPurchasesDtos = new List<PurchaseProductDto>
             {
                 new()
                 {
                     ProductDto = new ProductDto{Guid = Guid.NewGuid()},
-                    Amount = 11
+                    Amount = 11,
+                    Price = 50
                 },
                 new()
                 {
                     ProductDto = new ProductDto{Guid = Guid.NewGuid()},
-                    Amount = 11
+                    Amount = 11,
+                    Price = 50
                 },
                 new()
                 {
                     ProductDto = new ProductDto{Guid = Guid.NewGuid()},
-                    Amount = 11
+                    Amount = 11,
+                    Price = 50
                 }
             };
-            return validProductsPurchasesDtos;
+            return invalidProductsPurchasesDtos;
         }
 
         public static List<StorePurchaseDto> GetTestValidStorePurchasesDtos()
         {
             var validProductsPurchasesDtos = new List<StorePurchaseDto>
             {
-                new() {ProductsPurchases = GetTestValidPurchaseProductsDtos()},
-                new() {ProductsPurchases = GetTestValidPurchaseProductsDtos()},
-                new() {ProductsPurchases = GetTestValidPurchaseProductsDtos()}
+                new() {PurchaseProducts = GetTestValidPurchaseProductsDtos(), TotalPrice = 150},
+                new() {PurchaseProducts = GetTestValidPurchaseProductsDtos(), TotalPrice = 150},
+                new() {PurchaseProducts = GetTestValidPurchaseProductsDtos(), TotalPrice = 150}
             };
             return validProductsPurchasesDtos;
         }
@@ -94,9 +105,9 @@ namespace BoomaEcommerce.Services.Tests
         {
             var validProductsPurchasesDtos = new List<StorePurchaseDto>
             {
-                new() {ProductsPurchases = GetTestInvalidPurchaseProductsDtos()},
-                new() {ProductsPurchases = GetTestInvalidPurchaseProductsDtos()},
-                new() {ProductsPurchases = GetTestInvalidPurchaseProductsDtos()}
+                new() {PurchaseProducts = GetTestInvalidPurchaseProductsDtos()},
+                new() {PurchaseProducts = GetTestInvalidPurchaseProductsDtos()},
+                new() {PurchaseProducts = GetTestInvalidPurchaseProductsDtos()}
             };
             return validProductsPurchasesDtos;
         }

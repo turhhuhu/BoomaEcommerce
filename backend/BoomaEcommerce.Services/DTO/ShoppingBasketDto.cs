@@ -8,7 +8,7 @@ namespace BoomaEcommerce.Services.DTO
 {
     public class ShoppingBasketDto : BaseEntityDto
     {
-        public StoreDto StoreDto { get; set; }
+        public StoreDto Store { get; set; }
         public List<PurchaseProductDto> PurchaseProductDtos { get; set; }
     }
 }

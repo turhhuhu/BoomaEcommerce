@@ -21,7 +21,7 @@ namespace BoomaEcommerce.Domain.Tests
         public async Task CalculatePriceAsync_ReturnsCorrectPrice_WhenAmountIsValid(int amount, int expected)
         {
             var testProduct = TestData.GetTestProduct();
-            var sut = new PurchaseProduct(testProduct, amount);
+            var sut = new PurchaseProduct(testProduct, amount, expected);
 
             var result = await sut.CalculatePriceAsync();
 
@@ -35,7 +35,7 @@ namespace BoomaEcommerce.Domain.Tests
         public void Purchase_ReturnsTrue_WhenAmountIsValid(int amount)
         {
             var testProduct = TestData.GetTestProduct();
-            var sut = new PurchaseProduct(testProduct, amount);
+            var sut = new PurchaseProduct(testProduct, amount, amount);
 
             var result = sut.Purchase();
 
@@ -49,7 +49,7 @@ namespace BoomaEcommerce.Domain.Tests
         public void Purchase_ReturnsFalse_WhenAmountIsInvalid(int amount)
         {
             var testProduct = TestData.GetTestProduct();
-            var sut = new PurchaseProduct(testProduct, amount);
+            var sut = new PurchaseProduct(testProduct, amount, amount);
 
             var result = sut.Purchase();
 
@@ -63,7 +63,7 @@ namespace BoomaEcommerce.Domain.Tests
         public void ValidatePurchase_ReturnsTrue_WhenAmountIsValid(int amount)
         {
             var testProduct = TestData.GetTestProduct();
-            var sut = new PurchaseProduct(testProduct, amount);
+            var sut = new PurchaseProduct(testProduct, amount, amount);
 
             var result = sut.ValidatePurchase();
 
@@ -77,9 +77,37 @@ namespace BoomaEcommerce.Domain.Tests
         public void ValidatePurchase_ReturnsFalse_WhenAmountIsInvalid(int amount)
         {
             var testProduct = TestData.GetTestProduct();
-            var sut = new PurchaseProduct(testProduct, amount);
+            var sut = new PurchaseProduct(testProduct, amount, amount);
 
             var result = sut.ValidatePurchase();
+
+            result.Should().BeFalse();
+        }
+        
+        [Theory]
+        [InlineData(1, 10)]
+        [InlineData(5, 50)]
+        [InlineData(10, 100)]
+        public void ValidatePrice_ReturnsTrue_WhenPriceValid(int amount, int expected)
+        {
+            var testProduct = TestData.GetTestProduct();
+            var sut = new PurchaseProduct(testProduct, amount, expected);
+
+            var result = sut.ValidatePrice();
+
+            result.Should().BeTrue();
+        }
+        
+        [Theory]
+        [InlineData(1, 5)]
+        [InlineData(5, 10)]
+        [InlineData(10, 15)]
+        public void ValidatePrice_ReturnsTrue_WhenPriceIsInvalid(int amount, int expected)
+        {
+            var testProduct = TestData.GetTestProduct();
+            var sut = new PurchaseProduct(testProduct, amount, expected);
+
+            var result = sut.ValidatePrice();
 
             result.Should().BeFalse();
         }

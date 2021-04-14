@@ -55,6 +55,7 @@ namespace BoomaEcommerce.Services.Tests
             
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, TestData.GetTestValidStorePurchasesDtos())
+                .With(x => x.TotalPrice, 450)
                 .Create();
             
             var userFixture = _fixture.Build<User>()
@@ -69,7 +70,7 @@ namespace BoomaEcommerce.Services.Tests
             
             foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
             {
-                foreach (var productsPurchaseDto in storePurchaseDto.ProductsPurchases)
+                foreach (var productsPurchaseDto in storePurchaseDto.PurchaseProducts)
                 {
                     var testProductGuid = productsPurchaseDto.ProductDto.Guid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
@@ -86,12 +87,11 @@ namespace BoomaEcommerce.Services.Tests
             var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
 
             // Assert
+            res.Should().BeTrue();
             foreach (var productDictValue in productDict.Values)
             {
                 productDictValue.Amount.Should().Be(5);
             }
-
-            res.Should().BeTrue();
             purchasesDict[purchaseDtoFixture.Guid].Guid.Should().Be(purchaseDtoFixture.Guid);
         }
         
@@ -107,6 +107,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, TestData.GetTestInvalidStorePurchasesDtos())
+                .With(x => x.TotalPrice, 450)
                 .Create();
             
             var userFixture = _fixture.Build<User>()
@@ -120,7 +121,7 @@ namespace BoomaEcommerce.Services.Tests
             
             foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
             {
-                foreach (var productsPurchaseDto in storePurchaseDto.ProductsPurchases)
+                foreach (var productsPurchaseDto in storePurchaseDto.PurchaseProducts)
                 {
                     var testProductGuid = productsPurchaseDto.ProductDto.Guid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
@@ -137,12 +138,11 @@ namespace BoomaEcommerce.Services.Tests
             var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
 
             // Assert
+            res.Should().BeFalse();
             foreach (var productDictValue in productDict.Values)
             {
                 productDictValue.Amount.Should().Be(10);
             }
-
-            res.Should().BeFalse();
             productDict.ContainsKey(purchaseDtoFixture.Guid).Should().BeFalse();
         }
 
@@ -160,7 +160,7 @@ namespace BoomaEcommerce.Services.Tests
                 {
                     new()
                     {
-                        ProductsPurchases = new List<PurchaseProductDto>
+                        PurchaseProducts = new List<PurchaseProductDto>
                         {
                             new()
                             {
@@ -313,7 +313,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             return new ()
             {
-                ProductsPurchases = new List<PurchaseProduct>{product},
+                PurchaseProducts = new List<PurchaseProduct>{product},
                 Buyer = user,
                 Store = store,
                 TotalPrice = 5

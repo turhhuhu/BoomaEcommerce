@@ -9,14 +9,14 @@ namespace BoomaEcommerce.Domain
 {
     public class StorePurchase : BaseEntity
     {
-        public List<PurchaseProduct> ProductsPurchases { get; set; }
+        public List<PurchaseProduct> PurchaseProducts { get; set; }
         public User Buyer { get; set; }
         public Store Store { get; set; }
-        public double TotalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
 
-        public async Task<bool> PurchaseProducts()
+        public async Task<bool> PurchaseAllProducts()
         {
-            var orderedProductsPurchases = ProductsPurchases
+            var orderedProductsPurchases = PurchaseProducts
                 .OrderBy( x => x.Product.Id).ToList();
             
             await LockProducts(orderedProductsPurchases);
@@ -34,7 +34,7 @@ namespace BoomaEcommerce.Domain
 
         public bool CanPurchase()
         {
-            var orderedProductsPurchases = ProductsPurchases
+            var orderedProductsPurchases = PurchaseProducts
                 .OrderBy( x => x.Product.Id).ToList();
             return orderedProductsPurchases.All(x => x.ValidatePurchase());
         }
@@ -53,6 +53,22 @@ namespace BoomaEcommerce.Domain
             {
                 await productsPurchase.Product.ProductLock.WaitAsync();
             }
+        }
+
+        public bool ValidatePrice()
+        {
+            var calculateTotalPrice = 0.0m;
+            foreach (var productsPurchase in PurchaseProducts)
+            {
+                if (!productsPurchase.ValidatePrice())
+                {
+                    return false;
+                }
+
+                calculateTotalPrice += productsPurchase.Price;
+            }
+
+            return TotalPrice == calculateTotalPrice;
         }
     }
 }
