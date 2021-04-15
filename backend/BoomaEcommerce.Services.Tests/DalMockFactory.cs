@@ -119,7 +119,6 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermission> storeManagementPermissions
-
         )
         {
 
@@ -139,7 +138,8 @@ namespace BoomaEcommerce.Services.Tests
         }
 
 
-        public static Mock<IPurchaseUnitOfWork> MockPurchasesUnitOfWork(IDictionary<Guid, Purchase> purchases,
+        public static Mock<IPurchaseUnitOfWork> MockPurchasesUnitOfWork(
+            IDictionary<Guid, Purchase> purchases,
             IDictionary<Guid, Product> products,
             IDictionary<Guid, User> users, IDictionary<Guid, ShoppingCart> shoppingCarts)
         {
@@ -153,6 +153,22 @@ namespace BoomaEcommerce.Services.Tests
             purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
             return purchaseUnitOfWork;
+        }
+        
+        public static Mock<IUserUnitOfWork> MockUserUnitOfWork(
+            IDictionary<Guid, ShoppingBasket> shoppingBaskets,
+            IDictionary<Guid, ShoppingCart> shoppingCarts, 
+            IDictionary<Guid, PurchaseProduct> purchaseProducts)
+        {
+            var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
+            var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
+            var purchaseProductRepoMock = DalMockFactory.MockRepository(purchaseProducts);
+
+            var userUnitOfWork = new Mock<IUserUnitOfWork>();
+            userUnitOfWork.SetupGet(x => x.ShoppingBasketRepo).Returns(shoppingBasketRepoMock?.Object);
+            userUnitOfWork.SetupGet(x => x.ShoppingCartRepo).Returns(shoppingCartRepoMock?.Object);
+            userUnitOfWork.SetupGet(x => x.PurchaseProductRepo).Returns(purchaseProductRepoMock?.Object);
+            return userUnitOfWork;
         }
     }
 }

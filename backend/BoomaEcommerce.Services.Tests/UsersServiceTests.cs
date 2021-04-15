@@ -19,19 +19,12 @@ namespace BoomaEcommerce.Services.Tests
         private readonly IMapper _mapper = MapperFactory.GetMapper();
         private readonly Mock<ILogger<UsersService>> _logger = new();
 
-        private UsersService GetUserService(IDictionary<Guid, ShoppingBasket> shoppingBaskets,
-            IDictionary<Guid, ShoppingCart> shoppingCarts, IDictionary<Guid, PurchaseProduct> purchaseProducts
-            )
+        private UsersService GetUserService(
+            IDictionary<Guid, ShoppingBasket> shoppingBaskets,
+            IDictionary<Guid, ShoppingCart> shoppingCarts,
+            IDictionary<Guid, PurchaseProduct> purchaseProducts)
         {
-            var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
-            var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
-            var purchaseProductRepoMock = DalMockFactory.MockRepository(purchaseProducts);
-
-            var userUnitOfWork = new Mock<IUserUnitOfWork>();
-            userUnitOfWork.SetupGet(x => x.ShoppingBasketRepo).Returns(shoppingBasketRepoMock?.Object);
-            userUnitOfWork.SetupGet(x => x.ShoppingCartRepo).Returns(shoppingCartRepoMock?.Object);
-            userUnitOfWork.SetupGet(x => x.PurchaseProductRepo).Returns(purchaseProductRepoMock?.Object);
-            
+            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts, purchaseProducts);
             return new UsersService(_mapper, _logger.Object, userUnitOfWork.Object);
         }
 

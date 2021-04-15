@@ -27,21 +27,11 @@ namespace BoomaEcommerce.Services.Tests
         private readonly IMapper _mapper = MapperFactory.GetMapper();
         private readonly IFixture _fixture = new Fixture();
         
-        
-        public Mock<ILogger<PurchasesService>> loggerMock = new Mock<ILogger<PurchasesService>>();
-
-        static MapperConfiguration config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile(new DomainToDtoProfile());
-            cfg.AddProfile(new DtoToDomainProfile());
-        });
-        
-
         public PurchaseServiceTests()
         {
             
         }
-        
+
         [Fact]
         public async Task CreatePurchaseAsync_ReturnsTrueAndShouldDecreaseProductsAmount_WhenPurchaseDtoIsValid()
         {
@@ -224,19 +214,17 @@ namespace BoomaEcommerce.Services.Tests
         public async void GetAllUserPurchaseHistoryAsync_returnEmptyList_userHaveNotBoughtAnything()
         {
             // Arrange
-            var mapper = config.CreateMapper();
-
             var entitiesPurchases = new Dictionary<Guid, Purchase>();
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
 
            
-            var matanUser = createUserObject("Matan");
+            var matanUser = TestData.CreateUserObject("Matan");
             
 
             var purchasesUnitOfWork = DalMockFactory.MockPurchasesUnitOfWork(entitiesPurchases, productDict, userDict, null);
 
-            var ps = new PurchasesService(mapper, loggerMock.Object, null, purchasesUnitOfWork.Object, null);
+            var ps = new PurchasesService(_mapper, _loggerMock.Object, null, purchasesUnitOfWork.Object, null);
             
             //Act
             var result = await ps.GetAllUserPurchaseHistoryAsync(matanUser.Guid);
@@ -249,25 +237,23 @@ namespace BoomaEcommerce.Services.Tests
         public async void GetAllUserPurchaseHistoryAsync_returnPurchaseList_userHaveMadeTwoPurchases()
         {
             // Arrange
-            var mapper = config.CreateMapper();
-
             var entitiesPurchases = new Dictionary<Guid, Purchase>();
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
 
            
-            var matanUser = createUserObject("Matan");
-            var nikeStore = createStoreObject("nike");
-            var shoeProduct = createProductObject("air jordan");
-            var shoePurchaseProduct = createPurchaseProductObject(shoeProduct);
-            var matanNikeShoeStorePurchase = createStorePurchaseObject(nikeStore, matanUser, shoePurchaseProduct);
-            var matanNikeShoePurchase = createPurchaseObject(matanNikeShoeStorePurchase, matanUser);
+            var matanUser = TestData.CreateUserObject("Matan");
+            var nikeStore = TestData.CreateStoreObject("nike");
+            var shoeProduct = TestData.CreateProductObject("air jordan");
+            var shoePurchaseProduct = TestData.CreatePurchaseProductObject(shoeProduct);
+            var matanNikeShoeStorePurchase = TestData.CreateStorePurchaseObject(nikeStore, matanUser, shoePurchaseProduct);
+            var matanNikeShoePurchase = TestData.CreatePurchaseObject(matanNikeShoeStorePurchase, matanUser);
 
-            var adidasStore = createStoreObject("adidas");
-            var shirtProduct = createProductObject(" adidas shirt");
-            var shirtPurchaseProduct = createPurchaseProductObject(shirtProduct);
-            var matanAdidasShirtStorePurchase = createStorePurchaseObject(adidasStore, matanUser, shirtPurchaseProduct);
-            var matanAdidasShirtPurchase = createPurchaseObject(matanAdidasShirtStorePurchase, matanUser);
+            var adidasStore = TestData.CreateStoreObject("adidas");
+            var shirtProduct = TestData.CreateProductObject(" adidas shirt");
+            var shirtPurchaseProduct = TestData.CreatePurchaseProductObject(shirtProduct);
+            var matanAdidasShirtStorePurchase = TestData.CreateStorePurchaseObject(adidasStore, matanUser, shirtPurchaseProduct);
+            var matanAdidasShirtPurchase = TestData.CreatePurchaseObject(matanAdidasShirtStorePurchase, matanUser);
 
             entitiesPurchases[matanNikeShoePurchase.Guid] = matanNikeShoePurchase;
             entitiesPurchases[matanAdidasShirtPurchase.Guid] = matanAdidasShirtPurchase;
@@ -275,7 +261,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var purchasesUnitOfWork = DalMockFactory.MockPurchasesUnitOfWork(entitiesPurchases, productDict, userDict, null);
 
-            var ps = new PurchasesService(mapper, loggerMock.Object, null, purchasesUnitOfWork.Object, null);
+            var ps = new PurchasesService(_mapper, _loggerMock.Object, null, purchasesUnitOfWork.Object, null);
             
             //Act
             var result = await ps.GetAllUserPurchaseHistoryAsync(matanUser.Guid);
@@ -285,49 +271,6 @@ namespace BoomaEcommerce.Services.Tests
             result.Count.Should().Be(2);
 
 
-        }
-        private Store createStoreObject(string storeName)
-        {
-            return new() { StoreName = storeName };
-        }
-
-        private User createUserObject(string name)
-        {
-            return new() { Name = name };
-        }
-
-        private Product createProductObject(string name)
-        {
-            return new() {Name = name};
-        }
-
-        private PurchaseProduct createPurchaseProductObject(Product p)
-        {
-            return new()
-            {
-                Product = p
-            };
-        }
-
-        private StorePurchase createStorePurchaseObject(Store store, User user, PurchaseProduct product)
-        {
-            return new ()
-            {
-                PurchaseProducts = new List<PurchaseProduct>{product},
-                Buyer = user,
-                Store = store,
-                TotalPrice = 5
-                
-            };
-        }
-
-        private Purchase createPurchaseObject(StorePurchase sp,User buyer)
-        {
-            return new()
-            {
-                Buyer = buyer,
-                StorePurchases = new List<StorePurchase> {sp}
-            };
         }
 
     }
