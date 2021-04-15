@@ -566,233 +566,205 @@ namespace BoomaEcommerce.Services.Tests
             r1.CanDoSomething.Should().BeTrue();
         }
 
-        //[Fact]
-        //public async Task DeleteProductAsync_ReturnTrueAndProductIsSafeDeleted_WhenProductExistsAndIsNotSafeDeleted()
-        //{
-        //    Store s1 = new() { StoreName = "Benny Hadayag" };
-        //    Store storeOwnershipBennyAdidas = new() { StoreName = "Nike" };
-        //    Store storeManagementsOmerAdidas = new() { StoreName = "Adidas" };
-        //    Store s4 = new() { StoreName = "TopShop" };
+        [Fact]
+        public async Task DeleteProductAsync_ReturnTrueAndProductIsSafeDeleted_WhenProductExistsAndIsNotSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productGuid = Guid.NewGuid();
+            productsDict[productGuid] = TestData.GetTestProduct(productGuid);
 
-
-
-        //    // Arrange
-        //    var productsDict = new Dictionary<Guid, Product>();
-        //    var productGuid = Guid.NewGuid();
-        //    productsDict[productGuid] = TestData.GetTestProduct(productGuid);
-
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(null, null, null, null, null, productsDict);
-        //    var sut = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
             
-        //    // Act
-        //    var result = await sut.DeleteProductAsync(productGuid);
+            //Act
+            var result = await sut.DeleteProductAsync(productGuid);
 
-        //    // Assert
-        //    result.Should().BeTrue();
-        //    productsDict[productGuid].IsSoftDeleted.Should().BeTrue();
-        //}
+            //Assert
+            result.Should().BeTrue();
+            productsDict[productGuid].IsSoftDeleted.Should().BeTrue();
+        }
         
-        //[Fact]
-        //public async Task DeleteProductAsync_ReturnFalse_WhenProductDoNotNotExist()
-        //{
-        //    // Arrange
-        //    var productsDict = new Dictionary<Guid, Product>();
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(null, null, null, null, null, productsDict);
-        //    var sut = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+        [Fact]
+        public async Task DeleteProductAsync_ReturnFalse_WhenProductDoNotNotExist()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
 
-        //    // Act
-        //    var result = await sut.DeleteProductAsync(Guid.NewGuid());
+            //Act
+            var result = await sut.DeleteProductAsync(Guid.NewGuid());
 
-        //    // Assert
-        //    result.Should().BeFalse();
-        //}
+            //Assert
+            result.Should().BeFalse();
+        }
         
-        //[Fact]
-        //public async Task DeleteProductAsync_ReturnFalse_WhenProductExistsAndIsSafeDeleted()
-        //{
-        //    // Arrange
-        //    var productsDict = new Dictionary<Guid, Product>();
-        //    var productGuid = Guid.NewGuid();
-        //    productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(null, null, null, null, null, productsDict);
-        //    var sut = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+        [Fact]
+        public async Task DeleteProductAsync_ReturnFalse_WhenProductExistsAndIsSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productGuid = Guid.NewGuid();
+            productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
 
-        //    // Act
-        //    var result = await sut.DeleteProductAsync(productGuid);
+            //Act
+            var result = await sut.DeleteProductAsync(productGuid);
 
-        //    // Assert
-        //    result.Should().BeFalse();
-        //    productsDict.Keys.Should().Contain(productGuid);
-        //}
+            //Assert
+            result.Should().BeFalse();
+            productsDict.Keys.Should().Contain(productGuid);
+        }
         
-        //[Fact]
-        //public async Task UpdateProductAsync_ReturnsNotSafeDeletedProduct_WhenProductExistsAndNotSafeDeleted()
-        //{
-        //    // Arrange
-        //    var productsDict = new Dictionary<Guid, Product>();
-        //    var productToReplaceGuid = Guid.NewGuid();
-        //    productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid);
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(null, null, null, null, null, productsDict);
-        //    var sut = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsNotSafeDeletedProduct_WhenProductExistsAndNotSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productToReplaceGuid = Guid.NewGuid();
+            productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid);
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
 
-        //    var replacementProductDto =
-        //        new ProductDto
-        //            {Guid = productToReplaceGuid, Amount = 5, Price = 5, Name = "ChessBoard", Category = "Chess"}; 
+            var replacementProductDto =
+                new ProductDto
+                    {Guid = productToReplaceGuid, Amount = 5, Price = 5, Name = "ChessBoard", Category = "Chess"}; 
 
-        //    // Act
-        //    var result = await sut.UpdateProductAsync(replacementProductDto);
+            //Act
+            var result = await sut.UpdateProductAsync(replacementProductDto);
 
-        //    // Assert
-        //    result.Should().BeTrue();
-        //    var resultProduct = productsDict[productToReplaceGuid];
-        //    resultProduct.Amount.Should().Be(5);
-        //    resultProduct.Price.Should().Be(5);
-        //    resultProduct.Category.Should().Be("Chess");
-        //    resultProduct.Name.Should().Be("ChessBoard");
-        //}
+            //Assert
+            result.Should().BeTrue();
+            var resultProduct = productsDict[productToReplaceGuid];
+            resultProduct.Amount.Should().Be(5);
+            resultProduct.Price.Should().Be(5);
+            resultProduct.Category.Should().Be("Chess");
+            resultProduct.Name.Should().Be("ChessBoard");
+        }
         
-        //[Fact]
-        //public async Task UpdateProductAsync_ReturnsFalse_WhenProductDoNotExist()
-        //{
-        //    // Arrange
-        //    var productsDict = new Dictionary<Guid, Product>();
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(null, null, null, null, null, productsDict);
-        //    var sut = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsFalse_WhenProductDoNotExist()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
 
-        //    // Act
-        //    var result = await sut.UpdateProductAsync(new ProductDto{Guid = Guid.NewGuid()});
+            //Act
+            var result = await sut.UpdateProductAsync(new ProductDto{Guid = Guid.NewGuid()});
 
-        //    // Assert
-        //    result.Should().BeFalse();
-        //}
+            //Assert
+            result.Should().BeFalse();
+        }
         
-        //[Fact]
-        //public async Task UpdateProductAsync_ReturnsFalse_WhenProductExistsButIsSafeDeleted()
-        //{
-        //    // Arrange
-        //    var productsDict = new Dictionary<Guid, Product>();
-        //    var productGuid = Guid.NewGuid();
-        //    productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(null, null, null, null, null, productsDict);
-        //    var sut = new StoresService(loggerMock.Object, mapper, storeUnitOfWork.Object);
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsFalse_WhenProductExistsButIsSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productGuid = Guid.NewGuid();
+            productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
 
-        //    // Act
-        //    var result = await sut.UpdateProductAsync(new ProductDto{Guid = productGuid});
+            //Act
+            var result = await sut.UpdateProductAsync(new ProductDto{Guid = productGuid});
 
-        //    // Assert
-        //    result.Should().BeFalse();
-        //}
-
-        //private static User GetUserData(string fName, string lName, string uname)
-        //{
-        //    var entitiesStores = new Dictionary<Guid, Store>();
-        //    var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
+            //Assert
+            result.Should().BeFalse();
+        }
+    
+        [Fact]
+        private async Task GetStoreData()
+        {
+            var entitiesStores = new Dictionary<Guid, Store>();
+            var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
 
             
-        //    Store s1 = new() { StoreName = "Benny Hadayag" };
-        //    Store storeOwnershipBennyAdidas = new() { StoreName = "Nike" };
-        //    Store storeManagementsOmerAdidas = new() { StoreName = "Adidas" };
-        //    Store s4 = new() { StoreName = "TopShop" };
+            Store s1 = new() { StoreName = "Benny Hadayag" };
+            Store storeOwnershipBennyAdidas = new() { StoreName = "Nike" };
+            Store storeManagementsOmerAdidas = new() { StoreName = "Adidas" };
+            Store s4 = new() { StoreName = "TopShop" };
 
-        //    entitiesStores.Add(s1.Guid, s1);
-        //    entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
-        //    entitiesStores.Add(storeManagementsOmerAdidas.Guid, storeManagementsOmerAdidas);
-
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(entitiesStores, null, entitiesStorePurchases, null, null);
-
-        //    var storesService = new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
-
-        //    var res1 = await storesService.GetStoreAsync(s1.Guid);
-        //    var expectedRes1 = _mapper.Map<StoreDto>(s1);
-        //    res1.Should().BeEquivalentTo(expectedRes1);
-
-        //    var res2 = await storesService.GetStoreAsync(s4.Guid);
-        //    res2.Should().BeNull();
-
-        //    var res3 = await storesService.GetStoresAsync();
-        //    List<StoreDto> expectedRes3 = new List<StoreDto>();
-        //    expectedRes3.Add(_mapper.Map<StoreDto>(s1));
-        //    expectedRes3.Add(_mapper.Map<StoreDto>(storeOwnershipBennyAdidas));
-        //    expectedRes3.Add(_mapper.Map<StoreDto>(storeManagementsOmerAdidas));
-        //    res3.ToList().Should().BeEquivalentTo(expectedRes3);
-        //}
-
-        //[Fact]
-        //public async void GetStorePurchaseHistoryTest()
-        //{
-        //    var entitiesStores = new Dictionary<Guid, Store>();
-        //    var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
+            entitiesStores.Add(s1.Guid, s1);
+            entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
+            entitiesStores.Add(storeManagementsOmerAdidas.Guid, storeManagementsOmerAdidas);
             
-        //    Store s1 = new() {};
-        //    Store storeOwnershipBennyAdidas = new() {};
-        //    Store storeManagementsOmerAdidas = new() {};
+            var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
 
-        //    //nikeStore purchase 
-        //        //p1 
-        //    var pr1 = new PurchaseProduct();
-        //    var pr2 = new PurchaseProduct();
-        //    var pr3 = new PurchaseProduct();
+            var res1 = await storesService.GetStoreAsync(s1.Guid);
+            var expectedRes1 = _mapper.Map<StoreDto>(s1);
+            res1.Should().BeEquivalentTo(expectedRes1);
 
-        //    var prList1 = new List<PurchaseProduct>();
-        //    prList1.Add(pr1);
-        //    prList1.Add(pr2);
-        //    prList1.Add(pr3);
+            var res2 = await storesService.GetStoreAsync(s4.Guid);
+            res2.Should().BeNull();
 
-        //    StorePurchase p1 = new() {PurchaseProducts = prList1 , Store = s1};
-               
-        //        //p2
-        //    var pr4 = new PurchaseProduct();
-        //    var pr5 = new PurchaseProduct(); 
+            var res3 = await storesService.GetStoresAsync();
+            List<StoreDto> expectedRes3 = new List<StoreDto>();
+            expectedRes3.Add(_mapper.Map<StoreDto>(s1));
+            expectedRes3.Add(_mapper.Map<StoreDto>(storeOwnershipBennyAdidas));
+            expectedRes3.Add(_mapper.Map<StoreDto>(storeManagementsOmerAdidas));
+            res3.ToList().Should().BeEquivalentTo(expectedRes3);
+        }
 
-        //    var prList2 = new List<PurchaseProduct>();
-        //    prList2.Add(pr4);
-        //    prList2.Add(pr5);
+        [Fact]
+        public async Task GetStorePurchaseHistoryTest()
+        {
+            var entitiesStores = new Dictionary<Guid, Store>();
+            var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
+            
+            Store s1 = new() {};
+            Store storeOwnershipBennyAdidas = new() {};
+            Store storeManagementsOmerAdidas = new() {};
+            
+            var pr1 = new PurchaseProduct();
+            var pr2 = new PurchaseProduct();
+            var pr3 = new PurchaseProduct();
+
+            var prList1 = new List<PurchaseProduct>();
+            prList1.Add(pr1);
+            prList1.Add(pr2);
+            prList1.Add(pr3);
+
+            StorePurchase p1 = new() {PurchaseProducts = prList1 , Store = s1};
+            
+            var pr4 = new PurchaseProduct();
+            var pr5 = new PurchaseProduct(); 
+
+            var prList2 = new List<PurchaseProduct>();
+            prList2.Add(pr4);
+            prList2.Add(pr5);
             
 
-        //    StorePurchase p2 = new() { PurchaseProducts = prList2, Store = s1 };
+            StorePurchase p2 = new() { PurchaseProducts = prList2, Store = s1 };
+            
+            var pr6 = new PurchaseProduct();
+            var prList3 = new List<PurchaseProduct>();
+            prList3.Add(pr6);
 
-        //    //adidasStore purchase 
-        //    var pr6 = new PurchaseProduct();
-        //    var prList3 = new List<PurchaseProduct>();
-        //    prList3.Add(pr6);
+            StorePurchase p3 = new() { PurchaseProducts = prList3, Store = storeOwnershipBennyAdidas };
 
-        //    StorePurchase p3 = new() { PurchaseProducts = prList3, Store = storeOwnershipBennyAdidas };
+            entitiesStorePurchases.Add(p1.Guid, p1);
+            entitiesStorePurchases.Add(p2.Guid, p2);
+            entitiesStorePurchases.Add(p3.Guid, p3);
 
-        //    entitiesStorePurchases.Add(p1.Guid, p1);
-        //    entitiesStorePurchases.Add(p2.Guid, p2);
-        //    entitiesStorePurchases.Add(p3.Guid, p3);
+            entitiesStores.Add(s1.Guid,s1);
+            entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
 
-        //    entitiesStores.Add(s1.Guid,s1);
-        //    entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
+            var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
 
-        //    var storeUnitOfWork =
-        //        DalMockFactory.MockStoreUnitOfWork(entitiesStores, null, entitiesStorePurchases, null, null);
+            var res1 = await storesService.GetStorePurchaseHistory(s1.Guid);
+            var expectedRes1 = new List<StorePurchaseDto>();
+            expectedRes1.Add(_mapper.Map<StorePurchaseDto>(p1));
+            expectedRes1.Add(_mapper.Map<StorePurchaseDto>(p2));
 
-        //    var storesService = new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
+            res1.ToList().Should().BeEquivalentTo(expectedRes1);
 
-        //    var res1 = await storesService.GetStorePurchaseHistory(s1.Guid);
-        //    var expectedRes1 = new List<StorePurchaseDto>();
-        //    expectedRes1.Add(_mapper.Map<StorePurchaseDto>(p1));
-        //    expectedRes1.Add(_mapper.Map<StorePurchaseDto>(p2));
+            var res2 = await storesService.GetStorePurchaseHistory(storeOwnershipBennyAdidas.Guid);
+            var expectedRes2 = new List<StorePurchaseDto>();
+            expectedRes2.Add(_mapper.Map<StorePurchaseDto>(p3));
 
-        //    res1.ToList().Should().BeEquivalentTo(expectedRes1);
+            res2.ToList().Should().BeEquivalentTo(expectedRes2);
 
-        //    var res2 = await storesService.GetStorePurchaseHistory(storeOwnershipBennyAdidas.Guid);
-        //    var expectedRes2 = new List<StorePurchaseDto>();
-        //    expectedRes2.Add(_mapper.Map<StorePurchaseDto>(p3));
-
-        //    res2.ToList().Should().BeEquivalentTo(expectedRes2);
-
-        //    var res3 = await storesService.GetStorePurchaseHistory(storeManagementsOmerAdidas.Guid);
-        //    res3.Should().BeEmpty();
-        //}
+            var res3 = await storesService.GetStorePurchaseHistory(storeManagementsOmerAdidas.Guid);
+            res3.Should().BeEmpty();
+        }
         
     }
 }

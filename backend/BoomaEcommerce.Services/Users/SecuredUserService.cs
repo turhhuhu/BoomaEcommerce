@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
-using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using UnAuthorizedException = BoomaEcommerce.Services.Exceptions.UnAuthorizedException;
