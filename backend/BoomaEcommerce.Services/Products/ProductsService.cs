@@ -6,6 +6,7 @@ using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.External;
 using Microsoft.Extensions.Logging;
 
 
@@ -16,12 +17,14 @@ namespace BoomaEcommerce.Services.Products
         private readonly ILogger<ProductsService> _logger;
         private readonly IMapper _mapper;
         private readonly IRepository<Product> _productRepo;
+        private readonly IMistakeCorrection _mistakeCorrection;
 
-        public ProductsService(ILogger<ProductsService> logger, IMapper mapper, IRepository<Product> productRepo)
+        public ProductsService(ILogger<ProductsService> logger, IMapper mapper, IRepository<Product> productRepo, IMistakeCorrection mistakeCorrection)
         {
             _logger = logger;
             _mapper = mapper;
             _productRepo = productRepo;
+            _mistakeCorrection = mistakeCorrection;
         }
 
         public async Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync()
@@ -75,8 +78,9 @@ namespace BoomaEcommerce.Services.Products
             try
             {
                 _logger.LogInformation($"Getting all products that have the name {productName}");
+                var correctedProductName = _mistakeCorrection.CorrectMistakeIfThereIsAny(productName);
                 var products =
-                    await _productRepo.FilterByAsync(p => p.Name.Equals(productName) && !p.IsSoftDeleted);
+                    await _productRepo.FilterByAsync(p => p.Name.Equals(correctedProductName) && !p.IsSoftDeleted);
                 return _mapper.Map<IReadOnlyCollection<ProductDto>>(products.ToList());
             }
             catch (Exception e)
@@ -91,8 +95,9 @@ namespace BoomaEcommerce.Services.Products
             try
             {
                 _logger.LogInformation($"Getting all products that have the category {productCategory}");
+                var correctedProductCategory = _mistakeCorrection.CorrectMistakeIfThereIsAny(productCategory);
                 var products =
-                    await _productRepo.FilterByAsync(p => p.Category.Equals(productCategory) 
+                    await _productRepo.FilterByAsync(p => p.Category.Equals(correctedProductCategory) 
                                                           && !p.IsSoftDeleted);
                 return _mapper.Map<IReadOnlyCollection<ProductDto>>(products.ToList());
             }
@@ -108,9 +113,10 @@ namespace BoomaEcommerce.Services.Products
             try
             {
                 _logger.LogInformation($"Getting all products that fit the keyword {productKeyword}");
+                var correctedProductKeyWord = _mistakeCorrection.CorrectMistakeIfThereIsAny(productKeyword);
                 var products =
                     await _productRepo.FilterByAsync(p => !p.IsSoftDeleted &&
-                        (p.Category.Contains(productKeyword) || p.Name.Contains(productKeyword)));
+                        (p.Category.Contains(correctedProductKeyWord) || p.Name.Contains(correctedProductKeyWord)));
                 return _mapper.Map<IReadOnlyCollection<ProductDto>>(products.ToList());
             }
             catch (Exception e)
