@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoMapper;
-using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
-using BoomaEcommerce.Services.MappingProfiles;
 using BoomaEcommerce.Services.Purchases;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using ILogger = Castle.Core.Logging.ILogger;
 
 namespace BoomaEcommerce.Services.Tests
 {
@@ -26,10 +22,17 @@ namespace BoomaEcommerce.Services.Tests
         private readonly Mock<IPaymentClient> _paymentClientMock = new();
         private readonly IMapper _mapper = MapperFactory.GetMapper();
         private readonly IFixture _fixture = new Fixture();
-        
-        public PurchaseServiceTests()
+        private readonly Mock<ISupplyClient> _supplyClientMock = new();
+
+        private PurchasesService GetPurchaseService(
+            IDictionary<Guid, Purchase> purchases,
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ShoppingCart> shoppingCarts)
         {
-            
+            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts);
+            return new PurchasesService(_mapper, _loggerMock.Object, _paymentClientMock.Object,
+                purchaseUnitOfWorkMock.Object, _supplyClientMock.Object);
         }
 
         [Fact]
@@ -39,10 +42,8 @@ namespace BoomaEcommerce.Services.Tests
             var purchasesDict = new Dictionary<Guid, Purchase>();
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
-            var shoppingCartDict = new Dictionary<Guid, ShoppingCart>(); 
+            var shoppingCartDict = new Dictionary<Guid, ShoppingCart>();
 
-            var supplyClientMock = new Mock<ISupplyClient>();
-            
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, TestData.GetTestValidStorePurchasesDtos())
                 .With(x => x.TotalPrice, 450)
@@ -68,10 +69,7 @@ namespace BoomaEcommerce.Services.Tests
                 }
             }
 
-            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchasesDict, productDict, userDict, shoppingCartDict);
-        
-            var sut = new PurchasesService(_mapper, _loggerMock.Object,
-                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object, supplyClientMock.Object);
+            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict);
             
             // Act
             var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
@@ -93,7 +91,6 @@ namespace BoomaEcommerce.Services.Tests
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
             var shoppingCartDict = new Dictionary<Guid, ShoppingCart>();
-            var supplyClientMock = new Mock<ISupplyClient>();
 
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, TestData.GetTestInvalidStorePurchasesDtos())
@@ -119,10 +116,7 @@ namespace BoomaEcommerce.Services.Tests
                 }
             }
 
-            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchasesDict, productDict, userDict, shoppingCartDict);
-        
-            var sut = new PurchasesService(_mapper, _loggerMock.Object,
-                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object, supplyClientMock.Object);
+            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict);
             
             // Act
             var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
@@ -136,35 +130,6 @@ namespace BoomaEcommerce.Services.Tests
             productDict.ContainsKey(purchaseDtoFixture.Guid).Should().BeFalse();
         }
 
-        private PurchaseDto GetPurchaseWithSingleProductWithAmountOf1(Guid userGuid, Guid productGuid)
-        {
-            var productDto = new ProductDto
-            {
-                Guid = productGuid,
-            };
-
-            var purchaseDto = new PurchaseDto
-            {
-                Buyer = new UserDto{Guid = userGuid},
-                StorePurchases = new List<StorePurchaseDto>
-                {
-                    new()
-                    {
-                        PurchaseProducts = new List<PurchaseProductDto>
-                        {
-                            new()
-                            {
-                                Amount = 1,
-                                ProductDto = productDto
-                            }
-                        }
-                    }
-                }
-            };
-
-            return purchaseDto;
-        }
-        
         [Fact]
         public async Task CreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenTwoCustomersBuyLastProductInParallel()
         {
@@ -173,9 +138,7 @@ namespace BoomaEcommerce.Services.Tests
             var productDict = new Dictionary<Guid, Product>();
             var userDict = new Dictionary<Guid, User>();
             var shoppingCartDict = new Dictionary<Guid, ShoppingCart>();
-            
-            var supplyClientMock = new Mock<ISupplyClient>();
-            
+
             var userGuid = Guid.NewGuid();
             var userFixture = _fixture.Build<User>()
                 .With(x => x.Guid, userGuid)
@@ -190,17 +153,13 @@ namespace BoomaEcommerce.Services.Tests
             var product = new Product {Guid = productGuid, Amount = 1, ProductLock = new SemaphoreSlim(1)};
             productDict[productGuid] = product;
 
-            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchasesDict, productDict, userDict, shoppingCartDict);
-        
-            var sut = new PurchasesService(_mapper, _loggerMock.Object,
-                _paymentClientMock.Object, purchaseUnitOfWorkMock.Object, supplyClientMock.Object);
-
+            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict);
             
             // Act
             var taskList = new List<Task<bool>>
             {
-                sut.CreatePurchaseAsync(GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid)),
-                sut.CreatePurchaseAsync(GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid))
+                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid)),
+                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid))
             };
             var res = await Task.WhenAll(taskList);
             
@@ -220,14 +179,11 @@ namespace BoomaEcommerce.Services.Tests
 
            
             var matanUser = TestData.CreateUserObject("Matan");
-            
 
-            var purchasesUnitOfWork = DalMockFactory.MockPurchasesUnitOfWork(entitiesPurchases, productDict, userDict, null);
-
-            var ps = new PurchasesService(_mapper, _loggerMock.Object, null, purchasesUnitOfWork.Object, null);
+            var sut = GetPurchaseService(entitiesPurchases, productDict, userDict, null);
             
             //Act
-            var result = await ps.GetAllUserPurchaseHistoryAsync(matanUser.Guid);
+            var result = await sut.GetAllUserPurchaseHistoryAsync(matanUser.Guid);
             
             //Assert
             result.Should().BeEmpty();
@@ -258,13 +214,10 @@ namespace BoomaEcommerce.Services.Tests
             entitiesPurchases[matanNikeShoePurchase.Guid] = matanNikeShoePurchase;
             entitiesPurchases[matanAdidasShirtPurchase.Guid] = matanAdidasShirtPurchase;
             
-
-            var purchasesUnitOfWork = DalMockFactory.MockPurchasesUnitOfWork(entitiesPurchases, productDict, userDict, null);
-
-            var ps = new PurchasesService(_mapper, _loggerMock.Object, null, purchasesUnitOfWork.Object, null);
+            var sut = GetPurchaseService(entitiesPurchases, productDict, userDict, null);
             
             //Act
-            var result = await ps.GetAllUserPurchaseHistoryAsync(matanUser.Guid);
+            var result = await sut.GetAllUserPurchaseHistoryAsync(matanUser.Guid);
             
             //Assert
             result.Should().NotBeEmpty();

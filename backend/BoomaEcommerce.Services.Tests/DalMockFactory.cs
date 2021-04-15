@@ -141,7 +141,8 @@ namespace BoomaEcommerce.Services.Tests
         public static Mock<IPurchaseUnitOfWork> MockPurchasesUnitOfWork(
             IDictionary<Guid, Purchase> purchases,
             IDictionary<Guid, Product> products,
-            IDictionary<Guid, User> users, IDictionary<Guid, ShoppingCart> shoppingCarts)
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ShoppingCart> shoppingCarts)
         {
             var purchaseRepoMock = MockRepository(purchases);
             var productRepoMock = MockRepository(products);

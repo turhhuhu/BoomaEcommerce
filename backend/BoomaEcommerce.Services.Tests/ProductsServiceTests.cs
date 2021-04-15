@@ -20,7 +20,6 @@ namespace BoomaEcommerce.Services.Tests
     {
         private readonly Mock<ILogger<ProductsService>> _logger = new();
         private readonly IMapper _mapper = MapperFactory.GetMapper();
-        private Mock<IRepository<Product>> _productRepoMock;
 
         private static Mock<IRepository<Product>> GetProductRepoMock(Dictionary<Guid, Product> products)
         {
@@ -366,8 +365,8 @@ namespace BoomaEcommerce.Services.Tests
             // Assert
             foreach (var productDto in result)
             {
-                productDto.Should().Match<ProductDto>(x => x.Category.Contains(keyWord) 
-                                                           || x.Name.Contains(keyWord));
+                productDto.Should().Match<ProductDto>(
+                    x => x.Category.Contains(keyWord) || x.Name.Contains(keyWord));
                 notSoftDeletedProductGuidList.Should().Contain(productDto.Guid);
             }
         }
