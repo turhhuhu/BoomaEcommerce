@@ -22,7 +22,7 @@ namespace BoomaEcommerce.Services.Tests
         private readonly Mock<ILogger<ProductsService>> _logger = new();
         private readonly IMapper _mapper = MapperFactory.GetMapper();
 
-        private ProductsService GetProductService(Dictionary<Guid, Product> products)
+        private ProductsService GetProductService(IDictionary<Guid, Product> products)
         {
             var productRepoMock = DalMockFactory.MockRepository(products);
             var mistakeCorrectionMock = new Mock<IMistakeCorrection>();

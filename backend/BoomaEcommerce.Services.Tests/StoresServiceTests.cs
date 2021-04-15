@@ -33,7 +33,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async void NominateNewStoreOwner_ReturnTrue_NewOwnerDoesNotHaveOtherResponsibilities()
+        public async Task NominateNewStoreOwner_ReturnTrue_NewOwnerDoesNotHaveOtherResponsibilities()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -63,7 +63,7 @@ namespace BoomaEcommerce.Services.Tests
 
         }
         [Fact]
-        public async void NominateNewStoreOwner_ReturnFalse_OwnerOfAStoreTriesToNominateNewOwnerToAnotherStore()
+        public async Task NominateNewStoreOwner_ReturnFalse_OwnerOfAStoreTriesToNominateNewOwnerToAnotherStore()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -95,7 +95,7 @@ namespace BoomaEcommerce.Services.Tests
 
         }
         [Fact]
-        public async void NominateNewStoreOwner_ReturnFalse_UserThatIsNotAnOwnerTriesToNominate()
+        public async Task NominateNewStoreOwner_ReturnFalse_UserThatIsNotAnOwnerTriesToNominate()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -122,7 +122,7 @@ namespace BoomaEcommerce.Services.Tests
 
         }
         [Fact]
-        public async void NominateNewStoreOwner_ReturnFalse_OwnerTriesToNominateOtherOwner()
+        public async Task NominateNewStoreOwner_ReturnFalse_OwnerTriesToNominateOtherOwner()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -156,7 +156,7 @@ namespace BoomaEcommerce.Services.Tests
 
         }
         [Fact]
-        public async void NominateNewStoreOwner_ReturnFalse_OwnerTriesToNominateOtherStoreManager()
+        public async Task NominateNewStoreOwner_ReturnFalse_OwnerTriesToNominateOtherStoreManager()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -192,7 +192,7 @@ namespace BoomaEcommerce.Services.Tests
 
 
         [Fact]
-        public async void NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities()
+        public async Task NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -228,7 +228,7 @@ namespace BoomaEcommerce.Services.Tests
 
         }
         [Fact]
-        public async void NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateNewManagerToAnotherStore()
+        public async Task NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateNewManagerToAnotherStore()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -260,7 +260,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesManagements.Should().NotContainKey(storeManagementsOriNike.Guid);
         }
         [Fact]
-        public async void NominateNewStoreManager_ReturnFalse_UserThatINotAnOwnerTriesToNominate()
+        public async Task NominateNewStoreManager_ReturnFalse_UserThatINotAnOwnerTriesToNominate()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -287,7 +287,7 @@ namespace BoomaEcommerce.Services.Tests
 
         }
         [Fact]
-        public async void NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateOtherOwner()
+        public async Task NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateOtherOwner()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -322,7 +322,7 @@ namespace BoomaEcommerce.Services.Tests
 
         }
         [Fact]
-        public async void NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateOtherStoreManager()
+        public async Task NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateOtherStoreManager()
         {
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
@@ -358,7 +358,7 @@ namespace BoomaEcommerce.Services.Tests
         
 
         [Fact]
-        public async void GetSellersInformation_ShouldReturnStoreSellers_WhenStoreExists()
+        public async Task GetSellersInformation_ShouldReturnStoreSellers_WhenStoreExists()
         {
             // Arrange 
             Dictionary<Guid, StoreManagement> entitiesStoreManagements = new Dictionary<Guid, StoreManagement>();
@@ -409,7 +409,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async void GetSellersInformation_ShouldReturnEmptyObject_WhenStoreDoesNotExist()
+        public async Task GetSellersInformation_ShouldReturnEmptyObject_WhenStoreDoesNotExist()
         {
             // Arrange 
             Dictionary<Guid, StoreManagement> entitiesStoreManagements = new Dictionary<Guid, StoreManagement>();
@@ -426,7 +426,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async void GetPermissions_ShouldReturnCorrectPermissions_WhenSMExists()
+        public async Task GetPermissions_ShouldReturnCorrectPermissions_WhenSMExists()
         {
             // Arrange 
             Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
@@ -470,7 +470,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async void GetPermissions_ShouldReturnNull_WhenSMDoesNotExist()
+        public async Task GetPermissions_ShouldReturnNull_WhenSMDoesNotExist()
         {
             // Arrange 
             Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
@@ -492,7 +492,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async void UpdatePermissions_UpdatePermissionsCorrectly_WhenStoreManagerDtoExist()
+        public async Task UpdatePermissions_UpdatePermissionsCorrectly_WhenStoreManagerDtoExist()
         {
             // Arrange
             Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
@@ -531,7 +531,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async void UpdatePermissions_UpdatePermissionNotUpdated_WhenSMDoesNotExist()
+        public async Task UpdatePermissions_UpdatePermissionNotUpdated_WhenSMDoesNotExist()
         {
             // Arrange
             Dictionary<Guid, StoreManagementPermission> entitiesStoreManagementPermissions =
