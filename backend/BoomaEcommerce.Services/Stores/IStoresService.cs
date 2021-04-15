@@ -119,5 +119,7 @@ namespace BoomaEcommerce.Services.Stores
         Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid);
         Task<ProductDto> GetStoreProduct(Guid productGuid);
 
+        Task<StoreSellersResponse> GetAllSellersInformation(Guid storeGuid);
+
     }
 }

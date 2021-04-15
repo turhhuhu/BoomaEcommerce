@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BoomaEcommerce.Services
 {
@@ -22,13 +23,23 @@ namespace BoomaEcommerce.Services
             ClaimsPrincipal = claimsPrincipal;
         }
 
-        protected static ClaimsPrincipal ParseClaimsPrincipal(string token)
+        protected static ClaimsPrincipal ValidateToken(string token, string secret)
         {
             var tokenSecurityHandler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = tokenSecurityHandler.ReadJwtToken(token);
-            var claimsPrincipal =
-                new ClaimsPrincipal(new ClaimsIdentity(jwtSecurityToken.Claims));
-            return claimsPrincipal;
+            var key = Encoding.ASCII.GetBytes(secret);
+
+            var claims = tokenSecurityHandler.ValidateToken(token,
+                new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateLifetime = true,
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out _);
+
+            return claims;
         }
 
         protected bool CheckRoleAuthorized(MethodInfo method)

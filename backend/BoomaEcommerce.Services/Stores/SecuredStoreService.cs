@@ -17,11 +17,11 @@ namespace BoomaEcommerce.Services.Stores
             _storeService = storeService;
         }
 
-        public static bool CreateSecuredStoreService(string token, IStoresService next, out IStoresService storesService)
+        public static bool CreateSecuredStoreService(string token, string secret, IStoresService next, out IStoresService storesService)
         {
             try
             {
-                var claimsPrincipal = ParseClaimsPrincipal(token);
+                var claimsPrincipal = ValidateToken(token, secret);
                 storesService = new SecuredStoreService(claimsPrincipal, next);
                 return true;
             }
@@ -149,16 +149,39 @@ namespace BoomaEcommerce.Services.Stores
             return _storeService.GetAllSubordinateSellers(storeOwnerGuid);
         }
 
-        public Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid)
+        public async Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid)
         {
             CheckAuthenticated();
-            return _storeService.GetStoreOwnerShip(userGuid, storeGuid);
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+
+            if (await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeGuid))
+            {
+                return await _storeService.GetStoreOwnerShip(userGuid, storeGuid);
+            }
+            throw new UnAuthorizedException(nameof(GetStoreOwnerShip), userGuidInClaims);
         }
 
-        public Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid)
+        public async Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid)
         {
             CheckAuthenticated();
-            return _storeService.GetStoreManagement(userGuid, storeGuid);
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            if (await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeGuid))
+            {
+                return await _storeService.GetStoreManagement(userGuid, storeGuid);
+            }
+            throw new UnAuthorizedException(nameof(GetStoreManagement), userGuidInClaims);
+
+        }
+
+        public async Task<StoreSellersResponse> GetAllSellersInformation(Guid storeGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            if (await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeGuid))
+            {
+                return await _storeService.GetAllSellersInformation(storeGuid);
+            }
+            throw new UnAuthorizedException(nameof(GetAllSellersInformation), userGuidInClaims);
         }
 
         public Task<ProductDto> GetStoreProduct(Guid productGuid)
