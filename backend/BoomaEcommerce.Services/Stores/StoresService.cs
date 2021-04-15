@@ -46,6 +46,52 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+        public Task<bool> CreateStoreProductAsync(ProductDto productDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> DeleteProductAsync(Guid productGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"Deleting product with guid {productGuid}");
+                var product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productGuid);
+                if (product == null) return false;
+                if (product.IsSoftDeleted) return false;
+                product.IsSoftDeleted = true;
+
+                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to delete product with guid {productGuid}", e);
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateProductAsync(ProductDto productDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Updating product with guid {productDto.Guid}");
+                var product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productDto.Guid);
+                if (product.IsSoftDeleted) return false;
+                product.Name = productDto.Name ?? product.Name;
+                product.Amount = productDto.Amount ?? product.Amount;
+                product.Price = productDto.Price ?? product.Price;
+                product.Category = productDto.Category ?? product.Category;
+
+                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to update product with guid {productDto.Guid}", e);
+                return false;
+            }
+        }
         public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
             try
@@ -128,18 +174,18 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newOwnerDto)
+        public async Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newManagementDto)
         {
             try
             {
 
-                var ownerStoreOwnership = await ValidateInformation(owner, newOwnerDto.Store.Guid, newOwnerDto.User.Guid);
+                var ownerStoreOwnership = await ValidateInformation(owner, newManagementDto.Store.Guid, newManagementDto.User.Guid);
 
                 if (ownerStoreOwnership == null)
                     return false;
 
-                var newManager = _mapper.Map<StoreManagement>(newOwnerDto);
-                ownerStoreOwnership.StoreManagements.TryAdd(newOwnerDto.Guid, newManager);
+                var newManager = _mapper.Map<StoreManagement>(newManagementDto);
+                ownerStoreOwnership.StoreManagements.TryAdd(newManagementDto.Guid, newManager);
 
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
                 await _storeUnitOfWork.SaveAsync();
@@ -270,6 +316,19 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+        public Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid)
+        {
+            throw new NotImplementedException();
+        }
 
+        public Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProductDto> GetStoreProduct(Guid productGuid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

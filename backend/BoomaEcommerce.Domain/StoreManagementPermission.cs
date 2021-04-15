@@ -12,6 +12,5 @@ namespace BoomaEcommerce.Domain
         public bool CanDoSomething { get; set; }
         public bool ExampleFlag1 { get; set; }
         public bool ExampleFlag2 { get; set; }
-        public StoreManagement StoreManagement { get; set; }
     }
 }
