@@ -112,5 +112,116 @@ namespace BoomaEcommerce.Services.Tests
             return validProductsPurchasesDtos;
         }
         
+        public static PurchaseDto GetPurchaseWithSingleProductWithAmountOf1(Guid userGuid, Guid productGuid)
+        {
+            var productDto = new ProductDto
+            {
+                Guid = productGuid,
+            };
+
+            var purchaseDto = new PurchaseDto
+            {
+                Buyer = new UserDto{Guid = userGuid},
+                StorePurchases = new List<StorePurchaseDto>
+                {
+                    new()
+                    {
+                        PurchaseProducts = new List<PurchaseProductDto>
+                        {
+                            new()
+                            {
+                                Amount = 1,
+                                ProductDto = productDto
+                            }
+                        }
+                    }
+                }
+            };
+
+            return purchaseDto;
+        }
+        
+        public static Store CreateStoreObject(string storeName)
+        {
+            return new() { StoreName = storeName };
+        }
+
+        public static User CreateUserObject(string name)
+        {
+            return new() { Name = name };
+        }
+
+        public static Product CreateProductObject(string name)
+        {
+            return new() {Name = name};
+        }
+
+        public static PurchaseProduct CreatePurchaseProductObject(Product p)
+        {
+            return new()
+            {
+                Product = p
+            };
+        }
+
+        public static StorePurchase CreateStorePurchaseObject(Store store, User user, PurchaseProduct product)
+        {
+            return new ()
+            {
+                PurchaseProducts = new List<PurchaseProduct>{product},
+                Buyer = user,
+                Store = store,
+                TotalPrice = 5
+                
+            };
+        }
+
+        public static Purchase CreatePurchaseObject(StorePurchase sp,User buyer)
+        {
+            return new()
+            {
+                Buyer = buyer,
+                StorePurchases = new List<StorePurchase> {sp}
+            };
+        }
+        
+        public static StoreOwnership CreateStoreOwnershipObject(Store store, User user)
+        {
+            return new() { Store = store, User = user };
+
+        }
+
+        public static StoreManagement CreateStoreManagementObject(Store store, User user)
+        {
+            return new() { Store = store, User = user };
+
+        }
+        
+        
+        public static User GetUserData(string fName, string lName, string uname)
+        {
+            return new() { Name = fName, LastName = lName, UserName = uname };
+        }
+
+        public static Store GetStoreData(string name)
+        {
+            return new() { StoreName = name };
+        }
+
+        public static StoreManagement GetStoreManagementData(User u, Store s)
+        {
+            return new() { User = u, Store = s };
+        }
+
+        public static StoreOwnership GetStoreOwnershipData(User u, Store s)
+        {
+            return new() { User = u, Store = s };
+        }
+
+        public static StoreManagementPermission GetStoreManagementPermissionData(bool flag, StoreManagement sm)
+        {
+            return new() { CanDoSomething = flag, StoreManagement = sm };
+        }
+        
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.MappingProfiles;
@@ -17,52 +18,14 @@ namespace BoomaEcommerce.Services.Tests
 
     public class ProductsServiceTests
     {
-        Dictionary<Guid, Product> _EntitiesProducts = new Dictionary<Guid, Product>();
-        Dictionary<Guid, Store> _EntitiesStores = new Dictionary<Guid, Store>();
-        Dictionary<Guid, StorePurchase> _EntitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
         private readonly Mock<ILogger<ProductsService>> _logger = new();
         private readonly IMapper _mapper = MapperFactory.GetMapper();
 
-        static MapperConfiguration config = new MapperConfiguration(cfg =>
+        private static Mock<IRepository<Product>> GetProductRepoMock(Dictionary<Guid, Product> products)
         {
-            cfg.AddProfile(new DomainToDtoProfile());
-            cfg.AddProfile(new DtoToDomainProfile());
-        });
-        IMapper mapper = config.CreateMapper();
-
-        [Fact]
-        public async void GetProductTest()
-        {
-            Mock<ILogger<ProductsService>> loggerMock = new Mock<ILogger<ProductsService>>();
-            Store s1 = new() { };
-            Store s2 = new() { };
-            Store s3 = new() { };
-            Product p1 = new() { Store = s1 };
-            Product p2 = new() { Store = s1 };
-            Product p3 = new() { Store = s2 };
-
-            _EntitiesProducts.Add(p1.Guid, p1);
-            _EntitiesProducts.Add(p2.Guid, p2);
-            _EntitiesProducts.Add(p3.Guid, p3);
-
-            var productsRepo = DalMockFactory.MockRepository(_EntitiesProducts);
-
-            var productService = new ProductsService(loggerMock.Object, mapper, productsRepo.Object);
-
-            var res1 =await productService.GetProductsFromStoreAsync(s1.Guid);
-            List<ProductDto> expectedRes1 = new List<ProductDto>();
-            expectedRes1.Add(mapper.Map<ProductDto>(p1));
-            expectedRes1.Add(mapper.Map<ProductDto>(p2));
-
-            var res2 = await productService.GetProductsFromStoreAsync(s3.Guid);
-
-
-            res1.ToList().Should().BeEquivalentTo(expectedRes1);
-            res2.Should().BeEmpty();
-
+            return DalMockFactory.MockRepository(products);
         }
-
-
+        
         [Fact]
         public async Task GetProductsFromStoreAsync_ReturnsAllNotSoftDeletedProductsFromGivenStore_WhenStoreExists()
         {
@@ -80,7 +43,7 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Store = new Store{Guid =  storeGuid}, IsSoftDeleted = true});
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
@@ -101,7 +64,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
             
             // Act
@@ -118,7 +81,7 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = TestData.GetTestProduct(productGuid);
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
@@ -133,7 +96,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
                 
             // Act
@@ -150,7 +113,7 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
@@ -178,7 +141,7 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Name = productName, IsSoftDeleted = true});
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
@@ -197,7 +160,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
@@ -225,7 +188,7 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Category = productCategory, IsSoftDeleted = true});
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
@@ -244,7 +207,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
@@ -284,7 +247,7 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Category = productCategory, IsSoftDeleted = true});
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
@@ -293,8 +256,8 @@ namespace BoomaEcommerce.Services.Tests
             // Assert
             foreach (var productDto in result)
             {
-                productDto.Should().Match<ProductDto>(x => x.Category.Contains(keyWord) 
-                                                           || x.Name.Contains(keyWord));
+                productDto.Should().Match<ProductDto>(
+                    x => x.Category.Contains(keyWord) || x.Name.Contains(keyWord));
                 notSoftDeletedProductGuidList.Should().Contain(productDto.Guid);
             }
         }
@@ -304,7 +267,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = DalMockFactory.MockRepository(productsDict);
+            var productRepoMock = GetProductRepoMock(productsDict);
             var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
 
             // Act
