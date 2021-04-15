@@ -6,6 +6,7 @@ using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.MappingProfiles;
 using BoomaEcommerce.Services.Products;
 using FluentAssertions;
@@ -21,9 +22,13 @@ namespace BoomaEcommerce.Services.Tests
         private readonly Mock<ILogger<ProductsService>> _logger = new();
         private readonly IMapper _mapper = MapperFactory.GetMapper();
 
-        private static Mock<IRepository<Product>> GetProductRepoMock(Dictionary<Guid, Product> products)
+        private ProductsService GetProductService(Dictionary<Guid, Product> products)
         {
-            return DalMockFactory.MockRepository(products);
+            var productRepoMock = DalMockFactory.MockRepository(products);
+            var mistakeCorrectionMock = new Mock<IMistakeCorrection>();
+            mistakeCorrectionMock.Setup(x => x.CorrectMistakeIfThereIsAny(It.IsAny<string>()))
+                .Returns<string>(x => x);
+            return new ProductsService(_logger.Object, _mapper, productRepoMock.Object, mistakeCorrectionMock.Object);
         }
         
         [Fact]
@@ -43,9 +48,8 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Store = new Store{Guid =  storeGuid}, IsSoftDeleted = true});
-            var productRepoMock = GetProductRepoMock(productsDict);
             
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductsFromStoreAsync(storeGuid);
@@ -64,8 +68,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
             
             // Act
             var result = await sut.GetProductsFromStoreAsync(Guid.NewGuid());
@@ -81,8 +85,8 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = TestData.GetTestProduct(productGuid);
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductAsync(productGuid);
@@ -96,8 +100,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
                 
             // Act
             var result = await sut.GetProductAsync(Guid.NewGuid());
@@ -113,8 +117,8 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductAsync(Guid.NewGuid());
@@ -130,8 +134,8 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = TestData.GetTestProduct(productGuid);
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
             
             // Act
             var result = await sut.DeleteProductAsync(productGuid);
@@ -146,8 +150,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
                 
             // Act
             var result = await sut.DeleteProductAsync(Guid.NewGuid());
@@ -163,8 +167,8 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.DeleteProductAsync(productGuid);
@@ -181,8 +185,8 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productToReplaceGuid = Guid.NewGuid();
             productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid);
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             var replacementProductDto =
                 new ProductDto
@@ -205,8 +209,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.UpdateProductAsync(new ProductDto{Guid = Guid.NewGuid()});
@@ -222,8 +226,8 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.UpdateProductAsync(new ProductDto{Guid = productGuid});
@@ -250,8 +254,8 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Name = productName, IsSoftDeleted = true});
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductByNameAsync(productName);
@@ -269,8 +273,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductByNameAsync("");
@@ -297,8 +301,8 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Category = productCategory, IsSoftDeleted = true});
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductByCategoryAsync(productCategory);
@@ -316,8 +320,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductByCategoryAsync("");
@@ -356,8 +360,8 @@ namespace BoomaEcommerce.Services.Tests
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
                 new Product{Guid = softDeletedProductGuid, Category = productCategory, IsSoftDeleted = true});
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductByKeywordAsync(productCategory);
@@ -376,8 +380,8 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productRepoMock = GetProductRepoMock(productsDict);
-            var sut = new ProductsService(_logger.Object, _mapper, productRepoMock.Object);
+            
+            var sut = GetProductService(productsDict);
 
             // Act
             var result = await sut.GetProductByKeywordAsync("");
