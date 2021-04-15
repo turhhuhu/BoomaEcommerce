@@ -101,11 +101,6 @@ namespace BoomaEcommerce.Services.Purchases
             
         }
 
-        // function not supported yet.
-        public Task<PurchaseDto> GetPurchaseAsync(Guid purchaseGuid)
-        {
-            throw new NotSupportedException();
-        }
 
         // function not supported yet.
         public Task DeletePurchaseAsync(Guid purchaseGuid)

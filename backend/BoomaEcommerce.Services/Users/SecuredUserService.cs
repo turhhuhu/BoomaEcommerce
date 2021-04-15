@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Services.Users
     public class SecuredUserService : SecuredServiceBase, IUsersService
     {
         private readonly IUsersService _next;
-        public static bool CreateSecuredStoreService(string token, string secret, IUsersService next, out IUsersService userService)
+        public static bool CreateSecuredUserService(string token, string secret, IUsersService next, out IUsersService userService)
         {
             try
             {
