@@ -23,25 +23,6 @@ namespace BoomaEcommerce.Services.Products
             _mapper = mapper;
             _productRepo = productRepo;
         }
-        public async Task<bool> CreateStoreProductAsync(ProductDto productDto)
-        {
-            try
-            {
-                var product = _mapper.Map<Product>(productDto);
-                if (!product.ValidateStorePolicy() || !product.ValidateAmount())
-                {
-                    return false;
-                }
-                await _productRepo.InsertOneAsync(product);
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e,"Failed to create product with Guid {ProductGuid}," +
-                                   " for store with guid {StoreGuid}", productDto.Guid, productDto.Store.Guid);
-                return false;
-            }
-        }
 
         public async Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync()
         {
@@ -139,46 +120,6 @@ namespace BoomaEcommerce.Services.Products
             }
         }
 
-        public async Task<bool> DeleteProductAsync(Guid productGuid)
-        {
-            try
-            {
-                _logger.LogInformation($"Deleting product with guid {productGuid}");
-                var product = await _productRepo.FindByIdAsync(productGuid);
-                if (product == null) return false;
-                if (product.IsSoftDeleted) return false;
-                product.IsSoftDeleted = true;
 
-                await _productRepo.ReplaceOneAsync(product);
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Failed to delete product with guid {productGuid}", e);
-                return false;
-            }
-        }
-
-        public async Task<bool> UpdateProductAsync(ProductDto productDto)
-        {
-            try
-            {
-                _logger.LogInformation($"Updating product with guid {productDto.Guid}");
-                var product = await _productRepo.FindByIdAsync(productDto.Guid);
-                if (product.IsSoftDeleted) return false;
-                product.Name = productDto.Name ?? product.Name;
-                product.Amount = productDto.Amount ?? product.Amount;
-                product.Price = productDto.Price ?? product.Price;
-                product.Category = productDto.Category ?? product.Category;
-
-                await _productRepo.ReplaceOneAsync(product);
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Failed to update product with guid {productDto.Guid}", e);
-                return false;
-            }
-        }
     }
 }

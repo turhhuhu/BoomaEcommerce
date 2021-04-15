@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
@@ -22,10 +23,11 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StoreOwnership> storeOwnerships,
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
-            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions)
+            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions,
+            IDictionary<Guid, Product> products)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions);
+                storeManagements, storeManagementPermissions, products);
             
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
         }
@@ -47,7 +49,7 @@ namespace BoomaEcommerce.Services.Tests
 
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
             
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
             //SUCCESS
             var storeOwnershipBennyNike = TestData.CreateStoreOwnershipObject(nikeStore, bennyUser);
@@ -78,7 +80,7 @@ namespace BoomaEcommerce.Services.Tests
             
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
             
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
             //FAIL:bennyUser is an owner of another store
@@ -104,7 +106,7 @@ namespace BoomaEcommerce.Services.Tests
             var oriUser = TestData.CreateUserObject("Ori");
             var arikUser = TestData.CreateUserObject("Arik");
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
             
             var storeOwnershipOriNike = TestData.CreateStoreOwnershipObject(nikeStore, oriUser);
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipOriNike);
@@ -139,7 +141,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships[storeOwnershipMatanAdidas.Guid] = storeOwnershipMatanAdidas;
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipBennyAdidas);
             
@@ -175,7 +177,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesManagements[storeManagementsOmerAdidas.Guid] = storeManagementsOmerAdidas;
 
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
             
             var storeOwnershipOmerAdidas = TestData.CreateStoreOwnershipObject(adidasStore, omerUser);
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipOmerAdidas);
@@ -209,7 +211,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
 
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
             //SUCCESS
@@ -243,7 +245,7 @@ namespace BoomaEcommerce.Services.Tests
            
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
             //FAIL:bennyUser is an owner of another store
@@ -270,7 +272,7 @@ namespace BoomaEcommerce.Services.Tests
             var arikUser = TestData.CreateUserObject("Arik");
 
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
             var storeManagementsOriNike = TestData.CreateStoreManagementObject(nikeStore, oriUser);
@@ -304,7 +306,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
 
@@ -340,7 +342,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesManagements[storeManagementsOmerAdidas.Guid] = storeManagementsOmerAdidas;
 
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null);
+           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementsOmerAdidas);
@@ -379,7 +381,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStoreOwnerships[soMatan.Guid] = soMatan;
             entitiesStoreOwnerships[soArye.Guid] = soArye;
 
-            var s = GetStoreService(null, entitiesStoreOwnerships, null, entitiesStoreManagements, null);
+            var s = GetStoreService(null, entitiesStoreOwnerships, null, entitiesStoreManagements, null, null);
 
             List<StoreManagementDto> lsm = new List<StoreManagementDto>
             {
@@ -413,7 +415,7 @@ namespace BoomaEcommerce.Services.Tests
             Dictionary<Guid, StoreManagement> entitiesStoreManagements = new Dictionary<Guid, StoreManagement>();
             Dictionary<Guid, StoreOwnership> entitiesStoreOwnerships = new Dictionary<Guid, StoreOwnership>();
 
-            var s = GetStoreService(null, entitiesStoreOwnerships, null, entitiesStoreManagements, null);
+            var s = GetStoreService(null, entitiesStoreOwnerships, null, entitiesStoreManagements, null, null);
 
             // Act 
             var response = await s.GetAllSellersInformation(new Guid()); // Store Guid does not exist !!
@@ -449,7 +451,7 @@ namespace BoomaEcommerce.Services.Tests
 
            
 
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions);
+            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions, null);
 
 
             StoresService s = new(_loggerMock.Object, _mapper, uow.Object);
@@ -475,7 +477,7 @@ namespace BoomaEcommerce.Services.Tests
                 new Dictionary<Guid, StoreManagementPermission>();
 
 
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions);
+            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions, null);
 
 
             StoresService s = new(_loggerMock.Object, _mapper, uow.Object);
@@ -508,7 +510,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var repoPermissions = DalMockFactory.MockRepository(entitiesStoreManagementPermissions);
 
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions);
+            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions, null);
 
 
             StoresService s = new(_loggerMock.Object, _mapper, uow.Object);
@@ -544,7 +546,7 @@ namespace BoomaEcommerce.Services.Tests
 
             StoreManagementPermission smp1 = TestData.GetStoreManagementPermissionData(true, sm1);
 
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions);
+            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions, null);
 
             entitiesStoreManagementPermissions[smp1.Guid] = smp1;
             StoresService s = new(_loggerMock.Object, _mapper, uow.Object);
@@ -563,9 +565,113 @@ namespace BoomaEcommerce.Services.Tests
             // Assert 
             r1.CanDoSomething.Should().BeTrue();
         }
+
+        [Fact]
+        public async Task DeleteProductAsync_ReturnTrueAndProductIsSafeDeleted_WhenProductExistsAndIsNotSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productGuid = Guid.NewGuid();
+            productsDict[productGuid] = TestData.GetTestProduct(productGuid);
+
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            
+            //Act
+            var result = await sut.DeleteProductAsync(productGuid);
+
+            //Assert
+            result.Should().BeTrue();
+            productsDict[productGuid].IsSoftDeleted.Should().BeTrue();
+        }
         
-                [Fact]
-        public async void GetStoreTest()
+        [Fact]
+        public async Task DeleteProductAsync_ReturnFalse_WhenProductDoNotNotExist()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
+
+            //Act
+            var result = await sut.DeleteProductAsync(Guid.NewGuid());
+
+            //Assert
+            result.Should().BeFalse();
+        }
+        
+        [Fact]
+        public async Task DeleteProductAsync_ReturnFalse_WhenProductExistsAndIsSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productGuid = Guid.NewGuid();
+            productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
+
+            //Act
+            var result = await sut.DeleteProductAsync(productGuid);
+
+            //Assert
+            result.Should().BeFalse();
+            productsDict.Keys.Should().Contain(productGuid);
+        }
+        
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsNotSafeDeletedProduct_WhenProductExistsAndNotSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productToReplaceGuid = Guid.NewGuid();
+            productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid);
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
+
+            var replacementProductDto =
+                new ProductDto
+                    {Guid = productToReplaceGuid, Amount = 5, Price = 5, Name = "ChessBoard", Category = "Chess"}; 
+
+            //Act
+            var result = await sut.UpdateProductAsync(replacementProductDto);
+
+            //Assert
+            result.Should().BeTrue();
+            var resultProduct = productsDict[productToReplaceGuid];
+            resultProduct.Amount.Should().Be(5);
+            resultProduct.Price.Should().Be(5);
+            resultProduct.Category.Should().Be("Chess");
+            resultProduct.Name.Should().Be("ChessBoard");
+        }
+        
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsFalse_WhenProductDoNotExist()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
+
+            //Act
+            var result = await sut.UpdateProductAsync(new ProductDto{Guid = Guid.NewGuid()});
+
+            //Assert
+            result.Should().BeFalse();
+        }
+        
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsFalse_WhenProductExistsButIsSafeDeleted()
+        {
+            //Arrange
+            var productsDict = new Dictionary<Guid, Product>();
+            var productGuid = Guid.NewGuid();
+            productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
+            var sut = GetStoreService(null, null, null, null, null, productsDict);
+
+            //Act
+            var result = await sut.UpdateProductAsync(new ProductDto{Guid = productGuid});
+
+            //Assert
+            result.Should().BeFalse();
+        }
+    
+        [Fact]
+        private async Task GetStoreData()
         {
             var entitiesStores = new Dictionary<Guid, Store>();
             var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
@@ -579,11 +685,8 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(s1.Guid, s1);
             entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
             entitiesStores.Add(storeManagementsOmerAdidas.Guid, storeManagementsOmerAdidas);
-
-            var storeUnitOfWork =
-                DalMockFactory.MockStoreUnitOfWork(entitiesStores, null, entitiesStorePurchases, null, null);
-
-            var storesService = new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
+            
+            var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
 
             var res1 = await storesService.GetStoreAsync(s1.Guid);
             var expectedRes1 = _mapper.Map<StoreDto>(s1);
@@ -601,7 +704,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async void GetStorePurchaseHistoryTest()
+        public async Task GetStorePurchaseHistoryTest()
         {
             var entitiesStores = new Dictionary<Guid, Store>();
             var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
@@ -609,9 +712,7 @@ namespace BoomaEcommerce.Services.Tests
             Store s1 = new() {};
             Store storeOwnershipBennyAdidas = new() {};
             Store storeManagementsOmerAdidas = new() {};
-
-            //nikeStore purchase 
-                //p1 
+            
             var pr1 = new PurchaseProduct();
             var pr2 = new PurchaseProduct();
             var pr3 = new PurchaseProduct();
@@ -622,8 +723,7 @@ namespace BoomaEcommerce.Services.Tests
             prList1.Add(pr3);
 
             StorePurchase p1 = new() {PurchaseProducts = prList1 , Store = s1};
-               
-                //p2
+            
             var pr4 = new PurchaseProduct();
             var pr5 = new PurchaseProduct(); 
 
@@ -633,8 +733,7 @@ namespace BoomaEcommerce.Services.Tests
             
 
             StorePurchase p2 = new() { PurchaseProducts = prList2, Store = s1 };
-
-            //adidasStore purchase 
+            
             var pr6 = new PurchaseProduct();
             var prList3 = new List<PurchaseProduct>();
             prList3.Add(pr6);
@@ -648,10 +747,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(s1.Guid,s1);
             entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
 
-            var storeUnitOfWork =
-                DalMockFactory.MockStoreUnitOfWork(entitiesStores, null, entitiesStorePurchases, null, null);
-
-            var storesService = new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
+            var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
 
             var res1 = await storesService.GetStorePurchaseHistory(s1.Guid);
             var expectedRes1 = new List<StorePurchaseDto>();
@@ -668,8 +764,6 @@ namespace BoomaEcommerce.Services.Tests
 
             var res3 = await storesService.GetStorePurchaseHistory(storeManagementsOmerAdidas.Guid);
             res3.Should().BeEmpty();
-
-
         }
         
     }

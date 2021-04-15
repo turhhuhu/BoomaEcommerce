@@ -220,7 +220,7 @@ namespace BoomaEcommerce.Services.Tests
 
         public static StoreManagementPermission GetStoreManagementPermissionData(bool flag, StoreManagement sm)
         {
-            return new() { CanDoSomething = flag, StoreManagement = sm };
+            return new() { CanDoSomething = flag };
         }
         
     }

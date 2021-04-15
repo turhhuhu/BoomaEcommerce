@@ -11,15 +11,6 @@ namespace BoomaEcommerce.Services.Products
     {
 
         /// <summary>
-        /// Creates a product in a store.
-        /// </summary>
-        /// <param name="productDto"></param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// </returns>
-        Task<bool> CreateStoreProductAsync(ProductDto productDto);
-
-        /// <summary>
         /// Gets all products.
         /// </summary>
         /// <returns>
@@ -67,23 +58,5 @@ namespace BoomaEcommerce.Services.Products
         /// The task result contains the products collection.
         /// </returns>
         Task<IReadOnlyCollection<ProductDto>> GetProductByKeywordAsync(string productKeyword);
-
-        /// <summary>
-        /// Deletes a product by guid.
-        /// </summary>
-        /// <param name="productGuid"></param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// </returns>
-        Task<bool> DeleteProductAsync(Guid productGuid);
-
-        /// <summary>
-        /// Updates a product by guid.
-        /// </summary>
-        /// <param name="product"></param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// </returns>
-        Task<bool> UpdateProductAsync(ProductDto product);
     }
 }
