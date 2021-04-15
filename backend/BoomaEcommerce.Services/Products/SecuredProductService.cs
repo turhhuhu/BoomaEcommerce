@@ -16,10 +16,10 @@ namespace BoomaEcommerce.Services.Products
     {
         private readonly IProductsService _productService;
         private readonly IAuthorizationService _authorizationService;
-        public SecuredProductService(ClaimsPrincipal claims,
+        public SecuredProductService(ClaimsPrincipal claimsPrincipal,
             IProductsService productService,
             IAuthorizationService authorizationService) 
-            : base(claims)
+            : base(claimsPrincipal)
         {
             _productService = productService;
             _authorizationService = authorizationService;

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Exceptions;
 using BoomaEcommerce.Services.Products;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -32,10 +34,18 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+        [Authorize(Roles = UserRoles.AdminRole)]
         public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid)
         {
             // authentication
             CheckAuthenticated();
+
+            // role authorization
+            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
+            if (CheckRoleAuthorized(method))
+            {
+                return await _storeService.GetStorePurchaseHistory(storeGuid);
+            }
 
             // specific authorization
             var userGuid = ClaimsPrincipal.GetUserGuid();
@@ -117,9 +127,16 @@ namespace BoomaEcommerce.Services.Stores
             return _storeService.GetStoreAsync(storeGuid);
         }
 
+        [Authorize(Roles = UserRoles.AdminRole)]
         public async Task<bool> DeleteStoreAsync(Guid storeGuid)
         {
             CheckAuthenticated();
+
+            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
+            if (CheckRoleAuthorized(method))
+            {
+                return await _storeService.DeleteProductAsync(storeGuid);
+            }
 
             var userGuid = ClaimsPrincipal.GetUserGuid();
 

@@ -17,6 +17,7 @@ namespace BoomaEcommerce.Services.DTO
         public bool CanAddProduct { get; set; }
         public bool CanDeleteProduct { get; set; }
         public bool CanUpdateProduct { get; set; }
+        public bool CanGetSellersInfo { get; set; }
 
         //public StoreManagementDto StoreManagement { get; set; }
     }

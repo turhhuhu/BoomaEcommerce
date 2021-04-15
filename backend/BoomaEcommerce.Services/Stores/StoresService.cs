@@ -46,24 +46,9 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<bool> CreateStoreProductAsync(ProductDto productDto)
+        public Task<bool> CreateStoreProductAsync(ProductDto productDto)
         {
-            try
-            {
-                var product = _mapper.Map<Product>(productDto);
-                if (!product.ValidateStorePolicy() || !product.ValidateAmount())
-                {
-                    return false;
-                }
-                await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Failed to create product with Guid {ProductGuid}," +
-                                    " for store with guid {StoreGuid}", productDto.Guid, productDto.Store.Guid);
-                return false;
-            }
+            throw new NotImplementedException();
         }
 
         public async Task<bool> DeleteProductAsync(Guid productGuid)

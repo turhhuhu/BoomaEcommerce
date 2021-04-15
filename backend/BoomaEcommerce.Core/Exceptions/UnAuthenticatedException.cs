@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Services.Exceptions
+namespace BoomaEcommerce.Core.Exceptions
 {
     public class UnAuthenticatedException : Exception
     {
