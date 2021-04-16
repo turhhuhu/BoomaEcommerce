@@ -41,9 +41,9 @@ namespace BoomaEcommerce.AcceptanceTests
             // Act
             var result = await _storesService.CreateStoreProductAsync(productDto);
             // Assert
-            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(productDto);
             var product = await _storesService.GetStoreProduct(productDto.Guid);
-            product.Should().NotBeNull();
+            product.Should().BeEquivalentTo(productDto);
         }
 
         public Task DisposeAsync()

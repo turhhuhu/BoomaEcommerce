@@ -14,6 +14,15 @@ namespace BoomaEcommerce.Services.Users
     public class SecuredUserService : SecuredServiceBase, IUsersService
     {
         private readonly IUsersService _next;
+
+        public SecuredUserService(IUsersService next)
+        {
+            _next = next;
+        }
+        protected SecuredUserService(ClaimsPrincipal claimsPrincipal, IUsersService next) : base(claimsPrincipal)
+        {
+            _next = next;
+        }
         public static bool CreateSecuredUserService(string token, string secret, IUsersService next, out IUsersService userService)
         {
             try
@@ -27,10 +36,6 @@ namespace BoomaEcommerce.Services.Users
                 userService = null;
                 return false;
             }
-        }
-        protected SecuredUserService(ClaimsPrincipal claimsPrincipal, IUsersService next) : base(claimsPrincipal)
-        {
-            _next = next;
         }
         public Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid)
         {

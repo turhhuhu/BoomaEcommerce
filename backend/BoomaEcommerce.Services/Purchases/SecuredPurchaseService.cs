@@ -20,6 +20,11 @@ namespace BoomaEcommerce.Services.Purchases
             _purchaseService = purchasesService;
         }
 
+        public SecuredPurchaseService(IPurchasesService purchaseService)
+        {
+            _purchaseService = purchaseService;
+        }
+
         public static bool CreateSecuredPurchaseService(string token, string secret, IPurchasesService next, out IPurchasesService purchaseService)
         {
             try
@@ -28,7 +33,7 @@ namespace BoomaEcommerce.Services.Purchases
                 purchaseService = new SecuredPurchaseService(claimsPrincipal, next);
                 return true;
             }
-            catch (Exception e)
+            catch
             {
                 purchaseService = null;
                 return false;
@@ -39,12 +44,14 @@ namespace BoomaEcommerce.Services.Purchases
         {
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
-            if (userGuidInClaims == purchase.Buyer.Guid)
+
+            // Different user than the buyer trying to make the purchase. (only if registered)
+            if (purchase.Buyer != null && userGuidInClaims != purchase.Buyer.Guid)
             {
-                return _purchaseService.CreatePurchaseAsync(purchase);
+                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchase.Buyer.Guid} found in purchase.");
             }
 
-            throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchase.Buyer.Guid} found in purchase.");
+            return _purchaseService.CreatePurchaseAsync(purchase);
         }
 
         [Authorize(Roles = UserRoles.AdminRole)]
@@ -52,7 +59,7 @@ namespace BoomaEcommerce.Services.Purchases
         {
             CheckAuthenticated();
 
-            var method = typeof(SecuredProductService).GetMethod(nameof(GetAllUserPurchaseHistoryAsync));
+            var method = typeof(SecuredPurchaseService).GetMethod(nameof(GetAllUserPurchaseHistoryAsync));
             if (CheckRoleAuthorized(method))
             {
                 return _purchaseService.GetAllUserPurchaseHistoryAsync(userGuid);
