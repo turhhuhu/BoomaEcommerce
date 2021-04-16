@@ -131,45 +131,6 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Fact]
-        public async Task CreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenTwoCustomersBuyLastProductInParallel()
-        {
-            // Arrange
-            var purchasesDict = new Dictionary<Guid, Purchase>();
-            var productDict = new Dictionary<Guid, Product>();
-            var userDict = new Dictionary<Guid, User>();
-            var shoppingCartDict = new Dictionary<Guid, ShoppingCart>();
-
-            var userGuid = Guid.NewGuid();
-            var userFixture = _fixture.Build<User>()
-                .With(x => x.Guid, userGuid)
-                .Create();
-            userDict[userGuid] = userFixture;
-            
-            var shoppingCartGuid = Guid.NewGuid();
-            var cart = new ShoppingCart {Guid = shoppingCartGuid, User = userFixture};
-            shoppingCartDict[shoppingCartGuid] = cart;
-
-            var productGuid = Guid.NewGuid();
-            var product = new Product {Guid = productGuid, Amount = 1, ProductLock = new SemaphoreSlim(1)};
-            productDict[productGuid] = product;
-
-            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict);
-            
-            // Act
-            var taskList = new List<Task<bool>>
-            {
-                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid)),
-                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid))
-            };
-            var res = await Task.WhenAll(taskList);
-            
-            // Assert
-            res.Should().Contain(true).And.Contain(false);
-            productDict[productGuid].Amount.Should().Be(0);
-
-        }
-
-        [Fact]
         public async void GetAllUserPurchaseHistoryAsync_returnEmptyList_userHaveNotBoughtAnything()
         {
             // Arrange

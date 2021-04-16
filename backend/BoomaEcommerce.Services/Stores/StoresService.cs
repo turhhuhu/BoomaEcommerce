@@ -199,13 +199,13 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        private async Task<StoreOwnership> ValidateInformation(Guid ownerGuid, Guid StoreGuid, Guid userGuid)
+        private async Task<StoreOwnership> ValidateInformation(Guid ownerGuid, Guid storeGuid, Guid userGuid)
         {
             try
             {
                 //Checking if owner is owner in the relevant store 
                 var ownerStoreOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(storeOwnership =>
-                    storeOwnership.User.Guid.Equals(ownerGuid) && storeOwnership.Store.Guid.Equals(StoreGuid));
+                    storeOwnership.User.Guid == ownerGuid && storeOwnership.Store.Guid == storeGuid);
 
                 if (ownerStoreOwnership == null)
                 {
@@ -214,9 +214,9 @@ namespace BoomaEcommerce.Services.Stores
 
                 //checking if the new owner is not already a store owner or a store manager
                 var ownerShouldBeNull = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(storeOwnership =>
-                    storeOwnership.User.Guid.Equals(userGuid) && storeOwnership.Store.Guid.Equals(StoreGuid));
+                    storeOwnership.User.Guid.Equals(userGuid) && storeOwnership.Store.Guid.Equals(storeGuid));
                 var managerShouldBeNull = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(sm =>
-                    sm.User.Guid.Equals(userGuid) && sm.Store.Guid.Equals(StoreGuid));
+                    sm.User.Guid.Equals(userGuid) && sm.Store.Guid.Equals(storeGuid));
 
                 if (ownerShouldBeNull != null || managerShouldBeNull != null)
                 {
