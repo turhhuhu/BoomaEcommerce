@@ -31,7 +31,7 @@ namespace BoomaEcommerce.Services.Users
                 userService = new SecuredUserService(claimsPrincipal, next);
                 return true;
             }
-            catch (Exception e)
+            catch
             {
                 userService = null;
                 return false;
