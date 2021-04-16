@@ -7,6 +7,7 @@ using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Users;
+using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;

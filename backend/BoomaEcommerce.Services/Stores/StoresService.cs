@@ -46,9 +46,28 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public Task<bool> CreateStoreProductAsync(ProductDto productDto)
+        public async Task<ProductDto> CreateStoreProductAsync(ProductDto productDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var product = _mapper.Map<Product>(productDto);
+                /*if (!product.ValidateStorePolicy() || !product.ValidateAmount())
+                {
+                    return null;
+                }*/
+                if (!product.ValidateAmount())
+                {
+                    return null;
+                }
+                await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
+                return _mapper.Map<ProductDto>(product);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e,"Failed to create product with Guid {ProductGuid}," +
+                                   " for store with guid {StoreGuid}", productDto.Guid, productDto.Store.Guid);
+                return null;
+            }
         }
 
         public async Task<bool> DeleteProductAsync(Guid productGuid)
@@ -299,6 +318,21 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+        public async Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShips(Guid userGuid)
+        {
+            try
+            {
+                var storeOwnerships = (await _storeUnitOfWork.StoreOwnershipRepo
+                    .FilterByAsync(storeOwnership => storeOwnership.User.Guid == userGuid)).ToList();
+                return _mapper.Map<List<StoreOwnershipDto>>(storeOwnerships);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+
         public async Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid)
         {
             try
@@ -316,19 +350,51 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid)
+        public async Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var storeOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(ownership =>
+                    ownership.User.Guid == userGuid && ownership.Store.Guid == storeGuid);
+                return _mapper.Map<StoreOwnershipDto>(storeOwnership);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get all subordinate sellers for store owner with guid");
+                return null;
+            }
         }
 
-        public Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid)
+        public async Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var storeManagement = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(management =>
+                    management.User.Guid == userGuid && management.Store.Guid == storeGuid);
+                return _mapper.Map<StoreManagementDto>(storeManagement);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get all subordinate sellers for store owner with guid");
+                return null;
+            }
         }
 
-        public Task<ProductDto> GetStoreProduct(Guid productGuid)
+        public async Task<ProductDto> GetStoreProduct(Guid productGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation($"Getting product with guid {productGuid}");
+                var product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productGuid);
+                return product.IsSoftDeleted 
+                    ? null 
+                    : _mapper.Map<ProductDto>(product);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to get productDto", e);
+                return null;
+            }
         }
     }
 }

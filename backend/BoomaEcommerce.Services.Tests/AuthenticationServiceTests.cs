@@ -10,6 +10,7 @@ using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Settings;
+using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ namespace BoomaEcommerce.Services.Tests
                     {
                         Secret = Secret, TokenLifeTime = TimeSpan.FromHours(1), RefreshTokenExpirationMonthsAmount = 6
 
-                    }, null, _refreshTokenRepo.Object);
+                    }, null, _refreshTokenRepo.Object, MapperFactory.GetMapper());
 
         }
 

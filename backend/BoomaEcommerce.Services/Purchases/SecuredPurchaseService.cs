@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.DTO;
-using BoomaEcommerce.Services.Exceptions;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 

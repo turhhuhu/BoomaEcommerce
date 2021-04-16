@@ -37,7 +37,7 @@ namespace BoomaEcommerce.Services.Stores
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<bool> CreateStoreProductAsync(ProductDto productDto);
+        Task<ProductDto> CreateStoreProductAsync(ProductDto productDto);
 
         /// <summary>
         /// Deletes a product by guid.
@@ -114,12 +114,13 @@ namespace BoomaEcommerce.Services.Stores
         /// returns a store seller response containing all subordinates of the owner requested.
         /// </returns>
         Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid);
-
+        
         Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid);
         Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid);
         Task<ProductDto> GetStoreProduct(Guid productGuid);
 
         Task<StoreSellersResponse> GetAllSellersInformation(Guid storeGuid);
 
+        Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShips(Guid userGuid);
     }
 }

@@ -17,4 +17,8 @@
     <ProjectReference Include="..\BoomaEcommerce.Domain\BoomaEcommerce.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions" />
+  </ItemGroup>
+
 </Project>

@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
-using BoomaEcommerce.Services.Exceptions;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BoomaEcommerce.Services.Stores
 {
-    class SecuredStoreService : SecuredServiceBase, IStoresService
+    public class SecuredStoreService : SecuredServiceBase, IStoresService
     {
         private readonly IStoresService _storeService;
         public SecuredStoreService(ClaimsPrincipal claimsPrincipal, IStoresService storeService) : base(claimsPrincipal)
@@ -63,7 +63,7 @@ namespace BoomaEcommerce.Services.Stores
             return _storeService.CreateStoreAsync(store);
         }
 
-        public async Task<bool> CreateStoreProductAsync(ProductDto product)
+        public async Task<ProductDto> CreateStoreProductAsync(ProductDto product)
         {
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
@@ -108,9 +108,9 @@ namespace BoomaEcommerce.Services.Stores
         {
             var userGuid = ClaimsPrincipal.GetUserGuid();
             var ownership = await _storeService.GetStoreOwnerShip(userGuid, storeGuid);
-            if (ownership == null)
+            if (ownership != null)
             {
-                return false;
+                return true;
             }
             var management = await _storeService.GetStoreManagement(userGuid, storeGuid);
 
@@ -199,6 +199,17 @@ namespace BoomaEcommerce.Services.Stores
                 return await _storeService.GetAllSellersInformation(storeGuid);
             }
             throw new UnAuthorizedException(nameof(GetAllSellersInformation), userGuidInClaims);
+        }
+
+        public Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShips(Guid userGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            if (userGuidInClaims == userGuid)
+            {
+                return _storeService.GetAllStoreOwnerShips(userGuid);
+            }
+            throw new UnAuthorizedException(nameof(GetAllStoreOwnerShips), userGuidInClaims);
         }
 
         public Task<ProductDto> GetStoreProduct(Guid productGuid)

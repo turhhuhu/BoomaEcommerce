@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
-using BoomaEcommerce.Services.Exceptions;
+using BoomaEcommerce.Core.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 

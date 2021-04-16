@@ -6,6 +6,7 @@ using AutoMapper;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
+using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
