@@ -8,7 +8,7 @@ using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
 using Moq;
 
-namespace BoomaEcommerce.Services.Tests
+namespace BoomaEcommerce.Tests.CoreLib
 {
     public static class DalMockFactory
     {

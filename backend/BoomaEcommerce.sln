@@ -17,6 +17,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Services.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Domain.Tests", "BoomaEcommerce.Domain.Tests\BoomaEcommerce.Domain.Tests.csproj", "{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoomaEcommerce.AcceptanceTests", "BoomaEcommerce.AcceptanceTests\BoomaEcommerce.AcceptanceTests.csproj", "{F16ED668-E468-4CFB-B79E-104F4E3E6078}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoomaEcommerce.Tests.CoreLib", "BoomaEcommerce.Tests.CoreLib\BoomaEcommerce.Tests.CoreLib.csproj", "{12A00909-71DC-45D7-98E8-223467B5A660}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +51,14 @@ Global
 		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F16ED668-E468-4CFB-B79E-104F4E3E6078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F16ED668-E468-4CFB-B79E-104F4E3E6078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F16ED668-E468-4CFB-B79E-104F4E3E6078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F16ED668-E468-4CFB-B79E-104F4E3E6078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12A00909-71DC-45D7-98E8-223467B5A660}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12A00909-71DC-45D7-98E8-223467B5A660}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12A00909-71DC-45D7-98E8-223467B5A660}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12A00909-71DC-45D7-98E8-223467B5A660}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,6 +66,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{01A5728B-D735-4DCC-ABCC-87845114FE1F} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
 		{5EDE392F-8C25-4C49-B9D6-9617D07DB44B} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
+		{F16ED668-E468-4CFB-B79E-104F4E3E6078} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
+		{12A00909-71DC-45D7-98E8-223467B5A660} = {26D5B64C-2933-4473-A03A-98BEEE36A2D8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C9EE9ECD-5B0D-4081-AAC8-D8F7BD395122}

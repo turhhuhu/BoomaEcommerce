@@ -9,6 +9,7 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.MappingProfiles;
 using BoomaEcommerce.Services.Products;
+using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;

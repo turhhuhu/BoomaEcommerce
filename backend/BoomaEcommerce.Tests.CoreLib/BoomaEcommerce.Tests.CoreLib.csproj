@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoFixture" Version="4.16.0" />
-        <PackageReference Include="FluentAssertions" Version="5.10.3" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
         <PackageReference Include="Moq" Version="4.16.1" />
         <PackageReference Include="xunit" Version="2.4.1" />
@@ -23,8 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BommaEcommerce.Data\BoomaEcommerce.Data.csproj" />
+      <ProjectReference Include="..\BoomaEcommerce.Domain\BoomaEcommerce.Domain.csproj" />
       <ProjectReference Include="..\BoomaEcommerce.Services\BoomaEcommerce.Services.csproj" />
-      <ProjectReference Include="..\BoomaEcommerce.Tests.CoreLib\BoomaEcommerce.Tests.CoreLib.csproj" />
     </ItemGroup>
 
 </Project>

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
@@ -25,25 +26,27 @@ namespace BoomaEcommerce.Services.Authentication
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParams;
         private readonly IRepository<RefreshToken> _refreshTokenRepo;
+        private readonly IMapper _mapper;
 
         public AuthenticationService(
             ILogger<AuthenticationService> logger,
             UserManager<User> userManager,
             JwtSettings jwtSettings,
             TokenValidationParameters tokenValidationParams, 
-            IRepository<RefreshToken> refreshTokenRepo)
+            IRepository<RefreshToken> refreshTokenRepo, IMapper mapper)
         {
             _logger = logger;
             _userManager = userManager;
             _jwtSettings = jwtSettings;
             _tokenValidationParams = tokenValidationParams;
             _refreshTokenRepo = refreshTokenRepo;
+            _mapper = mapper;
         }
         public AuthenticationService(ILogger<AuthenticationService> logger,
             UserManager<User> userManager,
             IOptions<JwtSettings> jwtOptions, TokenValidationParameters tokenValidationParams,
-            IRepository<RefreshToken> refreshTokenRepo) 
-            : this(logger, userManager, jwtOptions.Value, tokenValidationParams, refreshTokenRepo) { }
+            IRepository<RefreshToken> refreshTokenRepo, IMapper mapper) 
+            : this(logger, userManager, jwtOptions.Value, tokenValidationParams, refreshTokenRepo, mapper) { }
 
         public async Task<AuthenticationResult> LoginAsync(string username, string password)
         {
@@ -277,7 +280,8 @@ namespace BoomaEcommerce.Services.Authentication
             {
                 Success = true,
                 Token = tokenString,
-                RefreshToken = refreshToken.Token
+                RefreshToken = refreshToken.Token,
+                User = _mapper.Map<UserDto>(user)
             };
         }
     }

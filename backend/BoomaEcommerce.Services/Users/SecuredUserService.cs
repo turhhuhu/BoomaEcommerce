@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
-using UnAuthorizedException = BoomaEcommerce.Services.Exceptions.UnAuthorizedException;
+using UnAuthorizedException = BoomaEcommerce.Core.Exceptions.UnAuthorizedException;
 
 namespace BoomaEcommerce.Services.Users
 {
