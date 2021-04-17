@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,8 +17,12 @@ namespace BoomaEcommerce.Services
 {
     public class SecuredServiceBase
     {
-        protected readonly ClaimsPrincipal ClaimsPrincipal;
+        protected readonly ClaimsPrincipal? ClaimsPrincipal;
 
+        public SecuredServiceBase()
+        {
+            
+        }
         protected SecuredServiceBase(ClaimsPrincipal claimsPrincipal)
         {
             ClaimsPrincipal = claimsPrincipal;
@@ -42,20 +47,25 @@ namespace BoomaEcommerce.Services
             return claims;
         }
 
-        protected bool CheckRoleAuthorized(MethodInfo method)
+        protected bool CheckRoleAuthorized(MethodInfo? method)
         {
+            if (ClaimsPrincipal == null || method == null)
+            {
+                return false;
+            }
+
             var authAttributes = method.GetCustomAttributes<AuthorizeAttribute>(true);
             var roles = authAttributes
-                .SelectMany(x => x.Roles?.Split(','))
-                .Where(role => role != null);
+                .SelectMany(att => att.Roles?.Split(',') ?? Enumerable.Empty<string>());
 
             return roles.Any(role => ClaimsPrincipal.IsInRole(role));
         }
 
         protected void CheckAuthenticated()
         {
-            if (ClaimsPrincipal.Identity?.IsAuthenticated == false ||
-                !ClaimsPrincipal.HasClaim(claim => claim.Type == "guid"))
+
+            if (ClaimsPrincipal?.Identity?.IsAuthenticated == false ||
+                ClaimsPrincipal?.HasClaim(claim => claim.Type == "guid") == false)
             {
                 throw new UnAuthenticatedException();
             }

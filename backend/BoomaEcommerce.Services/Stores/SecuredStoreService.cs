@@ -19,6 +19,11 @@ namespace BoomaEcommerce.Services.Stores
             _storeService = storeService;
         }
 
+        public SecuredStoreService(IStoresService storesService)
+        {
+            _storeService = storesService;
+        }
+
         public static bool CreateSecuredStoreService(string token, string secret, IStoresService next, out IStoresService storesService)
         {
             try
@@ -27,7 +32,7 @@ namespace BoomaEcommerce.Services.Stores
                 storesService = new SecuredStoreService(claimsPrincipal, next);
                 return true;
             }
-            catch (Exception e)
+            catch
             {
                 storesService = null;
                 return false;
@@ -41,7 +46,7 @@ namespace BoomaEcommerce.Services.Stores
             CheckAuthenticated();
 
             // role authorization
-            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
+            var method = typeof(SecuredStoreService).GetMethod(nameof(DeleteProductAsync));
             if (CheckRoleAuthorized(method))
             {
                 return await _storeService.GetStorePurchaseHistory(storeGuid);
@@ -132,7 +137,7 @@ namespace BoomaEcommerce.Services.Stores
         {
             CheckAuthenticated();
 
-            var method = typeof(SecuredProductService).GetMethod(nameof(DeleteProductAsync));
+            var method = typeof(SecuredStoreService).GetMethod(nameof(DeleteProductAsync));
             if (CheckRoleAuthorized(method))
             {
                 return await _storeService.DeleteProductAsync(storeGuid);
