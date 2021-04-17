@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 
@@ -16,7 +18,6 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<ShoppingBasketDto, ShoppingBasket>();
             CreateMap<ShoppingCartDto, ShoppingCart>();
             CreateMap<ProductDto, Product>();
-            CreateMap<StoreDto,Store>();
             CreateMap<PurchaseProductDto, PurchaseProduct>().ForMember(dest => dest.Product,
                 opt =>
                     opt.MapFrom(x => new Product{Guid = x.ProductDto.Guid}));
@@ -27,6 +28,9 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StoreOwnershipDto, StoreOwnership>();
             CreateMap<StoreManagementPermissionDto, StoreManagementPermission>();
 
+            CreateMap<BaseEntityDto, BaseEntity>()
+                .IncludeAllDerived()
+                .ForMember(x => x.Guid, x => x.MapFrom(xx => xx.Guid == default ? Guid.NewGuid() : xx.Guid));
         }
     }
 }
