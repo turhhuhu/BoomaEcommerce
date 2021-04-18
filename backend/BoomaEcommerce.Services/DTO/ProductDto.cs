@@ -13,7 +13,6 @@ namespace BoomaEcommerce.Services.DTO
         public string Category { get; set; }
         public decimal? Price { get; set; }
         public int? Amount { get; set; }
-        
-        public float Rating { get; set; }
+        public float? Rating { get; set; }
     }
 }

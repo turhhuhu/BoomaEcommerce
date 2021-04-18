@@ -18,9 +18,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<ShoppingBasketDto, ShoppingBasket>();
             CreateMap<ShoppingCartDto, ShoppingCart>();
             CreateMap<ProductDto, Product>();
-            CreateMap<PurchaseProductDto, PurchaseProduct>().ForMember(dest => dest.Product,
-                opt =>
-                    opt.MapFrom(x => new Product{Guid = x.ProductDto.Guid}));
+            CreateMap<PurchaseProductDto, PurchaseProduct>();
             CreateMap<StorePurchaseDto, StorePurchase>();
             CreateMap<PurchaseDto, Purchase>();
             CreateMap<StorePurchaseDto, StorePurchase>();   

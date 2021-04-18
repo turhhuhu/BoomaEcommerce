@@ -44,19 +44,19 @@ namespace BoomaEcommerce.Services.Tests
             {
                 new()
                 {
-                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Product = new ProductDto{Guid = Guid.NewGuid()},
                     Amount = 5,
                     Price = 50
                 },
                 new()
                 {
-                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Product = new ProductDto{Guid = Guid.NewGuid()},
                     Amount = 5,
                     Price = 50
                 },
                 new()
                 {
-                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Product = new ProductDto{Guid = Guid.NewGuid()},
                     Amount = 5,
                     Price = 50
                 }
@@ -70,19 +70,19 @@ namespace BoomaEcommerce.Services.Tests
             {
                 new()
                 {
-                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Product = new ProductDto{Guid = Guid.NewGuid()},
                     Amount = 11,
                     Price = 50
                 },
                 new()
                 {
-                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Product = new ProductDto{Guid = Guid.NewGuid()},
                     Amount = 11,
                     Price = 50
                 },
                 new()
                 {
-                    ProductDto = new ProductDto{Guid = Guid.NewGuid()},
+                    Product = new ProductDto{Guid = Guid.NewGuid()},
                     Amount = 11,
                     Price = 50
                 }
@@ -131,7 +131,7 @@ namespace BoomaEcommerce.Services.Tests
                             new()
                             {
                                 Amount = 1,
-                                ProductDto = productDto
+                                Product = productDto
                             }
                         }
                     }

@@ -64,7 +64,7 @@ namespace BoomaEcommerce.Services.Tests
             {
                 foreach (var productsPurchaseDto in storePurchaseDto.PurchaseProducts)
                 {
-                    var testProductGuid = productsPurchaseDto.ProductDto.Guid;
+                    var testProductGuid = productsPurchaseDto.Product.Guid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
                     productDict[testProductGuid] = testProduct;
                 }
@@ -111,7 +111,7 @@ namespace BoomaEcommerce.Services.Tests
             {
                 foreach (var productsPurchaseDto in storePurchaseDto.PurchaseProducts)
                 {
-                    var testProductGuid = productsPurchaseDto.ProductDto.Guid;
+                    var testProductGuid = productsPurchaseDto.Product.Guid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
                     productDict[testProductGuid] = testProduct;
                 }

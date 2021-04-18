@@ -71,7 +71,7 @@ namespace BoomaEcommerce.Services.Tests
                         {
                             new()
                             {
-                                ProductDto = new ProductDto
+                                Product = new ProductDto
                                 {
                                     Guid = productGuid
                                 }
