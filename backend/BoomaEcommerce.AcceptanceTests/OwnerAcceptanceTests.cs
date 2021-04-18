@@ -35,7 +35,8 @@ namespace BoomaEcommerce.AcceptanceTests
             await InitOwnerUser(storeService, authService);
             await InitNotOwnerUser(storeService, authService);
 
-            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.Store, _storeOwnership.Store));
+            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).Without(pp => pp.Rating)
+                .With(pp => pp.Store, _storeOwnership.Store));
         }
 
         private async Task InitOwnerUser(IStoresService storeService, IAuthenticationService authService)
@@ -73,6 +74,7 @@ namespace BoomaEcommerce.AcceptanceTests
             _notOwnerUser = notOwnerLoginResponse.User;
             var result = SecuredStoreService.CreateSecuredStoreService(notOwnerLoginResponse.Token,
                 ServiceMockFactory.Secret, storeService, out _notOwnerStoreService);
+
             if (!result)
             {
                 throw new Exception("This shouldn't happen");
@@ -88,7 +90,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Act
             var result = await _ownerStoreService.CreateStoreProductAsync(productDto);
             // Assert
-            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid));
+            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating));
             var product = await _ownerStoreService.GetStoreProduct(result.Guid);
             product.Should().BeEquivalentTo(result);
         }
@@ -102,7 +104,8 @@ namespace BoomaEcommerce.AcceptanceTests
             var productDto = _fixture.Create<ProductDto>();
 
             // Act
-            var act = _notOwnerStoreService.Awaiting(x => x.CreateStoreProductAsync(productDto));
+            var act = _notOwnerStoreService.Awaiting(storeService => storeService.CreateStoreProductAsync(productDto));
+
             // Assert
             await act.Should().ThrowAsync<UnAuthorizedException>();
 

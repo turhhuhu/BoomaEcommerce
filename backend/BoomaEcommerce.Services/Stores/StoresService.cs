@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Services.DTO;
+using FluentValidation;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -48,6 +49,8 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<ProductDto> CreateStoreProductAsync(ProductDto productDto)
         {
+            ServiceUtilities.ValidateDto<ProductDto, StoreServiceValidators.CreateStoreProductValidator>(productDto);
+
             try
             {
                 var product = _mapper.Map<Product>(productDto);
