@@ -10,7 +10,7 @@ namespace BoomaEcommerce.Services.Tests
     public static class TestData
     {
         private static readonly IFixture Fixture = new Fixture();
-        public static Product GetTestProduct(Guid guid)
+        public static Product GetTestProduct(Guid guid, Guid storeGuid = default)
         {
             return new ()
             {
@@ -20,7 +20,8 @@ namespace BoomaEcommerce.Services.Tests
                 IsSoftDeleted = false,
                 ProductLock = new SemaphoreSlim(1),
                 Name = "Test",
-                Category = "TestCategory"
+                Category = "TestCategory",
+                Store = new Store{Guid = storeGuid}
             };
         }
         
@@ -193,7 +194,7 @@ namespace BoomaEcommerce.Services.Tests
 
         public static StoreManagement CreateStoreManagementObject(Store store, User user)
         {
-            return new() { Store = store, User = user };
+            return new() { Store = store, User = user, Permissions = new StoreManagementPermission()};
 
         }
         

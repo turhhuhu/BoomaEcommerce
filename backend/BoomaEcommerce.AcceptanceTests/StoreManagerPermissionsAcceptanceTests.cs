@@ -137,6 +137,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var fixtureStore = _fixture
                 .Build<StoreDto>()
                 .With(s => s.StoreFounder, loginResponse.User)
+                .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();
 
