@@ -30,8 +30,9 @@ namespace BoomaEcommerce.AcceptanceTests
             _fixture = new Fixture();
             _fixture.Customize<StoreDto>(s => s.Without(ss => ss.Guid));
 
-            var storeService = ServiceMockFactory.MockStoreService();
-            var authService = ServiceMockFactory.MockAuthenticationService();
+            var serviceMockFactory = new ServiceMockFactory(); 
+            var storeService = serviceMockFactory.MockStoreService();
+            var authService = serviceMockFactory.MockAuthenticationService();
             await InitOwnerUser(storeService, authService);
             await InitNotOwnerUser(storeService, authService);
 

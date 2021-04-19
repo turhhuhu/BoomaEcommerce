@@ -466,8 +466,8 @@ namespace BoomaEcommerce.Services.Tests
             var r2 = _mapper.Map<StoreManagementPermission>(res2);
 
             // Assert
-            r1.CanDoSomething.Should().BeTrue();
-            r2.CanDoSomething.Should().BeFalse();
+            r1.CanAddProduct.Should().BeTrue();
+            r2.CanAddProduct.Should().BeFalse();
         }
 
         [Fact]
@@ -519,7 +519,7 @@ namespace BoomaEcommerce.Services.Tests
 
             // Act 
             var replace1 = await s.GetPermissions(smp1.Guid);
-            replace1.CanDoSomething = false;
+            replace1.CanAddProduct = false;
 
             await s.UpdatePermission(replace1);
 
@@ -528,7 +528,7 @@ namespace BoomaEcommerce.Services.Tests
             var r1 = _mapper.Map<StoreManagementPermission>(res1);
 
             // Assert
-            r1.CanDoSomething.Should().BeFalse();
+            r1.CanAddProduct.Should().BeFalse();
         }
 
         [Fact]
@@ -555,7 +555,7 @@ namespace BoomaEcommerce.Services.Tests
 
             // Act 
             var replace1 = await s.GetPermissions(smp1.Guid);
-            replace1.CanDoSomething = false;
+            replace1.CanAddProduct = false;
 
             await s.UpdatePermission(new StoreManagementPermissionDto());
 
@@ -564,7 +564,7 @@ namespace BoomaEcommerce.Services.Tests
             var r1 = _mapper.Map<StoreManagementPermission>(res1);
 
             // Assert 
-            r1.CanDoSomething.Should().BeTrue();
+            r1.CanAddProduct.Should().BeTrue();
         }
 
         [Fact]

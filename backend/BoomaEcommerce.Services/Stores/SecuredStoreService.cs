@@ -46,7 +46,7 @@ namespace BoomaEcommerce.Services.Stores
             CheckAuthenticated();
 
             // role authorization
-            var method = typeof(SecuredStoreService).GetMethod(nameof(DeleteProductAsync));
+            var method = typeof(SecuredStoreService).GetMethod(nameof(GetStorePurchaseHistory));
             if (CheckRoleAuthorized(method))
             {
                 return await _storeService.GetStorePurchaseHistory(storeGuid);
@@ -215,6 +215,17 @@ namespace BoomaEcommerce.Services.Stores
                 return _storeService.GetAllStoreOwnerShips(userGuid);
             }
             throw new UnAuthorizedException(nameof(GetAllStoreOwnerShips), userGuidInClaims);
+        }
+
+        public Task<IReadOnlyCollection<StoreManagementDto>> GetAllStoreManagements(Guid userGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            if (userGuidInClaims == userGuid)
+            {
+                return _storeService.GetAllStoreManagements(userGuid);
+            }
+            throw new UnAuthorizedException(nameof(GetAllStoreManagements), userGuidInClaims);
         }
 
         public Task<ProductDto> GetStoreProduct(Guid productGuid)

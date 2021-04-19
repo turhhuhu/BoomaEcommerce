@@ -54,6 +54,13 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var product = _mapper.Map<Product>(productDto);
+                var storeProduct = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
+                if (storeProduct is null)
+                {
+                    _logger.LogWarning("create store product failed because" +
+                                       " store with guid {Guid} does not exists", product.Store.Guid);
+                    return null;
+                }
                 /*if (!product.ValidateStorePolicy() || !product.ValidateAmount())
                 {
                     return null;
@@ -104,6 +111,7 @@ namespace BoomaEcommerce.Services.Stores
                 product.Amount = productDto.Amount ?? product.Amount;
                 product.Price = productDto.Price ?? product.Price;
                 product.Category = productDto.Category ?? product.Category;
+                product.Rating = productDto.Rating ?? product.Rating;
 
                 await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
                 return true;
@@ -328,6 +336,21 @@ namespace BoomaEcommerce.Services.Stores
                 var storeOwnerships = (await _storeUnitOfWork.StoreOwnershipRepo
                     .FilterByAsync(storeOwnership => storeOwnership.User.Guid == userGuid)).ToList();
                 return _mapper.Map<List<StoreOwnershipDto>>(storeOwnerships);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return null;
+            }
+        }
+        
+        public async Task<IReadOnlyCollection<StoreManagementDto>> GetAllStoreManagements(Guid userGuid)
+        {
+            try
+            {
+                var storeManagements = (await _storeUnitOfWork.StoreManagementRepo
+                    .FilterByAsync(storeManagement => storeManagement.User.Guid == userGuid)).ToList();
+                return _mapper.Map<List<StoreManagementDto>>(storeManagements);
             }
             catch (Exception e)
             {
