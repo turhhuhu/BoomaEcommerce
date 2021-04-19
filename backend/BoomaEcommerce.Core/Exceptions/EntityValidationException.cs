@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Services.Complaints
+namespace BoomaEcommerce.Core.Exceptions
 {
-    public class ComplaintsService : IComplaintsService
+    public class EntityValidationException : Exception
     {
+
     }
 }

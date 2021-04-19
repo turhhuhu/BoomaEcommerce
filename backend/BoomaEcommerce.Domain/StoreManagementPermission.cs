@@ -7,10 +7,10 @@ using BoomaEcommerce.Core;
 namespace BoomaEcommerce.Domain
 {
     public class StoreManagementPermission : BaseEntity
-    {         
-        public StoreManagement StoreManagement { get; set; }
-
+    {
         // Example flag of permission.
         public bool CanDoSomething { get; set; }
+        public bool ExampleFlag1 { get; set; }
+        public bool ExampleFlag2 { get; set; }
     }
 }

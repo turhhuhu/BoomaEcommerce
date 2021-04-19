@@ -9,7 +9,8 @@ namespace BoomaEcommerce.Services.Authentication
 {
     public interface IAuthenticationService
     {
-        Task<AuthenticationResponse> RegisterAsync(string username, string password);
-        Task<AuthenticationResponse> LoginAsync(string username, string password);
+        Task<AuthenticationResult> RegisterAsync(string username, string password);
+        Task<AuthenticationResult> LoginAsync(string username, string password);
+        Task<AuthenticationResult> RefreshJwtToken(string token, string refreshToken);
     }
 }

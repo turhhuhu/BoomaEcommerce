@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 
@@ -17,12 +14,21 @@ namespace BoomaEcommerce.Services.MappingProfiles
         public DtoToDomainProfile()
         {
             CreateMap<UserDto, User>();
+            CreateMap<StoreDto, Store>();
+            CreateMap<ShoppingBasketDto, ShoppingBasket>();
+            CreateMap<ShoppingCartDto, ShoppingCart>();
             CreateMap<ProductDto, Product>();
-            CreateMap<PurchaseProductDto, PurchaseProduct>().ForMember(dest => dest.Product,
-                opt =>
-                    opt.MapFrom(x => new Product{Guid = x.ProductDto.Guid}));
+            CreateMap<PurchaseProductDto, PurchaseProduct>();
             CreateMap<StorePurchaseDto, StorePurchase>();
             CreateMap<PurchaseDto, Purchase>();
+            CreateMap<StorePurchaseDto, StorePurchase>();   
+            CreateMap<StoreManagementDto, StoreManagement>();
+            CreateMap<StoreOwnershipDto, StoreOwnership>();
+            CreateMap<StoreManagementPermissionDto, StoreManagementPermission>();
+
+            CreateMap<BaseEntityDto, BaseEntity>()
+                .IncludeAllDerived()
+                .ForMember(x => x.Guid, x => x.MapFrom(xx => xx.Guid == default ? Guid.NewGuid() : xx.Guid));
         }
     }
 }

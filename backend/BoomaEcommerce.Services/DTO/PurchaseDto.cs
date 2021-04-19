@@ -10,6 +10,6 @@ namespace BoomaEcommerce.Services.DTO
     {
         public List<StorePurchaseDto> StorePurchases { get; set; }
         public UserDto Buyer { get; set; }
-        public double TotalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
     }
 }

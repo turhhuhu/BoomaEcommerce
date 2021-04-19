@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 
@@ -17,7 +18,16 @@ namespace BoomaEcommerce.Services.MappingProfiles
         public DomainToDtoProfile()
         {
             CreateMap<Store, StoreDto>();
+            CreateMap<User, UserDto>();
+            CreateMap<ShoppingBasket, ShoppingBasketDto>();
+            CreateMap<ShoppingCart, ShoppingCartDto>();
+            CreateMap<StoreManagement, StoreManagementDto>();
+            CreateMap<StoreOwnership, StoreOwnershipDto>();
             CreateMap<Product, ProductDto>();
+            CreateMap<StorePurchase, StorePurchaseDto>();
+            CreateMap<PurchaseProduct, PurchaseProductDto>(); //ask
+            CreateMap<Purchase, PurchaseDto>();
+            CreateMap<StoreManagementPermission, StoreManagementPermissionDto>();
         }
     }
 }

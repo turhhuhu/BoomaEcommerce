@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BoomaEcommerce.Services.MappingProfiles;
 
-namespace BoomaEcommerce.Services.Tests
+namespace BoomaEcommerce.Tests.CoreLib
 {
     public static class MapperFactory
     {

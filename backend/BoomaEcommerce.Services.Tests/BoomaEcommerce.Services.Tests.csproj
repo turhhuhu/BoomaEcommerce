@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BoomaEcommerce.Services\BoomaEcommerce.Services.csproj" />
+      <ProjectReference Include="..\BoomaEcommerce.Tests.CoreLib\BoomaEcommerce.Tests.CoreLib.csproj" />
     </ItemGroup>
 
 </Project>

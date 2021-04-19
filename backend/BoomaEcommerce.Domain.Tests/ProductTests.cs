@@ -10,7 +10,7 @@ namespace BoomaEcommerce.Domain.Tests
         [InlineData(3, 1, 3)]
         [InlineData(2.2, 2, 4.4)]
         [InlineData(5.5, 0, 0)]
-        public void CalculatePrice_MultiplyPriceAndAmount(double price, int amount, double expected)
+        public void CalculatePrice_MultiplyPriceAndAmount(decimal price, int amount, decimal expected)
         {
             var sut = new Product {Price = price};
 
@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var sut = new Product {Amount = initialAmount};
 
-            var result = sut.ValidateAmount(amount);
+            var result = sut.ValidateAmountToPurchase(amount);
 
             result.Should().BeTrue();
         }
@@ -39,7 +39,20 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var sut = new Product {Amount = initialAmount};
 
-            var result = sut.ValidateAmount(amount);
+            var result = sut.ValidateAmountToPurchase(amount);
+
+            result.Should().BeFalse();
+        }
+        
+        [Theory]
+        [InlineData(10, 5)]
+        [InlineData(2, 1)]
+        [InlineData(5, 5)]
+        public void PurchaseAmount_ReturnFalse_WhenAmountIsValidButProductIsSafeDeleted(int initialAmount, int amount)
+        {
+            var sut = new Product {Amount = initialAmount, IsSoftDeleted = true};
+
+            var result = sut.PurchaseAmount(amount);
 
             result.Should().BeFalse();
         }

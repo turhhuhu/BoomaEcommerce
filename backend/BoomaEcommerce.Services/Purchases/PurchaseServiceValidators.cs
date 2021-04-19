@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Domain
+namespace BoomaEcommerce.Services.Purchases
 {
-    public class Review
+    public static class PurchaseServiceValidators
     {
     }
 }
