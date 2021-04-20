@@ -65,15 +65,13 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(s => s.Guid)
                 .Create();
             //Act 
-            await _storeService.CreateStoreAsync(fixtureStore);
+            var newStore = await _storeService.CreateStoreAsync(fixtureStore);
 
             //Assert 
             var stores = await _storeService.GetStoresAsync();
-            var store = stores.First();
+            var ExpectedStore = stores.First();
 
-            store.Description.Should().BeEquivalentTo(fixtureStore.Description);
-            store.StoreFounder.Should().BeEquivalentTo(fixtureStore.StoreFounder);
-            store.StoreName.Should().BeEquivalentTo(fixtureStore.StoreName);  
+            ExpectedStore.Should().BeEquivalentTo(newStore);
            
         }
 

@@ -28,7 +28,7 @@ namespace BoomaEcommerce.Services.Stores
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task CreateStoreAsync(StoreDto store);
+        Task<StoreDto> CreateStoreAsync(StoreDto store);
 
         /// <summary>
         /// Creates a product in a store.

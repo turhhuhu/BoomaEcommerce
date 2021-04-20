@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Services.Stores
             _storeUnitOfWork = storeUnitOfWork;
         }
 
-        public async Task CreateStoreAsync(StoreDto store)
+        public async Task<StoreDto> CreateStoreAsync(StoreDto store)
         {
             ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStoreAsync>(store);
             var newStore = _mapper.Map<Store>(store);
@@ -41,10 +41,12 @@ namespace BoomaEcommerce.Services.Stores
                 };
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(storeOwnerShip);
                 await _storeUnitOfWork.SaveAsync();
+                return _mapper.Map<StoreDto>(newStore);
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message); 
+                _logger.LogError(e.Message);
+                return null;
             }
         }
 
