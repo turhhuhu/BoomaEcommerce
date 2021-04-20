@@ -31,10 +31,10 @@ namespace BoomaEcommerce.AcceptanceTests
         {
 
             _fixture = new Fixture();
-            _fixture.Customize<StoreDto>(s => 
+            _fixture.Customize<StoreDto>(s =>
                 s.Without(ss => ss.Guid).Without(ss => ss.Rating));
 
-            var serviceMockFactory = new ServiceMockFactory(); 
+            var serviceMockFactory = new ServiceMockFactory();
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
             await InitOwnerUser(storeService, authService);
@@ -88,6 +88,7 @@ namespace BoomaEcommerce.AcceptanceTests
         }
 
         #region ProductCRUD
+
         [Fact]
         public async Task CreateStoreProductAsync_ReturnsTrueAndCreatesProduct_WhenUserIsStoreOwner()
         {
@@ -165,7 +166,8 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Assert
             result.Should().BeTrue();
-            updatedProduct.Should().BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+            updatedProduct.Should()
+                .BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
         }
 
         [Fact]
@@ -182,7 +184,8 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             await result.Should().ThrowAsync<ValidationException>();
             var updatedProduct = await _ownerStoreService.GetStoreProduct(updateProduct.Guid);
-            updatedProduct.Should().NotBeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+            updatedProduct.Should()
+                .NotBeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
         }
 
         [Fact]
@@ -201,13 +204,17 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             await result.Should().ThrowAsync<UnAuthorizedException>();
             var updatedProduct = await _ownerStoreService.GetStoreProduct(updateProduct.Guid);
-            updatedProduct.Should().NotBeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+            updatedProduct.Should()
+                .NotBeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
         }
+
         #endregion
 
         #region OwnerNomination
+
         [Fact]
-        public async Task NominateStoreOwnerAsync_StoreOwnerSuccessfullyAdded_WhenNewOwnerIsValidAndNotPreviouslyNominated()
+        public async Task
+            NominateStoreOwnerAsync_StoreOwnerSuccessfullyAdded_WhenNewOwnerIsValidAndNotPreviouslyNominated()
         {
             // Arrange
             var newOwner = _fixture
@@ -281,12 +288,14 @@ namespace BoomaEcommerce.AcceptanceTests
             result.Should().BeFalse();
             addedOwner.Should().BeNull();
         }
+
         #endregion
 
         #region ManagerNomination
 
         [Fact]
-        public async Task NominateStoreManagerAsync_StoreManagerSuccessfullyAdded_WhenNewManagerIsValidAndNotPreviouslyNominated()
+        public async Task
+            NominateStoreManagerAsync_StoreManagerSuccessfullyAdded_WhenNewManagerIsValidAndNotPreviouslyNominated()
         {
             // Arrange
             var newManager = _fixture
@@ -302,7 +311,8 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Assert
             result.Should().BeTrue();
-            addedManager.Should().BeEquivalentTo(newManager, options => options.Excluding(management => management.Guid));
+            addedManager.Should()
+                .BeEquivalentTo(newManager, options => options.Excluding(management => management.Guid));
         }
 
         [Fact]
@@ -366,6 +376,7 @@ namespace BoomaEcommerce.AcceptanceTests
             result.Should().BeFalse();
             addedManager.Should().BeNull();
         }
+
         #endregion
 
 
@@ -373,6 +384,55 @@ namespace BoomaEcommerce.AcceptanceTests
         public Task DisposeAsync()
         {
             return Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task RemoveManager_RemoveManagerSuccessfully_WhenUserIsStoreOwner()
+        {
+            // Arrange
+            var fixtureManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(s => s.User, _notOwnerUser)
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreManager(_storeOwnership.User.Guid, fixtureManager);
+            var managerToRemove = await _ownerStoreService.GetStoreManagement(
+                _notOwnerUser.Guid, _storeOwnership.Store.Guid);
+
+            // Act
+            var result = await _ownerStoreService.RemoveManager(_storeOwnership.Guid, managerToRemove.Guid);
+
+            // Assert
+            result.Should().BeTrue();
+
+            var manager =
+                await _ownerStoreService.GetStoreManagement(_storeOwnership.User.Guid, _storeOwnership.Store.Guid);
+            var ownerNominatedManagerList = (await _ownerStoreService.GetAllSubordinateSellers(_storeOwnership.Guid));
+            var managers = ownerNominatedManagerList.StoreManagers;
+            manager.Should().BeNull();
+            managers.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task RemoveManager_RemoveManagerUnSuccessfully_WhenUserIsNotManager()
+        {
+            // Arrange
+
+            var managerToRemove = Guid.NewGuid();
+
+            // Act
+            var result = await _ownerStoreService.RemoveManager(_storeOwnership.Guid, managerToRemove);
+
+            // Assert
+            result.Should().BeFalse();
+
+            var manager =
+                await _ownerStoreService.GetStoreManagement(_storeOwnership.User.Guid, _storeOwnership.Store.Guid);
+            manager.Should().BeNull();
+
         }
     }
 }
