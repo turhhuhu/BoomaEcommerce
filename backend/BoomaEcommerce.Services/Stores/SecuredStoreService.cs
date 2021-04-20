@@ -162,6 +162,7 @@ namespace BoomaEcommerce.Services.Stores
         public Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newManagementDto)
         {
             CheckAuthenticated();
+
             return _storeService.NominateNewStoreManager(owner, newManagementDto);
         }
 
