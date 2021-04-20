@@ -92,6 +92,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Act
             var result = await _ownerStoreService.CreateStoreProductAsync(productDto);
+
             // Assert
             result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating));
             var product = await _ownerStoreService.GetStoreProduct(result.Guid);
