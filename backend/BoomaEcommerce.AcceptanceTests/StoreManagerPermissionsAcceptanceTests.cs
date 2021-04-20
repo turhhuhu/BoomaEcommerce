@@ -216,10 +216,10 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.Store, _storeOwnership.Store)
                 .With(p => p.Guid, productDto.Guid)
                 .With(p => p.Amount, 20)
-                .With(p => p.Rating, 5)
                 .Without(p => p.Category)
                 .Without(p => p.Price)
                 .Without(p => p.Name)
+                .Without(p => p.Rating)
                 .Create();
             // Act
             var result = await _managerStoreServiceWithPermissions.UpdateProductAsync(updatedProductDto);
@@ -232,7 +232,6 @@ namespace BoomaEcommerce.AcceptanceTests
                     .Excluding(p => p.Amount)
                     .Excluding(p => p.Rating)); 
             product.Amount.Should().Be(20);
-            product.Rating.Should().Be(5);
         }
         
         [Fact]
@@ -246,10 +245,10 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.Store, _storeOwnership.Store)
                 .With(p => p.Guid, productDto.Guid)
                 .With(p => p.Amount, 20)
-                .With(p => p.Rating, 5)
                 .Without(p => p.Category)
                 .Without(p => p.Price)
                 .Without(p => p.Name)
+                .Without(p => p.Rating)
                 .Create();
             // Act
             var act = _managerStoreServiceWithoutPermissions.Awaiting(service =>

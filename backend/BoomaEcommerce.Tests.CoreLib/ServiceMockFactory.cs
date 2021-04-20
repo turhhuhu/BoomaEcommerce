@@ -59,7 +59,8 @@ namespace BoomaEcommerce.Tests.CoreLib
         
         public IPurchasesService MockPurchaseService()
         {
-            var purchasesUnitOfWork = DalMockFactory.MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _userManagerMock);
+            var purchasesUnitOfWork = DalMockFactory
+                .MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _userManagerMock);
             var loggerMock = new Mock<ILogger<PurchasesService>>();
             var paymentClientMock = new Mock<IPaymentClient>();
             paymentClientMock.Setup(x => 

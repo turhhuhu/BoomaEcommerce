@@ -86,7 +86,7 @@ namespace BoomaEcommerce.Services.Stores
         Task<bool> DeleteStoreAsync(Guid storeGuid);
 
         /// <summary>
-        /// Adds a new owner to a store
+        /// Adds a new manager to a store
         /// </summary>
         /// <param name="owner"></param>
         /// <param name="newOwnerDto"></param>
@@ -98,20 +98,20 @@ namespace BoomaEcommerce.Services.Stores
         /// <summary>
         /// Adds a new manager to a store
         /// </summary>
-        /// <param name="owner"></param>
+        /// <param name="manager"></param>
         /// <param name="newManagementDto"></param>
         /// <returns>
         /// return bool that represents if the nomination process was successful
         /// </returns>
-        Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newManagementDto);
+        Task<bool> NominateNewStoreManager(Guid manager, StoreManagementDto newManagementDto);
 
         /// <summary>
-        /// Get of all subordinates under the store owner provided
+        /// Get of all subordinates under the store manager provided
         /// </summary>
         /// <param name="storeOwnerGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation.
-        /// returns a store seller response containing all subordinates of the owner requested.
+        /// returns a store seller response containing all subordinates of the manager requested.
         /// </returns>
         Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid);
         

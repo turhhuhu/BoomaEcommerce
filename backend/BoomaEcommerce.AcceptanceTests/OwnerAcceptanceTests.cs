@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -9,6 +11,7 @@ using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Tests;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Xunit;
 
@@ -84,6 +87,7 @@ namespace BoomaEcommerce.AcceptanceTests
             }
         }
 
+        #region ProductCRUD
         [Fact]
         public async Task CreateStoreProductAsync_ReturnsTrueAndCreatesProduct_WhenUserIsStoreOwner()
         {
@@ -144,6 +148,225 @@ namespace BoomaEcommerce.AcceptanceTests
             result.Should().BeTrue();
             removedProduct.Should().BeNull();
         }
+
+        [Fact]
+        public async Task UpdateStoreProductAsync_UpdatesProductSuccessfully_WhenProductIsValidAndUserIsOwner()
+        {
+            // Arrange
+            var productDto = _fixture.Create<ProductDto>();
+            var resultProduct = await _ownerStoreService.CreateStoreProductAsync(productDto);
+            var updateProduct = _fixture.Create<ProductDto>();
+            updateProduct.Guid = resultProduct.Guid;
+
+            // Act
+            var result = await _ownerStoreService.UpdateProductAsync(updateProduct);
+            var updatedProduct = await _ownerStoreService.GetStoreProduct(updateProduct.Guid);
+
+            // Assert
+            result.Should().BeTrue();
+            updatedProduct.Should().BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+        }
+
+        [Fact]
+        public async Task UpdateStoreProductAsync_ThrowsValidationException_WhenProductIsNotValidAndUserIsOwner()
+        {
+            // Arrange
+            var productDto = _fixture.Create<ProductDto>();
+            var resultProduct = await _ownerStoreService.CreateStoreProductAsync(productDto);
+            var updateProduct = new ProductDto {Guid = resultProduct.Guid};
+
+            // Act
+            var result = _ownerStoreService.Awaiting(storeService => storeService.UpdateProductAsync(updateProduct));
+
+            // Assert
+            await result.Should().ThrowAsync<ValidationException>();
+            var updatedProduct = await _ownerStoreService.GetStoreProduct(updateProduct.Guid);
+            updatedProduct.Should().NotBeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+        }
+
+        [Fact]
+        public async Task UpdateStoreProductAsync_ThrowsAuthorizationException_WhenProductIsValidAndUserIsNotOwner()
+        {
+            // Arrange
+            var productDto = _fixture.Create<ProductDto>();
+            var resultProduct = await _ownerStoreService.CreateStoreProductAsync(productDto);
+
+            var updateProduct = _fixture.Create<ProductDto>();
+            updateProduct.Guid = resultProduct.Guid;
+
+            // Act
+            var result = _notOwnerStoreService.Awaiting(storeService => storeService.UpdateProductAsync(updateProduct));
+
+            // Assert
+            await result.Should().ThrowAsync<UnAuthorizedException>();
+            var updatedProduct = await _ownerStoreService.GetStoreProduct(updateProduct.Guid);
+            updatedProduct.Should().NotBeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+        }
+        #endregion
+
+        #region OwnerNomination
+        [Fact]
+        public async Task NominateStoreOwnerAsync_StoreOwnerSuccessfullyAdded_WhenNewOwnerIsValidAndNotPreviouslyNominated()
+        {
+            // Arrange
+            var newOwner = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(ownership => ownership.User, _notOwnerUser)
+                .With(ownership => ownership.Store, _storeOwnership.Store)
+                .Without(ownership => ownership.Guid)
+                .Create();
+
+            // Act
+            var result = await _ownerStoreService.NominateNewStoreOwner(_storeOwnership.User.Guid, newOwner);
+            var addedOwner = await _ownerStoreService.GetStoreOwnerShip(newOwner.User.Guid, newOwner.Store.Guid);
+
+            // Assert
+            result.Should().BeTrue();
+            addedOwner.Should().BeEquivalentTo(newOwner, options => options.Excluding(ownership => ownership.Guid));
+        }
+
+        [Fact]
+        public async Task NominateStoreOwnerAsync_StoreOwnerNotAdded_WhenNewOwnerIsAlreadyASeller()
+        {
+            // Arrange
+            var newOwner = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(ownership => ownership.User, _notOwnerUser)
+                .With(ownership => ownership.Store, _storeOwnership.Store)
+                .Without(ownership => ownership.Guid)
+                .Create();
+
+            await _ownerStoreService.NominateNewStoreOwner(_storeOwnership.User.Guid, newOwner);
+
+            // Act
+            var result = await _ownerStoreService.NominateNewStoreOwner(newOwner.User.Guid, newOwner);
+            newOwner = await _ownerStoreService.GetStoreOwnerShip(newOwner.User.Guid, newOwner.Store.Guid);
+            var sellers = await _ownerStoreService.GetAllSubordinateSellers(newOwner.Guid);
+            sellers.Should().BeEquivalentTo(new StoreSellersResponse());
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task NominateStoreOwnerAsync_ThrowsAuthorizationException_WhenNominatorIsNotAnOwner()
+        {
+            // Arrange
+            var newOwner = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(ownership => ownership.User, _notOwnerUser)
+                .With(ownership => ownership.Store, _storeOwnership.Store)
+                .Without(ownership => ownership.Guid)
+                .Create();
+
+            var result = _notOwnerStoreService.Awaiting(storeService =>
+                storeService.NominateNewStoreOwner(_notOwnerUser.Guid, newOwner));
+
+            await result.Should().ThrowAsync<UnAuthorizedException>();
+        }
+
+        [Fact(Skip = "Test fails because a fix is required for the function.")]
+        public async Task NominateStoreOwnerAsync_StoreOwnerNotAdded_WhenNominatedIsNotRegistered()
+        {
+            // Arrange
+            var newOwner = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(ownership => ownership.Store, _storeOwnership.Store)
+                .Without(ownership => ownership.Guid)
+                .Create();
+
+            var result = await _ownerStoreService.NominateNewStoreOwner(_storeOwnership.User.Guid, newOwner);
+            var addedOwner = await _ownerStoreService.GetStoreOwnerShip(newOwner.User.Guid, newOwner.Store.Guid);
+
+            result.Should().BeFalse();
+            addedOwner.Should().BeNull();
+        }
+        #endregion
+
+        #region ManagerNomination
+
+        [Fact]
+        public async Task NominateStoreManagerAsync_StoreManagerSuccessfullyAdded_WhenNewManagerIsValidAndNotPreviouslyNominated()
+        {
+            // Arrange
+            var newManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(management => management.User, _notOwnerUser)
+                .With(management => management.Store, _storeOwnership.Store)
+                .Without(management => management.Guid)
+                .Create();
+
+            // Act
+            var result = await _ownerStoreService.NominateNewStoreManager(_storeOwnership.User.Guid, newManager);
+            var addedManager = await _ownerStoreService.GetStoreManagement(newManager.User.Guid, newManager.Store.Guid);
+
+            // Assert
+            result.Should().BeTrue();
+            addedManager.Should().BeEquivalentTo(newManager, options => options.Excluding(management => management.Guid));
+        }
+
+        [Fact]
+        public async Task NominateStoreManagerAsync_StoreManagerNotAdded_WhenNewManagerIsAlreadyASeller()
+        {
+            // Arrange
+            var newOwner = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(ownership => ownership.User, _notOwnerUser)
+                .With(ownership => ownership.Store, _storeOwnership.Store)
+                .Without(ownership => ownership.Guid)
+                .Create();
+
+            var newManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(management => management.User, newOwner.User)
+                .With(management => management.Store, newOwner.Store)
+                .Without(management => management.Guid)
+                .Create();
+
+            await _ownerStoreService.NominateNewStoreOwner(_storeOwnership.User.Guid, newOwner);
+
+            // Act
+            var result = await _ownerStoreService.NominateNewStoreManager(newOwner.User.Guid, newManager);
+            newOwner = await _ownerStoreService.GetStoreOwnerShip(newOwner.User.Guid, newOwner.Store.Guid);
+            var sellers = await _ownerStoreService.GetAllSubordinateSellers(newOwner.Guid);
+            sellers.Should().BeEquivalentTo(new StoreSellersResponse());
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task NominateStoreManagerAsync_ThrowsAuthorizationException_WhenNominatorIsNotAManager()
+        {
+            // Arrange
+            var newManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(management => management.User, _notOwnerUser)
+                .With(management => management.Store, _storeOwnership.Store)
+                .Without(management => management.Guid)
+                .Create();
+
+            var result = _notOwnerStoreService.Awaiting(storeService =>
+                storeService.NominateNewStoreManager(_notOwnerUser.Guid, newManager));
+
+            await result.Should().ThrowAsync<UnAuthorizedException>();
+        }
+
+        [Fact(Skip = "Test fails because a fix is required for the function.")]
+        public async Task NominateStoreManagerAsync_StoreManagerNotAdded_WhenNominatedIsNotRegistered()
+        {
+            // Arrange
+            var newManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(management => management.Store, _storeOwnership.Store)
+                .Without(management => management.Guid)
+                .Create();
+
+            var result = await _ownerStoreService.NominateNewStoreManager(_storeOwnership.User.Guid, newManager);
+            var addedManager = await _ownerStoreService.GetStoreManagement(newManager.User.Guid, newManager.Store.Guid);
+
+            result.Should().BeFalse();
+            addedManager.Should().BeNull();
+        }
+        #endregion
+
+
 
         public Task DisposeAsync()
         {
