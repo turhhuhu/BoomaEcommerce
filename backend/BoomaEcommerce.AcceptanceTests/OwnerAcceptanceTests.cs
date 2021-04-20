@@ -149,5 +149,31 @@ namespace BoomaEcommerce.AcceptanceTests
         {
             return Task.CompletedTask;
         }
+        
+        [Fact]
+        public async Task RemoveManager_RemoveManagerSuccessfully_WhenUserIsStoreOwner()
+        {
+            // Arrange
+            var fixtureManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(s => s.User, _notOwnerUser)
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreManager(_storeOwnership.User.Guid, fixtureManager);
+
+            // Act
+            var result = await _ownerStoreService.RemoveManager(_storeOwnership.User.Guid,_notOwnerUser.Guid);
+            
+            // Assert
+            var manager = await _ownerStoreService.GetStoreManagement(_storeOwnership.User.Guid,_storeOwnership.Store.Guid);
+            var ownerNominatedManagerList = (await _ownerStoreService.GetAllSubordinateSellers(_storeOwnership.Guid));
+            var managers = ownerNominatedManagerList.StoreManagers;
+            result.Should().BeTrue();
+            manager.Should().BeNull();
+            managers.Should().BeEmpty();
+        }
     }
 }
