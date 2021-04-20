@@ -220,6 +220,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.NominateNewStoreOwner(_storeOwnership.User.Guid, newOwner);
             var addedOwner = await _ownerStoreService.GetStoreOwnerShip(newOwner.User.Guid, newOwner.Store.Guid);
 
+
             // Assert
             result.Should().BeTrue();
             addedOwner.Should().BeEquivalentTo(newOwner, options => options.Excluding(ownership => ownership.Guid));
