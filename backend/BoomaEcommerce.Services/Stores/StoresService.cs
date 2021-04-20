@@ -199,7 +199,7 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
 
                 var newOwner = _mapper.Map<StoreOwnership>(newOwnerDto);
-                ownerStoreOwnership.StoreOwnerships.TryAdd(newOwnerDto.Guid, newOwner);
+                ownerStoreOwnership.StoreOwnerships.TryAdd(newOwner.User.Guid, newOwner);
 
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(newOwner);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
@@ -226,7 +226,7 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
 
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
-                ownerStoreOwnership.StoreManagements.TryAdd(newManagementDto.Guid, newManager);
+                ownerStoreOwnership.StoreManagements.TryAdd(newManager.User.Guid, newManager);
 
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
@@ -447,7 +447,7 @@ namespace BoomaEcommerce.Services.Stores
                     _logger.LogInformation($"Removing store manager with guid {removeManager}");
                     await _storeUnitOfWork.StoreManagementRepo.DeleteOneAsync(
                         manager => manager.User.Guid == removeManager);
-                    var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(removeOwner);
+                    var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.User.Guid == removeOwner);
                     StoreManagement removed;
                     owner.StoreManagements.Remove(removeManager,out removed);
                     await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(owner);
@@ -468,8 +468,8 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(removeOwner);
-                var manager = await _storeUnitOfWork.StoreManagementRepo.FindByIdAsync(removeManager);
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.User.Guid == removeOwner);
+                var manager = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(m => m.User.Guid == removeManager);
                 var nominatedByOwner = owner.StoreManagements.TryGetValue(removeManager,out manager);
                 if (!nominatedByOwner)
                     return false;
