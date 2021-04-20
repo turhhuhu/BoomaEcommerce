@@ -434,5 +434,39 @@ namespace BoomaEcommerce.AcceptanceTests
             manager.Should().BeNull();
 
         }
+        [Fact]
+        public async Task GetAllSellersInformation_ListOfSellersInformation_WhenUserIsNotManager()
+        {
+            // Arrange
+
+            var storeGuid = _storeOwnership.Store.Guid;
+
+            // Act
+            var result = await _ownerStoreService.GetAllSellersInformation(storeGuid);
+
+            // Assert
+            result.Should().NotBeNull();
+
+            var owners = result.StoreOwners;
+            owners.Should().NotBeEmpty();
+            var owner = owners.First();
+
+            owner.Guid.Should().Be(_storeOwnership.Guid);
+
+        }
+        [Fact]
+        public async Task GetAllSellersInformation_ReturnsNull_WhenStoreDoesNotExist()
+        {
+            // Arrange
+
+            var storeGuid = Guid.NewGuid(); //represents another store
+
+            // Act
+            var result =  _ownerStoreService.Awaiting(storeService => storeService.GetAllSellersInformation(storeGuid));
+
+            // Assert
+            result.Should().Throw<UnAuthorizedException>();
+
+        }
     }
 }
