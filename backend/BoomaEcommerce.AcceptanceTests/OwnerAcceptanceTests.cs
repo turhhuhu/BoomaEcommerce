@@ -28,7 +28,8 @@ namespace BoomaEcommerce.AcceptanceTests
         {
 
             _fixture = new Fixture();
-            _fixture.Customize<StoreDto>(s => s.Without(ss => ss.Guid));
+            _fixture.Customize<StoreDto>(s => 
+                s.Without(ss => ss.Guid).Without(ss => ss.Rating));
 
             var serviceMockFactory = new ServiceMockFactory(); 
             var storeService = serviceMockFactory.MockStoreService();
@@ -51,6 +52,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var fixtureStore = _fixture
                 .Build<StoreDto>()
                 .With(s => s.StoreFounder, loginResponse.User)
+                .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();
 

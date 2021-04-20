@@ -218,16 +218,14 @@ namespace BoomaEcommerce.Services.Tests
             //SUCCESS
             var storeManagementBennyNike = TestData.CreateStoreManagementObject(nikeStore, bennyUser);
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementBennyNike);
-            
+            newManager.Guid = Guid.Empty;
             //Act
             var result = await us.NominateNewStoreManager(matanUser.Guid, newManager);
             
             //Assert
             result.Should().BeTrue();
-            entitiesManagements.Should().ContainKey(storeManagementBennyNike.Guid);
-
-
         }
+        
         [Fact]
         public async Task NominateNewStoreManager_ReturnFalse_OwnerTriesToNominateNewManagerToAnotherStore()
         {
@@ -252,6 +250,7 @@ namespace BoomaEcommerce.Services.Tests
             //FAIL:bennyUser is an owner of another store
             var storeManagementsOriNike = TestData.CreateStoreManagementObject(nikeStore, oriUser);
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementsOriNike);
+            newManager.Guid = Guid.Empty;
             
             //Act
             var result = await us.NominateNewStoreManager(bennyUser.Guid, newManager);
@@ -278,7 +277,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var storeManagementsOriNike = TestData.CreateStoreManagementObject(nikeStore, oriUser);
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementsOriNike);
-            
+            newManager.Guid = Guid.Empty;
             //Act
             var result = await us.NominateNewStoreManager(arikUser.Guid, newManager);//FAIL:arikUser is not an owner wanted store
             
@@ -313,7 +312,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var storeManagementBennyNike = TestData.CreateStoreManagementObject(nikeStore, bennyUser);
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementBennyNike);
-            
+            newManager.Guid = Guid.Empty;
             //Act
             var result = await us.NominateNewStoreManager(matanUser.Guid, newManager);//Fail : both are owners
             
@@ -347,7 +346,7 @@ namespace BoomaEcommerce.Services.Tests
 
 
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementsOmerAdidas);
-            
+            newManager.Guid = Guid.Empty;
             //Act
             var result = await us.NominateNewStoreManager(bennyUser.Guid, newManager);//Fail : already a manager
             
@@ -615,19 +614,30 @@ namespace BoomaEcommerce.Services.Tests
             result.Should().BeFalse();
             productsDict.Keys.Should().Contain(productGuid);
         }
-        
+
         [Fact]
         public async Task UpdateProductAsync_ReturnsNotSafeDeletedProduct_WhenProductExistsAndNotSafeDeleted()
         {
             //Arrange
             var productsDict = new Dictionary<Guid, Product>();
+            var storesDict = new Dictionary<Guid, Store>();
+            var storeGuid = Guid.NewGuid();
+            storesDict[storeGuid] = new Store {Guid = storeGuid};
+
             var productToReplaceGuid = Guid.NewGuid();
-            productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid);
-            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid, storeGuid);
+            var sut = GetStoreService(storesDict, null, null, null, null, productsDict);
 
             var replacementProductDto =
                 new ProductDto
-                    {Guid = productToReplaceGuid, Amount = 5, Price = 5, Name = "ChessBoard", Category = "Chess"}; 
+                {
+                    Guid = productToReplaceGuid,
+                    Amount = 5,
+                    Price = 5,
+                    Name = "ChessBoard",
+                    Category = "Chess",
+                    Store = new StoreDto{Guid = storeGuid}
+                }; 
 
             //Act
             var result = await sut.UpdateProductAsync(replacementProductDto);
@@ -649,7 +659,11 @@ namespace BoomaEcommerce.Services.Tests
             var sut = GetStoreService(null, null, null, null, null, productsDict);
 
             //Act
-            var result = await sut.UpdateProductAsync(new ProductDto{Guid = Guid.NewGuid()});
+            var result = await sut.UpdateProductAsync(new ProductDto
+            {
+                Guid = Guid.NewGuid(),
+                Store = new StoreDto{Guid = Guid.NewGuid()}
+            });
 
             //Assert
             result.Should().BeFalse();
@@ -665,7 +679,11 @@ namespace BoomaEcommerce.Services.Tests
             var sut = GetStoreService(null, null, null, null, null, productsDict);
 
             //Act
-            var result = await sut.UpdateProductAsync(new ProductDto{Guid = productGuid});
+            var result = await sut.UpdateProductAsync(new ProductDto
+            {
+                Guid = productGuid,
+                Store = new StoreDto{Guid = Guid.NewGuid()}
+            });
 
             //Assert
             result.Should().BeFalse();

@@ -28,6 +28,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task CreateStoreAsync(StoreDto store)
         {
+            ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStoreAsync>(store);
             var newStore = _mapper.Map<Store>(store);
             try
             {
@@ -102,11 +103,19 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> UpdateProductAsync(ProductDto productDto)
         {
+            ServiceUtilities.ValidateDto<ProductDto, StoreServiceValidators.UpdateProductAsync>(productDto);
             try
             {
                 _logger.LogInformation($"Updating product with guid {productDto.Guid}");
                 var product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productDto.Guid);
                 if (product.IsSoftDeleted) return false;
+                var storeProduct = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
+                if (storeProduct is null)
+                {
+                    _logger.LogWarning("update store product failed because" +
+                                       " store with guid {Guid} does not exists", product.Store.Guid);
+                    return false;
+                }
                 product.Name = productDto.Name ?? product.Name;
                 product.Amount = productDto.Amount ?? product.Amount;
                 product.Price = productDto.Price ?? product.Price;
@@ -206,6 +215,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newManagementDto)
         {
+            ServiceUtilities.ValidateDto<StoreManagementDto, StoreServiceValidators.NominateNewStoreManager>(newManagementDto);
             try
             {
 
