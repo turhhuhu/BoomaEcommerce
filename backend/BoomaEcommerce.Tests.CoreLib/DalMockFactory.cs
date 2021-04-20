@@ -109,7 +109,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                     entities.Values.Where(entity => x.Compile()(entity)).Select(entity => m.Compile()(entity)));
 
             repoMock.Setup(x => x.FindAllAsync())
-                .ReturnsAsync(entities.Values);
+                .ReturnsAsync(() => entities.Values);
 
             return repoMock;
         }
@@ -145,11 +145,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, Purchase> purchases,
             IDictionary<Guid, Product> products,
             IDictionary<Guid, User> users,
-            IDictionary<Guid, ShoppingCart> shoppingCarts)
+            IDictionary<Guid, ShoppingCart> shoppingCarts,
+            Mock<UserManager<User>> userManagerMock = null)
         {
             var purchaseRepoMock = MockRepository(purchases);
             var productRepoMock = MockRepository(products);
-            var userRepoMock = MockUserManager(users is null? new List<User>() : users.Values.ToList());
+            var userRepoMock = userManagerMock ?? MockUserManager(users is null ? new List<User>() : users.Values.ToList());
             var shoppingCartMock = MockRepository(shoppingCarts);
             var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
             purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock?.Object);

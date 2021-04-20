@@ -12,5 +12,7 @@ namespace BoomaEcommerce.Services.Authentication
         Task<AuthenticationResult> RegisterAsync(string username, string password);
         Task<AuthenticationResult> LoginAsync(string username, string password);
         Task<AuthenticationResult> RefreshJwtToken(string token, string refreshToken);
+
+        Task<AuthenticationResult> RegisterAdminAsync(string username, string password);
     }
 }
