@@ -70,6 +70,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<ProductDto> CreateStoreProductAsync(ProductDto product)
         {
+            ServiceUtilities.ValidateDto<ProductDto, StoreServiceValidators.CreateStoreProduct>(product);
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
 
@@ -98,6 +99,8 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> UpdateProductAsync(ProductDto product)
         {
+            ServiceUtilities.ValidateDto<ProductDto, StoreServiceValidators.UpdateStoreProduct>(product);
+
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
 
@@ -153,16 +156,31 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(DeleteStoreAsync), userGuid);
         }
 
-        public Task<bool> NominateNewStoreOwner(Guid owner, StoreOwnershipDto newOwnerDto)
+        public async Task<bool> NominateNewStoreOwner(Guid owner, StoreOwnershipDto newOwnerDto)
         {
+            ServiceUtilities.ValidateDto<StoreOwnershipDto, StoreServiceValidators.NominateNewStoreOwner>(newOwnerDto);
             CheckAuthenticated();
-            return _storeService.NominateNewStoreOwner(owner, newOwnerDto);
+
+            var storeOwner = await _storeService.GetStoreOwnerShip(owner, newOwnerDto.Store.Guid);
+            if (storeOwner != null)
+            {
+                return await _storeService.NominateNewStoreOwner(owner, newOwnerDto);
+            }
+
+            throw new UnAuthorizedException(nameof(NominateNewStoreOwner), owner);
         }
 
-        public Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newManagementDto)
+        public async Task<bool> NominateNewStoreManager(Guid manager, StoreManagementDto newManagementDto)
         {
+            ServiceUtilities.ValidateDto<StoreManagementDto, StoreServiceValidators.NominateNewStoreManager>(newManagementDto);
             CheckAuthenticated();
-            return _storeService.NominateNewStoreManager(owner, newManagementDto);
+            var storeOwner = await _storeService.GetStoreOwnerShip(manager, newManagementDto.Store.Guid);
+            if (storeOwner != null)
+            {
+                return await _storeService.NominateNewStoreManager(manager, newManagementDto);
+            }
+
+            throw new UnAuthorizedException(nameof(NominateNewStoreManager), manager);
         }
 
         public Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid)

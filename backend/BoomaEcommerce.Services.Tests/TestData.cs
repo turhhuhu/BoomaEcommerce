@@ -147,6 +147,11 @@ namespace BoomaEcommerce.Services.Tests
             return new() { StoreName = storeName };
         }
 
+        public static Store CreateStoreObject(string storeName,Guid guid)
+        {
+            return new() { StoreName = storeName , Guid = guid};
+        }
+
         public static User CreateUserObject(string name)
         {
             return new() { Name = name };
@@ -174,6 +179,18 @@ namespace BoomaEcommerce.Services.Tests
                 Store = store,
                 TotalPrice = 5
                 
+            };
+        }
+
+        public static StorePurchase CreateStorePurchaseObject(Store store,List<PurchaseProduct> products,Guid guid)
+        {
+            return new()
+            {
+                PurchaseProducts = products,
+                Store = store,
+                TotalPrice = 5,
+                Guid = guid
+
             };
         }
 

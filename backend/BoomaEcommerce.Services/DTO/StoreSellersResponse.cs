@@ -14,7 +14,8 @@ namespace BoomaEcommerce.Services.DTO
 
         public StoreSellersResponse()
         {
-            
+            StoreManagers = new List<StoreManagementDto>();
+            StoreOwners = new List<StoreOwnershipDto>();
         }
 
     }

@@ -688,100 +688,147 @@ namespace BoomaEcommerce.Services.Tests
             //Assert
             result.Should().BeFalse();
         }
-    
+
+
         [Fact]
-        private async Task GetStoreData()
+        public async Task GetStores_ShouldReturnStores_WhenStoresExists()
         {
+            //Arrange
             var entitiesStores = new Dictionary<Guid, Store>();
             var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
 
-            
-            Store s1 = new() { StoreName = "Benny Hadayag" };
-            Store storeOwnershipBennyAdidas = new() { StoreName = "Nike" };
-            Store storeManagementsOmerAdidas = new() { StoreName = "Adidas" };
-            Store s4 = new() { StoreName = "TopShop" };
+            Guid storeBennyGuid = Guid.NewGuid();
+            Store storeBenny = TestData.CreateStoreObject("Benny Hadayag", storeBennyGuid);
+            Guid storeNikeGuid = Guid.NewGuid();
+            Store storeNike = TestData.CreateStoreObject("Nike", storeNikeGuid);
+            Guid storeAdidasGuid = Guid.NewGuid();
+            Store storeAdidas = TestData.CreateStoreObject("Adidas", storeAdidasGuid);
 
-            entitiesStores.Add(s1.Guid, s1);
-            entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
-            entitiesStores.Add(storeManagementsOmerAdidas.Guid, storeManagementsOmerAdidas);
-            
+            entitiesStores.Add(storeBenny.Guid, storeBenny);
+            entitiesStores.Add(storeNike.Guid, storeNike);
+            entitiesStores.Add(storeAdidas.Guid, storeAdidas);
+
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
 
-            var res1 = await storesService.GetStoreAsync(s1.Guid);
-            var expectedRes1 = _mapper.Map<StoreDto>(s1);
-            res1.Should().BeEquivalentTo(expectedRes1);
+            //Act
+            var res = await storesService.GetStoresAsync();
+            
+            //Assert
+            List<StoreDto> expectedRes = new List<StoreDto>();
+            expectedRes.Add(_mapper.Map<StoreDto>(storeBenny));
+            expectedRes.Add(_mapper.Map<StoreDto>(storeNike));
+            expectedRes.Add(_mapper.Map<StoreDto>(storeAdidas));
+            res.ToList().Should().BeEquivalentTo(expectedRes);
 
-            var res2 = await storesService.GetStoreAsync(s4.Guid);
-            res2.Should().BeNull();
-
-            var res3 = await storesService.GetStoresAsync();
-            List<StoreDto> expectedRes3 = new List<StoreDto>();
-            expectedRes3.Add(_mapper.Map<StoreDto>(s1));
-            expectedRes3.Add(_mapper.Map<StoreDto>(storeOwnershipBennyAdidas));
-            expectedRes3.Add(_mapper.Map<StoreDto>(storeManagementsOmerAdidas));
-            res3.ToList().Should().BeEquivalentTo(expectedRes3);
         }
 
         [Fact]
-        public async Task GetStorePurchaseHistoryTest()
+        public async Task GetStoreData_ShouldReturnNull_WhenStoreDoesNotExists()
         {
+            //Arrange
             var entitiesStores = new Dictionary<Guid, Store>();
             var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
             
-            Store s1 = new() {};
-            Store storeOwnershipBennyAdidas = new() {};
-            Store storeManagementsOmerAdidas = new() {};
-            
-            var pr1 = new PurchaseProduct();
-            var pr2 = new PurchaseProduct();
-            var pr3 = new PurchaseProduct();
-
-            var prList1 = new List<PurchaseProduct>();
-            prList1.Add(pr1);
-            prList1.Add(pr2);
-            prList1.Add(pr3);
-
-            StorePurchase p1 = new() {PurchaseProducts = prList1 , Store = s1};
-            
-            var pr4 = new PurchaseProduct();
-            var pr5 = new PurchaseProduct(); 
-
-            var prList2 = new List<PurchaseProduct>();
-            prList2.Add(pr4);
-            prList2.Add(pr5);
-            
-
-            StorePurchase p2 = new() { PurchaseProducts = prList2, Store = s1 };
-            
-            var pr6 = new PurchaseProduct();
-            var prList3 = new List<PurchaseProduct>();
-            prList3.Add(pr6);
-
-            StorePurchase p3 = new() { PurchaseProducts = prList3, Store = storeOwnershipBennyAdidas };
-
-            entitiesStorePurchases.Add(p1.Guid, p1);
-            entitiesStorePurchases.Add(p2.Guid, p2);
-            entitiesStorePurchases.Add(p3.Guid, p3);
-
-            entitiesStores.Add(s1.Guid,s1);
-            entitiesStores.Add(storeOwnershipBennyAdidas.Guid, storeOwnershipBennyAdidas);
+            Guid storeTopShopGuid = Guid.NewGuid();
+            Store storeTopShop = TestData.CreateStoreObject("TopShop", storeTopShopGuid);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
 
-            var res1 = await storesService.GetStorePurchaseHistory(s1.Guid);
-            var expectedRes1 = new List<StorePurchaseDto>();
-            expectedRes1.Add(_mapper.Map<StorePurchaseDto>(p1));
-            expectedRes1.Add(_mapper.Map<StorePurchaseDto>(p2));
+            //Act
+            var res = await storesService.GetStoreAsync(storeTopShop.Guid);
+            
+            //Assert
+            res.Should().BeNull();
+        }
 
-            res1.ToList().Should().BeEquivalentTo(expectedRes1);
+        [Fact]
+        public async Task GetStoreData_ShouldReturnStore_WhenStoreExists()
+        {
+            //Arrange
+            var entitiesStores = new Dictionary<Guid, Store>();
+            var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
 
-            var res2 = await storesService.GetStorePurchaseHistory(storeOwnershipBennyAdidas.Guid);
-            var expectedRes2 = new List<StorePurchaseDto>();
-            expectedRes2.Add(_mapper.Map<StorePurchaseDto>(p3));
+            Guid storeBennyGuid = Guid.NewGuid();
+            Store storeBenny = TestData.CreateStoreObject("Benny Hadayag", storeBennyGuid);
 
-            res2.ToList().Should().BeEquivalentTo(expectedRes2);
+            entitiesStores.Add(storeBenny.Guid, storeBenny);
 
-            var res3 = await storesService.GetStorePurchaseHistory(storeManagementsOmerAdidas.Guid);
+            var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
+            //Act
+            var res = await storesService.GetStoreAsync(storeBenny.Guid);
+            
+            //Assert
+            var expectedRes = _mapper.Map<StoreDto>(storeBenny);
+            res.Should().BeEquivalentTo(expectedRes);
+        }
+
+
+        [Fact]
+        public async Task GetStorePurchaseHistory_ShouldReturnPurchaseList_WhenPurchasesExists()
+        {
+            //Arrange
+            var entitiesStores = new Dictionary<Guid, Store>();
+            var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
+
+            Store store_Adidas = TestData.CreateStoreObject("Adidas");
+            Store store_Nike = TestData.CreateStoreObject("Nike");
+
+            var banana_pr = TestData.CreatePurchaseProductObject(TestData.CreateProductObject("banana"));
+            var coffee_pr = TestData.CreatePurchaseProductObject(TestData.CreateProductObject("coffee"));
+            var apple_pr = TestData.CreatePurchaseProductObject(TestData.CreateProductObject("apple"));
+
+            var prList1 = new List<PurchaseProduct>();
+            prList1.Add(banana_pr);
+            prList1.Add(coffee_pr);
+            prList1.Add(apple_pr);
+
+            Guid p1_guid = Guid.NewGuid();
+            StorePurchase p1 = TestData.CreateStorePurchaseObject(store_Adidas, prList1, p1_guid);
+
+
+            var mango_pr = new PurchaseProduct();
+            var melon_pr = new PurchaseProduct();
+
+            var prList2 = new List<PurchaseProduct>();
+            prList2.Add(mango_pr);
+            prList2.Add(melon_pr);
+
+            Guid p2_guid = Guid.NewGuid();
+            StorePurchase p2 = TestData.CreateStorePurchaseObject(store_Adidas, prList2, p2_guid);
+
+            entitiesStorePurchases.Add(p1.Guid, p1);
+            entitiesStorePurchases.Add(p2.Guid, p2);
+ 
+            entitiesStores.Add(store_Adidas.Guid, store_Adidas);
+            entitiesStores.Add(store_Nike.Guid, store_Nike);
+
+            var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
+
+            //Act
+            var res = await storesService.GetStorePurchaseHistory(store_Adidas.Guid);
+
+            //Assert
+            var expectedRes = new List<StorePurchaseDto>();
+            expectedRes.Add(_mapper.Map<StorePurchaseDto>(p1));
+            expectedRes.Add(_mapper.Map<StorePurchaseDto>(p2));
+
+            res.ToList().Should().BeEquivalentTo(expectedRes);
+        }
+
+        [Fact]
+        public async Task GetStorePurchaseHistory_ShouldReturnEmpty_WhenPurchaseHistoryEmpty()
+        {
+            //Arrange
+            var entitiesStores = new Dictionary<Guid, Store>();
+            var entitiesStorePurchases = new Dictionary<Guid, StorePurchase>();
+
+            Store store_Ikea = TestData.CreateStoreObject("Ikea");
+            var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, null, null, null);
+
+            //Act
+            var res3 = await storesService.GetStorePurchaseHistory(store_Ikea.Guid);
+            
+            //Assert
             res3.Should().BeEmpty();
         }
         

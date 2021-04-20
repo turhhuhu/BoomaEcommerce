@@ -40,17 +40,17 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitAdminServices(IStoresService storeService, IPurchasesService purchaseService, IAuthenticationService authService)
         {
-            var reregistrationRes = await authService.RegisterAdminAsync(_adminUsername, _adminPassword);
+            var registrationRes = await authService.RegisterAdminAsync(_adminUsername, _adminPassword);
             var loginResponse = await authService.LoginAsync(_adminUsername, _adminPassword);
 
-            var storeServiceRes = SecuredStoreService.CreateSecuredStoreService(reregistrationRes.Token,
+            var storeServiceRes = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
                 ServiceMockFactory.Secret, storeService, out _adminStoreService);
             if (!storeServiceRes)
             {
                 throw new Exception("This shouldn't happen");
             }
 
-            var purchaseServiceRes = SecuredPurchaseService.CreateSecuredPurchaseService(reregistrationRes.Token,
+            var purchaseServiceRes = SecuredPurchaseService.CreateSecuredPurchaseService(loginResponse.Token,
                 ServiceMockFactory.Secret, purchaseService, out _adminPurchaseService);
             if (!purchaseServiceRes)
             {
