@@ -74,7 +74,9 @@ namespace BoomaEcommerce.Services.Authentication
                 };
             }
 
-            return await GenerateAuthResponseWithToken(existingUser);
+            var roles = await _userManager.GetRolesAsync(existingUser);
+
+            return await GenerateAuthResponseWithToken(existingUser, roles.ToArray());
         }
 
         public async Task<AuthenticationResult> RegisterAdminAsync(string username, string password)

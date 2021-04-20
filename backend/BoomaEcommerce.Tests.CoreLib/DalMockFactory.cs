@@ -21,6 +21,8 @@ namespace BoomaEcommerce.Tests.CoreLib
             var store = new Mock<IUserStore<User>>();
             var mgr = new Mock<UserManager<User>>(store.Object, null, null, null, null, null, null, null, null);
 
+            var rolesStore = new Dictionary<Guid, HashSet<string>>();
+
             mgr.Object.UserValidators.Add(new UserValidator<User>());
             mgr.Object.PasswordValidators.Add(new PasswordValidator<User>());
             
@@ -44,7 +46,20 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync((string username) => ls.FirstOrDefault(usr => usr.UserName == username));
 
             mgr.Setup(userManager => userManager.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>()))
-                .ReturnsAsync(IdentityResult.Success);
+                .ReturnsAsync(IdentityResult.Success)
+                .Callback<User, string>((user, role) =>
+                {
+                    if (!rolesStore.ContainsKey(user.Guid))
+                    {
+                        rolesStore.Add(user.Guid, new HashSet<string>());
+                    }
+                    rolesStore[user.Guid].Add(role);
+                });
+
+            mgr.Setup(userManager => userManager.GetRolesAsync(It.IsAny<User>()))
+                .ReturnsAsync((User user) => rolesStore.ContainsKey(user.Guid) 
+                    ? rolesStore[user.Guid].ToList() 
+                    : new List<string>());
 
             return mgr;
         }
