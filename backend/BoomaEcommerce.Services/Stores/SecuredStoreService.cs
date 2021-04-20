@@ -232,5 +232,9 @@ namespace BoomaEcommerce.Services.Stores
         {
             return _storeService.GetStoreProduct(productGuid);
         }
+        public Task<Boolean> RemoveManager(Guid removeOwner, Guid removeManager)
+        {
+            return _storeService.RemoveManager(removeOwner,removeManager);
+        }
     }
 }
