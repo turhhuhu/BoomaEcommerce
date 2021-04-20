@@ -250,9 +250,15 @@ namespace BoomaEcommerce.Services.Stores
         {
             return _storeService.GetStoreProduct(productGuid);
         }
-        public Task<Boolean> RemoveManager(Guid removeOwner, Guid removeManager)
+        public async Task<bool> RemoveManager(Guid removeOwnership, Guid removeManagement)
         {
-            return _storeService.RemoveManager(removeOwner,removeManager);
+            CheckAuthenticated();
+            return await _storeService.RemoveManager(removeOwnership,removeManagement);
+           
+            
+            
+            
+            
         }
     }
 }

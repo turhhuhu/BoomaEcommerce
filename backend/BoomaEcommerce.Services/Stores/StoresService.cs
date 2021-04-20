@@ -435,30 +435,31 @@ namespace BoomaEcommerce.Services.Stores
         }
 
 
-		public async Task<Boolean> RemoveManager(Guid removeOwner, Guid removeManager)
+		public async Task<bool> RemoveManager(Guid removeOwnership, Guid removeManagement)
         {
             try
             {
-               
-                var canRemove = await ValidateOwnerRemovingManagerDetails(removeOwner, removeManager);
-                if (canRemove)
+                var canRemove = await ValidateOwnerRemovingManagerDetails(removeOwnership, removeManagement);
+                if (!canRemove)
                 {
-                    _logger.LogInformation($"Removing store manager with guid {removeManager}");
-                    var storeManagementToRemove = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(
-                        m => m.User.Guid == removeManager);
-                    var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(
-                        o => o.User.Guid == removeOwner);
-
-                    await _storeUnitOfWork.StoreManagementRepo.DeleteOneAsync(
-                        manager => manager.User.Guid == removeManager);
-                    StoreManagement removed;
-                    owner.StoreManagements.Remove(storeManagementToRemove.Guid,out removed);
-                    await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(owner);
-                    await _storeUnitOfWork.SaveAsync();
-
-                    return true;
+                    return false;
                 }
-                return false;
+                var storeManagementToRemove = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(
+                    m => m.Guid == removeManagement);
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(
+                    o => o.Guid == removeOwnership);
+                _logger.LogInformation($"Removing store manager with guid {storeManagementToRemove.User.Guid}");
+
+
+                await _storeUnitOfWork.StoreManagementRepo.DeleteOneAsync(
+                    manager => manager.Guid == removeManagement);
+                StoreManagement removed;
+                owner.StoreManagements.Remove(removeManagement,out removed);
+                await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(owner);
+                await _storeUnitOfWork.SaveAsync();
+
+                return true;
+                
             }
             catch (Exception e)
             {
@@ -467,12 +468,13 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<Boolean> ValidateOwnerRemovingManagerDetails(Guid removeOwner, Guid removeManager)
+        private async Task<bool> ValidateOwnerRemovingManagerDetails(Guid removeOwnership, Guid removeManagement)
         {
             try
             {
-                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.User.Guid == removeOwner);
-                var manager = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(m => m.User.Guid == removeManager);
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.Guid == removeOwnership);
+                var manager = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(m => m.Guid == removeManagement);
+                
                 var nominatedByOwner = owner.StoreManagements.TryGetValue(manager.Guid,out manager);
                 if (!nominatedByOwner)
                     return false;

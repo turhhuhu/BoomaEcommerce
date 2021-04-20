@@ -133,7 +133,7 @@ namespace BoomaEcommerce.Services.Stores
         /// <returns>
         /// returns true if succeed else false
         /// </returns>
-        Task<Boolean> RemoveManager(Guid removeOwner, Guid removeManager);
+        Task<Boolean> RemoveManager(Guid removeOwnership, Guid removeManagement);
 
     }
 }
