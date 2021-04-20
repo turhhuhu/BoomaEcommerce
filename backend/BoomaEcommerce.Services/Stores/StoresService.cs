@@ -223,7 +223,7 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
 
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
-                ownerStoreOwnership.StoreManagements.TryAdd(newManagementDto.Guid, newManager);
+                ownerStoreOwnership.StoreManagements.TryAdd(newManager.Guid, newManager);
 
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
@@ -442,11 +442,15 @@ namespace BoomaEcommerce.Services.Stores
                 if (canRemove)
                 {
                     _logger.LogInformation($"Removing store manager with guid {removeManager}");
+                    var storeManagementToRemove = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(
+                        m => m.User.Guid == removeManager);
+                    var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(
+                        o => o.User.Guid == removeOwner);
+
                     await _storeUnitOfWork.StoreManagementRepo.DeleteOneAsync(
                         manager => manager.User.Guid == removeManager);
-                    var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.User.Guid == removeOwner);
                     StoreManagement removed;
-                    owner.StoreManagements.Remove(removeManager,out removed);
+                    owner.StoreManagements.Remove(storeManagementToRemove.Guid,out removed);
                     await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(owner);
                     await _storeUnitOfWork.SaveAsync();
 
@@ -467,7 +471,7 @@ namespace BoomaEcommerce.Services.Stores
             {
                 var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.User.Guid == removeOwner);
                 var manager = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(m => m.User.Guid == removeManager);
-                var nominatedByOwner = owner.StoreManagements.TryGetValue(removeManager,out manager);
+                var nominatedByOwner = owner.StoreManagements.TryGetValue(manager.Guid,out manager);
                 if (!nominatedByOwner)
                     return false;
                 return true;
