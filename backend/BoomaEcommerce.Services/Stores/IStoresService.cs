@@ -124,8 +124,18 @@ namespace BoomaEcommerce.Services.Stores
         Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShips(Guid userGuid);
         
         Task<IReadOnlyCollection<StoreManagementDto>> GetAllStoreManagements(Guid userGuid);
-
+      
         Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid);
+        
+        /// <summary>
+        /// Removing a manager that owner nominated
+        /// </summary>
+        /// <param name="removeOwner"></param>
+        /// <param name="removeManager"></param>
+        /// <returns>
+        /// returns true if succeed else false
+        /// </returns>
+        Task<bool> RemoveManager(Guid removeOwnership, Guid removeManagement);
     }
 
 }

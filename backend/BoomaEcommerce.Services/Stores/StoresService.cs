@@ -217,6 +217,7 @@ namespace BoomaEcommerce.Services.Stores
                 ownerStoreOwnership.StoreOwnerships.TryAdd(newOwner.Guid, newOwner);
 
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(newOwner);
+                await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
                 await _storeUnitOfWork.SaveAsync();
                 return true;
 
@@ -239,9 +240,10 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
 
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
-                ownerStoreOwnership.StoreManagements.TryAdd(newManagementDto.Guid, newManager);
+                ownerStoreOwnership.StoreManagements.TryAdd(newManager.Guid, newManager);
 
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
+                await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
                 await _storeUnitOfWork.SaveAsync();
                 return true;
 
@@ -444,6 +446,60 @@ namespace BoomaEcommerce.Services.Stores
             {
                 _logger.LogError("Failed to get productDto", e);
                 return null;
+            }
+        }
+
+
+		public async Task<bool> RemoveManager(Guid removeOwnership, Guid removeManagement)
+        {
+            try
+            {
+                var canRemove = await ValidateOwnerRemovingManagerDetails(removeOwnership, removeManagement);
+                if (!canRemove)
+                {
+                    return false;
+                }
+                var storeManagementToRemove = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(
+                    m => m.Guid == removeManagement);
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(
+                    o => o.Guid == removeOwnership);
+                _logger.LogInformation($"Removing store manager with guid {storeManagementToRemove.User.Guid}");
+
+
+                await _storeUnitOfWork.StoreManagementRepo.DeleteOneAsync(
+                    manager => manager.Guid == removeManagement);
+                StoreManagement removed;
+                owner.StoreManagements.Remove(removeManagement,out removed);
+                await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(owner);
+                await _storeUnitOfWork.SaveAsync();
+
+                return true;
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to remove manager", e);
+                return false;
+            }
+        }
+
+        private async Task<bool> ValidateOwnerRemovingManagerDetails(Guid removeOwnership, Guid removeManagement)
+        {
+            try
+            {
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.Guid == removeOwnership);
+                var manager = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(m => m.Guid == removeManagement);
+                
+                var nominatedByOwner = owner.StoreManagements.TryGetValue(manager.Guid,out manager);
+                if (!nominatedByOwner)
+                    return false;
+                return true;
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to remove manager", e);
+                return false;
             }
         }
     }
