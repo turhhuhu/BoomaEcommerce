@@ -435,7 +435,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
         }
         [Fact]
-        public async Task GetAllSellersInformation_ReturnsListOfSellersInformation_WhenUserIsNotManager()
+        public async Task GetAllSellersInformation_ReturnsListOfSellersInformation_WhenUserIsStoreOwner()
         {
             // Arrange
 
@@ -455,14 +455,14 @@ namespace BoomaEcommerce.AcceptanceTests
 
         }
         [Fact]
-        public async Task GetAllSellersInformation_ReturnsNull_WhenStoreDoesNotExist()
+        public async Task GetAllSellersInformation_ReturnsNull_WhenUserIsNotAnOwner()
         {
             // Arrange
 
-            var storeGuid = Guid.NewGuid(); //represents another store
+            var storeGuid = _storeOwnership.Store.Guid;
 
             // Act
-            var result =  _ownerStoreService.Awaiting(storeService => storeService.GetAllSellersInformation(storeGuid));
+            var result =  _notOwnerStoreService.Awaiting(storeService => storeService.GetAllSellersInformation(storeGuid));
 
             // Assert
              await result.Should().ThrowAsync<UnAuthorizedException>();
