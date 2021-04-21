@@ -161,9 +161,28 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, Product> products,
             IDictionary<Guid, User> users,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
+            IDictionary<Guid, StorePurchase> storePurchases = null,
+            IDictionary<Guid, PurchaseProduct> purchaseProducts = null,
             Mock<UserManager<User>> userManagerMock = null)
         {
             var purchaseRepoMock = MockRepository(purchases);
+            purchaseRepoMock?.Setup(x => x.InsertOneAsync(It.IsAny<Purchase>()))
+                .Callback<Purchase>(purchase
+                         =>
+                {
+                    purchases.Add(purchase.Guid, purchase);
+                    foreach (var storePurchase in purchase
+                        .StorePurchases)
+                    {
+                        storePurchases?.Add(storePurchase.Guid, storePurchase);
+                        foreach (var purchaseProduct in storePurchase.PurchaseProducts)
+                        {
+                            purchaseProducts?.Add(purchaseProduct.Guid, purchaseProduct);
+                            products[purchaseProduct.Product.Guid] = purchaseProduct.Product;
+                        }
+                    }
+                });
+
             var productRepoMock = MockRepository(products);
             var userRepoMock = userManagerMock ?? MockUserManager(users is null ? new List<User>() : users.Values.ToList());
             var shoppingCartMock = MockRepository(shoppingCarts);

@@ -19,7 +19,8 @@ namespace BoomaEcommerce.AcceptanceTests
         private string _adminPassword = "Ori1234";
         private IStoresService _adminStoreService;
         private IPurchasesService _adminPurchaseService;
-        
+        private PurchaseDto _purchase;
+
         private StoreDto _storeDto;
 
         private IFixture _fixture;
@@ -80,6 +81,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Build<StoreDto>()
                 .With(s => s.StoreFounder, loginResponse.User)
                 .Without(s => s.Guid)
+                .Without(s => s.Rating)
                 .Create();
 
             await storeService.CreateStoreAsync(fixtureStoreDto);
@@ -106,7 +108,7 @@ namespace BoomaEcommerce.AcceptanceTests
             return productDto;
         }
 
-        private static async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
+        private async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
             IAuthenticationService authenticationService)
         {
             var buyerUserName = "Matan";
@@ -122,6 +124,8 @@ namespace BoomaEcommerce.AcceptanceTests
                 {
                     new()
                     {
+                        Buyer = buyerToken.User,
+                        Store = productDto.Store,
                         TotalPrice = 10,
                         PurchaseProducts = new List<PurchaseProductDto>
                         {
@@ -135,6 +139,7 @@ namespace BoomaEcommerce.AcceptanceTests
                     }
                 }
             };
+            _purchase = purchaseDto;
             var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
             if (!didPurchasedSucceeded)
             {
@@ -142,16 +147,22 @@ namespace BoomaEcommerce.AcceptanceTests
             }
         }
 
-        [Fact (Skip = "need to fix repository sub insertions")]
+        [Fact]
         public async Task GetStorePurchaseHistory_ReturnStorePurchaseHistory_WhenStoreExists()
         {
             // Arrange
             var storeGuid = _storeDto.Guid;
+
             // Act
             var result = await _adminStoreService.GetStorePurchaseHistory(storeGuid);
+            var storePurchase = result.First();
+            var purchaseProduct = storePurchase.PurchaseProducts.First();
+            var realStorePurchase = _purchase.StorePurchases.First();
+            var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
+
             // Assert
-            result.Should().NotBeNull();
-            result.Should().NotBeEmpty();
+            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt.Excluding(p => p.Guid).Excluding(p => p.PurchaseProducts));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Product.Amount));
         }
         
 
