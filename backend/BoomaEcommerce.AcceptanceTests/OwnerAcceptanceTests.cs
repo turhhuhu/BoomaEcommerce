@@ -435,7 +435,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
         }
         [Fact]
-        public async Task GetAllSellersInformation_ListOfSellersInformation_WhenUserIsNotManager()
+        public async Task GetAllSellersInformation_ReturnsListOfSellersInformation_WhenUserIsNotManager()
         {
             // Arrange
 
@@ -465,7 +465,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result =  _ownerStoreService.Awaiting(storeService => storeService.GetAllSellersInformation(storeGuid));
 
             // Assert
-            result.Should().Throw<UnAuthorizedException>();
+             await result.Should().ThrowAsync<UnAuthorizedException>();
 
         }
     }
