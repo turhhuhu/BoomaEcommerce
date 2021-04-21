@@ -183,6 +183,11 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(NominateNewStoreManager), manager);
         }
 
+        public Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid)
+        {
+            return _storeService.GetProductsFromStoreAsync(storeGuid);
+        }
+
         public Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid)
         {
             CheckAuthenticated();

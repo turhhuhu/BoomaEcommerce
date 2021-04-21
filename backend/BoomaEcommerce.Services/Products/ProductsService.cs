@@ -41,21 +41,6 @@ namespace BoomaEcommerce.Services.Products
             }
         }
 
-        public async Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid)
-        {
-            try
-            {
-                _logger.LogInformation($"Getting products from store with guid {storeGuid}");
-                var products = await _productRepo.FilterByAsync(p => p.Store.Guid == storeGuid && !p.IsSoftDeleted);
-                return _mapper.Map<IReadOnlyCollection<ProductDto>>(products.ToList());
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Failed to get products from store {storeGuid}", e);
-                return null;
-            }
-        }
-
         public async Task<ProductDto> GetProductAsync(Guid productGuid)
         {
             try
@@ -122,6 +107,21 @@ namespace BoomaEcommerce.Services.Products
             catch (Exception e)
             {
                 _logger.LogError($"Failed to get products that fit the keyword {productKeyword}", e);
+                return null;
+            }
+        }
+
+        public async Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"Getting products from store with guid {storeGuid}");
+                var products = await _productRepo.FilterByAsync(p => p.Store.Guid == storeGuid && !p.IsSoftDeleted);
+                return _mapper.Map<IReadOnlyCollection<ProductDto>>(products.ToList());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to get products from store {storeGuid}", e);
                 return null;
             }
         }

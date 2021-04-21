@@ -124,5 +124,8 @@ namespace BoomaEcommerce.Services.Stores
         Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShips(Guid userGuid);
         
         Task<IReadOnlyCollection<StoreManagementDto>> GetAllStoreManagements(Guid userGuid);
+
+        Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid);
     }
+
 }
