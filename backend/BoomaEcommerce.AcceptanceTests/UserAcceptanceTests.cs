@@ -20,9 +20,7 @@ namespace BoomaEcommerce.AcceptanceTests
         private  IPurchasesService _purchaseService;
         private IFixture _fixture;
         private UserDto user;
-        private StoreDto _store_withGuid;
-        private ProductDto product1_withGuid;
-        private ProductDto product2_withGuid;
+        private PurchaseDto purchase;
 
         public async Task InitializeAsync()
         {
@@ -41,18 +39,60 @@ namespace BoomaEcommerce.AcceptanceTests
                                          s.Without(ss => ss.Guid).Without(ss => ss.Rating).With(ss => ss.StoreFounder , user));
 
 
+            
+
+            await InitPurchase(storeService);
+        }
+
+        private async Task InitPurchase(IStoresService storesService)
+        {
+
             var store = _fixture.Create<StoreDto>();
             _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.Buyer, user));
 
-            _store_withGuid = await _storeService.CreateStoreAsync(store);
-            _fixture.Customize<StorePurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.Store, _store_withGuid));
-            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.Store, _store_withGuid).Without(pp => pp.Rating).With(pp => pp.Price , 2).With(pp => pp.Amount, 1));
+            var _store_withGuid = await _storeService.CreateStoreAsync(store);
+            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.Store, _store_withGuid).Without(pp => pp.Rating).With(pp => pp.Price, 2).With(pp => pp.Amount, 1));
 
             var product1 = _fixture.Create<ProductDto>();
             var product2 = _fixture.Create<ProductDto>();
 
-            product1_withGuid = await storeService.CreateStoreProductAsync(product1);
-            product2_withGuid = await storeService.CreateStoreProductAsync(product2);
+            var product1_withGuid = await storesService.CreateStoreProductAsync(product1);
+            var product2_withGuid = await storesService.CreateStoreProductAsync(product2);
+
+
+            var purchase_product1 = _fixture.Build<PurchaseProductDto>()
+                                            .With(pp => pp.Product, product1_withGuid)
+                                            .Without(pp => pp.Guid)
+                                            .With(pp => pp.Price, product1_withGuid.Price)
+                                            .With(pp => pp.Amount, 1)
+                                            .Create();
+            var purchase_product2 = _fixture.Build<PurchaseProductDto>()
+                                            .With(pp => pp.Product, product2_withGuid)
+                                            .With(pp => pp.Price, product2_withGuid.Price)
+                                            .With(pp => pp.Amount, 1)
+                                            .Without(pp => pp.Guid)
+                                            .Create();
+            var purchase_product_lst = new List<PurchaseProductDto>();
+
+            purchase_product_lst.Add(purchase_product1);
+            purchase_product_lst.Add(purchase_product2);
+
+            var storePurchase = _fixture.Build<StorePurchaseDto>()
+                                        .With(sp => sp.Store, _store_withGuid)
+                                        .With(sp => sp.Buyer, user)
+                                        .With(sp => sp.PurchaseProducts, purchase_product_lst)
+                                        .Without(sp => sp.Guid)
+                                        .With(sp => sp.TotalPrice, purchase_product1.Price + purchase_product2.Price)
+                                        .Create();
+            var store_purchase_lst = new List<StorePurchaseDto>();
+            store_purchase_lst.Add(storePurchase);
+
+            purchase = _fixture.Build<PurchaseDto>()
+                                   .With(p => p.Buyer, user)
+                                   .With(p => p.StorePurchases, store_purchase_lst)
+                                   .Without(p => p.Guid)
+                                   .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                                   .Create();
         }
 
         private async Task InitUser(IStoresService storeService, IAuthenticationService authService, IPurchasesService purchasesService)
@@ -88,40 +128,6 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task ViewPurchasesHistory_ShouldReturnPurchases_WhenPurchasesHistoryExists()
         {
             //Arrange 
-            var purchase_product1 = _fixture.Build<PurchaseProductDto>()
-                                            .With(pp => pp.Product, product1_withGuid)
-                                            .Without(pp => pp.Guid)
-                                            .With(pp => pp.Price , product1_withGuid.Price)
-                                            .With(pp=> pp.Amount , 1)
-                                            .Create();
-            var purchase_product2 = _fixture.Build<PurchaseProductDto>()
-                                            .With(pp => pp.Product, product2_withGuid)
-                                            .With(pp => pp.Price, product2_withGuid.Price)
-                                            .With(pp => pp.Amount, 1)
-                                            .Without(pp => pp.Guid)
-                                            .Create();
-            var purchase_product_lst = new List<PurchaseProductDto>();
-
-            purchase_product_lst.Add(purchase_product1);
-            purchase_product_lst.Add(purchase_product2);
-
-            var storePurchase = _fixture.Build<StorePurchaseDto>()
-                                        .With(sp => sp.Store, _store_withGuid)
-                                        .With(sp => sp.Buyer, user)
-                                        .With(sp => sp.PurchaseProducts, purchase_product_lst)
-                                        .Without(sp => sp.Guid)
-                                        .With(sp => sp.TotalPrice , purchase_product1.Price + purchase_product2.Price)
-                                        .Create();
-            var store_purchase_lst = new List<StorePurchaseDto>();
-            store_purchase_lst.Add(storePurchase);
-
-            var purchase = _fixture.Build<PurchaseDto>()
-                                   .With(p => p.Buyer, user)
-                                   .With(p => p.StorePurchases, store_purchase_lst)
-                                   .Without(p => p.Guid)
-                                   .With(p => p.TotalPrice , storePurchase.TotalPrice)
-                                   .Create();
-            
             await _purchaseService.CreatePurchaseAsync(purchase);
         
             //Act
