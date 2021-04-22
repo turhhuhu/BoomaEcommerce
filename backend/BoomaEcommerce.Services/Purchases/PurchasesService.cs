@@ -63,14 +63,16 @@ namespace BoomaEcommerce.Services.Purchases
 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
-                await _purchaseUnitOfWork.ShoppingCartRepository
-                    .DeleteOneAsync(cart =>
-                    cart.User.Guid == purchase.Buyer.Guid);
+                if (purchase.Buyer is not null)
+                {
+                    await _purchaseUnitOfWork.ShoppingCartRepository
+                        .DeleteOneAsync(cart =>
+                            cart.User.Guid == purchase.Buyer.Guid);
+                }
 
                 await _supplyClient.NotifyOrder(purchase);
 
                 await _purchaseUnitOfWork.SaveAsync();
-
 
                 return true;
             }
