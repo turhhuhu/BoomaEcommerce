@@ -28,7 +28,6 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<StoreDto> CreateStoreAsync(StoreDto store)
         {
-            ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             var newStore = _mapper.Map<Store>(store);
             try
             {
