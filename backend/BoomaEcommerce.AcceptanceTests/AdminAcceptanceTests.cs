@@ -20,7 +20,6 @@ namespace BoomaEcommerce.AcceptanceTests
         private IStoresService _adminStoreService;
         private IPurchasesService _adminPurchaseService;
         private PurchaseDto _purchase;
-
         private StoreDto _storeDto;
 
         private IFixture _fixture;
@@ -41,7 +40,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitAdminServices(IStoresService storeService, IPurchasesService purchaseService, IAuthenticationService authService)
         {
-            var registrationRes = await authService.RegisterAdminAsync(_adminUsername, _adminPassword);
+            await authService.RegisterAdminAsync(_adminUsername, _adminPassword);
             var loginResponse = await authService.LoginAsync(_adminUsername, _adminPassword);
 
             var storeServiceRes = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
@@ -67,7 +66,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await authService.RegisterAsync(username, password);
             var loginResponse = await authService.LoginAsync(username, password);
-
+            
             await CreateStore(storeService, loginResponse);
 
             var productDto = await CreateStoreProduct(storeService);
@@ -111,8 +110,8 @@ namespace BoomaEcommerce.AcceptanceTests
         private async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
             IAuthenticationService authenticationService)
         {
-            var buyerUserName = "Matan";
-            var buyerPassword = "Matan1234";
+            const string buyerUserName = "Matan";
+            const string buyerPassword = "Matan1234";
             await authenticationService.RegisterAsync(buyerUserName, buyerPassword);
             var buyerToken = await authenticationService.LoginAsync(buyerUserName, buyerPassword);
             
@@ -161,8 +160,72 @@ namespace BoomaEcommerce.AcceptanceTests
             var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
 
             // Assert
-            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt.Excluding(p => p.Guid).Excluding(p => p.PurchaseProducts));
-            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Product.Amount));
+            storePurchase.Should().BeEquivalentTo(realStorePurchase, 
+                opt => opt
+                        .Excluding(p => p.Guid)
+                        .Excluding(p => p.PurchaseProducts));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
+                opt => opt
+                    .Excluding(p => p.Guid)
+                    .Excluding(p => p.Product.Amount));
+        }
+        
+        [Fact]
+        public async Task GetStorePurchaseHistory_ReturnEmptyCollection_WhenStoreDoesNotExists()
+        {
+            // Arrange
+            var nonExistingStoreGuid = Guid.NewGuid();
+
+            // Act
+            var result = 
+                await _adminStoreService.GetStorePurchaseHistory(nonExistingStoreGuid);
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task GetAllUserPurchaseHistoryAsync_ReturnsAllUserPurchaseHistory_WhenUserExists()
+        {
+            // Arrange
+            var userGuid = _purchase.Buyer.Guid;
+            
+            // Act
+            var result = await _adminPurchaseService.GetAllUserPurchaseHistoryAsync(userGuid);
+            
+            // Assert
+            result.Should().NotBeNull().And.NotBeEmpty();
+            var purchase = result.First();
+            purchase.Should().BeEquivalentTo(_purchase,
+                opt => opt
+                    .Excluding(p => p.StorePurchases)
+                    .Excluding(p => p.Guid));
+            var storePurchase = purchase.StorePurchases.First();
+            var purchaseProduct = storePurchase.PurchaseProducts.First();
+            var realStorePurchase = _purchase.StorePurchases.First();
+            var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
+            storePurchase.Should().BeEquivalentTo(realStorePurchase, 
+                opt => opt
+                    .Excluding(p => p.Guid)
+                    .Excluding(p => p.PurchaseProducts));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
+                opt => opt
+                    .Excluding(p => p.Guid)
+                    .Excluding(p => p.Product.Amount));
+        }
+        
+        [Fact]
+        public async Task GetAllUserPurchaseHistoryAsync_ReturnEmptyCollection_WhenUserDoesNotExists()
+        {
+            // Arrange
+            var nonExistingUserGuid = Guid.NewGuid();
+            
+            // Act
+            var result = 
+                await _adminPurchaseService.GetAllUserPurchaseHistoryAsync(nonExistingUserGuid);
+
+            // Assert
+            result.Should().BeEmpty();
         }
         
 
