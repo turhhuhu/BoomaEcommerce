@@ -42,8 +42,8 @@ namespace BoomaEcommerce.Services.Purchases
 
         public Task<bool> CreatePurchaseAsync(PurchaseDto purchase)
         {
-
-
+            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchase);
+            
             // Visitor purchase
             if (purchase.Buyer == null) return _purchaseService.CreatePurchaseAsync(purchase);
 

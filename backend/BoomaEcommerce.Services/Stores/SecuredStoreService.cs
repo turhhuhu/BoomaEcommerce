@@ -64,6 +64,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public Task<StoreDto> CreateStoreAsync(StoreDto store)
         {
+            ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             CheckAuthenticated();
             return _storeService.CreateStoreAsync(store);
         }

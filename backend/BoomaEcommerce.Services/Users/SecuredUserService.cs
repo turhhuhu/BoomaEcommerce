@@ -52,6 +52,8 @@ namespace BoomaEcommerce.Services.Users
 
         public async Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket)
         {
+            ServiceUtilities.ValidateDto<ShoppingBasketDto, UserServiceValidators.CreateShoppingBasketAsync>(shoppingBasket);
+            
             CheckAuthenticated();
 
             var userGuidInToken = ClaimsPrincipal.GetUserGuid();
@@ -68,6 +70,7 @@ namespace BoomaEcommerce.Services.Users
 
         public async Task<bool> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid, PurchaseProductDto purchaseProduct)
         {
+            ServiceUtilities.ValidateDto<PurchaseProductDto, UserServiceValidators.AddPurchaseProductToShoppingBasketAsync>(purchaseProduct);
             CheckAuthenticated();
 
             var userGuidInToken = ClaimsPrincipal.GetUserGuid();
@@ -128,6 +131,7 @@ namespace BoomaEcommerce.Services.Users
 
         public Task UpdateUserInfoAsync(UserDto user)
         {
+            ServiceUtilities.ValidateDto<UserDto, UserServiceValidators.UpdateUserInfoAsync>(user);
             CheckAuthenticated();
 
             var userGuidInToken = ClaimsPrincipal.GetUserGuid();
