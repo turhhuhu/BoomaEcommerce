@@ -208,7 +208,7 @@ namespace BoomaEcommerce.Services.Tests
             return new() { Store = store, User = user };
 
         }
-
+        
         public static StoreManagement CreateStoreManagementObject(Store store, User user)
         {
             return new() { Store = store, User = user, Permissions = new StoreManagementPermission()};
@@ -236,7 +236,7 @@ namespace BoomaEcommerce.Services.Tests
             return new() { User = u, Store = s };
         }
 
-        public static StoreManagementPermission GetStoreManagementPermissionData(bool flag, StoreManagement sm)
+        public static StoreManagementPermission GetStoreManagementPermissionData(bool flag)
         {
             return new() { CanAddProduct = flag };
         }

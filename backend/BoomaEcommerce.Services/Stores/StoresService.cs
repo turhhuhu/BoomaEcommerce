@@ -190,7 +190,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid)
+        public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistoryAsync(Guid storeGuid)
         {
             try
             {
@@ -203,7 +203,7 @@ namespace BoomaEcommerce.Services.Stores
                 return null;
             }
         }
-        public async Task<bool> NominateNewStoreOwner(Guid owner, StoreOwnershipDto newOwnerDto)
+        public async Task<bool> NominateNewStoreOwnerAsync(Guid owner, StoreOwnershipDto newOwnerDto)
         {
             try
             {
@@ -228,7 +228,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<bool> NominateNewStoreManager(Guid manager, StoreManagementDto newManagementDto)
+        public async Task<bool> NominateNewStoreManagerAsync(Guid manager, StoreManagementDto newManagementDto)
         {
             try
             {
@@ -287,7 +287,7 @@ namespace BoomaEcommerce.Services.Stores
                 return null;
             }
         }
-        public async Task<StoreManagementPermissionDto> GetPermissions(Guid smGuid)
+        public async Task<StoreManagementPermissionDto> GetPermissionsAsync(Guid smGuid)
         {
             try
             {
@@ -301,7 +301,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task UpdatePermission(StoreManagementPermissionDto smpDto)
+        public async Task UpdatePermissionAsync(StoreManagementPermissionDto smpDto)
         {
             try
             {
@@ -315,7 +315,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreSellersResponse> GetAllSellersInformation(Guid storeGuid)
+        public async Task<StoreSellersResponse> GetAllSellersInformationAsync(Guid storeGuid)
         {
             try
             {
@@ -354,7 +354,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShips(Guid userGuid)
+        public async Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShipsAsync(Guid userGuid)
         {
             try
             {
@@ -369,7 +369,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
         
-        public async Task<IReadOnlyCollection<StoreManagementDto>> GetAllStoreManagements(Guid userGuid)
+        public async Task<IReadOnlyCollection<StoreManagementDto>> GetAllStoreManagementsAsync(Guid userGuid)
         {
             try
             {
@@ -384,7 +384,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid)
+        public async Task<StoreSellersResponse> GetAllSubordinateSellersAsync(Guid storeOwnerGuid)
         {
             try
             {
@@ -401,7 +401,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreOwnershipDto> GetStoreOwnerShip(Guid userGuid, Guid storeGuid)
+        public async Task<StoreOwnershipDto> GetStoreOwnerShipAsync(Guid userGuid, Guid storeGuid)
         {
             try
             {
@@ -416,7 +416,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreManagementDto> GetStoreManagement(Guid userGuid, Guid storeGuid)
+        public async Task<StoreManagementDto> GetStoreManagementAsync(Guid userGuid, Guid storeGuid)
         {
             try
             {
@@ -431,7 +431,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<ProductDto> GetStoreProduct(Guid productGuid)
+        public async Task<ProductDto> GetStoreProductAsync(Guid productGuid)
         {
             try
             {
@@ -449,7 +449,7 @@ namespace BoomaEcommerce.Services.Stores
         }
 
 
-		public async Task<bool> RemoveManager(Guid removeOwnership, Guid removeManagement)
+		public async Task<bool> RemoveManagerAsync(Guid removeOwnership, Guid removeManagement)
         {
             try
             {

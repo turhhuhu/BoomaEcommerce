@@ -153,7 +153,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var storeGuid = _storeDto.Guid;
 
             // Act
-            var result = await _adminStoreService.GetStorePurchaseHistory(storeGuid);
+            var result = await _adminStoreService.GetStorePurchaseHistoryAsync(storeGuid);
             var storePurchase = result.First();
             var purchaseProduct = storePurchase.PurchaseProducts.First();
             var realStorePurchase = _purchase.StorePurchases.First();
@@ -178,7 +178,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Act
             var result = 
-                await _adminStoreService.GetStorePurchaseHistory(nonExistingStoreGuid);
+                await _adminStoreService.GetStorePurchaseHistoryAsync(nonExistingStoreGuid);
 
             // Assert
             result.Should().BeEmpty();

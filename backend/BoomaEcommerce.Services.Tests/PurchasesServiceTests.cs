@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -25,6 +26,14 @@ namespace BoomaEcommerce.Services.Tests
         private readonly IMapper _mapper = MapperFactory.GetMapper();
         private readonly IFixture _fixture = new Fixture();
         private readonly Mock<ISupplyClient> _supplyClientMock = new();
+        
+        public PurchaseServiceTests()
+        {
+            _fixture.Customize<PurchaseDto>(p => p
+                .With(x => x.StorePurchases, TestData.GetTestValidStorePurchasesDtos())
+                .With(x => x.TotalPrice, 450)
+                .Without(x => x.Guid));
+        }
 
         private PurchasesService GetPurchaseService(
             IDictionary<Guid, Purchase> purchases,
@@ -46,11 +55,8 @@ namespace BoomaEcommerce.Services.Tests
             var userDict = new Dictionary<Guid, User>();
             var shoppingCartDict = new Dictionary<Guid, ShoppingCart>();
 
-            var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
-                .With(x => x.StorePurchases, TestData.GetTestValidStorePurchasesDtos())
-                .With(x => x.TotalPrice, 450)
-                .Create();
-            
+            var purchaseDtoFixture = _fixture.Create<PurchaseDto>();
+
             var userFixture = _fixture.Build<User>()
                 .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
                 .Create();
@@ -82,7 +88,13 @@ namespace BoomaEcommerce.Services.Tests
             {
                 productDictValue.Amount.Should().Be(5);
             }
-            purchasesDict[purchaseDtoFixture.Guid].Guid.Should().Be(purchaseDtoFixture.Guid);
+            purchasesDict.Values.Should().NotBeEmpty();
+            var purchase = purchasesDict.Values.First();
+            purchase.Should().BeEquivalentTo(purchaseDtoFixture, 
+                opt => opt
+                    .Excluding(p => p.Guid)
+                    .Excluding(p => p.StorePurchases)
+                    .Excluding(p => p.Buyer));
         }
         
         [Fact]
@@ -97,6 +109,7 @@ namespace BoomaEcommerce.Services.Tests
             var purchaseDtoFixture = _fixture.Build<PurchaseDto>()
                 .With(x => x.StorePurchases, TestData.GetTestInvalidStorePurchasesDtos())
                 .With(x => x.TotalPrice, 450)
+                .Without(x => x.Guid)
                 .Create();
             
             var userFixture = _fixture.Build<User>()
@@ -129,7 +142,7 @@ namespace BoomaEcommerce.Services.Tests
             {
                 productDictValue.Amount.Should().Be(10);
             }
-            productDict.ContainsKey(purchaseDtoFixture.Guid).Should().BeFalse();
+            purchasesDict.Values.Should().BeEmpty();
         }
 
         [Fact]
@@ -153,7 +166,7 @@ namespace BoomaEcommerce.Services.Tests
         }
         
         [Fact]
-        public async void GetAllUserPurchaseHistoryAsync_returnPurchaseList_userHaveMadeTwoPurchases()
+        public async void GetAllUserPurchaseHistoryAsync_ReturnPurchaseList_WhenUserHaveMadeTwoPurchases()
         {
             // Arrange
             var entitiesPurchases = new Dictionary<Guid, Purchase>();

@@ -227,9 +227,9 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var productCategory = "Chess";
-            var productName = "ChessBoard";
-            var keyWord = "Chess";
+            const string productCategory = "Chess";
+            const string productName = "ChessBoard";
+            const string keyWord = "Chess";
             var notSoftDeletedProductGuidList = new List<Guid>();
             for (var i = 0; i < 3; i++)
             {
