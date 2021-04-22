@@ -57,8 +57,8 @@ namespace BoomaEcommerce.Services.Tests
 
             var taskList = new List<Task<bool>>
             {
-                sut.NominateNewStoreManager(firstStoreOwner.User.Guid, storeManagementDto),
-                sut.NominateNewStoreManager(secondStoreOwner.User.Guid, storeManagementDto)
+                sut.NominateNewStoreManagerAsync(firstStoreOwner.User.Guid, storeManagementDto),
+                sut.NominateNewStoreManagerAsync(secondStoreOwner.User.Guid, storeManagementDto)
             };
             
             //Act
