@@ -54,7 +54,7 @@ namespace BoomaEcommerce.Services.Stores
 
             // specific authorization
             var userGuid = ClaimsPrincipal.GetUserGuid();
-            var storeOwner = await _storeService.GetStoreOwnerShip(storeGuid, userGuid);
+            var storeOwner = await _storeService.GetStoreOwnerShip(userGuid, storeGuid);
             if (storeOwner != null)
             {
                 return await _storeService.GetStorePurchaseHistory(storeGuid);
