@@ -7,6 +7,7 @@ using AutoFixture;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Tests;
 using BoomaEcommerce.Tests.CoreLib;
@@ -25,6 +26,7 @@ namespace BoomaEcommerce.AcceptanceTests
         private UserDto _notOwnerUser;
         private IStoresService _notOwnerStoreService;
 
+        private PurchaseDto _purchase;
         private IFixture _fixture;
 
         public async Task InitializeAsync()
@@ -37,9 +39,12 @@ namespace BoomaEcommerce.AcceptanceTests
             var serviceMockFactory = new ServiceMockFactory();
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
+            var purchaseService = serviceMockFactory.MockPurchaseService();
             await InitOwnerUser(storeService, authService);
             await InitNotOwnerUser(storeService, authService);
-
+            var product = await CreateStoreProduct(storeService);
+            await PurchaseProduct(purchaseService, product, authService);
+            
             _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).Without(pp => pp.Rating)
                 .With(pp => pp.Store, _storeOwnership.Store));
         }
@@ -85,6 +90,64 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 throw new Exception("This shouldn't happen");
             }
+        }
+        
+        private async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
+            IAuthenticationService authenticationService)
+        {
+            const string buyerUserName = "Matan";
+            const string buyerPassword = "Matan1234";
+            await authenticationService.RegisterAsync(buyerUserName, buyerPassword);
+            var buyerToken = await authenticationService.LoginAsync(buyerUserName, buyerPassword);
+            
+            var purchaseDto = new PurchaseDto
+            {
+                Buyer = buyerToken.User,
+                TotalPrice = 10,
+                StorePurchases = new List<StorePurchaseDto>
+                {
+                    new()
+                    {
+                        Buyer = buyerToken.User,
+                        Store = productDto.Store,
+                        TotalPrice = 10,
+                        PurchaseProducts = new List<PurchaseProductDto>
+                        {
+                            new()
+                            {
+                                Amount = 1,
+                                Price = 10,
+                                Product = productDto
+                            }
+                        }
+                    }
+                }
+            };
+            _purchase = purchaseDto;
+            var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
+            if (!didPurchasedSucceeded)
+            {
+                throw new Exception("This shouldn't happen");
+            }
+        }
+        
+        private async Task<ProductDto> CreateStoreProduct(IStoresService storeService)
+        {
+            var fixtureProductDto = _fixture
+                .Build<ProductDto>()
+                .With(s => s.Store, _storeOwnership.Store)
+                .With(p => p.Amount, 10)
+                .With(p => p.Price, 10)
+                .Without(p => p.Rating)
+                .Without(p => p.Guid)
+                .Create();
+
+            var productDto = await storeService.CreateStoreProductAsync(fixtureProductDto);
+            if (productDto is null)
+            {
+                throw new Exception("This shouldn't happen");
+            }
+            return productDto;
         }
 
         #region ProductCRUD
@@ -468,5 +531,38 @@ namespace BoomaEcommerce.AcceptanceTests
              await result.Should().ThrowAsync<UnAuthorizedException>();
 
         }
+        
+        [Fact]
+        public async Task GetStorePurchaseHistory_ReturnStorePurchaseHistory_WhenUserIsTheStoreOwner()
+        {
+            // Arrange
+            var storeGuid = _storeOwnership.Store.Guid;
+
+            // Act
+            var result = await _ownerStoreService.GetStorePurchaseHistory(storeGuid);
+            var storePurchase = result.First();
+            var purchaseProduct = storePurchase.PurchaseProducts.First();
+            var realStorePurchase = _purchase.StorePurchases.First();
+            var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
+
+            // Assert
+            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt.Excluding(p => p.Guid).Excluding(p => p.PurchaseProducts));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Product.Amount));
+        }
+        
+        [Fact]
+        public async Task GetStorePurchaseHistory_ReturnStorePurchaseHistory_WhenUserIsNotAnOwner()
+        {
+            // Arrange
+
+            var storeGuid = _storeOwnership.Store.Guid;
+
+            // Act
+            var result =  _notOwnerStoreService.Awaiting(storeService => storeService.GetStorePurchaseHistory(storeGuid));
+
+            // Assert
+            await result.Should().ThrowAsync<UnAuthorizedException>();
+        }
+        
     }
 }

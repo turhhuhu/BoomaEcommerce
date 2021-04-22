@@ -39,7 +39,7 @@ namespace BoomaEcommerce.AcceptanceTests
             await InitManagerUserWithoutPermissions(storeService, authService);
             _fixture.Customize<ProductDto>(
                 p => p
-                    .With(p => p.Store, _storeOwnership.Store)
+                    .With(pp => pp.Store, _storeOwnership.Store)
                     .With(pp => pp.Amount, 10)
                     .With(pp => pp.Price, 10)
                     .Without(pp => pp.Rating)
