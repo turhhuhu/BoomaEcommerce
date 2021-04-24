@@ -124,7 +124,6 @@ namespace BoomaEcommerce.Services.Authentication
         public async Task<AuthenticationResult> RegisterAsync(string username, string password)
         {
             _logger.LogInformation($"Making attempt to register user: {username}");
-
             var existingUser = await _userManager.FindByNameAsync(username);
 
             if (existingUser != null)
@@ -151,7 +150,7 @@ namespace BoomaEcommerce.Services.Authentication
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
                 };
             }
-
+            _logger.LogInformation("Successfully registered user: {user}", user.UserName);
             return await GenerateAuthResponseWithToken(user);
         }
 

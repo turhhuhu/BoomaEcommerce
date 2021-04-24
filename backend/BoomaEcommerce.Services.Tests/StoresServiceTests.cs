@@ -244,7 +244,7 @@ namespace BoomaEcommerce.Services.Tests
            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
-            //FAIL:bennyUser is an owner of another store
+            //FAIL:bennyUser is an owner of another UserStore
             var storeManagementsOriNike = TestData.CreateStoreManagementObject(nikeStore, oriUser);
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementsOriNike);
             newManager.Guid = Guid.Empty;
@@ -276,7 +276,7 @@ namespace BoomaEcommerce.Services.Tests
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementsOriNike);
             newManager.Guid = Guid.Empty;
             //Act
-            var result = await us.NominateNewStoreManagerAsync(arikUser.Guid, newManager);//FAIL:arikUser is not an owner wanted store
+            var result = await us.NominateNewStoreManagerAsync(arikUser.Guid, newManager);//FAIL:arikUser is not an owner wanted UserStore
             
             //Assert
             result.Should().BeFalse();

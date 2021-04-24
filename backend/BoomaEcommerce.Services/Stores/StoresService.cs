@@ -53,13 +53,13 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                _logger.LogInformation($"Getting products from store with guid {storeGuid}");
+                _logger.LogInformation($"Getting products from UserStore with guid {storeGuid}");
                 var products = await _storeUnitOfWork.ProductRepo.FilterByAsync(p => p.Store.Guid == storeGuid && !p.IsSoftDeleted);
                 return _mapper.Map<IReadOnlyCollection<ProductDto>>(products.ToList());
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to get products from store {storeGuid}", e);
+                _logger.LogError($"Failed to get products from UserStore {storeGuid}", e);
                 return null;
             }
         }
@@ -70,11 +70,11 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var product = _mapper.Map<Product>(productDto);
-                var storeProduct = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
-                if (storeProduct is null)
+                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
+                if (store is null)
                 {
-                    _logger.LogWarning("create store product failed because" +
-                                       " store with guid {Guid} does not exists", product.Store.Guid);
+                    _logger.LogWarning("create UserStore product failed because" +
+                                       " UserStore with guid {Guid} does not exists", product.Store.Guid);
                     return null;
                 }
                 /*if (!product.ValidateStorePolicy() || !product.ValidateAmount())
@@ -85,13 +85,14 @@ namespace BoomaEcommerce.Services.Stores
                 {
                     return null;
                 }
+                product.Store = store;
                 await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
                 return _mapper.Map<ProductDto>(product);
             }
             catch (Exception e)
             {
                 _logger.LogError(e,"Failed to create product with Guid {ProductGuid}," +
-                                   " for store with guid {StoreGuid}", productDto.Guid, productDto.Store.Guid);
+                                   " for UserStore with guid {StoreGuid}", productDto.Guid, productDto.Store.Guid);
                 return null;
             }
         }
@@ -126,8 +127,8 @@ namespace BoomaEcommerce.Services.Stores
                 var storeProduct = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
                 if (storeProduct is null)
                 {
-                    _logger.LogWarning("update store product failed because" +
-                                       " store with guid {Guid} does not exists", product.Store.Guid);
+                    _logger.LogWarning("update UserStore product failed because" +
+                                       " UserStore with guid {Guid} does not exists", product.Store.Guid);
                     return false;
                 }
                 product.Name = productDto.Name ?? product.Name;
@@ -178,14 +179,14 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                _logger.LogInformation($"Deleting store with guid: {storeGuid}");
+                _logger.LogInformation($"Deleting UserStore with guid: {storeGuid}");
                 await _storeUnitOfWork.StoreRepo.DeleteByIdAsync(storeGuid);
                 await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failed to delete store with guid {storeGuid}");
+                _logger.LogError(e, $"Failed to delete UserStore with guid {storeGuid}");
                 return false;
             }
         }
@@ -273,7 +274,7 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                //checking if the new ownerGuid is not already a store ownerGuid or a store ownerGuid
+                //checking if the new ownerGuid is not already a UserStore ownerGuid or a UserStore ownerGuid
                 var ownerShouldBeNull = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(storeOwnership =>
                     storeOwnership.User.Guid.Equals(userGuid) && storeOwnership.Store.Guid.Equals(storeGuid));
 
@@ -312,7 +313,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "failed to get store management for guid {guid}", storeManagementGuid);
+                _logger.LogError(e, "failed to get UserStore management for guid {guid}", storeManagementGuid);
                 return null;
             }
         }
@@ -326,7 +327,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "failed to get store ownership for guid {guid}", storeOwnershipGuid);
+                _logger.LogError(e, "failed to get UserStore ownership for guid {guid}", storeOwnershipGuid);
                 return null;
             }
         }
@@ -413,7 +414,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get all subordinate sellers for store ownerGuid with guid");
+                _logger.LogError(e, "Failed to get all subordinate sellers for UserStore ownerGuid with guid");
                 return null;
             }
         }
@@ -428,7 +429,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get all subordinate sellers for store ownerGuid with guid");
+                _logger.LogError(e, "Failed to get all subordinate sellers for UserStore ownerGuid with guid");
                 return null;
             }
         }
@@ -443,7 +444,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get all subordinate sellers for store ownerGuid with guid");
+                _logger.LogError(e, "Failed to get all subordinate sellers for UserStore ownerGuid with guid");
                 return null;
             }
         }
@@ -472,7 +473,7 @@ namespace BoomaEcommerce.Services.Stores
             {
                 var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownershipToRemoveFrom);
 
-                _logger.LogInformation("Removing store ownerGuid with guid {guid}", managerToRemove);
+                _logger.LogInformation("Removing UserStore ownerGuid with guid {guid}", managerToRemove);
 
                 if (!owner.RemoveManager(managerToRemove))
                 {

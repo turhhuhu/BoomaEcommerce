@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 
-namespace BoomaEcommerce.Data
+namespace BoomaEcommerce.Data.InMemory
 {
     public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
     {
@@ -41,7 +41,7 @@ namespace BoomaEcommerce.Data
         {
             return Entities.TryGetValue(guid, out var entity) 
                 ? Task.FromResult(entity) 
-                : null;
+                : Task.FromResult<T>(null);
         }
 
         public Task InsertOneAsync(T entity)
