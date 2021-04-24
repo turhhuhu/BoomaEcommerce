@@ -71,7 +71,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(sm => sm.Guid)
                 .Create();
 
-            var nominateResult = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.User.Guid, fixtureStoreManagement);
+            var nominateResult = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, fixtureStoreManagement);
             if (!nominateResult)
             {
                 throw new Exception("This shouldn't happen");
@@ -111,7 +111,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(sm => sm.Guid)
                 .Create();
 
-            var nominateResult = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.User.Guid, fixtureStoreManagement);
+            var nominateResult = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, fixtureStoreManagement);
             if (!nominateResult)
             {
                 throw new Exception("This shouldn't happen");

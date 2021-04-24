@@ -75,8 +75,7 @@ namespace BoomaEcommerce.Services.Stores
             {
                 RuleFor(sm => sm.Guid)
                     .Must(guid => guid == default);
-                RuleFor(sm => sm.Permissions)
-                    .NotNull();
+
                 RuleFor(sm => sm.Store)
                     .Must(store => store != null && store.Guid != default);
                 RuleFor(sm => sm.User)
@@ -93,6 +92,15 @@ namespace BoomaEcommerce.Services.Stores
                     .Must(store => store != null && store.Guid != default);
                 RuleFor(sm => sm.User)
                     .Must(user => user != null && user.Guid != default);
+            }
+        }
+
+        public class UpdateManagerPermission : AbstractValidator<StoreManagementPermissionDto>
+        {
+            public UpdateManagerPermission()
+            {
+                RuleFor(permissions => permissions.Guid)
+                    .Must(guid => guid != default);
             }
         }
     }

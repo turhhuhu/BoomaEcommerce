@@ -15,6 +15,5 @@ namespace BoomaEcommerce.Services.DTO
         public bool CanUpdateProduct { get; set; }
         public bool CanGetSellersInfo { get; set; }
 
-        //public StoreManagementDto StoreManagement { get; set; }
     }
 }

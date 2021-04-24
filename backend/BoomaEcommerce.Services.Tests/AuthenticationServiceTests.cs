@@ -103,8 +103,9 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var user = _fixture.Build<User>().Create();
-            _userStore.Add(user);
             var tokenHandler = new JwtSecurityTokenHandler();
+            var registerResponse = await _authService.RegisterAsync(user.UserName, "pass");
+            user.Guid = registerResponse.User.Guid;
 
             // Act
             var response = await _authService.LoginAsync(user.UserName, "pass");
