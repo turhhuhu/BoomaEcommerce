@@ -434,7 +434,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(management => management.Guid)
                 .Create();
 
-            var result = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.User.Guid, newManager);
+            var result = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
             var addedManager = await _ownerStoreService.GetStoreManagementAsync(newManager.User.Guid, newManager.Store.Guid);
 
             result.Should().BeFalse();
@@ -446,12 +446,59 @@ namespace BoomaEcommerce.AcceptanceTests
         #region ManagerPermissions
 
         [Fact]
-        public async Task UpdateStoreManagerPermissionsAsync_ShouldSuccessfullyUpdate_WhenPermissionsAreValidAnd()
+        public async Task UpdateStoreManagerPermissionsAsync_ShouldSuccessfullyUpdate_WhenPermissionsAreValid()
         {
             // Arrange
-            
-        }
+            var newManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(management => management.Store, _storeOwnership.Store)
+                .Without(management => management.Guid)
+                .Without(management => management.Permissions)
+                .Create();
 
+            await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
+            newManager = await _ownerStoreService.GetStoreManagementAsync(newManager.User.Guid, newManager.Store.Guid);
+            var newPermissions = new StoreManagementPermissionDto
+            {
+                Guid = newManager.Permissions.Guid,
+                CanGetSellersInfo = false,
+                CanAddProduct = true,
+                CanDeleteProduct = true,
+                CanUpdateProduct = false
+            };
+            
+            //Act
+            await _ownerStoreService.UpdateManagerPermissionAsync(newPermissions);
+            var managerWithNewPermissions = await _ownerStoreService.GetStoreManagementAsync(newManager.Guid);
+
+            // Assert
+            managerWithNewPermissions.Permissions.Should().BeEquivalentTo(newPermissions);
+        }
+        [Fact]
+        public async Task UpdateStoreManagerPermissionsAsync_ShouldThrowValidationException_WhenPermissionsAreNotValid()
+        {
+            // Arrange
+            var newManager = _fixture
+                .Build<StoreManagementDto>()
+                .With(management => management.Store, _storeOwnership.Store)
+                .Without(management => management.Guid)
+                .Create();
+
+            await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
+            var newPermissions = new StoreManagementPermissionDto
+            {
+                CanGetSellersInfo = false,
+                CanAddProduct = true,
+                CanDeleteProduct = true,
+                CanUpdateProduct = false
+            };
+
+            // Act
+            var action = _ownerStoreService.Awaiting(service => service.UpdateManagerPermissionAsync(newPermissions));
+
+            // Assert
+            await action.Should().ThrowAsync<ValidationException>();
+        }
         #endregion
 
         public Task DisposeAsync()

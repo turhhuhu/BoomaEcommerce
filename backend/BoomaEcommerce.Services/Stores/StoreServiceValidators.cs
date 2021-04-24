@@ -75,8 +75,7 @@ namespace BoomaEcommerce.Services.Stores
             {
                 RuleFor(sm => sm.Guid)
                     .Must(guid => guid == default);
-                RuleFor(sm => sm.Permissions)
-                    .NotNull();
+
                 RuleFor(sm => sm.Store)
                     .Must(store => store != null && store.Guid != default);
                 RuleFor(sm => sm.User)

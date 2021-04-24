@@ -198,6 +198,7 @@ namespace BoomaEcommerce.Services.Stores
             if (owner != null)
             {
                 await _storeService.UpdateManagerPermissionAsync(smpDto);
+                return;
             }
 
             throw new UnAuthorizedException(nameof(UpdateManagerPermissionAsync), userGuidInClaims);

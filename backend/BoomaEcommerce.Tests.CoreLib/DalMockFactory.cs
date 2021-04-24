@@ -156,6 +156,17 @@ namespace BoomaEcommerce.Tests.CoreLib
                 });
 
             var storeManagementPermissionsRepoMock = MockRepository(storeManagementPermissions);
+
+            storeManagementPermissionsRepoMock?.Setup(x => x.ReplaceOneAsync(It.IsAny<StoreManagementPermission>()))
+                .Callback<StoreManagementPermission>(smp =>
+                {
+                    storeManagementPermissions[smp.Guid] = smp;
+                    if (storeManagements != null && storeManagements.TryGetValue(smp.Guid, out var storeManagement))
+                    {
+                        storeManagement.Permissions = smp;
+                    }
+                });
+
             var productsRepoMock = MockRepository(products);
             var storeUnitOfWorkMock = new Mock<IStoreUnitOfWork>();
             storeUnitOfWorkMock.SetupGet(x => x.StoreRepo).Returns(storeRepoMock?.Object);
