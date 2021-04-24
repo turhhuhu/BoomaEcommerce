@@ -12,17 +12,17 @@ namespace BoomaEcommerce.Services.Stores
     {
 
         /// <summary>
-        /// Gets the store's purchase history.
+        /// Gets the UserStore's purchase history.
         /// </summary>
         /// <param name="storeGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the store purchase history collection.
+        /// The task result contains the UserStore purchase history collection.
         /// </returns>
         Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistoryAsync(Guid storeGuid);
 
         /// <summary>
-        /// Creates a store for a registered user.
+        /// Creates a UserStore for a registered user.
         /// </summary>
         /// <param name="store"></param>
         /// <returns>
@@ -31,7 +31,7 @@ namespace BoomaEcommerce.Services.Stores
         Task<StoreDto> CreateStoreAsync(StoreDto store);
 
         /// <summary>
-        /// Creates a product in a store.
+        /// Creates a product in a UserStore.
         /// </summary>
         /// <param name="productDto"></param>
         /// <returns>
@@ -67,17 +67,17 @@ namespace BoomaEcommerce.Services.Stores
         Task<IReadOnlyCollection<StoreDto>> GetStoresAsync();
 
         /// <summary>
-        /// Gets a store by guid.
+        /// Gets a UserStore by guid.
         /// </summary>
         /// <param name="storeGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the store.
+        /// The task result contains the UserStore.
         /// </returns>
         Task<StoreDto> GetStoreAsync(Guid storeGuid);
 
         /// <summary>
-        /// Deletes a store by guid.
+        /// Deletes a UserStore by guid.
         /// </summary>
         /// <param name="storeGuid"></param>
         /// <returns>
@@ -86,7 +86,7 @@ namespace BoomaEcommerce.Services.Stores
         Task<bool> DeleteStoreAsync(Guid storeGuid);
 
         /// <summary>
-        /// Adds a new ownerGuid to a store
+        /// Adds a new ownerGuid to a UserStore
         /// </summary>
         /// <param name="ownerGuid"></param>
         /// <param name="newOwnerDto"></param>
@@ -96,7 +96,7 @@ namespace BoomaEcommerce.Services.Stores
         Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto);
 
         /// <summary>
-        /// Adds a new ownerGuid to a store
+        /// Adds a new ownerGuid to a UserStore
         /// </summary>
         /// <param name="ownerGuid"></param>
         /// <param name="newManagementDto"></param>
@@ -106,13 +106,13 @@ namespace BoomaEcommerce.Services.Stores
         Task<bool> NominateNewStoreManagerAsync(Guid ownerGuid, StoreManagementDto newManagementDto);
 
         /// <summary>
-        /// Get of all subordinates under the store ownerGuid provided
+        /// Get of all subordinates under the UserStore ownerGuid provided
         /// </summary>
         /// <param name="storeOwnerGuid"></param>
         /// <param name="level"></param>
         /// <returns>
         /// A task that represents the asynchronous operation.
-        /// returns a store seller response containing all subordinates of the ownerGuid requested.
+        /// returns a UserStore seller response containing all subordinates of the ownerGuid requested.
         /// </returns>
         Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null);
         

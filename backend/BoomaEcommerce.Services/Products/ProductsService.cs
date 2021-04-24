@@ -115,13 +115,13 @@ namespace BoomaEcommerce.Services.Products
         {
             try
             {
-                _logger.LogInformation($"Getting products from store with guid {storeGuid}");
+                _logger.LogInformation($"Getting products from UserStore with guid {storeGuid}");
                 var products = await _productRepo.FilterByAsync(p => p.Store.Guid == storeGuid && !p.IsSoftDeleted);
                 return _mapper.Map<IReadOnlyCollection<ProductDto>>(products.ToList());
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to get products from store {storeGuid}", e);
+                _logger.LogError($"Failed to get products from UserStore {storeGuid}", e);
                 return null;
             }
         }
