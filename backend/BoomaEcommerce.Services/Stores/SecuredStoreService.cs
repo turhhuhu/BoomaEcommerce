@@ -125,7 +125,6 @@ namespace BoomaEcommerce.Services.Stores
 
             return management != null && actionPredicate(management.Permissions);
         }
-
         public Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
             return _storeService.GetStoresAsync();
@@ -157,31 +156,32 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(DeleteStoreAsync), userGuid);
         }
 
-        public async Task<bool> NominateNewStoreOwnerAsync(Guid owner, StoreOwnershipDto newOwnerDto)
+        public async Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto)
         {
             ServiceUtilities.ValidateDto<StoreOwnershipDto, StoreServiceValidators.NominateNewStoreOwner>(newOwnerDto);
             CheckAuthenticated();
-
-            var storeOwner = await _storeService.GetStoreOwnerShipAsync(owner, newOwnerDto.Store.Guid);
-            if (storeOwner != null)
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var storeOwner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            if (storeOwner != null && storeOwner.User.Guid == userGuidInClaims)
             {
-                return await _storeService.NominateNewStoreOwnerAsync(owner, newOwnerDto);
+                return await _storeService.NominateNewStoreOwnerAsync(ownerGuid, newOwnerDto);
             }
 
-            throw new UnAuthorizedException(nameof(NominateNewStoreOwnerAsync), owner);
+            throw new UnAuthorizedException(nameof(NominateNewStoreOwnerAsync), ownerGuid);
         }
 
-        public async Task<bool> NominateNewStoreManagerAsync(Guid manager, StoreManagementDto newManagementDto)
+        public async Task<bool> NominateNewStoreManagerAsync(Guid ownerGuid, StoreManagementDto newManagementDto)
         {
             ServiceUtilities.ValidateDto<StoreManagementDto, StoreServiceValidators.NominateNewStoreManager>(newManagementDto);
             CheckAuthenticated();
-            var storeOwner = await _storeService.GetStoreOwnerShipAsync(manager, newManagementDto.Store.Guid);
-            if (storeOwner != null)
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var storeOwner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            if (storeOwner != null && storeOwner.User.Guid == userGuidInClaims)
             {
-                return await _storeService.NominateNewStoreManagerAsync(manager, newManagementDto);
+                return await _storeService.NominateNewStoreManagerAsync(ownerGuid, newManagementDto);
             }
 
-            throw new UnAuthorizedException(nameof(NominateNewStoreManagerAsync), manager);
+            throw new UnAuthorizedException(nameof(NominateNewStoreManagerAsync), ownerGuid);
         }
 
         public Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid)
@@ -189,10 +189,63 @@ namespace BoomaEcommerce.Services.Stores
             return _storeService.GetProductsFromStoreAsync(storeGuid);
         }
 
-        public Task<StoreSellersResponse> GetAllSubordinateSellersAsync(Guid storeOwnerGuid)
+        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto)
+        {
+            ServiceUtilities.ValidateDto<StoreManagementPermissionDto, StoreServiceValidators.UpdateManagerPermission>(smpDto);
+            var storeManagement = await _storeService.GetStoreManagementAsync(smpDto.Guid);
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var owner = await _storeService.GetStoreOwnerShipAsync(userGuidInClaims, storeManagement.Store.Guid);
+            if (owner != null)
+            {
+                await _storeService.UpdateManagerPermissionAsync(smpDto);
+            }
+
+            throw new UnAuthorizedException(nameof(UpdateManagerPermissionAsync), userGuidInClaims);
+        }
+
+        public async Task<StoreManagementDto> GetStoreManagementAsync(Guid storeManagementGuid)
         {
             CheckAuthenticated();
-            return _storeService.GetAllSubordinateSellersAsync(storeOwnerGuid);
+            var userGuid = ClaimsPrincipal.GetUserGuid();
+            var storeManagement = await _storeService.GetStoreManagementAsync(storeManagementGuid);
+
+            if (storeManagement.User.Guid == userGuid 
+                || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeManagement.Store.Guid))
+            {
+                return storeManagement;
+            }
+
+            throw new UnAuthorizedException(nameof(GetStoreManagementAsync), userGuid);
+        }
+
+        public async Task<StoreOwnershipDto> GetStoreOwnershipAsync(Guid storeOwnershipGuid)
+        {
+            CheckAuthenticated();
+            var userGuid = ClaimsPrincipal.GetUserGuid();
+            var storeOwnership = await _storeService.GetStoreOwnershipAsync(storeOwnershipGuid);
+
+            if (storeOwnership.User.Guid == userGuid
+                || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeOwnership.Store.Guid))
+            {
+                return storeOwnership;
+            }
+
+            throw new UnAuthorizedException(nameof(GetStoreOwnershipAsync), userGuid);
+        }
+
+        public async Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level)
+        {
+            CheckAuthenticated();
+
+            var storeOwnership =  await _storeService.GetStoreOwnershipAsync(storeOwnerGuid);
+            var userInClaims = ClaimsPrincipal.GetUserGuid();
+
+            if (await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeOwnership.Store.Guid))
+            {
+                return await _storeService.GetSubordinateSellersAsync(storeOwnerGuid, level);
+            }
+
+            throw new UnAuthorizedException(nameof(GetSubordinateSellersAsync), userInClaims);
         }
 
         public async Task<StoreOwnershipDto> GetStoreOwnerShipAsync(Guid userGuid, Guid storeGuid)
@@ -256,15 +309,17 @@ namespace BoomaEcommerce.Services.Stores
         {
             return _storeService.GetStoreProductAsync(productGuid);
         }
-        public async Task<bool> RemoveManagerAsync(Guid removeOwnership, Guid removeManagement)
+        public async Task<bool> RemoveManagerAsync(Guid ownershipToRemoveFrom, Guid managerToRemove)
         {
             CheckAuthenticated();
-            return await _storeService.RemoveManagerAsync(removeOwnership,removeManagement);
-           
-            
-            
-            
-            
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var storeOwnership = await _storeService.GetStoreOwnershipAsync(ownershipToRemoveFrom);
+            if (userGuidInClaims == storeOwnership?.User.Guid)
+            {
+                return await _storeService.RemoveManagerAsync(ownershipToRemoveFrom, managerToRemove);
+            }
+
+            throw new UnAuthorizedException(nameof(RemoveManagerAsync), userGuidInClaims);
         }
     }
 }

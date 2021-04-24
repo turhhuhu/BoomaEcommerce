@@ -134,8 +134,8 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             loginResult.Success.Should().BeTrue();
         }
-        
-        /*[Fact]
+
+        [Fact]
         public async Task LoginAsync_ReturnsUnsuccessfulAuthenticationResult_WhenUserHasNotRegistered()
         {
             // Arrange 
@@ -150,7 +150,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             badUsernameLogin.Success.Should().BeFalse();
             badPasswordLogin.Success.Should().BeFalse();
-        }*/
+        }
         [Fact]
         public async Task GetStoreData__ReturnsCompatibleStoreData_WhenStoreExists()
         { 

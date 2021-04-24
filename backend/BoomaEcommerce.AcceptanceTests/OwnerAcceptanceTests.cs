@@ -288,7 +288,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Create();
 
             // Act
-            var result = await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.User.Guid, newOwner);
+            var result = await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, newOwner);
             var addedOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
 
 
@@ -308,12 +308,12 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(ownership => ownership.Guid)
                 .Create();
 
-            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.User.Guid, newOwner);
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, newOwner);
 
             // Act
-            var result = await _ownerStoreService.NominateNewStoreOwnerAsync(newOwner.User.Guid, newOwner);
+            var result = await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, newOwner);
             newOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
-            var sellers = await _ownerStoreService.GetAllSubordinateSellersAsync(newOwner.Guid);
+            var sellers = await _ownerStoreService.GetSubordinateSellersAsync(newOwner.Guid);
             sellers.Should().BeEquivalentTo(new StoreSellersResponse());
             result.Should().BeFalse();
         }
@@ -369,7 +369,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Create();
 
             // Act
-            var result = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.User.Guid, newManager);
+            var result = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
             var addedManager = await _ownerStoreService.GetStoreManagementAsync(newManager.User.Guid, newManager.Store.Guid);
 
             // Assert
@@ -396,12 +396,13 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(management => management.Guid)
                 .Create();
 
-            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.User.Guid, newOwner);
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, newOwner);
+            newOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
 
             // Act
-            var result = await _ownerStoreService.NominateNewStoreManagerAsync(newOwner.User.Guid, newManager);
+            var result = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
             newOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
-            var sellers = await _ownerStoreService.GetAllSubordinateSellersAsync(newOwner.Guid);
+            var sellers = await _ownerStoreService.GetSubordinateSellersAsync(newOwner.Guid);
             sellers.Should().BeEquivalentTo(new StoreSellersResponse());
             result.Should().BeFalse();
         }
@@ -442,7 +443,16 @@ namespace BoomaEcommerce.AcceptanceTests
 
         #endregion
 
+        #region ManagerPermissions
 
+        [Fact]
+        public async Task UpdateStoreManagerPermissionsAsync_ShouldSuccessfullyUpdate_WhenPermissionsAreValidAnd()
+        {
+            // Arrange
+            
+        }
+
+        #endregion
 
         public Task DisposeAsync()
         {
@@ -461,7 +471,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Create();
 
 
-            await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.User.Guid, fixtureManager);
+            await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, fixtureManager);
             var managerToRemove = await _ownerStoreService.GetStoreManagementAsync(
                 _notOwnerUser.Guid, _storeOwnership.Store.Guid);
 
@@ -473,7 +483,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var manager =
                 await _ownerStoreService.GetStoreManagementAsync(_storeOwnership.User.Guid, _storeOwnership.Store.Guid);
-            var ownerNominatedManagerList = (await _ownerStoreService.GetAllSubordinateSellersAsync(_storeOwnership.Guid));
+            var ownerNominatedManagerList = (await _ownerStoreService.GetSubordinateSellersAsync(_storeOwnership.Guid));
             var managers = ownerNominatedManagerList.StoreManagers;
             manager.Should().BeNull();
             managers.Should().BeEmpty();

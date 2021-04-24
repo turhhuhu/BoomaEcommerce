@@ -56,7 +56,7 @@ namespace BoomaEcommerce.Services.Tests
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipBennyNike);
             newOwner.Guid = Guid.Empty;
             //Act
-            var result = await us.NominateNewStoreOwnerAsync(matanUser.Guid, newOwner);
+            var result = await us.NominateNewStoreOwnerAsync(storeOwnershipMatanNike.Guid, newOwner);
             
             //Assert
             result.Should().BeTrue();
@@ -216,7 +216,7 @@ namespace BoomaEcommerce.Services.Tests
             newManager.Guid = Guid.Empty;
             
             //Act
-            var result = await us.NominateNewStoreManagerAsync(matanUser.Guid, newManager);
+            var result = await us.NominateNewStoreManagerAsync(storeOwnershipMatanNike.Guid, newManager);
             
             //Assert
             result.Should().BeTrue();
@@ -362,6 +362,7 @@ namespace BoomaEcommerce.Services.Tests
             var uArye = TestData.GetUserData("Arye", "Shapiro", "BennySkidanov");
 
             var smBenny = TestData.GetStoreManagementData(uBenny, storeNike);
+
             var smOmer = TestData.GetStoreManagementData(uOmer, storeNike);
             var soMatan = TestData.GetStoreOwnershipData(uMatan, storeNike);
             var soArye = TestData.GetStoreOwnershipData(uArye, storeNike);
@@ -414,108 +415,6 @@ namespace BoomaEcommerce.Services.Tests
             // Assert 
             response.StoreOwners.Should().BeEmpty();
             response.StoreManagers.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task GetPermissionsAsync_ShouldReturnCorrectPermissions_WhenStoreManagerExists()
-        {
-            // Arrange 
-            var entitiesStoreManagementPermissions = new Dictionary<Guid, StoreManagementPermission>();
-            
-            var s1 = TestData.GetStoreData("Adidas");
-            var u1 = TestData.GetUserData("Benny", "Skidanov", "BennySkidanov");
-            var sm1 = TestData.GetStoreManagementData(u1, s1);
-            var smp1 = TestData.GetStoreManagementPermissionData(true);
-
-            entitiesStoreManagementPermissions[sm1.Guid] = smp1;
-
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null,
-                null, null, entitiesStoreManagementPermissions, null);
-            
-            var s = new StoresService(_loggerMock.Object, _mapper, uow.Object);
-            
-            // Act 
-            var res1 = await s.GetPermissionsAsync(smp1.Guid);
-
-            var r1 = _mapper.Map<StoreManagementPermission>(res1);
-
-            // Assert
-            r1.Should().BeEquivalentTo(smp1);
-        }
-
-        [Fact]
-        public async Task GetPermissionsAsync_ShouldReturnNull_WhenStoreManagerDoesNotExist()
-        {
-            // Arrange 
-            var entitiesStoreManagementPermissions = new Dictionary<Guid, StoreManagementPermission>();
-            
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null, null, null, entitiesStoreManagementPermissions, null);
-            
-            var s = new StoresService(_loggerMock.Object, _mapper, uow.Object);
-
-            // Act 
-            var res1 = await s.GetPermissionsAsync(new Guid());
-
-            var r1 = _mapper.Map<StoreManagementPermission>(res1);
-
-            // Assert
-            r1.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task UpdatePermissionsAsync_UpdatePermissionsCorrectly_WhenStoreManagerDtoExist()
-        {
-            // Arrange
-            var entitiesStoreManagementPermissions = new Dictionary<Guid, StoreManagementPermission>();
-
-            var s1 = TestData.GetStoreData("MaccabiTelAvivFanStore");
-            var u1 = TestData.GetUserData("Benny", "Skidanov", "BennySkidanov");
-            var sm1 = TestData.GetStoreManagementData(u1, s1);
-            var smp1 = TestData.GetStoreManagementPermissionData(true);
-
-            entitiesStoreManagementPermissions[smp1.Guid] = smp1;
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null,
-                null, null, entitiesStoreManagementPermissions, null);
-            
-            var s = new StoresService(_loggerMock.Object, _mapper, uow.Object);
-            
-            // Act 
-            var replace1 = await s.GetPermissionsAsync(smp1.Guid);
-            replace1.CanAddProduct = false;
-
-            await s.UpdatePermissionAsync(replace1);
-
-            var res1 = await s.GetPermissionsAsync(smp1.Guid);
-
-            var r1 = _mapper.Map<StoreManagementPermission>(res1);
-
-            // Assert
-            r1.CanAddProduct.Should().BeFalse();
-        }
-
-        [Fact]
-        public async Task UpdatePermissionsAsync_UpdatePermissionNotUpdated_WhenSMDoesNotExist()
-        {
-            // Arrange
-            var entitiesStoreManagementPermissions = new Dictionary<Guid, StoreManagementPermission>();
-            
-            var smp1 = TestData.GetStoreManagementPermissionData(true);
-
-            var uow = DalMockFactory.MockStoreUnitOfWork(null, null,
-                null, null, entitiesStoreManagementPermissions, null);
-
-            entitiesStoreManagementPermissions[smp1.Guid] = smp1;
-            var s = new StoresService(_loggerMock.Object, _mapper, uow.Object);
-            
-            // Act 
-            await s.UpdatePermissionAsync(new StoreManagementPermissionDto{Guid = smp1.Guid});
-
-            var res1 = await s.GetPermissionsAsync(smp1.Guid);
-
-            var r1 = _mapper.Map<StoreManagementPermission>(res1);
-
-            // Assert 
-            r1.CanAddProduct.Should().BeFalse();
         }
 
         [Fact]

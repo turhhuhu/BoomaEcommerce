@@ -203,14 +203,21 @@ namespace BoomaEcommerce.Services.Stores
                 return null;
             }
         }
-        public async Task<bool> NominateNewStoreOwnerAsync(Guid owner, StoreOwnershipDto newOwnerDto)
+        public async Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto)
         {
             try
             {
-                var ownerStoreOwnership = await ValidateInformation(owner, newOwnerDto.Store.Guid, newOwnerDto.User.Guid);
+                if (!await IsNotAlreadyNominated(newOwnerDto.Store.Guid, newOwnerDto.User.Guid))
+                {
+                    return false;
+                }
+
+                var ownerStoreOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
 
                 if (ownerStoreOwnership == null)
+                {
                     return false;
+                }
 
                 var newOwner = _mapper.Map<StoreOwnership>(newOwnerDto);
                 ownerStoreOwnership.StoreOwnerships.TryAdd(newOwner.Guid, newOwner);
@@ -228,15 +235,23 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<bool> NominateNewStoreManagerAsync(Guid manager, StoreManagementDto newManagementDto)
+        public async Task<bool> NominateNewStoreManagerAsync(Guid ownerGuid, StoreManagementDto newManagementDto)
         {
             try
             {
 
-                var ownerStoreOwnership = await ValidateInformation(manager, newManagementDto.Store.Guid, newManagementDto.User.Guid);
+                if (!await IsNotAlreadyNominated(newManagementDto.Store.Guid, newManagementDto.User.Guid))
+                {
+                    return false;
+                }
+
+                var ownerStoreOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
 
                 if (ownerStoreOwnership == null)
+                {
                     return false;
+                }
+
 
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
                 ownerStoreOwnership.StoreManagements.TryAdd(newManager.Guid, newManager);
@@ -254,54 +269,27 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        private async Task<StoreOwnership> ValidateInformation(Guid ownerGuid, Guid storeGuid, Guid userGuid)
+        private async Task<bool> IsNotAlreadyNominated(Guid storeGuid, Guid userGuid)
         {
             try
             {
-                //Checking if manager is manager in the relevant store 
-                var ownerStoreOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(storeOwnership =>
-                    storeOwnership.User.Guid == ownerGuid && storeOwnership.Store.Guid == storeGuid);
-
-                if (ownerStoreOwnership == null)
-                {
-                    return null;
-                }
-
-                //checking if the new manager is not already a store manager or a store manager
+                //checking if the new ownerGuid is not already a store ownerGuid or a store ownerGuid
                 var ownerShouldBeNull = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(storeOwnership =>
                     storeOwnership.User.Guid.Equals(userGuid) && storeOwnership.Store.Guid.Equals(storeGuid));
+
                 var managerShouldBeNull = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(sm =>
                     sm.User.Guid.Equals(userGuid) && sm.Store.Guid.Equals(storeGuid));
 
-                if (ownerShouldBeNull != null || managerShouldBeNull != null)
-                {
-                    return null;
-                }
-
-                return ownerStoreOwnership;
-
+                return ownerShouldBeNull == null && managerShouldBeNull == null;
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return null;
-            }
-        }
-        public async Task<StoreManagementPermissionDto> GetPermissionsAsync(Guid smGuid)
-        {
-            try
-            {
-                var permission = await _storeUnitOfWork.StoreManagementPermissionsRepo.FindOneAsync(perm => perm.Guid == smGuid);
-                return _mapper.Map<StoreManagementPermissionDto>(permission);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return null;
+                return false;
             }
         }
 
-        public async Task UpdatePermissionAsync(StoreManagementPermissionDto smpDto)
+        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto)
         {
             try
             {
@@ -312,6 +300,34 @@ namespace BoomaEcommerce.Services.Stores
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
+            }
+        }
+
+        public async Task<StoreManagementDto> GetStoreManagementAsync(Guid storeManagementGuid)
+        {
+            try
+            {
+                var management = await _storeUnitOfWork.StoreManagementRepo.FindByIdAsync(storeManagementGuid);
+                return _mapper.Map<StoreManagementDto>(management);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "failed to get store management for guid {guid}", storeManagementGuid);
+                return null;
+            }
+        }
+
+        public async Task<StoreOwnershipDto> GetStoreOwnershipAsync(Guid storeOwnershipGuid)
+        {
+            try
+            {
+                var ownership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnershipGuid);
+                return _mapper.Map<StoreOwnershipDto>(ownership);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "failed to get store ownership for guid {guid}", storeOwnershipGuid);
+                return null;
             }
         }
 
@@ -330,7 +346,8 @@ namespace BoomaEcommerce.Services.Stores
                    {
                        Guid = storeManagement.Guid,
                        User = storeManagement.User,
-                       Store = storeManagement.Store
+                       Store = storeManagement.Store,
+                       Permissions = storeManagement.Permissions
                    }).ToList();
 
                 var owners = (await ownersTask).Select(storeOwnership =>
@@ -384,19 +401,19 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreSellersResponse> GetAllSubordinateSellersAsync(Guid storeOwnerGuid)
+        public async Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null)
         {
             try
             {
                 var storeOwner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnerGuid);
-                var (storeOwnerships, storeManagements) = storeOwner.GetSubordinates();
+                var (storeOwnerships, storeManagements) = storeOwner.GetSubordinates(level);
 
                 return new StoreSellersResponse(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),
                     _mapper.Map<List<StoreManagementDto>>(storeManagements));
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get all subordinate sellers for store manager with guid");
+                _logger.LogError(e, "Failed to get all subordinate sellers for store ownerGuid with guid");
                 return null;
             }
         }
@@ -411,7 +428,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get all subordinate sellers for store manager with guid");
+                _logger.LogError(e, "Failed to get all subordinate sellers for store ownerGuid with guid");
                 return null;
             }
         }
@@ -426,7 +443,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get all subordinate sellers for store manager with guid");
+                _logger.LogError(e, "Failed to get all subordinate sellers for store ownerGuid with guid");
                 return null;
             }
         }
@@ -449,26 +466,20 @@ namespace BoomaEcommerce.Services.Stores
         }
 
 
-		public async Task<bool> RemoveManagerAsync(Guid removeOwnership, Guid removeManagement)
+		public async Task<bool> RemoveManagerAsync(Guid ownershipToRemoveFrom, Guid managerToRemove)
         {
             try
             {
-                var canRemove = await ValidateOwnerRemovingManagerDetails(removeOwnership, removeManagement);
-                if (!canRemove)
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownershipToRemoveFrom);
+
+                _logger.LogInformation("Removing store ownerGuid with guid {guid}", managerToRemove);
+
+                if (!owner.RemoveManager(managerToRemove))
                 {
                     return false;
                 }
-                var storeManagementToRemove = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(
-                    m => m.Guid == removeManagement);
-                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(
-                    o => o.Guid == removeOwnership);
-                _logger.LogInformation($"Removing store manager with guid {storeManagementToRemove.User.Guid}");
 
-
-                await _storeUnitOfWork.StoreManagementRepo.DeleteOneAsync(
-                    manager => manager.Guid == removeManagement);
-                StoreManagement removed;
-                owner.StoreManagements.Remove(removeManagement,out removed);
+                await _storeUnitOfWork.StoreManagementRepo.DeleteByIdAsync(managerToRemove);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(owner);
                 await _storeUnitOfWork.SaveAsync();
 
@@ -477,27 +488,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError("Failed to remove manager", e);
-                return false;
-            }
-        }
-
-        private async Task<bool> ValidateOwnerRemovingManagerDetails(Guid removeOwnership, Guid removeManagement)
-        {
-            try
-            {
-                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindOneAsync(o => o.Guid == removeOwnership);
-                var manager = await _storeUnitOfWork.StoreManagementRepo.FindOneAsync(m => m.Guid == removeManagement);
-                
-                var nominatedByOwner = owner.StoreManagements.TryGetValue(manager.Guid,out manager);
-                if (!nominatedByOwner)
-                    return false;
-                return true;
-                
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Failed to remove manager", e);
+                _logger.LogError(e, "Failed to remove ownerGuid with guid: {guid}", managerToRemove);
                 return false;
             }
         }

@@ -17,9 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Services.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Domain.Tests", "BoomaEcommerce.Domain.Tests\BoomaEcommerce.Domain.Tests.csproj", "{5EDE392F-8C25-4C49-B9D6-9617D07DB44B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoomaEcommerce.AcceptanceTests", "BoomaEcommerce.AcceptanceTests\BoomaEcommerce.AcceptanceTests.csproj", "{F16ED668-E468-4CFB-B79E-104F4E3E6078}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.AcceptanceTests", "BoomaEcommerce.AcceptanceTests\BoomaEcommerce.AcceptanceTests.csproj", "{F16ED668-E468-4CFB-B79E-104F4E3E6078}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoomaEcommerce.Tests.CoreLib", "BoomaEcommerce.Tests.CoreLib\BoomaEcommerce.Tests.CoreLib.csproj", "{12A00909-71DC-45D7-98E8-223467B5A660}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Tests.CoreLib", "BoomaEcommerce.Tests.CoreLib\BoomaEcommerce.Tests.CoreLib.csproj", "{12A00909-71DC-45D7-98E8-223467B5A660}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

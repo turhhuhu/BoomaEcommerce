@@ -17,12 +17,23 @@ namespace BoomaEcommerce.Domain
         public ConcurrentDictionary<Guid, StoreOwnership> StoreOwnerships { get; set; } = new();
         public ConcurrentDictionary<Guid, StoreManagement> StoreManagements { get; set; } = new();
 
-        public (List<StoreOwnership>, List<StoreManagement>) GetSubordinates()
+        public bool RemoveManager(Guid managerToRemove)
         {
-            var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates()).ToList();
-            var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships.Values).ToList();
-            var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements.Values).ToList();
-            return (owners, managers);
+            return StoreManagements.TryRemove(managerToRemove, out _);
+        }
+
+
+        public (List<StoreOwnership>, List<StoreManagement>) GetSubordinates(int? level = null)
+        {
+            if (level > 0)
+            {
+                var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates()).ToList();
+                var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships.Values).ToList();
+                var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements.Values).ToList();
+                return (owners, managers);
+            }
+
+            return (StoreOwnerships.Values.ToList(), StoreManagements.Values.ToList());
         }
     }
     

@@ -22,6 +22,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             var mgr = new Mock<UserManager<User>>(store.Object, null, null, null, null, null, null, null, null);
 
             var rolesStore = new Dictionary<Guid, HashSet<string>>();
+            var passwordStore = new Dictionary<Guid, string>();
 
             mgr.Object.UserValidators.Add(new UserValidator<User>());
             mgr.Object.PasswordValidators.Add(new PasswordValidator<User>());
@@ -34,13 +35,17 @@ namespace BoomaEcommerce.Tests.CoreLib
 
             mgr.Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success)
-                .Callback<User, string>((x, y) => ls.Add(x));
+                .Callback<User, string>((x, y) =>
+                {
+                    ls.Add(x);
+                    passwordStore.Add(x.Guid, y);
+                });
 
             mgr.Setup(x => x.UpdateAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
 
             mgr.Setup(userManager => userManager.CheckPasswordAsync(It.IsAny<User>(), It.IsAny<string>()))
-                .ReturnsAsync(true);
+                .ReturnsAsync((User user, string password) => passwordStore[user.Guid].Equals(password));
 
             mgr.Setup(userManager => userManager.FindByNameAsync(It.IsAny<string>()))
                 .ReturnsAsync((string username) => ls.FirstOrDefault(usr => usr.UserName == username));
@@ -142,6 +147,14 @@ namespace BoomaEcommerce.Tests.CoreLib
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
             var storePurchasesRepoMock = MockRepository(storePurchases);
             var storeManagementRepoMock = MockRepository(storeManagements);
+
+            storeManagementRepoMock?.Setup(x => x.InsertOneAsync(It.IsAny<StoreManagement>()))
+                .Callback<StoreManagement>(sm =>
+                {
+                    storeManagements.Add(sm.Guid, sm);
+                    storeManagementPermissions?.Add(sm.Permissions.Guid, sm.Permissions);
+                });
+
             var storeManagementPermissionsRepoMock = MockRepository(storeManagementPermissions);
             var productsRepoMock = MockRepository(products);
             var storeUnitOfWorkMock = new Mock<IStoreUnitOfWork>();

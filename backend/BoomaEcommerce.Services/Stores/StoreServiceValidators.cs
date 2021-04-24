@@ -95,5 +95,14 @@ namespace BoomaEcommerce.Services.Stores
                     .Must(user => user != null && user.Guid != default);
             }
         }
+
+        public class UpdateManagerPermission : AbstractValidator<StoreManagementPermissionDto>
+        {
+            public UpdateManagerPermission()
+            {
+                RuleFor(permissions => permissions.Guid)
+                    .Must(guid => guid != default);
+            }
+        }
     }
 }
