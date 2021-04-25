@@ -76,7 +76,7 @@ namespace BoomaEcommerce.Services.Users
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task UpdateUserInfoAsync(UserDto userDto);
+        Task<bool> UpdateUserInfoAsync(UserDto userDto);
 
     }
 }
