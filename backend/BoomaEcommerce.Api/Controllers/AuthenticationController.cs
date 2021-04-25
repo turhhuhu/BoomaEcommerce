@@ -1,47 +1,80 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using BoomaEcommerce.Api.Requests;
+using BoomaEcommerce.Api.Responses;
+using BoomaEcommerce.Domain;
+using BoomaEcommerce.Services.Authentication;
+using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
-        // GET: api/<AuthenticationController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IAuthenticationService _authService;
+
+        public AuthenticationController(IAuthenticationService authService)
         {
-            return new string[] { "value1", "value2" };
+            _authService = authService;
         }
 
-        // GET api/<AuthenticationController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPost(ApiRoutes.Auth.Register)]
+        public async Task<ActionResult> Register([FromBody] UserRegistrationRequest request)
         {
-            return "value";
+            var registrationRes = await _authService.RegisterAsync(request.UserInfo.UserName, request.Password);
+
+            if (!registrationRes.Success)
+            {
+                return BadRequest(registrationRes.Errors);
+            }
+
+            return Ok(new SuccessAuthResponse
+            {
+                UserInfo = registrationRes.User,
+                Token = registrationRes.Token,
+                RefreshToken = registrationRes.RefreshToken
+            });
         }
 
-        // POST api/<AuthenticationController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost(ApiRoutes.Auth.Login)]
+        public async Task<ActionResult> Login([FromBody] UserLoginRequest request)
         {
+            var loginRes = await _authService.LoginAsync(request.Username, request.Password);
+
+            if (!loginRes.Success)
+            {
+                return BadRequest(loginRes.Errors);
+            }
+
+            return Ok(new SuccessAuthResponse
+            {
+                UserInfo = loginRes.User,
+                Token = loginRes.Token,
+                RefreshToken = loginRes.RefreshToken
+            });
         }
 
-        // PUT api/<AuthenticationController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost(ApiRoutes.Auth.Refresh)]
+        public async Task<ActionResult> Refresh([FromBody] RefreshTokenRequest request)
         {
-        }
+            var refreshRes = await _authService.RefreshJwtToken(request.Token, request.RefreshToken);
 
-        // DELETE api/<AuthenticationController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            if (!refreshRes.Success)
+            {
+                return BadRequest(refreshRes.Errors);
+            }
+
+            return Ok(new SuccessAuthResponse
+            {
+                UserInfo = refreshRes.User,
+                Token = refreshRes.Token,
+                RefreshToken = refreshRes.RefreshToken
+            });
         }
     }
 }

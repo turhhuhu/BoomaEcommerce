@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Api.Controllers
@@ -22,6 +23,7 @@ namespace BoomaEcommerce.Api.Controllers
             _storeService = storeService;
         }
 
+        [Authorize]
         [Route(ApiRoutes.Store.Product)]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDto product)
@@ -36,6 +38,7 @@ namespace BoomaEcommerce.Api.Controllers
             return Ok(productResult);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
         {

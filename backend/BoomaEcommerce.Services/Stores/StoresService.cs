@@ -85,14 +85,13 @@ namespace BoomaEcommerce.Services.Stores
                 {
                     return null;
                 }
-                product.Store = store;
                 await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
                 return _mapper.Map<ProductDto>(product);
             }
             catch (Exception e)
             {
                 _logger.LogError(e,"Failed to create product with Guid {ProductGuid}," +
-                                   " for UserStore with guid {StoreGuid}", productDto.Guid, productDto.Store.Guid);
+                                   " for UserStore with guid {Store}", productDto.Guid, productDto.Store.Guid);
                 return null;
             }
         }

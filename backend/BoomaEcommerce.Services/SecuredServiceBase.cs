@@ -64,8 +64,8 @@ namespace BoomaEcommerce.Services
         protected void CheckAuthenticated()
         {
 
-            if (ClaimsPrincipal?.Identity?.IsAuthenticated == false ||
-                ClaimsPrincipal?.HasClaim(claim => claim.Type == "guid") == false)
+            if (ClaimsPrincipal?.Identity?.IsAuthenticated != true ||
+                ClaimsPrincipal?.HasClaim(claim => claim.Type == "guid") != true)
             {
                 throw new UnAuthenticatedException();
             }
