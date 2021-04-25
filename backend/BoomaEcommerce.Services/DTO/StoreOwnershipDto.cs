@@ -1,3 +1,5 @@
+using System;
+
 namespace BoomaEcommerce.Services.DTO
 {
     public class StoreOwnershipDto : BaseEntityDto
