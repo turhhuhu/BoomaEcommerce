@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get shopping cart for user with Guid {User}", userGuid);
+                _logger.LogError(e, "Failed to get shopping cart for userDto with Guid {User}", userGuid);
                 return null;
             }
         }
@@ -133,14 +133,31 @@ namespace BoomaEcommerce.Services.Users
             }
         }
 
-        public Task<UserDto> GetUserInfoAsync(Guid userGuid)
+        public async Task<UserDto> GetUserInfoAsync(Guid userGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+                return _mapper.Map<UserDto>(user);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get info for userDto {userGuid}", userGuid);
+                return null;
+            }
         }
 
-        public Task UpdateUserInfoAsync(UserDto user)
+        public async Task UpdateUserInfoAsync(UserDto userDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = _mapper.Map<User>(userDto);
+                await _userUnitOfWork.UserManager.UpdateAsync(user);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to update info for userDto {userGuid}", userDto.Guid);
+            }
         }
     }
 }
