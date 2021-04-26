@@ -126,21 +126,21 @@ namespace BoomaEcommerce.Services.Users
                 return _next.GetUserInfoAsync(userGuid);
             }
 
-            throw new UnAuthorizedException($"User {userGuidInToken} can not get user information of user {userGuid}");
+            throw new UnAuthorizedException($"User {userGuidInToken} can not get userDto information of userDto {userGuid}");
         }
 
-        public Task UpdateUserInfoAsync(UserDto user)
+        public Task<bool> UpdateUserInfoAsync(UserDto userDto)
         {
-            ServiceUtilities.ValidateDto<UserDto, UserServiceValidators.UpdateUserInfoAsync>(user);
+            ServiceUtilities.ValidateDto<UserDto, UserServiceValidators.UpdateUserInfoAsync>(userDto);
             CheckAuthenticated();
 
             var userGuidInToken = ClaimsPrincipal.GetUserGuid();
-            if (userGuidInToken == user.Guid)
+            if (userGuidInToken == userDto.Guid)
             {
-                return _next.UpdateUserInfoAsync(user);
+                return _next.UpdateUserInfoAsync(userDto);
             }
 
-            throw new UnAuthorizedException($"User {userGuidInToken} can not update user information of user {user.Guid}");
+            throw new UnAuthorizedException($"User {userGuidInToken} can not update userDto information of userDto {userDto.Guid}");
         }
 
     }
