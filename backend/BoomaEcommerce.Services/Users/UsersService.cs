@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
-using BoomaEcommerce.Services.External;
-using BoomaEcommerce.Services.Purchases;
 using Microsoft.Extensions.Logging;
-using BoomaEcommerce.Services.Stores;
 
 namespace BoomaEcommerce.Services.Users
 {
@@ -133,14 +128,33 @@ namespace BoomaEcommerce.Services.Users
             }
         }
 
-        public Task<UserDto> GetUserInfoAsync(Guid userGuid)
+        public async Task<UserDto> GetUserInfoAsync(Guid userGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+                return _mapper.Map<UserDto>(user);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get info for userDto {userGuid}", userGuid);
+                return null;
+            }
         }
 
-        public Task UpdateUserInfoAsync(UserDto user)
+        public async Task<bool> UpdateUserInfoAsync(UserDto userDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = _mapper.Map<User>(userDto);
+                await _userUnitOfWork.UserManager.UpdateAsync(user);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to update info for userDto {userGuid}", userDto.Guid);
+                return false;
+            }
         }
     }
 }
