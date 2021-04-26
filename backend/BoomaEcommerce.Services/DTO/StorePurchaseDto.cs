@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BoomaEcommerce.Services.DTO
@@ -5,8 +6,8 @@ namespace BoomaEcommerce.Services.DTO
     public class StorePurchaseDto : BaseEntityDto
     {
         public List<PurchaseProductDto> PurchaseProducts { get; set; }
-        public UserDto Buyer { get; set; }
-        public StoreDto Store { get; set; }
+        public Guid BuyerGuid { get; set; }
+        public Guid StoreGuid { get; set; }
         public decimal TotalPrice { get; set; }
     }
 }

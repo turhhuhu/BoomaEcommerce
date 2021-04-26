@@ -74,7 +74,7 @@ namespace BoomaEcommerce.Services.Stores
                 if (store is null)
                 {
                     _logger.LogWarning("create UserStore product failed because" +
-                                       " UserStore with guid {Guid} does not exists", product.Store.Guid);
+                                       " UserStore with guid {UserDto} does not exists", product.Store.Guid);
                     return null;
                 }
                 /*if (!product.ValidateStorePolicy() || !product.ValidateAmount())
@@ -90,8 +90,8 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e,"Failed to create product with Guid {ProductGuid}," +
-                                   " for UserStore with guid {Store}", productDto.Guid, productDto.Store.Guid);
+                _logger.LogError(e,"Failed to create product with UserDto {ProductGuid}," +
+                                   " for UserStore with guid {Store}", productDto.Guid, productDto.StoreGuid);
                 return null;
             }
         }
@@ -127,7 +127,7 @@ namespace BoomaEcommerce.Services.Stores
                 if (storeProduct is null)
                 {
                     _logger.LogWarning("update UserStore product failed because" +
-                                       " UserStore with guid {Guid} does not exists", product.Store.Guid);
+                                       " UserStore with guid {UserDto} does not exists", product.Store.Guid);
                     return false;
                 }
                 product.Name = productDto.Name ?? product.Name;

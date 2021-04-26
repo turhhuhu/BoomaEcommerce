@@ -78,7 +78,7 @@ namespace BoomaEcommerce.AcceptanceTests
         {
             var fixtureStoreDto = _fixture
                 .Build<StoreDto>()
-                .With(s => s.StoreFounder, loginResponse.User)
+                .With(s => s.FounderUserGuid, loginResponse.UserGuid)
                 .Without(s => s.Guid)
                 .Without(s => s.Rating)
                 .Create();
@@ -92,7 +92,7 @@ namespace BoomaEcommerce.AcceptanceTests
         {
             var fixtureProductDto = _fixture
                 .Build<ProductDto>()
-                .With(s => s.Store, _storeDto)
+                .With(s => s.StoreGuid, _storeDto.Guid)
                 .With(p => p.Amount, 10)
                 .With(p => p.Price, 10)
                 .Without(p => p.Rating)
@@ -117,14 +117,14 @@ namespace BoomaEcommerce.AcceptanceTests
             
             var purchaseDto = new PurchaseDto
             {
-                Buyer = buyerToken.User,
+                BuyerGuid = buyerToken.UserGuid,
                 TotalPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
                 {
                     new()
                     {
-                        Buyer = buyerToken.User,
-                        Store = productDto.Store,
+                        BuyerGuid = buyerToken.UserGuid,
+                        StoreGuid = productDto.StoreGuid,
                         TotalPrice = 10,
                         PurchaseProducts = new List<PurchaseProductDto>
                         {
@@ -188,7 +188,7 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task GetAllUserPurchaseHistoryAsync_ReturnsAllUserPurchaseHistory_WhenUserExists()
         {
             // Arrange
-            var userGuid = _purchase.Buyer.Guid;
+            var userGuid = _purchase.BuyerGuid;
             
             // Act
             var result = await _adminPurchaseService.GetAllUserPurchaseHistoryAsync(userGuid);

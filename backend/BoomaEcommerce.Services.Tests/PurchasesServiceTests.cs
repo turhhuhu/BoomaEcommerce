@@ -58,10 +58,10 @@ namespace BoomaEcommerce.Services.Tests
             var purchaseDtoFixture = _fixture.Create<PurchaseDto>();
 
             var userFixture = _fixture.Build<User>()
-                .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
+                .With(x => x.Guid, purchaseDtoFixture.BuyerGuid)
                 .Create();
 
-            userDict[purchaseDtoFixture.Buyer.Guid] = userFixture;
+            userDict[purchaseDtoFixture.BuyerGuid] = userFixture;
 
             var shoppingCartGuid = Guid.NewGuid();
             var cart = new ShoppingCart {Guid = shoppingCartGuid, User = userFixture};
@@ -94,7 +94,7 @@ namespace BoomaEcommerce.Services.Tests
                 opt => opt
                     .Excluding(p => p.Guid)
                     .Excluding(p => p.StorePurchases)
-                    .Excluding(p => p.Buyer));
+                    .Excluding(p => p.BuyerGuid));
         }
         
         [Fact]
@@ -113,9 +113,9 @@ namespace BoomaEcommerce.Services.Tests
                 .Create();
             
             var userFixture = _fixture.Build<User>()
-                .With(x => x.Guid, purchaseDtoFixture.Buyer.Guid)
+                .With(x => x.Guid, purchaseDtoFixture.BuyerGuid)
                 .Create();
-            userDict[purchaseDtoFixture.Buyer.Guid] = userFixture;
+            userDict[purchaseDtoFixture.BuyerGuid] = userFixture;
             
             var shoppingCartGuid = Guid.NewGuid();
             var cart = new ShoppingCart {Guid = shoppingCartGuid, User = userFixture};

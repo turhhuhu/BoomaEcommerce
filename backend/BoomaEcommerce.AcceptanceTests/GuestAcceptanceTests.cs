@@ -54,7 +54,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var fixtureStore = _fixture
                 .Build<StoreDto>()
-                .With(s => s.StoreFounder, loginResult.User)
+                .With(s => s.FounderUserGuid, loginResult.UserGuid)
                 .With(s => s.Description, "myStore")
                 .Without(s => s.Rating)
                 .Without(s => s.Guid)
@@ -66,7 +66,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var p1Dto = _fixture
                 .Build<ProductDto>()
-                .With(p => p.Store, myStore)
+                .With(p => p.StoreGuid, myStore.Guid)
                 .With(p => p.Amount, 20)
                 .With(p => p.Category, "Toiletry")
                 .Without(p => p.Rating)
@@ -78,7 +78,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var p2Dto = _fixture
                 .Build<ProductDto>()
-                .With(p => p.Store, myStore)
+                .With(p => p.StoreGuid, myStore.Guid)
                 .With(p => p.Amount, 10)
                 .With(p => p.Category, "Diary")
                 .Without(p => p.Rating)
@@ -161,7 +161,6 @@ namespace BoomaEcommerce.AcceptanceTests
             
 
             // Assert
-            myStore.StoreFounder.UserName.Should().BeEquivalentTo("BennyOwner");
             myStore.Description.Should().BeEquivalentTo("myStore");
         }
 

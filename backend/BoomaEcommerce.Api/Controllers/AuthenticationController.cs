@@ -35,7 +35,7 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(new SuccessAuthResponse
             {
-                UserInfo = registrationRes.User,
+                UserGuid = registrationRes.UserGuid,
                 Token = registrationRes.Token,
                 RefreshToken = registrationRes.RefreshToken
             });
@@ -53,7 +53,7 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(new SuccessAuthResponse
             {
-                UserInfo = loginRes.User,
+                UserGuid = loginRes.UserGuid,
                 Token = loginRes.Token,
                 RefreshToken = loginRes.RefreshToken
             });
@@ -71,7 +71,7 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(new SuccessAuthResponse
             {
-                UserInfo = refreshRes.User,
+                UserGuid = refreshRes.UserGuid,
                 Token = refreshRes.Token,
                 RefreshToken = refreshRes.RefreshToken
             });

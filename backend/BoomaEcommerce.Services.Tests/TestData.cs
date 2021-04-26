@@ -122,7 +122,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var purchaseDto = new PurchaseDto
             {
-                Buyer = new UserDto{Guid = userGuid},
+                BuyerGuid = userGuid,
                 StorePurchases = new List<StorePurchaseDto>
                 {
                     new()

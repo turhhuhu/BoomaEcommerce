@@ -48,8 +48,8 @@ namespace BoomaEcommerce.Services.Tests
 
             var storeManagementDto = new StoreManagementDto
             {
-                Store = new StoreDto {Guid = storeGuid},
-                User = new UserDto{Guid = Guid.NewGuid()},
+                Store = new StoreDto { Guid = storeGuid },
+                User = new UserDto { Guid = Guid.NewGuid() },
                 Permissions = new StoreManagementPermissionDto()
             };
 
