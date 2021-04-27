@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core.Exceptions;
@@ -30,7 +31,6 @@ namespace BoomaEcommerce.Api.Middleware
             catch (UnAuthorizedException)
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("User unauthorized for resource.");
             }
             catch (UnAuthenticatedException)
             {

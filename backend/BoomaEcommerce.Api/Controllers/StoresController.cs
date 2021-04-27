@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Api.Controllers
             return Ok(productResult);
         }
 
-        [Authorize]
+
         [HttpPost(ApiRoutes.Me)]
         public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
         {
