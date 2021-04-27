@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -76,6 +77,13 @@ namespace BoomaEcommerce.Api.Middleware
             response.Body.Position = 0L;
             var responseReader = new StreamReader(response.Body);
             var responseBody = await responseReader.ReadToEndAsync();
+
+            if (responseBody.IsNullOrEmpty())
+            {
+                _logger.LogInformation(
+                    $"Responding to request number: {_requestCounter}\nResponse status code:{response.StatusCode}");
+                return;
+            }
 
             var indentedResponseBody = JToken.Parse(responseBody).ToString(Formatting.Indented);
             response.Body.Position = 0L;

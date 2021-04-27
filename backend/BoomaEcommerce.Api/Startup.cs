@@ -176,8 +176,8 @@ namespace BoomaEcommerce.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMiddleware<ExceptionsMiddleware>();
             app.UseMiddleware<LoggingMiddleware>();
+            app.UseMiddleware<ExceptionsMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
