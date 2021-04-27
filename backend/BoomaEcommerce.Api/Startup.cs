@@ -26,6 +26,7 @@ using BoomaEcommerce.Data;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.MappingProfiles;
 using BoomaEcommerce.Services.Products;
+using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -130,6 +131,14 @@ namespace BoomaEcommerce.Api
                 return new SecuredStoreService(claims, storeService);
             });
 
+            services.AddSingleton<IUserUnitOfWork, InMemoryUserUnitOfWork>();
+            services.AddSingleton<UsersService>();
+            services.AddSingleton<IUsersService, SecuredUserService>(sp =>
+            {
+                var userService = sp.GetService<UsersService>();
+                var claims = sp.GetService<ClaimsPrincipal>();
+                return new SecuredUserService(claims, userService);
+            });
             services.AddSingleton(_ => new Mock<IMistakeCorrection>().Object);
         }
 

@@ -132,6 +132,7 @@ namespace BoomaEcommerce.Services.Users
         {
             try
             {
+                _logger.LogInformation("Getting user info for user with guid {userGuid}", userGuid);
                 var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
                 return _mapper.Map<UserDto>(user);
             }
@@ -146,6 +147,7 @@ namespace BoomaEcommerce.Services.Users
         {
             try
             {
+                _logger.LogInformation("Updating user info for user with guid {userGuid}", userDto.Guid);
                 var user = _mapper.Map<User>(userDto);
                 await _userUnitOfWork.UserManager.UpdateAsync(user);
                 return true;
