@@ -6,14 +6,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Services;
 
 namespace BoomaEcommerce.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            var sp = host.Services;
+            var appInitializer = (AppInitializer)sp.GetService(typeof(AppInitializer));
+            await appInitializer.InitializeAsync();
+            await host.StartAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
