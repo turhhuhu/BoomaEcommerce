@@ -46,6 +46,7 @@ namespace BoomaEcommerce.Api.Middleware
                 context.Request.Body.Position = 0L;
             }
 
+            var originalResponseStream = context.Response.Body;
             var responseBodyStream = new MemoryStream();
             context.Response.Body = responseBodyStream;
 
@@ -58,6 +59,7 @@ namespace BoomaEcommerce.Api.Middleware
             var indentedResponseBody = JToken.Parse(responseBody).ToString(Formatting.Indented);
             context.Response.Body.Position = 0L;
 
+            await responseBodyStream.CopyToAsync(originalResponseStream);
             _logger.LogInformation(
                 $"Responding to request number: {_requestCounter}\nResponse status code:{context.Response.StatusCode}\nResponse:\n{indentedResponseBody}");
             _requestCounter++;
