@@ -3,7 +3,7 @@ import Button from "@material-ui/core/Button";
 import { RegisterUser } from "../actions/authActions";
 import { connect } from "react-redux";
 
-class signUpForm extends Component {
+class SignUpForm extends Component {
   state = {
     name: "",
     lastName: "",
@@ -33,7 +33,7 @@ class signUpForm extends Component {
       <div
         className="row col-4 mx-auto card"
         style={{
-          marginTop: "250px",
+          marginTop: "200px",
         }}
       >
         <article className="card-body">
@@ -99,10 +99,13 @@ class signUpForm extends Component {
           <p className="text-center">
             Have an account? <a href="/login">Log In</a>
           </p>
+          <p className="text-center">
+            Or you can: <a href="/home">Continue As Guest</a>
+          </p>
         </article>
       </div>
     );
   }
 }
 
-export default connect()(signUpForm);
+export default connect()(SignUpForm);

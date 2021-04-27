@@ -29,7 +29,7 @@ class LoginForm extends Component {
       <div
         className="row col-2 mx-auto card"
         style={{
-          "margin-top": "250px",
+          marginTop: "200px",
         }}
       >
         <article className="card-body">
@@ -79,10 +79,10 @@ class LoginForm extends Component {
             </div>
           </form>
           <p className="text-center">
-            Not registered? <a href="/signup">Sign Up</a>
+            Not registered? <a href="/register">Sign Up</a>
           </p>
           <p className="text-center">
-            Or you can: <a href="/signup">Continue As Guest</a>
+            Or you can: <a href="/home">Continue As Guest</a>
           </p>
         </article>
       </div>

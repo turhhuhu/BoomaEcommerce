@@ -18,7 +18,7 @@ function receiveLogin(responsePayload) {
     payload: {
       isFetching: false,
       isAuthenticated: true,
-      user_guid: responsePayload.userInfo.guid,
+      user_guid: responsePayload.userGuid,
       access_token: responsePayload.token,
     },
   };
@@ -65,8 +65,9 @@ export function loginUser(creds) {
           return Promise.reject(responsePayload);
         } else {
           // If login was successful, set the token in local storage
-          localStorage.setItem("guid", responsePayload.userInfo.guid);
+          localStorage.setItem("user_guid", responsePayload.userGuid);
           localStorage.setItem("access_token", responsePayload.token);
+          localStorage.setItem("refresh_token", responsePayload.refreshToken);
           // Dispatch the success action
           dispatch(receiveLogin(responsePayload));
         }
@@ -92,7 +93,7 @@ function receiveRegister(responsePayload) {
     payload: {
       isFetching: false,
       isAuthenticated: true,
-      user_guid: responsePayload.userInfo.guid,
+      user_guid: responsePayload.userGuid,
       access_token: responsePayload.token,
     },
   };
@@ -133,6 +134,8 @@ export function RegisterUser(userInfo) {
             .then((responsePayload) => ({ responsePayload, response }))
       )
       .then(({ responsePayload, response }) => {
+        console.log(JSON.stringify(responsePayload));
+        console.log(response);
         if (!response.ok) {
           // If there was a problem, we want to
           // dispatch the error condition
@@ -170,8 +173,9 @@ function receiveLogout() {
 export function logoutUser() {
   return (dispatch) => {
     dispatch(requestLogout());
-    localStorage.removeItem("guid");
+    localStorage.removeItem("user_guid");
     localStorage.removeItem("access_token");
+    localStorage.setItem("refresh_token");
     dispatch(receiveLogout());
   };
 }
