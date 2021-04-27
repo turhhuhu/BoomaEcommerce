@@ -4,9 +4,16 @@ import ProductView from "../components/productView";
 import ProductFilter from "../components/productFilter";
 import Header from "../components/header";
 import "../css/productsPage.css";
-
+import { fetchAllProducts } from "../actions/productsActions";
 class ProductPage extends Component {
   state = {};
+
+  componentDidMount(prevProps) {
+    if (this.props !== prevProps) {
+      this.props.dispatch(fetchAllProducts());
+    }
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -14,9 +21,15 @@ class ProductPage extends Component {
         <section className="section-content padding-y">
           <div className="container">
             <div className="row">
-              <ProductFilter />
+              <ProductFilter
+                categories={[
+                  ...new Set(
+                    this.props.products?.map((product) => product.category)
+                  ),
+                ]}
+              />
               <main className="col-md-9">
-                <ProductView />
+                <ProductView products={this.props.products} />
               </main>
             </div>
           </div>
@@ -26,4 +39,8 @@ class ProductPage extends Component {
   }
 }
 
-export default connect()(ProductPage);
+const mapStateToProps = (store) => {
+  return { products: store.productsView.products };
+};
+
+export default connect(mapStateToProps)(ProductPage);

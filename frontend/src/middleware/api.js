@@ -1,36 +1,40 @@
-// middleware/api.js
-import { BASE_URL } from "../utils/constants";
+export const CALL_API = Symbol("Call API");
 
 async function callApi(endpoint, authenticated) {
   let token = localStorage.getItem("access_token") || null;
   let config = {};
 
   if (authenticated) {
+    // TODO: add token validation here
     if (token) {
       config = {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `bearer ${token}`,
+        },
       };
     } else {
       throw new Error("no Token saved!");
     }
   }
 
-  return await fetch(BASE_URL + endpoint, config)
+  console.log(`${token}`);
+
+  return await fetch(endpoint, config)
     .then(
       async (response) =>
-        await response.json().then((text) => ({ text, response }))
+        await response
+          .json()
+          .then((responsePayLoad) => ({ responsePayLoad, response }))
     )
-    .then(({ text, response }) => {
+    .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
-        return Promise.reject(text);
+        return Promise.reject(responsePayLoad);
       }
 
-      return text;
+      return responsePayLoad;
     })
-    .catch((err) => console.log(err));
+    .catch((err) => Promise.reject(err));
 }
-
-export const CALL_API = Symbol("Call API");
 
 const middleware = (store) => (next) => (action) => {
   const callAPI = action[CALL_API];
@@ -45,17 +49,21 @@ const middleware = (store) => (next) => (action) => {
   const [requestType, successType, errorType] = types;
 
   // Passing the authenticated boolean back in our data will let us distinguish between normal and secret quotes
+  next({
+    type: requestType,
+  });
+
   return callApi(endpoint, authenticated).then(
     (response) =>
       next({
-        requestType: requestType,
-        response,
-        authenticated,
+        payload: {
+          response,
+          authenticated,
+        },
         type: successType,
       }),
     (error) =>
       next({
-        requestType: requestType,
         error: error.message || "There was an error.",
         type: errorType,
       })

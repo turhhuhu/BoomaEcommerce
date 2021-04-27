@@ -5,28 +5,33 @@ class ProductRating extends Component {
   state = {};
   render() {
     return (
-      <div class="rating-wrap product-card-item">
-        <ul class="rating-stars">
+      <div className="rating-wrap product-card-item">
+        <ul className="rating-stars">
           {
             //TODO: need to change width dynmically (0% - 100%) to fit actual review value
           }
-          <li style={{ width: "80%" }} class="stars-active">
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
+          <li
+            style={{ width: `${this.props.rating * 10}%` }}
+            className="stars-active"
+          >
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
           </li>
           <li>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
+            <i className="fa fa-star"></i>
           </li>
         </ul>
         {"  "}
-        <small class="label-rating text-muted">4/5</small>
+        <small className="label-rating text-muted">
+          {this.props.rating}/10
+        </small>
       </div>
     );
   }

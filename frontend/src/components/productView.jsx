@@ -5,18 +5,25 @@ import ProductViewHeader from "./productViewHeader";
 
 class ProductView extends Component {
   state = {};
+
   render() {
     return (
       <React.Fragment>
-        <ProductViewHeader />
-        <main class="col-md-12.5">
-          <div class="row">
-            <Product />
-            <Product />
-            <Product />
-            <Product />
-            <Product />
-            <Product />
+        <ProductViewHeader
+          amount={this.props.products ? this.props.products.length : 0}
+        />
+        <main className="col-md-12.5">
+          <div className="row">
+            {this.props.products?.map((product) => (
+              <Product
+                key={product.guid}
+                name={product.name}
+                rating={product.rating}
+                price={product.price}
+                amount={product.amount}
+                category={product.category}
+              />
+            ))}
           </div>
         </main>
       </React.Fragment>

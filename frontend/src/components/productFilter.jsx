@@ -12,40 +12,38 @@ class ProductFilter extends Component {
             <header className="card-header">
               <h6 className="title">Product search</h6>
             </header>
-            <div class="card-body border-bottom">
-              <h5 class="card-title">Search</h5>
+            <div className="card-body border-bottom">
+              <h5 className="card-title">Search</h5>
 
-              <div class="input-group">
+              <div className="input-group">
                 <input
                   type="text"
                   placeholder="Keyword"
-                  class="form-control"
+                  className="form-control"
                   name=""
                 ></input>
-                <span class="input-group-append">
+                <span className="input-group-append">
                   {" "}
-                  <button class="btn btn-primary">
+                  <button className="btn btn-primary">
                     {" "}
-                    <i class="fa fa-search"></i>
+                    <i className="fa fa-search"></i>
                   </button>
                 </span>
               </div>
             </div>
-            <div class="card-body">
-              <h5 class="card-title">Product category</h5>
-              <ul class="list-menu">
-                <li>
-                  <button class="btn btn-outline-primary btn-block mt-2">
-                    {" "}
-                    Chess
-                  </button>
-                </li>
-                <li>
-                  <button class="btn btn-outline-primary btn-block mt-2">
-                    {" "}
-                    Food
-                  </button>
-                </li>
+            <div className="card-body">
+              <h5 className="card-title">Product category</h5>
+              <ul className="list-menu">
+                {this.props.categories
+                  ?.filter((category, index) => index < 10)
+                  .map((category, index) => (
+                    <li key={index}>
+                      <button className="btn btn-outline-primary btn-block mt-2">
+                        {" "}
+                        {category}
+                      </button>
+                    </li>
+                  ))}
               </ul>
             </div>
           </article>
