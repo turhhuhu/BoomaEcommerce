@@ -16,7 +16,7 @@ namespace BoomaEcommerce.Core
             var guidString = claimsPrincipal.FindFirst(claim => claim.Type == "guid")?.Value;
             if (guidString == null)
             {
-                throw new UnAuthorizedException("User guid missing in token.");
+                throw new UnAuthenticatedException("User guid missing in token.");
             }
             return new Guid(guidString);
         }
