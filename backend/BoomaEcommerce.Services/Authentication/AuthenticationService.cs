@@ -282,7 +282,7 @@ namespace BoomaEcommerce.Services.Authentication
                 Success = true,
                 Token = tokenString,
                 RefreshToken = refreshToken.Token,
-                User = _mapper.Map<UserDto>(user)
+                UserGuid = user.Guid
             };
         }
     }

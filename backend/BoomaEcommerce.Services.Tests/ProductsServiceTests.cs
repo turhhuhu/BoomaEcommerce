@@ -58,7 +58,7 @@ namespace BoomaEcommerce.Services.Tests
             // Assert
             foreach (var productDto in result)
             {
-                productDto.Store.Guid.Should().Be(storeGuid);
+                productDto.StoreGuid.Should().Be(storeGuid);
                 notSoftDeletedProductGuidList.Should().Contain(productDto.Guid);
             }
             

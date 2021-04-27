@@ -17,9 +17,9 @@ namespace BoomaEcommerce.AcceptanceTests
     public class UserAcceptanceTests : IAsyncLifetime
     {
         private IStoresService _storeService;
-        private  IPurchasesService _purchaseService;
+        private IPurchasesService _purchaseService;
         private IFixture _fixture;
-        private UserDto user;
+        private Guid UserGuid;
         private PurchaseDto purchase;
 
         public async Task InitializeAsync()
@@ -36,7 +36,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await InitUser(storeService, authService, purchasesService );
             _fixture.Customize<StoreDto>(s =>
-                                         s.Without(ss => ss.Guid).Without(ss => ss.Rating).With(ss => ss.StoreFounder , user));
+                                         s.Without(ss => ss.Guid).Without(ss => ss.Rating).With(ss => ss.FounderUserGuid , UserGuid));
 
 
             
@@ -48,10 +48,10 @@ namespace BoomaEcommerce.AcceptanceTests
         {
 
             var store = _fixture.Create<StoreDto>();
-            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.Buyer, user));
+            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, UserGuid));
 
             var _store_withGuid = await _storeService.CreateStoreAsync(store);
-            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.Store, _store_withGuid).Without(pp => pp.Rating).With(pp => pp.Price, 2).With(pp => pp.Amount, 1));
+            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.StoreGuid, _store_withGuid.Guid).Without(pp => pp.Rating).With(pp => pp.Price, 2).With(pp => pp.Amount, 1));
 
             var product1 = _fixture.Create<ProductDto>();
             var product2 = _fixture.Create<ProductDto>();
@@ -78,8 +78,8 @@ namespace BoomaEcommerce.AcceptanceTests
             purchase_product_lst.Add(purchase_product2);
 
             var storePurchase = _fixture.Build<StorePurchaseDto>()
-                                        .With(sp => sp.Store, _store_withGuid)
-                                        .With(sp => sp.Buyer, user)
+                                        .With(sp => sp.StoreGuid, _store_withGuid.Guid)
+                                        .With(sp => sp.BuyerGuid, UserGuid)
                                         .With(sp => sp.PurchaseProducts, purchase_product_lst)
                                         .Without(sp => sp.Guid)
                                         .With(sp => sp.TotalPrice, purchase_product1.Price + purchase_product2.Price)
@@ -88,7 +88,7 @@ namespace BoomaEcommerce.AcceptanceTests
             store_purchase_lst.Add(storePurchase);
 
             purchase = _fixture.Build<PurchaseDto>()
-                                   .With(p => p.Buyer, user)
+                                   .With(p => p.BuyerGuid, UserGuid)
                                    .With(p => p.StorePurchases, store_purchase_lst)
                                    .Without(p => p.Guid)
                                    .With(p => p.TotalPrice, storePurchase.TotalPrice)
@@ -103,7 +103,7 @@ namespace BoomaEcommerce.AcceptanceTests
             await authService.RegisterAsync(username, password);
             var loginResponse = await authService.LoginAsync(username, password);
 
-            user = loginResponse.User;
+            UserGuid = loginResponse.UserGuid;
 
 
             var createStoreServiceResult = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
@@ -131,7 +131,7 @@ namespace BoomaEcommerce.AcceptanceTests
             await _purchaseService.CreatePurchaseAsync(purchase);
         
             //Act
-            var res = await _purchaseService.GetAllUserPurchaseHistoryAsync(user.Guid);
+            var res = await _purchaseService.GetAllUserPurchaseHistoryAsync(UserGuid);
 
             //Assert 
             res.First().Should().BeEquivalentTo(purchase, x => x.Excluding(p => p.Guid)
@@ -149,7 +149,7 @@ namespace BoomaEcommerce.AcceptanceTests
             //Arrange
             var fixtureStore = _fixture
                 .Build<StoreDto>()
-                .With(s => s.StoreFounder, user )
+                .With(s => s.FounderUserGuid, UserGuid )
                 .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();

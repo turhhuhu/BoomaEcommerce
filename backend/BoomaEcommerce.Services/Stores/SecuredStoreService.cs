@@ -66,7 +66,13 @@ namespace BoomaEcommerce.Services.Stores
         {
             ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             CheckAuthenticated();
-            return _storeService.CreateStoreAsync(store);
+            var userGuid = ClaimsPrincipal.GetUserGuid();
+            if (store.FounderUserGuid == userGuid)
+            {
+                return _storeService.CreateStoreAsync(store);
+            }
+
+            throw new UnAuthorizedException($"User with guid {userGuid} is not authorized to create a store for user with guid {store.FounderUserGuid}");
         }
 
         public async Task<ProductDto> CreateStoreProductAsync(ProductDto product)
@@ -75,7 +81,7 @@ namespace BoomaEcommerce.Services.Stores
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
 
-            if (await CanPerformSellerAction(management => management.CanAddProduct, product.Store.Guid))
+            if (await CanPerformSellerAction(management => management.CanAddProduct, product.StoreGuid))
             {
                 return await _storeService.CreateStoreProductAsync(product);
             }
@@ -90,7 +96,7 @@ namespace BoomaEcommerce.Services.Stores
 
             var product = await _storeService.GetStoreProductAsync(productGuid);
 
-            if (await CanPerformSellerAction(management => management.CanDeleteProduct, product.Store.Guid))
+            if (await CanPerformSellerAction(management => management.CanDeleteProduct, product.StoreGuid))
             {
                 return await _storeService.DeleteProductAsync(productGuid);
             }
@@ -105,7 +111,7 @@ namespace BoomaEcommerce.Services.Stores
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
 
-            if (await CanPerformSellerAction(management => management.CanUpdateProduct, product.Store.Guid))
+            if (await CanPerformSellerAction(management => management.CanUpdateProduct, product.StoreGuid))
             {
                 return await _storeService.UpdateProductAsync(product);
             }
@@ -149,7 +155,7 @@ namespace BoomaEcommerce.Services.Stores
             var userGuid = ClaimsPrincipal.GetUserGuid();
 
             var store = await _storeService.GetStoreAsync(storeGuid);
-            if (store.StoreFounder.Guid == userGuid)
+            if (store.FounderUserGuid == userGuid)
             {
                 return await _storeService.DeleteProductAsync(storeGuid);
             }
@@ -210,7 +216,7 @@ namespace BoomaEcommerce.Services.Stores
             var userGuid = ClaimsPrincipal.GetUserGuid();
             var storeManagement = await _storeService.GetStoreManagementAsync(storeManagementGuid);
 
-            if (storeManagement.User.Guid == userGuid 
+            if (storeManagement.User.Guid == userGuid
                 || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeManagement.Store.Guid))
             {
                 return storeManagement;

@@ -28,9 +28,9 @@ namespace BoomaEcommerce.Services.Purchases
             {
                 RuleFor(p => p.Guid == default);
                 RuleFor(p => p.TotalPrice).GreaterThanOrEqualTo(0);
-                RuleFor(p => p.Store)
+                RuleFor(p => p.StoreGuid)
                     .NotNull()
-                    .Must(store => store.Guid != default);
+                    .Must(store => store != default);
                 RuleFor(p => p.PurchaseProducts).NotNull();
                 RuleForEach(p => p.PurchaseProducts).SetValidator(new PurchaseProductValidator());
             }
