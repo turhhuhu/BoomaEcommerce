@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using BoomaEcommerce.Data;
+using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.MappingProfiles;
 using BoomaEcommerce.Services.Products;
@@ -88,6 +89,8 @@ namespace BoomaEcommerce.Api
                     }
                 });
             });
+
+            services.AddSingleton<AppInitializer>();
 
             services.Configure<JwtSettings>(Configuration.GetSection("Jwt"));
 
