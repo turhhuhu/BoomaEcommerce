@@ -47,7 +47,7 @@ namespace BoomaEcommerce.Services.Products
             {
                 _logger.LogInformation($"Getting product with guid {productGuid}");
                 var product = await _productRepo.FindByIdAsync(productGuid);
-                return product?.IsSoftDeleted != true
+                return product?.IsSoftDeleted != false
                     ? null 
                     : _mapper.Map<ProductDto>(product);
             }
