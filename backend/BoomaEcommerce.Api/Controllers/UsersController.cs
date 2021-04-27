@@ -13,12 +13,12 @@ namespace BoomaEcommerce.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<UsersController> _logger;
         private readonly IUsersService _userService;
 
-        public UserController(ILogger<UserController> logger, IUsersService userService)
+        public UsersController(ILogger<UsersController> logger, IUsersService userService)
         {
             _logger = logger;
             _userService = userService;
@@ -29,14 +29,15 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> GetUserInfo()
         {
             var userGuid = User.GetUserGuid();
-
+            _logger.LogInformation("Received a GET request for user with guid {userGuid}", userGuid);
             var userInfo = await _userService.GetUserInfoAsync(userGuid);
 
             if (userInfo == null)
             {
+                _logger.LogWarning("No user with guid {userGuid} found.", userGuid);
                 return NotFound();
             }
-
+            _logger.LogInformation("User with guid {userGuid} found successfully.", userGuid);
             return Ok(userInfo);
         }
 
