@@ -32,35 +32,56 @@ namespace BoomaEcommerce.Api.Middleware
                 await _next(context);
                 return;
             }
-            context.Request.EnableBuffering();
 
-            if (!context.Request.Method.Equals("GET"))
+            await LogRequest(context.Request);
+
+            var originalResponseStream = context.Response.Body;
+
+            await using var responseBodyStream = new MemoryStream();
+
+            context.Response.Body = responseBodyStream;
+            await responseBodyStream.CopyToAsync(originalResponseStream);
+
+            await _next(context);
+
+            await LogResponse(context.Response);
+
+            await responseBodyStream.CopyToAsync(originalResponseStream);
+
+            _requestCounter++;
+        }
+
+        public async Task LogRequest(HttpRequest request)
+        {
+            request.EnableBuffering();
+
+            if (!request.Method.Equals("GET"))
             {
-                var reader = new StreamReader(context.Request.Body);
+                var reader = new StreamReader(request.Body);
 
                 var requestBody = await reader.ReadToEndAsync();
                 var indentedRequestBody = JToken.Parse(requestBody).ToString(Formatting.Indented);
 
                 _logger.LogInformation(
-                    $"Received request number: {_requestCounter}\nRequest {context.Request?.Method}: {context.Request?.Path.Value}\n{indentedRequestBody}");
-                context.Request.Body.Position = 0L;
+                    $"Received request number: {_requestCounter}\nRequest {request.Method}: {request.Path.Value}\n{indentedRequestBody}");
+                request.Body.Position = 0L;
+                return;
             }
+            _logger.LogInformation(
+                $"Received request number: {_requestCounter}\nRequest {request.Method}: {request.Path.Value}\n");
+        }
 
-            var responseBodyStream = new MemoryStream();
-            context.Response.Body = responseBodyStream;
-
-            await _next(context);
-
-            context.Response.Body.Position = 0L;
-            var responseReader = new StreamReader(context.Response.Body);
+        public async Task LogResponse(HttpResponse response)
+        {
+            response.Body.Position = 0L;
+            var responseReader = new StreamReader(response.Body);
             var responseBody = await responseReader.ReadToEndAsync();
 
             var indentedResponseBody = JToken.Parse(responseBody).ToString(Formatting.Indented);
-            context.Response.Body.Position = 0L;
+            response.Body.Position = 0L;
 
             _logger.LogInformation(
-                $"Responding to request number: {_requestCounter}\nResponse status code:{context.Response.StatusCode}\nResponse:\n{indentedResponseBody}");
-            _requestCounter++;
+                $"Responding to request number: {_requestCounter}\nResponse status code:{response.StatusCode}\nResponse:\n{indentedResponseBody}");
         }
     }
 }

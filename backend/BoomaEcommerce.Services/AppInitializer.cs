@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper.Configuration;
+using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -13,18 +14,47 @@ namespace BoomaEcommerce.Services
     {
         private readonly ILogger<AppInitializer> _logger;
         private readonly UserManager<User> _userManager;
+        private readonly IStoreUnitOfWork _storeUnitOfWork;
 
-        public AppInitializer(ILogger<AppInitializer> logger, UserManager<User> userManager)
+        public AppInitializer(ILogger<AppInitializer> logger,
+            UserManager<User> userManager,
+            IStoreUnitOfWork storeUnitOfWork)
         {
             _logger = logger;
             _userManager = userManager;
+            _storeUnitOfWork = storeUnitOfWork;
         }
         public async Task InitializeAsync()
         {
-            await InitAdmin();
+            var user = await InitAdmin();
+            await SeedData(user);
         }
 
-        private async Task InitAdmin()
+        private async Task SeedData(User user)
+        {
+            var store = new Store
+            {
+                StoreFounder = user,
+                StoreName = "AdminStore",
+                Description = "AdminStore",
+                Rating = 10
+            };
+            await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
+
+            var products = Enumerable.Range(1, 10).Select(i => new Product
+            {
+                Store = store,
+                IsSoftDeleted = false,
+                Name = $"product_{i}",
+                Category = "AdminProduct",
+                Amount = i,
+                Rating = i,
+                Price = i,
+            }).ToList();
+            await _storeUnitOfWork.ProductRepo.InsertManyAsync(products);
+        }
+
+        private async Task<User> InitAdmin()
         {
             _logger.LogInformation("Checking if admin exists in the system.");
             var admin = await _userManager.FindByNameAsync(UserRoles.AdminRole);
@@ -59,6 +89,7 @@ namespace BoomaEcommerce.Services
                 }
             }
             _logger.LogInformation("Admin with roles exists in the system.");
+            return admin;
         }
     }
 }

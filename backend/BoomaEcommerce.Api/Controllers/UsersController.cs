@@ -29,15 +29,12 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> GetUserInfo()
         {
             var userGuid = User.GetUserGuid();
-            _logger.LogInformation("Received a GET request for user with guid {userGuid}", userGuid);
             var userInfo = await _userService.GetUserInfoAsync(userGuid);
 
             if (userInfo == null)
             {
-                _logger.LogWarning("No user with guid {userGuid} found.", userGuid);
                 return NotFound();
             }
-            _logger.LogInformation("User with guid {userGuid} found successfully.", userGuid);
             return Ok(userInfo);
         }
 

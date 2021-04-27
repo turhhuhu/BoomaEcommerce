@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.Products;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -12,12 +13,10 @@ namespace BoomaEcommerce.Api.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly ILogger<ProductsController> _logger;
         private readonly IProductsService _productService;
 
-        public ProductsController(ILogger<ProductsController> logger, IProductsService productService)
+        public ProductsController(IProductsService productService)
         {
-            _logger = logger;
             _productService = productService;
         }
 
@@ -32,6 +31,18 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return Ok(product);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProducts()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            if (products == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok(products);
         }
     }
 }
