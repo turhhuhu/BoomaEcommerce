@@ -8,6 +8,7 @@ using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Services.Stores;
+using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Xunit;
@@ -18,9 +19,16 @@ namespace BoomaEcommerce.AcceptanceTests
     {
         private IStoresService _storeService;
         private IPurchasesService _purchaseService;
+        private IUsersService _usersService;
         private IFixture _fixture;
         private Guid UserGuid;
         private PurchaseDto purchase;
+        private StoreDto _store_withGuid;
+        private List<PurchaseProductDto> purchase_product_lst; 
+        private ProductDto product1;
+        private ProductDto product2;
+        private PurchaseProductDto purchase_product1;
+
 
         public async Task InitializeAsync()
         {
@@ -33,8 +41,9 @@ namespace BoomaEcommerce.AcceptanceTests
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
             var purchasesService = serviceMockFactory.MockPurchaseService();
+            var usersService = serviceMockFactory.MockUserService();
 
-            await InitUser(storeService, authService, purchasesService );
+            await InitUser(storeService, authService, purchasesService ,usersService);
             _fixture.Customize<StoreDto>(s =>
                                          s.Without(ss => ss.Guid).Without(ss => ss.Rating).With(ss => ss.FounderUserGuid , UserGuid));
 
@@ -50,17 +59,18 @@ namespace BoomaEcommerce.AcceptanceTests
             var store = _fixture.Create<StoreDto>();
             _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, UserGuid));
 
-            var _store_withGuid = await _storeService.CreateStoreAsync(store);
+            _store_withGuid = await _storeService.CreateStoreAsync(store);
             _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.StoreGuid, _store_withGuid.Guid).Without(pp => pp.Rating).With(pp => pp.Price, 2).With(pp => pp.Amount, 1));
 
-            var product1 = _fixture.Create<ProductDto>();
-            var product2 = _fixture.Create<ProductDto>();
+            product1 = _fixture.Create<ProductDto>();
+            product2 = _fixture.Create<ProductDto>();
+
 
             var product1_withGuid = await storesService.CreateStoreProductAsync(product1);
             var product2_withGuid = await storesService.CreateStoreProductAsync(product2);
 
 
-            var purchase_product1 = _fixture.Build<PurchaseProductDto>()
+            purchase_product1 = _fixture.Build<PurchaseProductDto>()
                                             .With(pp => pp.Product, product1_withGuid)
                                             .Without(pp => pp.Guid)
                                             .With(pp => pp.Price, product1_withGuid.Price)
@@ -72,7 +82,9 @@ namespace BoomaEcommerce.AcceptanceTests
                                             .With(pp => pp.Amount, 1)
                                             .Without(pp => pp.Guid)
                                             .Create();
-            var purchase_product_lst = new List<PurchaseProductDto>();
+
+
+            purchase_product_lst = new List<PurchaseProductDto>();
 
             purchase_product_lst.Add(purchase_product1);
             purchase_product_lst.Add(purchase_product2);
@@ -95,7 +107,7 @@ namespace BoomaEcommerce.AcceptanceTests
                                    .Create();
         }
 
-        private async Task InitUser(IStoresService storeService, IAuthenticationService authService, IPurchasesService purchasesService)
+        private async Task InitUser(IStoresService storeService, IAuthenticationService authService, IPurchasesService purchasesService, IUsersService usersService)
         {
             const string username = "Omer";
             const string password = "Omer1001";
@@ -116,6 +128,13 @@ namespace BoomaEcommerce.AcceptanceTests
             var createPurchasesServiceResult = SecuredPurchaseService.CreateSecuredPurchaseService(loginResponse.Token,
                  ServiceMockFactory.Secret, purchasesService, out _purchaseService);
             if (!createPurchasesServiceResult)
+            {
+                throw new Exception("This shouldn't happen");
+            }
+
+            var createUsersServiceResult = SecuredUserService.CreateSecuredUserService(loginResponse.Token,
+                 ServiceMockFactory.Secret, usersService, out _usersService);
+            if (!createUsersServiceResult)
             {
                 throw new Exception("This shouldn't happen");
             }
@@ -162,6 +181,28 @@ namespace BoomaEcommerce.AcceptanceTests
 
             expectedStore.Should().BeEquivalentTo(newStore);
            
+        }
+
+        [Fact]
+        public async Task AddPurchaseProductToShoppingBasketAsync_ShouldReturnTrueAndAddPurchaseProduct_WhenDetalisAreValid()
+        {
+            var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
+
+            var fixtureShoppingBasket = _fixture
+                .Build<ShoppingBasketDto>()
+                .With(s => s.Store, _store_withGuid)
+                .With(s => s.PurchaseProduct , purchase_product_lst)
+                .Without(s => s.Guid)
+                .Create();
+
+            var shoppingBasket = await _usersService.CreateShoppingBasketAsync(shoppingCart.Guid, fixtureShoppingBasket);
+
+            var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(shoppingBasket.Guid, purchase_product1);
+            var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
+            var basket = shoppingCart1.Baskets.First();
+            basket.PurchaseProduct.First().Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid));
+            res.Should().BeTrue();
+    
         }
 
 

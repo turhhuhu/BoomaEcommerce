@@ -9,6 +9,7 @@ namespace BoomaEcommerce.Services.DTO
     public class ShoppingCartDto : BaseEntityDto, IUserRelatedResource
     {
         public UserDto User { get; set; }
-        public IDictionary<Guid, ShoppingBasketDto> Baskets { get; set; }
+        public IReadOnlyCollection<ShoppingBasketDto> Baskets { get; set; }
+
     }
 }

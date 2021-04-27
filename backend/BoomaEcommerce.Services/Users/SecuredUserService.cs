@@ -50,7 +50,7 @@ namespace BoomaEcommerce.Services.Users
             throw new UnAuthorizedException($"User {userGuidInToken} can not access {userGuid} shopping cart.");
         }
 
-        public async Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket)
+        public async Task<ShoppingBasketDto> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket)
         {
             ServiceUtilities.ValidateDto<ShoppingBasketDto, UserServiceValidators.CreateShoppingBasketAsync>(shoppingBasket);
             
@@ -77,10 +77,7 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Baskets.ContainsKey(shoppingBasketGuid))
-            {
-                return await _next.AddPurchaseProductToShoppingBasketAsync(shoppingBasketGuid, purchaseProduct);
-            }
+            return await _next.AddPurchaseProductToShoppingBasketAsync(shoppingBasketGuid, purchaseProduct);
 
             throw new UnAuthorizedException($"User {userGuidInToken} cannot add a purchase product to {shoppingBasketGuid} shopping basket.");
         }
@@ -92,10 +89,8 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Baskets.ContainsKey(shoppingBasketGuid))
-            {
-                return await _next.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
-            }
+            return await _next.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
+
 
             throw new UnAuthorizedException($"User {userGuidInToken} cannot remove a purchase product from {shoppingBasketGuid} shopping basket.");
         }
@@ -108,10 +103,9 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Baskets.ContainsKey(shoppingBasketGuid))
-            {
-                return await _next.DeleteShoppingBasketAsync(shoppingBasketGuid);
-            }
+         
+            return await _next.DeleteShoppingBasketAsync(shoppingBasketGuid);
+
 
             throw new UnAuthorizedException($"User {userGuidInToken} can not delete a basket from {shoppingCart.Guid} shopping cart.");
         }
