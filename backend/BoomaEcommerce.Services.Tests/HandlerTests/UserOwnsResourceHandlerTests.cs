@@ -13,6 +13,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
+
 namespace BoomaEcommerce.Services.Tests.HandlerTests
 {
     public class UserOwnsResourceHandlerTests

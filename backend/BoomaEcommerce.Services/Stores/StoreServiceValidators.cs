@@ -22,8 +22,8 @@ namespace BoomaEcommerce.Services.Stores
                 RuleFor(product => product.Amount)
                     .GreaterThan(0);
 
-                RuleFor(product => product.Store)
-                    .Must(store => store != null && store.Guid != default);
+                RuleFor(product => product.StoreGuid)
+                    .Must(store => store != default);
 
 
                 RuleFor(product => product.Price)
@@ -45,9 +45,6 @@ namespace BoomaEcommerce.Services.Stores
                     .GreaterThan(0)
                     .When(product => product.Amount.HasValue);
 
-                RuleFor(product => product.Store)
-                    .Must(store => store != null && store.Guid != default);
-
                 RuleFor(product => product.Price)
                     .GreaterThan(0)
                     .When(product => product.Price.HasValue);
@@ -64,8 +61,8 @@ namespace BoomaEcommerce.Services.Stores
                     .Must(guid => guid == default);
                 RuleFor(store => store.Rating)
                     .Null();
-                RuleFor(store => store.StoreFounder)
-                    .Must(founder => founder.Guid != default);
+                RuleFor(store => store.FounderUserGuid)
+                    .Must(founder => founder != default);
             }
         }
 
@@ -77,9 +74,9 @@ namespace BoomaEcommerce.Services.Stores
                     .Must(guid => guid == default);
 
                 RuleFor(sm => sm.Store)
-                    .Must(store => store != null && store.Guid != default);
+                    .Must(store => store != default);
                 RuleFor(sm => sm.User)
-                    .Must(user => user != null && user.Guid != default);
+                    .Must(user => user != default);
             }
         }
         public class NominateNewStoreOwner : AbstractValidator<StoreOwnershipDto>
@@ -89,9 +86,9 @@ namespace BoomaEcommerce.Services.Stores
                 RuleFor(sm => sm.Guid)
                     .Must(guid => guid == default);
                 RuleFor(sm => sm.Store)
-                    .Must(store => store != null && store.Guid != default);
+                    .Must(store => store != default);
                 RuleFor(sm => sm.User)
-                    .Must(user => user != null && user.Guid != default);
+                    .Must(user => user != default);
             }
         }
 

@@ -488,7 +488,7 @@ namespace BoomaEcommerce.Services.Tests
                     Name = "ChessBoard",
                     Category = "Chess",
                     Rating = 3,
-                    Store = new StoreDto{Guid = storeGuid}
+                    StoreGuid = storeGuid
                 }; 
 
             //Act
@@ -500,7 +500,7 @@ namespace BoomaEcommerce.Services.Tests
             resultProduct.Should().BeEquivalentTo(replacementProductDto, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.Store));
+                    .Excluding(p => p.StoreGuid));
         }
         
         [Fact]
@@ -513,7 +513,7 @@ namespace BoomaEcommerce.Services.Tests
             var productDto = new ProductDto
             {
                 Guid = Guid.NewGuid(),
-                Store = new StoreDto{Guid = Guid.NewGuid()}
+                StoreGuid = Guid.NewGuid()
             };
             
             //Act
@@ -535,7 +535,7 @@ namespace BoomaEcommerce.Services.Tests
             var productDto = new ProductDto
             {
                 Guid = Guid.NewGuid(),
-                Store = new StoreDto{Guid = Guid.NewGuid()}
+                StoreGuid = Guid.NewGuid()
             };
 
             //Act

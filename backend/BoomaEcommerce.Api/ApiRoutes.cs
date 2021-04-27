@@ -18,9 +18,11 @@ namespace BoomaEcommerce.Api
             public const string Refresh = "Refresh";
         }
 
-        public static class Store
+        public static class Stores
         {
-            public const string Product = "product";
+            public const string Products = "products";
         }
+
+        public const string Me = "me";
     }
 }

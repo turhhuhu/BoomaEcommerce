@@ -39,7 +39,7 @@ namespace BoomaEcommerce.AcceptanceTests
             await InitManagerUserWithoutPermissions(storeService, authService);
             _fixture.Customize<ProductDto>(
                 p => p
-                    .With(pp => pp.Store, _storeOwnership.Store)
+                    .With(pp => pp.StoreGuid, _storeOwnership.Store.Guid)
                     .With(pp => pp.Amount, 10)
                     .With(pp => pp.Price, 10)
                     .Without(pp => pp.Rating)
@@ -67,7 +67,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Build<StoreManagementDto>()
                 .With(sm => sm.Permissions, fixtureStoreManagementPermissions)
                 .With(sm => sm.Store, _storeOwnership.Store)
-                .With(sm => sm.User, loginResponse.User)
+                .With(sm => sm.User, new UserDto {Guid = loginResponse.UserGuid})
                 .Without(sm => sm.Guid)
                 .Create();
 
@@ -77,7 +77,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 throw new Exception("This shouldn't happen");
             }
 
-            _storeManagementWithoutPermissions = (await storeService.GetAllStoreManagementsAsync(loginResponse.User.Guid)).First();
+            _storeManagementWithoutPermissions = (await storeService.GetAllStoreManagementsAsync(loginResponse.UserGuid)).First();
             var createServiceResult = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
                 ServiceMockFactory.Secret, storeService, out _managerStoreServiceWithoutPermissions);
             if (!createServiceResult)
@@ -107,7 +107,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Build<StoreManagementDto>()
                 .With(sm => sm.Permissions, fixtureStoreManagementPermissions)
                 .With(sm => sm.Store, _storeOwnership.Store)
-                .With(sm => sm.User, loginResponse.User)
+                .With(sm => sm.User, new UserDto { Guid = loginResponse.UserGuid })
                 .Without(sm => sm.Guid)
                 .Create();
 
@@ -117,7 +117,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 throw new Exception("This shouldn't happen");
             }
 
-            _storeManagementWithPermissions = (await storeService.GetAllStoreManagementsAsync(loginResponse.User.Guid)).First();
+            _storeManagementWithPermissions = (await storeService.GetAllStoreManagementsAsync(loginResponse.UserGuid)).First();
             var createServiceResult = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
                 ServiceMockFactory.Secret, storeService, out _managerStoreServiceWithPermissions);
             if (!createServiceResult)
@@ -136,7 +136,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var fixtureStore = _fixture
                 .Build<StoreDto>()
-                .With(s => s.StoreFounder, loginResponse.User)
+                .With(s => s.FounderUserGuid, loginResponse.UserGuid)
                 .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();
@@ -144,7 +144,7 @@ namespace BoomaEcommerce.AcceptanceTests
             await storeService.CreateStoreAsync(fixtureStore);
 
 
-            _storeOwnership = (await storeService.GetAllStoreOwnerShipsAsync(loginResponse.User.Guid)).First();
+            _storeOwnership = (await storeService.GetAllStoreOwnerShipsAsync(loginResponse.UserGuid)).First();
             var result = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
                 ServiceMockFactory.Secret, storeService, out _ownerStoreService);
             if (!result)
@@ -213,7 +213,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var productDto = await _ownerStoreService.CreateStoreProductAsync(fixtureProductDto);
             var updatedProductDto = _fixture
                 .Build<ProductDto>()
-                .With(p => p.Store, _storeOwnership.Store)
+                .With(p => p.StoreGuid, _storeOwnership.Store.Guid)
                 .With(p => p.Guid, productDto.Guid)
                 .With(p => p.Amount, 20)
                 .Without(p => p.Category)
@@ -242,7 +242,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var productDto = await _ownerStoreService.CreateStoreProductAsync(fixtureProductDto);
             var updatedProductDto = _fixture
                 .Build<ProductDto>()
-                .With(p => p.Store, _storeOwnership.Store)
+                .With(p => p.StoreGuid, _storeOwnership.Store.Guid)
                 .With(p => p.Guid, productDto.Guid)
                 .With(p => p.Amount, 20)
                 .Without(p => p.Category)
@@ -261,27 +261,27 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task GetAllSellersInformation_ReturnsAllSellersInformation_WhenManagerHasSellerInformationPermission()
         {
             // Arrange
-            var storeGuid = _storeManagementWithPermissions.Store.Guid;
+            var storeGuid = _storeManagementWithPermissions.Store;
             // Act
             var result = await _managerStoreServiceWithPermissions
-                .GetAllSellersInformationAsync(storeGuid);
+                .GetAllSellersInformationAsync(storeGuid.Guid);
             // Assert
             result.Should().NotBeNull();
             result.StoreManagers.Exists(sm => 
                 sm.User.Guid == _storeManagementWithoutPermissions.User.Guid).Should().BeTrue();
             result.StoreManagers.Exists(sm => 
                 sm.User.Guid == _storeManagementWithPermissions.User.Guid).Should().BeTrue();
-            result.StoreOwners.Exists(sw => sw.User.Guid == _storeOwnership.User.Guid);
+            result.StoreOwners.Exists(sw => sw.User == _storeOwnership.User);
         }
         
         [Fact]
         public async Task GetAllSellersInformation_ThrowsUnAuthorizedException_WhenManagerDoesNotHaveSellerInformationPermission()
         {
             // Arrange
-            var storeGuid = _storeManagementWithPermissions.Store.Guid;
+            var storeGuid = _storeManagementWithPermissions.Store;
             // Act
             var act = _managerStoreServiceWithoutPermissions.Awaiting(service =>
-                service.GetAllSellersInformationAsync(storeGuid));
+                service.GetAllSellersInformationAsync(storeGuid.Guid));
             // Assert
             await act.Should().ThrowAsync<UnAuthorizedException>();
         }

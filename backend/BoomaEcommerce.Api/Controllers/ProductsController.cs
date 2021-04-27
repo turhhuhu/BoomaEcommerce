@@ -25,6 +25,12 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> GetProduct(Guid productGuid)
         {
             var product = await _productService.GetProductAsync(productGuid);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
             return Ok(product);
         }
     }

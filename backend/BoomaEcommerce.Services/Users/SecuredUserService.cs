@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Services.Users
         {
             _next = next;
         }
-        protected SecuredUserService(ClaimsPrincipal claimsPrincipal, IUsersService next) : base(claimsPrincipal)
+        public SecuredUserService(ClaimsPrincipal claimsPrincipal, IUsersService next) : base(claimsPrincipal)
         {
             _next = next;
         }

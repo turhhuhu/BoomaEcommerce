@@ -12,5 +12,10 @@ namespace BoomaEcommerce.Core.Exceptions
         {
 
         }
+
+        public UnAuthenticatedException(string message) : base(message)
+        {
+            
+        }
     }
 }

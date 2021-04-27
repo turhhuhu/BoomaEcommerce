@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to get shopping cart for userDto with Guid {User}", userGuid);
+                _logger.LogError(e, "Failed to get shopping cart for user with UserDto {User}", userGuid);
                 return null;
             }
         }
@@ -61,7 +61,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to create shopping basket for shopping cart with Guid {ShoppingCartGuid}", shoppingCartGuid);
+                _logger.LogError(e, "Failed to create shopping basket for shopping cart with UserDto {ShoppingCartGuid}", shoppingCartGuid);
                 return false;
             }
         }
@@ -86,7 +86,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to add purchase product to shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
+                _logger.LogError(e, "Failed to add purchase product to shopping basket with UserDto {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
@@ -108,7 +108,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to Delete purchase product from shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
+                _logger.LogError(e, "Failed to Delete purchase product from shopping basket with UserDto {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
@@ -123,7 +123,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to Delete shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
+                _logger.LogError(e, "Failed to Delete shopping basket with UserDto {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
@@ -132,6 +132,7 @@ namespace BoomaEcommerce.Services.Users
         {
             try
             {
+                _logger.LogInformation("Getting user info for user with guid {userGuid}", userGuid);
                 var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
                 return _mapper.Map<UserDto>(user);
             }
@@ -146,6 +147,7 @@ namespace BoomaEcommerce.Services.Users
         {
             try
             {
+                _logger.LogInformation("Updating user info for user with guid {userGuid}", userDto.Guid);
                 var user = _mapper.Map<User>(userDto);
                 await _userUnitOfWork.UserManager.UpdateAsync(user);
                 return true;

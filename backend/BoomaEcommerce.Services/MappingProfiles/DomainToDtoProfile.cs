@@ -17,16 +17,30 @@ namespace BoomaEcommerce.Services.MappingProfiles
         /// </summary>
         public DomainToDtoProfile()
         {
-            CreateMap<Store, StoreDto>();
+            CreateMap<Store, StoreDto>()
+                .ForMember(dto => dto.FounderUserGuid, x => x.MapFrom(store => store.StoreFounder.Guid));
+
             CreateMap<User, UserDto>();
+
             CreateMap<ShoppingBasket, ShoppingBasketDto>();
+
             CreateMap<ShoppingCart, ShoppingCartDto>();
+
             CreateMap<StoreManagement, StoreManagementDto>();
+
             CreateMap<StoreOwnership, StoreOwnershipDto>();
-            CreateMap<Product, ProductDto>();
-            CreateMap<StorePurchase, StorePurchaseDto>();
-            CreateMap<PurchaseProduct, PurchaseProductDto>(); //ask
-            CreateMap<Purchase, PurchaseDto>();
+
+            CreateMap<Product, ProductDto>()
+                .ForMember(dto => dto.StoreGuid, x => x.MapFrom(product => product.Store.Guid));
+
+            CreateMap<StorePurchase, StorePurchaseDto>()
+                .ForMember(dto => dto.StoreGuid, x => x.MapFrom(storePurchase => storePurchase.Store.Guid));
+
+            CreateMap<PurchaseProduct, PurchaseProductDto>();
+                
+            CreateMap<Purchase, PurchaseDto>()
+                .ForMember(dto => dto.BuyerGuid, x => x.MapFrom(purchase => purchase.Buyer.Guid));
+
             CreateMap<StoreManagementPermission, StoreManagementPermissionDto>();
         }
     }

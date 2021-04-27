@@ -45,15 +45,15 @@ namespace BoomaEcommerce.Services.Purchases
             ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchase);
             
             // Visitor purchase
-            if (purchase.Buyer == null) return _purchaseService.CreatePurchaseAsync(purchase);
+            if (purchase.BuyerGuid == default) return _purchaseService.CreatePurchaseAsync(purchase);
 
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
 
             // Different user than the buyer trying to make the purchase. (only if registered)
-            if (userGuidInClaims != purchase.Buyer.Guid)
+            if (userGuidInClaims != purchase.BuyerGuid)
             {
-                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchase.Buyer.Guid} found in purchase.");
+                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchase.BuyerGuid} found in purchase.");
             }
 
             return _purchaseService.CreatePurchaseAsync(purchase);

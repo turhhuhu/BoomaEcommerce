@@ -24,7 +24,7 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [Route(ApiRoutes.Store.Product)]
+        [Route(ApiRoutes.Stores.Products)]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDto product)
         {
@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost(ApiRoutes.Me)]
         public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
         {
             var storeResult = await _storeService.CreateStoreAsync(store);
