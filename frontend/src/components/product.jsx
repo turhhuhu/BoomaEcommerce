@@ -5,30 +5,41 @@ import ProductRating from "./productRating";
 
 class Product extends Component {
   state = {};
+
+  handleChange = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+    });
+  };
+
   render() {
     return (
-      <div class="col-md-4">
-        <figure class="card card-product-grid">
-          <figcaption class="info-wrap">
-            <div class="fix-height">
-              <label class="title product-card-item">ChessBoard</label>
-              <p class="text-muted small product-card-item">
+      <div className="col-md-4">
+        <figure className="card card-product-grid">
+          <figcaption className="info-wrap">
+            <div className="fix-height">
+              <label className="title product-card-item">
+                {this.props.name}
+              </label>
+              <p className="text-muted small product-card-item">
                 Store: Ori's store
                 <br />
-                Description: An ChessBoard
+                Amount in store: {this.props.amount}
+                <br />
+                Category: {this.props.category}
               </p>
-              <ProductRating />
-              <div class="price-wrap mt-2 product-card-item">
+              <ProductRating rating={this.props.rating} />
+              <div className="price-wrap mt-2 product-card-item">
                 <label>Price:</label>
-                <span class="price"> $1280</span>
-                {/* <del class="price-old">$1980</del> */}
+                <span className="price"> {this.props.price}</span>
+                {/* <del className="price-old">$1980</del> */}
               </div>
-              <div class="form-group col-md flex-grow-0">
+              <div className="form-group col-md flex-grow-0">
                 <label>Quantity:</label>
-                <div class="input-group input-spinner">
-                  <div class="input-group-prepend">
+                <div className="input-group input-spinner">
+                  <div className="input-group-prepend">
                     <button
-                      class="btn btn-outline-primary"
+                      className="btn btn-outline-primary"
                       type="button"
                       id="button-plus"
                     >
@@ -36,10 +47,15 @@ class Product extends Component {
                       +{" "}
                     </button>
                   </div>
-                  <input type="text" class="form-control" value="1"></input>
-                  <div class="input-group-append">
+                  <input
+                    type="text"
+                    className="form-control"
+                    onChange={this.handleChange}
+                    value={"1"}
+                  ></input>
+                  <div className="input-group-append">
                     <button
-                      class="btn btn-outline-primary"
+                      className="btn btn-outline-primary"
                       type="button"
                       id="button-minus"
                     >
@@ -50,10 +66,10 @@ class Product extends Component {
                 </div>
               </div>
             </div>
-            <button class="btn btn-outline-primary btn-block">
+            <button className="btn btn-outline-primary btn-block">
               {" "}
               Add to cart
-              <i class="fa fa-shopping-cart"></i>
+              <i className="fa fa-shopping-cart"></i>
             </button>
           </figcaption>
         </figure>

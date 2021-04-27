@@ -44,7 +44,6 @@ export function loginUser(creds) {
       password: creds.password,
     }),
   };
-  console.log(URLS.LOGIN_URL);
   return async (dispatch) => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds));
@@ -56,8 +55,6 @@ export function loginUser(creds) {
             .then((responsePayload) => ({ responsePayload, response }))
       )
       .then(({ responsePayload, response }) => {
-        console.log(JSON.stringify(responsePayload));
-        console.log(response);
         if (!response.ok) {
           // If there was a problem, we want to
           // dispatch the error condition
