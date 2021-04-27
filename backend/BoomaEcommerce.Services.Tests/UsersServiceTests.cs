@@ -78,7 +78,7 @@ namespace BoomaEcommerce.Services.Tests
             var result = await sut.CreateShoppingBasketAsync(shoppingCart.Guid, shoppingBasketDto);
 
             // Assert
-            result.Should().BeTrue();
+            result.Should().NotBeNull();
             shoppingCart.StoreGuidToBaskets.ContainsKey(shoppingBasketDto.Store.Guid).Should().BeTrue();
         }
         
@@ -96,7 +96,7 @@ namespace BoomaEcommerce.Services.Tests
             var result = await sut.CreateShoppingBasketAsync(Guid.NewGuid(), shoppingBasketDto);
 
             // Assert
-            result.Should().BeFalse();
+            result.Should().BeNull();
             shoppingBasketDict.Keys.Should().NotContain(shoppingBasketGuid);
         }
         

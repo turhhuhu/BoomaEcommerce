@@ -28,7 +28,7 @@ namespace BoomaEcommerce.Services.Users
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket);
+        Task<ShoppingBasketDto> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket);
 
         /// <summary>
         /// Adds a product to a userDto's shopping basket.

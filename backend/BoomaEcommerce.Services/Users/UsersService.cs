@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Services.Users
             }
         }
 
-        public async Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasketDto)
+        public async Task<ShoppingBasketDto> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasketDto)
         {
             try
             {
@@ -52,17 +52,17 @@ namespace BoomaEcommerce.Services.Users
                     .FindOneAsync(x => x.Guid == shoppingCartGuid);
                 if (!shoppingCart.AddShoppingBasket(shoppingBasket))
                 {
-                    return false;
+                    return null;
                 }
                 await _userUnitOfWork.ShoppingBasketRepo.InsertOneAsync(shoppingBasket);
                 await _userUnitOfWork.ShoppingCartRepo.ReplaceOneAsync(shoppingCart);
                 await _userUnitOfWork.SaveAsync();
-                return true;
+                return _mapper.Map<ShoppingBasketDto>(shoppingBasket);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to create shopping basket for shopping cart with UserDto {ShoppingCartGuid}", shoppingCartGuid);
-                return false;
+                return null;
             }
         }
         
@@ -74,7 +74,7 @@ namespace BoomaEcommerce.Services.Users
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
                     .FindOneAsync(x => x.Guid == shoppingBasketGuid);
-                if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
+                if (shoppingBasket == null || !shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
                     return false;
                 }
@@ -97,7 +97,7 @@ namespace BoomaEcommerce.Services.Users
             {
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
                     .FindOneAsync(x => x.Guid == shoppingBasketGuid);
-                if (!shoppingBasket.RemovePurchaseProduct(purchaseProductGuid))
+                if (shoppingBasket == null || !shoppingBasket.RemovePurchaseProduct(purchaseProductGuid))
                 {
                     return false;
                 }
