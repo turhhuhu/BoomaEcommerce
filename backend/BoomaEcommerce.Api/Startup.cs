@@ -135,7 +135,7 @@ namespace BoomaEcommerce.Api
             services.AddTransient(s =>
                 s.GetService<IHttpContextAccessor>()?.HttpContext?.User);
 
-            services.AddSingleton<IStoresService, SecuredStoreService>(sp =>
+            services.AddTransient<IStoresService, SecuredStoreService>(sp =>
             {
                 var storeService = sp.GetService<StoresService>();
                 var claims = sp.GetService<ClaimsPrincipal>();
@@ -144,12 +144,13 @@ namespace BoomaEcommerce.Api
 
             services.AddSingleton<IUserUnitOfWork, InMemoryUserUnitOfWork>();
             services.AddSingleton<UsersService>();
-            services.AddSingleton<IUsersService, SecuredUserService>(sp =>
+            services.AddTransient<IUsersService, SecuredUserService>(sp =>
             {
                 var userService = sp.GetService<UsersService>();
                 var claims = sp.GetService<ClaimsPrincipal>();
                 return new SecuredUserService(claims, userService);
             });
+
             services.AddSingleton(_ => new Mock<IMistakeCorrection>().Object);
         }
 
