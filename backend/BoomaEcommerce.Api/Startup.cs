@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Api.Middleware;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
@@ -174,6 +175,9 @@ namespace BoomaEcommerce.Api
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<ExceptionsMiddleware>();
+            app.UseMiddleware<LoggingMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
