@@ -6,7 +6,6 @@ export function fetchAllProducts() {
   return {
     [CALL_API]: {
       endpoint: GET_ALL_PRODUCTS_URL,
-      authenticated: true,
       types: [
         ProductsActionTypes.GET_ALL_PRODUCTS_REQUEST,
         ProductsActionTypes.GET_ALL_PRODUCTS_SUCCESS,

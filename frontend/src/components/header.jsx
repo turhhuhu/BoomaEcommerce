@@ -2,9 +2,14 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import bootstrapIcon from "../images/logo.png";
 import "../css/navbar.css";
+import { logoutUser } from "../actions/authActions";
 
 class Header extends Component {
   state = {};
+
+  handleSignOut = () => {
+    this.props.dispatch(logoutUser());
+  };
   render() {
     return (
       <header className="section-header">
@@ -53,10 +58,24 @@ class Header extends Component {
                       <i className="fa fa-user"></i>
                     </a>
                     <div className="text">
-                      <span className="text-muted">Welcome!</span>
+                      <span className="text-muted">
+                        {this.props.isAuthenticated
+                          ? "Welcome " + this.props.username + "!"
+                          : "Welcome Guest!"}{" "}
+                      </span>
                       <div>
-                        <a href="/login">Sign in</a> |
-                        <a href="/register"> Register</a>
+                        {this.props.isAuthenticated ? (
+                          <a href="/login" onClick={this.handleSignOut}>
+                            Sign out
+                          </a>
+                        ) : null}
+                        {this.props.isAuthenticated ? null : (
+                          <a href="/login">Sign in</a>
+                        )}
+                        {this.props.isAuthenticated ? null : " | "}
+                        {this.props.isAuthenticated ? null : (
+                          <a href="/register">register</a>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -70,4 +89,11 @@ class Header extends Component {
   }
 }
 
-export default connect()(Header);
+const mapStateToProps = (store) => {
+  return {
+    isAuthenticated: store.auth.isAuthenticated,
+    username: store.auth.username,
+  };
+};
+
+export default connect(mapStateToProps)(Header);

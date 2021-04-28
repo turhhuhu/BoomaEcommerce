@@ -3,7 +3,6 @@ export function productsView(
   state = {
     isFetching: false,
     products: [],
-    authenticated: false,
   },
   action
 ) {
@@ -11,7 +10,6 @@ export function productsView(
     case ProductsActionTypes.GET_ALL_PRODUCTS_REQUEST:
       return state;
     case ProductsActionTypes.GET_ALL_PRODUCTS_SUCCESS:
-      console.log(action);
       return Object.assign({}, state, {
         products: action.payload.response,
       });
