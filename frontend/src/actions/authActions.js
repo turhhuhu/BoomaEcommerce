@@ -1,13 +1,12 @@
 import * as URLS from "../utils/constants";
 import * as AuthActionTypes from "./types/authActionsTypes";
 
-function requestLogin(creds) {
+function requestLogin() {
   return {
     type: AuthActionTypes.LOGIN_REQUEST,
     payload: {
       isFetching: true,
       isAuthenticated: false,
-      username: creds.username,
     },
   };
 }
@@ -19,18 +18,17 @@ function receiveLogin(responsePayload) {
       isFetching: false,
       isAuthenticated: true,
       user_guid: responsePayload.userGuid,
-      access_token: responsePayload.token,
     },
   };
 }
 
-function loginError(message) {
+function loginError(error) {
   return {
     type: AuthActionTypes.LOGIN_FAILURE,
     payload: {
       isFetching: false,
       isAuthenticated: false,
-      message,
+      error,
     },
   };
 }
@@ -58,28 +56,33 @@ export function loginUser(creds) {
         if (!response.ok) {
           // If there was a problem, we want to
           // dispatch the error condition
-          dispatch(loginError(responsePayload.message));
+          let errors = undefined;
+          if (responsePayload.errors)
+            errors = [
+              responsePayload.errors.Username,
+              responsePayload.errors.Password,
+            ].join("\n");
+          else errors = responsePayload;
+          dispatch(loginError(errors));
           return Promise.reject(responsePayload);
         } else {
           // If login was successful, set the token in local storage
-          localStorage.setItem("user_guid", responsePayload.userGuid);
           localStorage.setItem("access_token", responsePayload.token);
           localStorage.setItem("refresh_token", responsePayload.refreshToken);
           // Dispatch the success action
-          dispatch(receiveLogin(responsePayload));
+          dispatch(receiveLogin({ responsePayload }));
         }
       })
-      .catch((err) => console.log("Error: ", err));
+      .catch((err) => console.error("Error: ", err));
   };
 }
 
-function requestRegister(userInfo) {
+function requestRegister() {
   return {
     type: AuthActionTypes.REGISTER_REQUEST,
     payload: {
       isFetching: true,
       isAuthenticated: false,
-      username: userInfo.userName,
     },
   };
 }
@@ -91,18 +94,17 @@ function receiveRegister(responsePayload) {
       isFetching: false,
       isAuthenticated: true,
       user_guid: responsePayload.userGuid,
-      access_token: responsePayload.token,
     },
   };
 }
 
-function RegisterError(message) {
+function RegisterError(error) {
   return {
     type: AuthActionTypes.REGISTER_FAILURE,
     payload: {
       isFetching: false,
       isAuthenticated: false,
-      message,
+      error,
     },
   };
 }
@@ -122,7 +124,7 @@ export function RegisterUser(userInfo) {
   };
   return async (dispatch) => {
     // We dispatch requestLogin to kickoff the call to the API
-    dispatch(requestRegister(userInfo));
+    dispatch(requestRegister());
     return await fetch(URLS.REGISTER_URL, config)
       .then(
         async (response) =>
@@ -136,14 +138,16 @@ export function RegisterUser(userInfo) {
         if (!response.ok) {
           // If there was a problem, we want to
           // dispatch the error condition
-          dispatch(RegisterError(responsePayload.message));
+          dispatch(RegisterError(responsePayload));
           return Promise.reject(responsePayload);
         } else {
           // Dispatch the success action
+          localStorage.setItem("access_token", responsePayload.token);
+          localStorage.setItem("refresh_token", responsePayload.refreshToken);
           dispatch(receiveRegister(responsePayload));
         }
       })
-      .catch((err) => console.log("Error: ", err));
+      .catch((err) => console.error("Error: ", err[0]));
   };
 }
 
@@ -170,7 +174,6 @@ function receiveLogout() {
 export function logoutUser() {
   return (dispatch) => {
     dispatch(requestLogout());
-    localStorage.removeItem("user_guid");
     localStorage.removeItem("access_token");
     localStorage.setItem("refresh_token");
     dispatch(receiveLogout());

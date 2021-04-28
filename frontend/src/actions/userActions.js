@@ -2,11 +2,11 @@ import { CALL_API } from "../middleware/api";
 import { USER_INFO_URL } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
-export function fetchUserInfo() {
+export function fetchUserInfo(isAuthenticated) {
   return {
     [CALL_API]: {
       endpoint: USER_INFO_URL,
-      authenticated: true,
+      authenticated: isAuthenticated,
       types: [
         UserActionTypes.USER_INFO_REQUEST,
         UserActionTypes.USER_INFO_SUCCESS,

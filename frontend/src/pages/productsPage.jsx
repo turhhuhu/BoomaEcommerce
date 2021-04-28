@@ -40,7 +40,10 @@ class ProductPage extends Component {
 }
 
 const mapStateToProps = (store) => {
-  return { products: store.productsView.products };
+  return {
+    products: store.productsView.products,
+    authenticated: store.auth.authenticated,
+  };
 };
 
 export default connect(mapStateToProps)(ProductPage);
