@@ -30,7 +30,10 @@ namespace BoomaEcommerce.AcceptanceTests
         private IProductsService productsService;
 
         private IUsersService usersService;
-        
+
+        private StoreDto myStore;
+        private ProductDto p1Dto;
+        private ProductDto p2Dto;
 
         public async Task InitializeAsync()
         {
@@ -62,28 +65,29 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await storesService.CreateStoreAsync(fixtureStore);
 
-            var myStore = (await storesService.GetStoresAsync()).First();
+            myStore = (await storesService.GetStoresAsync()).First();
 
-            var p1Dto = _fixture
+            p1Dto = _fixture
                 .Build<ProductDto>()
                 .With(p => p.StoreGuid, myStore.Guid)
                 .With(p => p.Amount, 20)
                 .With(p => p.Category, "Toiletry")
+                .With(p => p.Name, "Shampoo")
                 .Without(p => p.Rating)
                 .With(p => p.Price, 1)
-                .Without(p => p.Name)
+               
                 .Create();
 
             await storesService.CreateStoreProductAsync(p1Dto);
 
-            var p2Dto = _fixture
+            p2Dto = _fixture
                 .Build<ProductDto>()
                 .With(p => p.StoreGuid, myStore.Guid)
                 .With(p => p.Amount, 10)
                 .With(p => p.Category, "Diary")
+                .With(p => p.Name, "Milk from the moo")
                 .Without(p => p.Rating)
                 .With(p => p.Price, 1)
-                .Without(p => p.Name)
                 .Create();
 
             await storesService.CreateStoreProductAsync(p2Dto);
@@ -205,7 +209,23 @@ namespace BoomaEcommerce.AcceptanceTests
             toiletryProducts.Should().BeEmpty();
         }
 
-       
+        [Fact]
+        public async Task GetProductByKeywordAsync_ReturnsSuitableProducts_WhenKeyWordSuitsSomeProducts()
+        {
+            // Act 
+            var toiletryProducts = await productsService.GetProductByKeywordAsync("Toiletry");
+            // Assert
+            toiletryProducts.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task GetProductByKeywordAsync_ReturnsEmptyList_WhenKeyWordDoesNotSuitAnyProducts()
+        {
+            // Act 
+            var toiletryProducts = (await productsService.GetProductByKeywordAsync("ThisShouldNotWork!"));
+            // Assert
+            toiletryProducts.Should().BeEmpty();
+        }
 
 
         public Task DisposeAsync()

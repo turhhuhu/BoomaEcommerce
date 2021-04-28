@@ -62,6 +62,7 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(GetStorePurchaseHistoryAsync), userGuid);
         }
 
+
         public Task<StoreDto> CreateStoreAsync(StoreDto store)
         {
             ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
