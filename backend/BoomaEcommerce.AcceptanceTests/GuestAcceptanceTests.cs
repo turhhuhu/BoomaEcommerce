@@ -49,11 +49,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitStoreWithData(IStoresService storesService, IAuthenticationService authService)
         {
-            const string username = "BennyOwner";
+            var user = new UserDto {UserName = "BennyOwner"};
             const string password = "superSecretOwnerPass";
 
-            await authService.RegisterAsync(username, password);
-            var loginResult = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResult = await authService.LoginAsync(user.UserName, password);
 
             var fixtureStore = _fixture
                 .Build<StoreDto>()
@@ -98,11 +98,11 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task RegisterAsync_ReturnsSuccessfulAuthenticationResult_WhenUsernameDoesNotExist()
         {
             // Arrange 
-            const string username = "guest";
+            var user = new UserDto { UserName = "guest" };
             const string password = "guestIsTheBest";
 
             // Act 
-            var registerResult =  await authService.RegisterAsync(username, password);
+            var registerResult =  await authService.RegisterAsync(user, password);
 
             // Assert
             registerResult.Success.Should().BeTrue();
@@ -111,13 +111,13 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task RegisterAsync_ReturnsUnsuccessfulAuthenticationResult_WhenUsernameAlreadyExists()
         {
             // Arrange 
-            const string usernameGood = "guest";
+            var userGood = new UserDto { UserName = "guest" };
             const string passwordGood = "guestIsTheBest";
-            const string usernameDupBad = "guest";
+            var usernameDupBad = new UserDto {UserName = "guest"};
             const string passwordDupBad = "IAmTheBestGuest";
 
             // Act 
-            var registerResultOk = await authService.RegisterAsync(usernameGood, passwordGood);
+            var registerResultOk = await authService.RegisterAsync(userGood, passwordGood);
             var registerResultBad = await authService.RegisterAsync(usernameDupBad, passwordDupBad);
 
             // Assert
@@ -128,12 +128,12 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task LoginAsync_ReturnsSuccessfulAuthenticationResult_WhenUserIsAlreadyRegistered()
         {
             // Arrange 
-            const string username = "guest";
+            var user = new UserDto {UserName = "guest"};
             const string password = "guestIsTheBest";
 
             // Act
-            await authService.RegisterAsync(username, password);
-            var loginResult = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResult = await authService.LoginAsync(user.UserName, password);
 
             // Assert
             loginResult.Success.Should().BeTrue();
@@ -143,12 +143,12 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task LoginAsync_ReturnsUnsuccessfulAuthenticationResult_WhenUserHasNotRegistered()
         {
             // Arrange 
-            const string username = "guest";
+            var user = new UserDto {UserName = "guest"};
             const string password = "guestIsTheBest";
 
             // Act 
-            await authService.RegisterAsync(username, password);
-            var badPasswordLogin = await authService.LoginAsync(username, "another password");
+            await authService.RegisterAsync(user, password);
+            var badPasswordLogin = await authService.LoginAsync(user.UserName, "another password");
             var badUsernameLogin = await authService.LoginAsync("guesty", password);
 
             // Assert

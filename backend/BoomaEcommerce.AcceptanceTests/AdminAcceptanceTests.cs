@@ -15,8 +15,9 @@ namespace BoomaEcommerce.AcceptanceTests
 {
     public class AdminAcceptanceTests : IAsyncLifetime
     {
-        private string _adminUsername = "Ori";
+        private AdminUserDto _adminUser = new() { UserName = "Ori" };
         private string _adminPassword = "Ori1234";
+
         private IStoresService _adminStoreService;
         private IPurchasesService _adminPurchaseService;
         private PurchaseDto _purchase;
@@ -40,8 +41,8 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitAdminServices(IStoresService storeService, IPurchasesService purchaseService, IAuthenticationService authService)
         {
-            await authService.RegisterAdminAsync(_adminUsername, _adminPassword);
-            var loginResponse = await authService.LoginAsync(_adminUsername, _adminPassword);
+            await authService.RegisterAdminAsync(_adminUser, _adminPassword);
+            var loginResponse = await authService.LoginAsync(_adminUser.UserName, _adminPassword);
 
             var storeServiceRes = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
                 ServiceMockFactory.Secret, storeService, out _adminStoreService);
@@ -61,11 +62,11 @@ namespace BoomaEcommerce.AcceptanceTests
         private async Task InitStoreWithProductAndPurchase(IStoresService storeService,
             IAuthenticationService authService, IPurchasesService purchasesService)
         {
-            const string username = "Arik";
+            var user = new UserDto {UserName = "Arik"};
             const string password = "Arik1337";
 
-            await authService.RegisterAsync(username, password);
-            var loginResponse = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResponse = await authService.LoginAsync(user.UserName, password);
             
             await CreateStore(storeService, loginResponse);
 
@@ -110,10 +111,10 @@ namespace BoomaEcommerce.AcceptanceTests
         private async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
             IAuthenticationService authenticationService)
         {
-            const string buyerUserName = "Matan";
+            var buyerUser = new UserDto { UserName = "Matan" };
             const string buyerPassword = "Matan1234";
-            await authenticationService.RegisterAsync(buyerUserName, buyerPassword);
-            var buyerToken = await authenticationService.LoginAsync(buyerUserName, buyerPassword);
+            await authenticationService.RegisterAsync(buyerUser, buyerPassword);
+            var buyerToken = await authenticationService.LoginAsync(buyerUser.UserName, buyerPassword);
             
             var purchaseDto = new PurchaseDto
             {

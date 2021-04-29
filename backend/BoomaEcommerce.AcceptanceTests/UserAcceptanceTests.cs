@@ -111,11 +111,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitUser(IStoresService storeService, IAuthenticationService authService, IPurchasesService purchasesService, IUsersService usersService)
         {
-            const string username = "Omer";
+            var user = new UserDto {UserName = "Omer"};
             const string password = "Omer1001";
 
-            await authService.RegisterAsync(username, password);
-            var loginResponse = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResponse = await authService.LoginAsync(user.UserName, password);
 
             UserGuid = loginResponse.UserGuid;
 
