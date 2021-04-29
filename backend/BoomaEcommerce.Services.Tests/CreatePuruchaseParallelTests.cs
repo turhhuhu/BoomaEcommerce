@@ -50,7 +50,7 @@ namespace BoomaEcommerce.Services.Tests
             userDict[userGuid] = userFixture;
             
             var shoppingCartGuid = Guid.NewGuid();
-            var cart = new ShoppingCart {Guid = shoppingCartGuid, User = userFixture};
+            var cart = new ShoppingCart(userFixture) {Guid = shoppingCartGuid};
             shoppingCartDict[shoppingCartGuid] = cart;
 
             var productGuid = Guid.NewGuid();

@@ -15,14 +15,27 @@ namespace BoomaEcommerce.Api
 
             public const string Login = "login";
 
-            public const string Refresh = "Refresh";
+            public const string Refresh = "refresh";
         }
-
-        public static class Stores
+        public static class Products
         {
-            public const string Products = "products";
+            public const string ProductsBase = "products";
+            public const string Get = "{productGuid}";
+            public const string Post = ProductsBase;
         }
 
         public const string Me = "me";
+
+        public static class Cart
+        {
+            public const string CartsBase = "cart";
+            public const string GetMe = CartsBase + "/" + Me;
+
+            public static class Baskets
+            {
+                public const string BasketsBase = "baskets";
+                public const string PostMe = CartsBase + "/" + BasketsBase + "/" + Me;
+            }
+        }
     }
 }

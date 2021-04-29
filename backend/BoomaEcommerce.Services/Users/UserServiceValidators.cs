@@ -15,9 +15,8 @@ namespace BoomaEcommerce.Services.Users
             public CreateShoppingBasketAsync()
             {
                 RuleFor(sb => sb.Guid == default);
-                RuleFor(sb => sb.Store)
-                    .NotNull()
-                    .Must(store => store.Guid != default);
+                RuleFor(sb => sb.StoreGuid)
+                    .Must(store => store != default);
                 RuleFor(sb => sb.PurchaseProduct)
                     .NotEmpty();
             }
@@ -30,9 +29,8 @@ namespace BoomaEcommerce.Services.Users
                 RuleFor(pp => pp.Guid == default);
                 RuleFor(pp => pp.Amount).GreaterThan(0);
                 RuleFor(pp => pp.Price).GreaterThanOrEqualTo(0);
-                RuleFor(pp => pp.Product)
-                    .NotNull()
-                    .Must(p => p.Guid != default);
+                RuleFor(pp => pp.ProductGuid)
+                    .Must(p => p != default);
             }
         }
 

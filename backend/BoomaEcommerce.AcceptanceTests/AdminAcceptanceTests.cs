@@ -132,7 +132,7 @@ namespace BoomaEcommerce.AcceptanceTests
                             {
                                 Amount = 1,
                                 Price = 10,
-                                Product = productDto
+                                ProductGuid = productDto.Guid
                             }
                         }
                     }
@@ -167,7 +167,7 @@ namespace BoomaEcommerce.AcceptanceTests
             purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.Product.Amount));
+                    .Excluding(p => p.ProductGuid));
         }
         
         [Fact]
@@ -211,7 +211,7 @@ namespace BoomaEcommerce.AcceptanceTests
             purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.Product.Amount));
+                    .Excluding(p => p.ProductGuid));
         }
         
         [Fact]
