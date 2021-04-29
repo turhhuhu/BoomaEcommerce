@@ -51,11 +51,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitOwnerUser(IStoresService storeService, IAuthenticationService authService)
         {
-            const string username = "Arik";
+            var user = new UserDto {UserName = "Arik"};
             const string password = "Arik1337";
 
-            await authService.RegisterAsync(username, password);
-            var loginResponse = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResponse = await authService.LoginAsync(user.UserName, password);
 
             var fixtureStore = _fixture
                 .Build<StoreDto>()
@@ -78,10 +78,10 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitNotOwnerUser(IStoresService storeService, IAuthenticationService authService)
         {
-            const string notOwnerUsername = "Ori";
+            var notOwnerUser = new UserDto {UserName = "Ori"};
             const string notOwnerPassword = "Ori1234";
-            await authService.RegisterAsync(notOwnerUsername, notOwnerPassword);
-            var notOwnerLoginResponse = await authService.LoginAsync(notOwnerUsername, notOwnerPassword);
+            await authService.RegisterAsync(notOwnerUser, notOwnerPassword);
+            var notOwnerLoginResponse = await authService.LoginAsync(notOwnerUser.UserName, notOwnerPassword);
             _notOwnerUser =notOwnerLoginResponse.UserGuid; 
             var result = SecuredStoreService.CreateSecuredStoreService(notOwnerLoginResponse.Token,
                 ServiceMockFactory.Secret, storeService, out _notOwnerStoreService);
@@ -95,10 +95,10 @@ namespace BoomaEcommerce.AcceptanceTests
         private async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
             IAuthenticationService authenticationService)
         {
-            const string buyerUserName = "Matan";
+            var buyerUser = new UserDto {UserName = "Matan"};
             const string buyerPassword = "Matan1234";
-            await authenticationService.RegisterAsync(buyerUserName, buyerPassword);
-            var buyerToken = await authenticationService.LoginAsync(buyerUserName, buyerPassword);
+            await authenticationService.RegisterAsync(buyerUser, buyerPassword);
+            var buyerToken = await authenticationService.LoginAsync(buyerUser.UserName, buyerPassword);
             
             var purchaseDto = new PurchaseDto
             {

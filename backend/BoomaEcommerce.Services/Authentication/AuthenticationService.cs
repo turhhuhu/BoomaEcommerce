@@ -79,29 +79,27 @@ namespace BoomaEcommerce.Services.Authentication
             return await GenerateAuthResponseWithToken(existingUser, roles.ToArray());
         }
 
-        public async Task<AuthenticationResult> RegisterAdminAsync(string username, string password)
+        public async Task<AuthenticationResult> RegisterAdminAsync(AdminUserDto userDto, string password)
         {
-            _logger.LogInformation($"Making attempt to register admin: {username}");
-            var existingUser = await _userManager.FindByNameAsync(username);
+            _logger.LogInformation($"Making attempt to register admin: {userDto.UserName}");
+            var existingUser = await _userManager.FindByNameAsync(userDto.UserName);
 
             if (existingUser != null)
             {
-                _logger.LogInformation($"Admin user with username {username} already exist in the system.");
+                _logger.LogInformation($"Admin user with username {userDto.UserName} already exist in the system.");
 
                 return new AuthenticationResult
                 {
                     Errors = new[] { "Username already exists." }
                 };
             }
-            var user = new AdminUser
-            {
-                UserName = username
-            };
+
+            var user = _mapper.Map<AdminUser>(userDto);
             var createdUser = await _userManager.CreateAsync(user, password);
 
             if (!createdUser.Succeeded)
             {
-                _logger.LogWarning($"Failed to register admin user with username {username}.");
+                _logger.LogWarning($"Failed to register admin user with username {user.UserName}.");
                 return new AuthenticationResult
                 {
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
@@ -111,7 +109,7 @@ namespace BoomaEcommerce.Services.Authentication
             var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
             if (roleResult == null || !roleResult.Succeeded)
             {
-                _logger.LogWarning($"Failed to add admin role to user with username {username}.");
+                _logger.LogWarning($"Failed to add admin role to user with username {user.UserName}.");
                 return new AuthenticationResult
                 {
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
@@ -121,14 +119,14 @@ namespace BoomaEcommerce.Services.Authentication
             return await GenerateAuthResponseWithToken(user, UserRoles.AdminRole);
         }
 
-        public async Task<AuthenticationResult> RegisterAsync(string username, string password)
+        public async Task<AuthenticationResult> RegisterAsync(UserDto userDto, string password)
         {
-            _logger.LogInformation($"Making attempt to register user: {username}");
-            var existingUser = await _userManager.FindByNameAsync(username);
+            _logger.LogInformation($"Making attempt to register user: {userDto.UserName}");
+            var existingUser = await _userManager.FindByNameAsync(userDto.UserName);
 
             if (existingUser != null)
             {
-                _logger.LogInformation($"User with username {username} already exist in the system.");
+                _logger.LogInformation($"User with username {userDto.UserName} already exist in the system.");
 
                 return new AuthenticationResult
                 {
@@ -136,15 +134,12 @@ namespace BoomaEcommerce.Services.Authentication
                 };
             }
 
-            var user = new User
-            {
-                UserName = username
-            };
+            var user = _mapper.Map<User>(userDto);
             var createdUser = await _userManager.CreateAsync(user, password);
 
             if (!createdUser.Succeeded)
             {
-                _logger.LogWarning($"Failed to register user with username {username}.");
+                _logger.LogWarning($"Failed to register user with username {userDto.UserName}.");
                 return new AuthenticationResult
                 {
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
