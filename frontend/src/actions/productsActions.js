@@ -14,3 +14,12 @@ export function fetchAllProducts() {
     },
   };
 }
+
+export function filterProducts(filteredProducts) {
+  return {
+    type: ProductsActionTypes.FILTER_PRODUCTS,
+    payload: {
+      filteredProducts: filteredProducts,
+    },
+  };
+}

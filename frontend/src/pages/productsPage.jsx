@@ -5,6 +5,7 @@ import ProductFilter from "../components/productFilter";
 import Header from "../components/header";
 import "../css/productsPage.css";
 import { fetchAllProducts } from "../actions/productsActions";
+
 class ProductPage extends Component {
   state = {};
 
@@ -29,7 +30,7 @@ class ProductPage extends Component {
                 ]}
               />
               <main className="col-md-9">
-                <ProductView products={this.props.products} />
+                <ProductView />
               </main>
             </div>
           </div>
@@ -41,8 +42,7 @@ class ProductPage extends Component {
 
 const mapStateToProps = (store) => {
   return {
-    products: store.productsView.products,
-    authenticated: store.auth.authenticated,
+    products: store.products.products,
   };
 };
 
