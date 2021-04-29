@@ -9,6 +9,10 @@ namespace BoomaEcommerce.Domain
 {
     public class ShoppingCart : BaseEntity
     {
+        public ShoppingCart(User user) : base(user.Guid)
+        {
+            User = user;
+        }
         public User User { get; set; }
         public ConcurrentDictionary<Guid, ShoppingBasket> StoreGuidToBaskets { get; set; } = new();
         public bool AddShoppingBasket(ShoppingBasket shoppingBasket)

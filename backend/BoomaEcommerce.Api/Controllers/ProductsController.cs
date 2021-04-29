@@ -20,7 +20,7 @@ namespace BoomaEcommerce.Api.Controllers
             _productService = productService;
         }
 
-        [HttpGet("{productGuid}")]
+        [HttpGet(ApiRoutes.Products.Get)]
         public async Task<IActionResult> GetProduct(Guid productGuid)
         {
             var product = await _productService.GetProductAsync(productGuid);

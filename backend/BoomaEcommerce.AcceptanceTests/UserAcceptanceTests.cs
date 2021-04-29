@@ -71,13 +71,13 @@ namespace BoomaEcommerce.AcceptanceTests
 
 
             purchase_product1 = _fixture.Build<PurchaseProductDto>()
-                                            .With(pp => pp.Product, product1_withGuid)
+                                            .With(pp => pp.ProductGuid, product1_withGuid.Guid)
                                             .Without(pp => pp.Guid)
                                             .With(pp => pp.Price, product1_withGuid.Price)
                                             .With(pp => pp.Amount, 1)
                                             .Create();
             var purchase_product2 = _fixture.Build<PurchaseProductDto>()
-                                            .With(pp => pp.Product, product2_withGuid)
+                                            .With(pp => pp.ProductGuid, product2_withGuid.Guid)
                                             .With(pp => pp.Price, product2_withGuid.Price)
                                             .With(pp => pp.Amount, 1)
                                             .Without(pp => pp.Guid)
@@ -154,8 +154,8 @@ namespace BoomaEcommerce.AcceptanceTests
 
             //Assert 
             res.First().Should().BeEquivalentTo(purchase, x => x.Excluding(p => p.Guid)
-                                                                .Excluding(p=> p.StorePurchases[0].PurchaseProducts[0].Product.Amount)
-                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].Product.Amount)
+                                                                .Excluding(p=> p.StorePurchases[0].PurchaseProducts[0].ProductGuid)
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].ProductGuid)
                                                                 .Excluding(p=> p.StorePurchases[0].Guid)
                                                                 .Excluding(p=> p.StorePurchases[0].PurchaseProducts[0].Guid)
                                                                 .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].Guid));;
@@ -190,7 +190,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var fixtureShoppingBasket = _fixture
                 .Build<ShoppingBasketDto>()
-                .With(s => s.Store, _store_withGuid)
+                .With(s => s.StoreGuid, _store_withGuid.Guid)
                 .With(s => s.PurchaseProduct , purchase_product_lst)
                 .Without(s => s.Guid)
                 .Create();

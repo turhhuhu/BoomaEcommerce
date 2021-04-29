@@ -21,7 +21,7 @@ namespace BoomaEcommerce.Api.Middleware
             this._logger = logger;
             this._next = next;
         }
-
+        
         public async Task Invoke(HttpContext context)
         {
             try
