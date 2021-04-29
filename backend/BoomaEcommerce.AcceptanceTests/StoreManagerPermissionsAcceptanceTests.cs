@@ -48,11 +48,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitManagerUserWithoutPermissions(IStoresService storeService, IAuthenticationService authService)
         {
-            const string username = "Matan";
+            var user = new UserDto {UserName = "Matan"};
             const string password = "Matan1234";
             
-            await authService.RegisterAsync(username, password);
-            var loginResponse = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResponse = await authService.LoginAsync(user.UserName, password);
 
             var fixtureStoreManagementPermissions = _fixture
                 .Build<StoreManagementPermissionDto>()
@@ -88,11 +88,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitManagerUserWithPermissions(IStoresService storeService, IAuthenticationService authService)
         {
-            const string username = "Ori";
+            var user = new UserDto {UserName = "Ori"};
             const string password = "Ori1234";
             
-            await authService.RegisterAsync(username, password);
-            var loginResponse = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResponse = await authService.LoginAsync(user.UserName, password);
 
             var fixtureStoreManagementPermissions = _fixture
                 .Build<StoreManagementPermissionDto>()
@@ -128,11 +128,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitOwnerUser(IStoresService storeService, IAuthenticationService authService)
         {
-            const string username = "Arik";
+            var user = new UserDto {UserName = "Arik"};
             const string password = "Arik1337";
 
-            await authService.RegisterAsync(username, password);
-            var loginResponse = await authService.LoginAsync(username, password);
+            await authService.RegisterAsync(user, password);
+            var loginResponse = await authService.LoginAsync(user.UserName, password);
 
             var fixtureStore = _fixture
                 .Build<StoreDto>()

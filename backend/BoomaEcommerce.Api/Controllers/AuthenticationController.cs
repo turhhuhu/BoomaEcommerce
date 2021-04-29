@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Auth.Register)]
         public async Task<ActionResult> Register([FromBody] UserRegistrationRequest request)
         {
-            var registrationRes = await _authService.RegisterAsync(request.UserInfo.UserName, request.Password);
+            var registrationRes = await _authService.RegisterAsync(request.UserInfo, request.Password);
 
             if (!registrationRes.Success)
             {
