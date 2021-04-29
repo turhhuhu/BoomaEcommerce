@@ -45,19 +45,19 @@ namespace BoomaEcommerce.Services.Tests
             {
                 new()
                 {
-                    Product = new ProductDto{Guid = Guid.NewGuid()},
+                    ProductGuid = Guid.NewGuid(),
                     Amount = 5,
                     Price = 50
                 },
                 new()
                 {
-                    Product = new ProductDto{Guid = Guid.NewGuid()},
+                    ProductGuid = Guid.NewGuid(),
                     Amount = 5,
                     Price = 50
                 },
                 new()
                 {
-                    Product = new ProductDto{Guid = Guid.NewGuid()},
+                    ProductGuid = Guid.NewGuid(),
                     Amount = 5,
                     Price = 50
                 }
@@ -71,19 +71,19 @@ namespace BoomaEcommerce.Services.Tests
             {
                 new()
                 {
-                    Product = new ProductDto{Guid = Guid.NewGuid()},
+                    ProductGuid = Guid.NewGuid(),
                     Amount = 11,
                     Price = 50
                 },
                 new()
                 {
-                    Product = new ProductDto{Guid = Guid.NewGuid()},
+                    ProductGuid = Guid.NewGuid(),
                     Amount = 11,
                     Price = 50
                 },
                 new()
                 {
-                    Product = new ProductDto{Guid = Guid.NewGuid()},
+                    ProductGuid = Guid.NewGuid(),
                     Amount = 11,
                     Price = 50
                 }
@@ -132,7 +132,7 @@ namespace BoomaEcommerce.Services.Tests
                             new()
                             {
                                 Amount = 1,
-                                Product = productDto
+                                ProductGuid = productDto.Guid
                             }
                         }
                     }

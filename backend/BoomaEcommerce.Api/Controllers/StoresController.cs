@@ -24,7 +24,7 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [Route(ApiRoutes.Stores.Products)]
+        [Route(ApiRoutes.Products.Post)]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDto product)
         {

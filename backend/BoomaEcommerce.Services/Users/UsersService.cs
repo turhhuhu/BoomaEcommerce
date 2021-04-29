@@ -31,8 +31,8 @@ namespace BoomaEcommerce.Services.Users
                     .FindOneAsync(x => x.User.Guid == userGuid);
                 
                 if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
-                
-                shoppingCart = new ShoppingCart {User = new User {Guid = userGuid}};
+
+                shoppingCart = new ShoppingCart(new User {Guid = userGuid});
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
                 return _mapper.Map<ShoppingCartDto>(shoppingCart);
             }
@@ -49,7 +49,9 @@ namespace BoomaEcommerce.Services.Users
             {
                 var shoppingBasket = _mapper.Map<ShoppingBasket>(shoppingBasketDto);
                 var shoppingCart = await _userUnitOfWork.ShoppingCartRepo
-                    .FindOneAsync(x => x.Guid == shoppingCartGuid);
+                    .FindOneAsync(x => x.Guid == shoppingCartGuid) 
+                                   ?? new ShoppingCart(new User {Guid = shoppingCartGuid});
+
                 if (!shoppingCart.AddShoppingBasket(shoppingBasket))
                 {
                     return null;

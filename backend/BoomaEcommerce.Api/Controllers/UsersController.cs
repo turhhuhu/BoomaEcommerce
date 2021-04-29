@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain;
+using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -15,12 +17,10 @@ namespace BoomaEcommerce.Api.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly ILogger<UsersController> _logger;
         private readonly IUsersService _userService;
 
-        public UsersController(ILogger<UsersController> logger, IUsersService userService)
+        public UsersController(IUsersService userService)
         {
-            _logger = logger;
             _userService = userService;
         }
 
@@ -38,5 +38,32 @@ namespace BoomaEcommerce.Api.Controllers
             return Ok(userInfo);
         }
 
+        [Authorize]
+        [HttpPost(ApiRoutes.Cart.Baskets.PostMe)]
+        public async Task<IActionResult> PostBasket([FromBody] ShoppingBasketDto shoppingBasket)
+        {
+            var userGuid = User.GetUserGuid();
+            var createdBasket = await _userService.CreateShoppingBasketAsync(userGuid, shoppingBasket);
+            if (createdBasket == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok(createdBasket);
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Cart.GetMe)]
+        public async Task<IActionResult> GetCart()
+        {
+            var userGuid = User.GetUserGuid();
+            var cart = await _userService.GetShoppingCartAsync(userGuid);
+            if (cart == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok(cart);
+        }
     }
 }

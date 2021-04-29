@@ -117,7 +117,7 @@ namespace BoomaEcommerce.AcceptanceTests
                             {
                                 Amount = 1,
                                 Price = 10,
-                                Product = productDto
+                                ProductGuid = productDto.Guid
                             }
                         }
                     }
@@ -604,7 +604,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Assert
             storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt.Excluding(p => p.Guid).Excluding(p => p.PurchaseProducts));
-            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Product.Amount));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.ProductGuid));
         }
         
         [Fact]

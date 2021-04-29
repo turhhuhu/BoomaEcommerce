@@ -34,20 +34,28 @@ namespace BoomaEcommerce.Api.Middleware
                 return;
             }
 
-            await LogRequest(context.Request);
+            try
+            {
+                await LogRequest(context.Request);
 
-            var originalResponseStream = context.Response.Body;
+                var originalResponseStream = context.Response.Body;
 
-            await using var responseBodyStream = new MemoryStream();
+                await using var responseBodyStream = new MemoryStream();
 
-            context.Response.Body = responseBodyStream;
-            await responseBodyStream.CopyToAsync(originalResponseStream);
+                context.Response.Body = responseBodyStream;
+                await responseBodyStream.CopyToAsync(originalResponseStream);
 
-            await _next(context);
+                await _next(context);
 
-            await LogResponse(context.Response);
+                await LogResponse(context.Response);
 
-            await responseBodyStream.CopyToAsync(originalResponseStream);
+                await responseBodyStream.CopyToAsync(originalResponseStream);
+            }
+            catch (Exception)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return;
+            }
 
             _requestCounter++;
         }
