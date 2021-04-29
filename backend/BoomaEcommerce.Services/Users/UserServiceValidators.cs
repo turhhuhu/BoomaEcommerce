@@ -17,7 +17,7 @@ namespace BoomaEcommerce.Services.Users
                 RuleFor(sb => sb.Guid == default);
                 RuleFor(sb => sb.StoreGuid)
                     .Must(store => store != default);
-                RuleFor(sb => sb.PurchaseProduct)
+                RuleFor(sb => sb.PurchaseProducts)
                     .NotEmpty();
             }
         }

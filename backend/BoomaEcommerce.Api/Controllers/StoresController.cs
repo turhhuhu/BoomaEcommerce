@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Api.Controllers
@@ -14,18 +15,15 @@ namespace BoomaEcommerce.Api.Controllers
     [Route("api/[controller]")]
     public class StoresController : ControllerBase
     {
-        private readonly ILogger<StoresController> _logger;
         private readonly IStoresService _storeService;
 
-        public StoresController(ILogger<StoresController> logger, IStoresService storeService)
+        public StoresController(IStoresService storeService)
         {
-            _logger = logger;
             _storeService = storeService;
         }
 
         [Authorize]
-        [Route(ApiRoutes.Products.Post)]
-        [HttpPost]
+        [HttpPost(ApiRoutes.Products.Post)]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDto product)
         {
             var productResult = await _storeService.CreateStoreProductAsync(product);
@@ -38,18 +36,53 @@ namespace BoomaEcommerce.Api.Controllers
             return Ok(productResult);
         }
 
-
-        [HttpPost(ApiRoutes.Me)]
-        public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
+        [Authorize]
+        [HttpDelete(ApiRoutes.Products.Delete)]
+        public async Task<IActionResult> DeleteProduct(Guid productGuid)
         {
-            var storeResult = await _storeService.CreateStoreAsync(store);
-
-            if (storeResult == null)
+            var res = await _storeService.DeleteProductAsync(productGuid);
+            if (res)
             {
-                return BadRequest();
+                return NoContent();
             }
 
-            return Ok(storeResult);
+            return NotFound();
+        }
+
+        [Authorize]
+        [HttpPut(ApiRoutes.Products.Put)]
+        public async Task<IActionResult> UpdateProduct(ProductDto product)
+        {
+            var res = await _storeService.UpdateProductAsync(product);
+            if (res)
+            {
+                return NoContent();
+            }
+            return NotFound();
+        }
+
+        [HttpGet(ApiRoutes.Stores.GetAllProducts)]
+        public async Task<IActionResult> GetStoreProducts(Guid storeGuid)
+        {
+            var storesRes = await _storeService.GetProductsFromStoreAsync(storeGuid);
+            if (storesRes == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(storesRes);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStores()
+        {
+            var stores = await _storeService.GetStoresAsync();
+            if (stores == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok(stores);
         }
     }
 }
