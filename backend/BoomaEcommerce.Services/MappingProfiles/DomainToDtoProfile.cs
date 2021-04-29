@@ -26,8 +26,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(cartDto => cartDto.Baskets, x => x.MapFrom(shoppingCart => shoppingCart.StoreGuidToBaskets.Values));
 
             CreateMap<ShoppingBasket, ShoppingBasketDto>()
-                  .ForMember(basketDto =>basketDto.PurchaseProduct , x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts.Values));
-            
+                  .ForMember(basketDto =>basketDto.PurchaseProducts , x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts.Values))
+                  .ForMember(basketDto => basketDto.StoreGuid, x => x.MapFrom(basket => basket.Store.Guid));
 
             //CreateMap<ShoppingCart, ShoppingCartDto>();
 
@@ -39,9 +39,11 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(dto => dto.StoreGuid, x => x.MapFrom(product => product.Store.Guid));
 
             CreateMap<StorePurchase, StorePurchaseDto>()
-                .ForMember(dto => dto.StoreGuid, x => x.MapFrom(storePurchase => storePurchase.Store.Guid));
+                .ForMember(dto => dto.StoreGuid, x => x.MapFrom(storePurchase => storePurchase.Store.Guid))
+                .ForMember(dto => dto.BuyerGuid, x => x.MapFrom(storePurchase => storePurchase.Buyer.Guid));
 
-            CreateMap<PurchaseProduct, PurchaseProductDto>();
+            CreateMap<PurchaseProduct, PurchaseProductDto>()
+                .ForMember(dto => dto.ProductGuid, x => x.MapFrom(purchaseProduct => purchaseProduct.Product.Guid));
                 
             CreateMap<Purchase, PurchaseDto>()
                 .ForMember(dto => dto.BuyerGuid, x => x.MapFrom(purchase => purchase.Buyer.Guid));

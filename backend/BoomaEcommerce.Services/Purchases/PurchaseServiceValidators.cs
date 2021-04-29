@@ -43,9 +43,8 @@ namespace BoomaEcommerce.Services.Purchases
                 RuleFor(pp => pp.Guid == default);
                 RuleFor(pp => pp.Price).GreaterThanOrEqualTo(0);
                 RuleFor(pp => pp.Amount).GreaterThan(0);
-                RuleFor(pp => pp.Product)
-                    .NotNull()
-                    .Must(p => p.Guid != default);
+                RuleFor(pp => pp.ProductGuid)
+                    .Must(p => p != default);
             }    
         }
     }

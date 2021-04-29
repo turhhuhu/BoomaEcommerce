@@ -31,8 +31,8 @@ namespace BoomaEcommerce.Services.Users
                     .FindOneAsync(x => x.User.Guid == userGuid);
                 
                 if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
-                
-                shoppingCart = new ShoppingCart {User = new User {Guid = userGuid}};
+
+                shoppingCart = new ShoppingCart(new User {Guid = userGuid});
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
                 return _mapper.Map<ShoppingCartDto>(shoppingCart);
             }
@@ -49,7 +49,9 @@ namespace BoomaEcommerce.Services.Users
             {
                 var shoppingBasket = _mapper.Map<ShoppingBasket>(shoppingBasketDto);
                 var shoppingCart = await _userUnitOfWork.ShoppingCartRepo
-                    .FindOneAsync(x => x.Guid == shoppingCartGuid);
+                    .FindOneAsync(x => x.Guid == shoppingCartGuid) 
+                                   ?? new ShoppingCart(new User {Guid = shoppingCartGuid});
+
                 if (!shoppingCart.AddShoppingBasket(shoppingBasket))
                 {
                     return null;
@@ -66,7 +68,7 @@ namespace BoomaEcommerce.Services.Users
             }
         }
         
-        public async Task<bool> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
             PurchaseProductDto purchaseProductDto)
         {
             try
@@ -76,18 +78,18 @@ namespace BoomaEcommerce.Services.Users
                     .FindOneAsync(x => x.Guid == shoppingBasketGuid);
                 if (shoppingBasket == null || !shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
-                    return false;
+                    return null;
                 }
 
                 await _userUnitOfWork.PurchaseProductRepo.InsertOneAsync(purchaseProduct);
                 await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
                 await _userUnitOfWork.SaveAsync();
-                return true;
+                return _mapper.Map<PurchaseProductDto>(purchaseProduct);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to add purchase product to shopping basket with UserDto {ShoppingBasketGuid}", shoppingBasketGuid);
-                return false;
+                return null;
             }
         }
 

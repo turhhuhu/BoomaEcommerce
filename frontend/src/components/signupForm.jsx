@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Button from "@material-ui/core/Button";
 import { RegisterUser } from "../actions/authActions";
 import { connect } from "react-redux";
+import { Redirect } from "react-router";
+import { Alert } from "@material-ui/lab";
 
 class SignUpForm extends Component {
   state = {
@@ -9,10 +11,30 @@ class SignUpForm extends Component {
     lastName: "",
     username: "",
     password: "",
+    error: undefined,
+    wasButtonPressed: false,
+    loading: false,
+  };
+
+  startLoading = () => {
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 2000);
   };
 
   handleSubmit = (event) => {
     event.preventDefault();
+    this.setState({ wasButtonPressed: true, error: undefined, loading: true });
+    this.startLoading();
+    if (
+      this.state.lastName === "" ||
+      this.state.password === "" ||
+      this.state.name === "" ||
+      this.state.username === ""
+    ) {
+      this.setState({ error: "Fields are required" });
+      return;
+    }
     const userInfo = {
       name: this.state.name,
       lastName: this.state.lastName,
@@ -85,16 +107,38 @@ class SignUpForm extends Component {
               ></input>
             </div>
             <div className="form-group mt-3">
-              <Button
-                variant="contained"
-                type="submit"
-                color="primary"
-                className="btn-block"
-              >
-                {" "}
-                Register{" "}
-              </Button>
+              {this.props.isFetching || this.props.isAuthenticated ? (
+                <div className="d-flex justify-content-center">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="sr-only">Loading...</span>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  variant="contained"
+                  type="submit"
+                  color="primary"
+                  className="btn-block"
+                >
+                  {" "}
+                  Register{" "}
+                </Button>
+              )}
             </div>
+            {(this.props.error || this.state.error) && (
+              <Alert severity="error" onClick={() => this.setState(null)}>
+                {this.props.error || this.state.error}
+              </Alert>
+            )}
+            {this.props.isAuthenticated && (
+              <div>
+                <Alert severity="success" onClick={() => this.setState(null)}>
+                  You signed up Successfuly!
+                  <br /> redirecing to home page...{" "}
+                </Alert>
+                {this.state.loading ? null : <Redirect to="/home" />}
+              </div>
+            )}
           </form>
           <p className="text-center">
             Have an account? <a href="/login">Log In</a>
@@ -108,4 +152,12 @@ class SignUpForm extends Component {
   }
 }
 
-export default connect()(SignUpForm);
+const mapStateToProps = (store) => {
+  return {
+    isFetching: store.auth.isFetching,
+    isAuthenticated: store.auth.isAuthenticated,
+    error: store.auth.error,
+  };
+};
+
+export default connect(mapStateToProps)(SignUpForm);

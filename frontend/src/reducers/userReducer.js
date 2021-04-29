@@ -3,7 +3,6 @@ export function user(
   state = {
     isFetching: false,
     userInfo: {},
-    authenticated: true,
   },
   action
 ) {

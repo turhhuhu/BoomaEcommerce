@@ -18,9 +18,7 @@ class Product extends Component {
         <figure className="card card-product-grid">
           <figcaption className="info-wrap">
             <div className="fix-height">
-              <label className="title product-card-item">
-                {this.props.name}
-              </label>
+              <h6 className="title product-card-item">{this.props.name}</h6>
               <p className="text-muted small product-card-item">
                 Store: Ori's store
                 <br />

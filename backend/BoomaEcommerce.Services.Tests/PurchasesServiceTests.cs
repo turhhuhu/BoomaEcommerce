@@ -64,14 +64,14 @@ namespace BoomaEcommerce.Services.Tests
             userDict[purchaseDtoFixture.BuyerGuid] = userFixture;
 
             var shoppingCartGuid = Guid.NewGuid();
-            var cart = new ShoppingCart {Guid = shoppingCartGuid, User = userFixture};
+            var cart = new ShoppingCart(userFixture) {Guid = shoppingCartGuid};
             shoppingCartDict[shoppingCartGuid] = cart;
             
             foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
             {
                 foreach (var productsPurchaseDto in storePurchaseDto.PurchaseProducts)
                 {
-                    var testProductGuid = productsPurchaseDto.Product.Guid;
+                    var testProductGuid = productsPurchaseDto.ProductGuid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
                     productDict[testProductGuid] = testProduct;
                 }
@@ -118,14 +118,14 @@ namespace BoomaEcommerce.Services.Tests
             userDict[purchaseDtoFixture.BuyerGuid] = userFixture;
             
             var shoppingCartGuid = Guid.NewGuid();
-            var cart = new ShoppingCart {Guid = shoppingCartGuid, User = userFixture};
+            var cart = new ShoppingCart(userFixture);
             shoppingCartDict[shoppingCartGuid] = cart;
             
             foreach (var storePurchaseDto in purchaseDtoFixture.StorePurchases)
             {
                 foreach (var productsPurchaseDto in storePurchaseDto.PurchaseProducts)
                 {
-                    var testProductGuid = productsPurchaseDto.Product.Guid;
+                    var testProductGuid = productsPurchaseDto.ProductGuid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
                     productDict[testProductGuid] = testProduct;
                 }

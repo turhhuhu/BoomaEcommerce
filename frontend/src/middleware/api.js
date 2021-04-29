@@ -17,8 +17,6 @@ async function callApi(endpoint, authenticated) {
     }
   }
 
-  console.log(`${token}`);
-
   return await fetch(endpoint, config)
     .then(
       async (response) =>

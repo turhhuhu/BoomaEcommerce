@@ -92,7 +92,7 @@ namespace BoomaEcommerce.Services.Stores
             catch (Exception e)
             {
                 _logger.LogError(e,"Failed to create product with UserDto {ProductGuid}," +
-                                   " for UserStore with guid {Store}", productDto.Guid, productDto.StoreGuid);
+                                   " for UserStore with guid {StoreGuid}", productDto.Guid, productDto.StoreGuid);
                 return null;
             }
         }
