@@ -45,6 +45,7 @@ export function loginUser(creds) {
   return async (dispatch) => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds));
+    let gotResponse = false;
     return await fetch(URLS.LOGIN_URL, config)
       .then(
         async (response) =>
@@ -53,6 +54,7 @@ export function loginUser(creds) {
             .then((responsePayload) => ({ responsePayload, response }))
       )
       .then(({ responsePayload, response }) => {
+        gotResponse = true;
         if (!response.ok) {
           // If there was a problem, we want to
           // dispatch the error condition
@@ -73,7 +75,12 @@ export function loginUser(creds) {
           dispatch(receiveLogin({ responsePayload }));
         }
       })
-      .catch((err) => console.error("Error: ", err));
+      .catch((err) => {
+        if (!gotResponse) {
+          dispatch(loginError("API connection failure"));
+        }
+        console.error("Error: ", err);
+      });
   };
 }
 
@@ -125,6 +132,7 @@ export function RegisterUser(userInfo) {
   return async (dispatch) => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestRegister());
+    let gotResponse = false;
     return await fetch(URLS.REGISTER_URL, config)
       .then(
         async (response) =>
@@ -135,6 +143,7 @@ export function RegisterUser(userInfo) {
       .then(({ responsePayload, response }) => {
         console.log(JSON.stringify(responsePayload));
         console.log(response);
+        gotResponse = true;
         if (!response.ok) {
           // If there was a problem, we want to
           // dispatch the error condition
@@ -147,7 +156,12 @@ export function RegisterUser(userInfo) {
           dispatch(receiveRegister(responsePayload));
         }
       })
-      .catch((err) => console.error("Error: ", err[0]));
+      .catch((err) => {
+        if (!gotResponse) {
+          dispatch(loginError("API connection failure"));
+        }
+        console.error("Error: ", err);
+      });
   };
 }
 
@@ -175,7 +189,7 @@ export function logoutUser() {
   return (dispatch) => {
     dispatch(requestLogout());
     localStorage.removeItem("access_token");
-    localStorage.setItem("refresh_token");
+    localStorage.removeItem("refresh_token");
     dispatch(receiveLogout());
   };
 }

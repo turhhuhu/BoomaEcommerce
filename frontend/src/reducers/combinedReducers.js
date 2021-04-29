@@ -1,11 +1,11 @@
 import { combineReducers } from "redux";
 import { auth } from "./authReducer";
 import { user } from "./userReducer";
-import { productsView } from "./productsReducer";
+import { products } from "./productsReducer";
 const combinedReducers = combineReducers({
   auth,
   user,
-  productsView,
+  products,
 });
 
 export default combinedReducers;
