@@ -78,7 +78,7 @@ namespace BoomaEcommerce.AcceptanceTests
                                             .With(pp => pp.Amount, 1)
                                             .Create();
 
-            var purchase_product2 = _fixture.Build<PurchaseProductDto>()
+            purchase_product2 = _fixture.Build<PurchaseProductDto>()
                                             .With(pp => pp.ProductGuid, product2_withGuid.Guid)
                                             .With(pp => pp.Price, product2_withGuid.Price)
                                             .With(pp => pp.Amount, 1)
@@ -216,8 +216,8 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var fixtureShoppingBasket = _fixture
                 .Build<ShoppingBasketDto>()
-                .With(s => s.Store, _store_withGuid)
-                .With(s => s.PurchaseProduct, purchase_product_lst)
+                .With(s => s.StoreGuid, _store_withGuid.Guid)
+                .With(s => s.PurchaseProducts, purchase_product_lst)
                 .Without(s => s.Guid)
                 .Create();
 
@@ -247,11 +247,11 @@ namespace BoomaEcommerce.AcceptanceTests
         {
             //Arrange
             var myStorePurchase = _fixture.Build<StorePurchaseDto>()
-                .With(sp => sp.StoreGuid, _store_withGuid.Guid)
-                .With(sp => sp.BuyerGuid, UserGuid)
-                .With(sp => sp.PurchaseProducts, purchase_product_lst)
-                .Without(sp => sp.Guid)
-                .With(sp => sp.TotalPrice, purchase_product1.Price + purchase_product2.Price)
+                .With(storePurchaseDto => storePurchaseDto.StoreGuid, _store_withGuid.Guid)
+                .With(storePurchaseDto => storePurchaseDto.BuyerGuid, UserGuid)
+                .With(storePurchaseDto => storePurchaseDto.PurchaseProducts, purchase_product_lst)
+                .Without(storePurchaseDto => storePurchaseDto.Guid)
+                .With(storePurchaseDto => storePurchaseDto.TotalPrice, purchase_product1.Price + purchase_product2.Price)
                 .Create();
 
             List<StorePurchaseDto> sp = new List<StorePurchaseDto>();
