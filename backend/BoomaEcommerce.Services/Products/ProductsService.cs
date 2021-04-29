@@ -31,7 +31,7 @@ namespace BoomaEcommerce.Services.Products
         {
             try
             {
-                var products = await _productRepo.FindAllAsync();
+                var products = await _productRepo.FilterByAsync(product => !product.IsSoftDeleted);
                 return _mapper.Map<IReadOnlyCollection<ProductDto>>(products);
             }
             catch (Exception e)

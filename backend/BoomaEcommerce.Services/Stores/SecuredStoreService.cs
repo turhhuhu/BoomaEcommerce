@@ -97,6 +97,11 @@ namespace BoomaEcommerce.Services.Stores
 
             var product = await _storeService.GetStoreProductAsync(productGuid);
 
+            if (product == null)
+            {
+                return false;
+            }
+
             if (await CanPerformSellerAction(management => management.CanDeleteProduct, product.StoreGuid))
             {
                 return await _storeService.DeleteProductAsync(productGuid);

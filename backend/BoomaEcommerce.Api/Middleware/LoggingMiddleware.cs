@@ -64,19 +64,20 @@ namespace BoomaEcommerce.Api.Middleware
         {
             request.EnableBuffering();
 
-            if (!request.Method.Equals("GET"))
+            if (!request.Method.Equals("GET") && !request.Method.Equals("DELETE"))
             {
                 var reader = new StreamReader(request.Body);
 
                 var requestBody = await reader.ReadToEndAsync();
+                
                 var indentedRequestBody = JToken.Parse(requestBody).ToString(Formatting.Indented);
 
-                _logger.LogInformation(
+                _logger.LogDebug(
                     $"Received request number: {_requestCounter}\nRequest {request.Method}: {request.Path.Value}\n{indentedRequestBody}");
                 request.Body.Position = 0L;
                 return;
             }
-            _logger.LogInformation(
+            _logger.LogDebug(
                 $"Received request number: {_requestCounter}\nRequest {request.Method}: {request.Path.Value}\n");
         }
 
@@ -88,7 +89,7 @@ namespace BoomaEcommerce.Api.Middleware
 
             if (responseBody.IsNullOrEmpty())
             {
-                _logger.LogInformation(
+                _logger.LogDebug(
                     $"Responding to request number: {_requestCounter}\nResponse status code:{response.StatusCode}");
                 return;
             }
@@ -96,7 +97,7 @@ namespace BoomaEcommerce.Api.Middleware
             var indentedResponseBody = JToken.Parse(responseBody).ToString(Formatting.Indented);
             response.Body.Position = 0L;
 
-            _logger.LogInformation(
+            _logger.LogDebug(
                 $"Responding to request number: {_requestCounter}\nResponse status code:{response.StatusCode}\nResponse:\n{indentedResponseBody}");
         }
     }
