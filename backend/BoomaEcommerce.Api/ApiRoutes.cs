@@ -33,8 +33,14 @@ namespace BoomaEcommerce.Api
 
             public static class Baskets
             {
-                public const string BasketsBase = "baskets";
+                public const string BasketsBase = CartsBase + "/baskets";
                 public const string PostMe = CartsBase + "/" + BasketsBase + "/" + Me;
+
+                public static class PurchaseProducts
+                {
+                    public const string Post = BasketsBase + "/{basketGuid}" + "/products";
+                }
+
             }
         }
     }

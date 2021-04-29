@@ -53,6 +53,20 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
+        [HttpPost(ApiRoutes.Cart.Baskets.PurchaseProducts.Post)]
+        public async Task<IActionResult> PostPurchaseProduct(Guid basketGuid, [FromBody] PurchaseProductDto purchaseProduct)
+        {
+            var res =
+                await _userService.AddPurchaseProductToShoppingBasketAsync(basketGuid, purchaseProduct);
+            if (res == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(res);
+        }
+
+        [Authorize]
         [HttpGet(ApiRoutes.Cart.GetMe)]
         public async Task<IActionResult> GetCart()
         {

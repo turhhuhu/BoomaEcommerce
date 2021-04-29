@@ -201,7 +201,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
             var basket = shoppingCart1.Baskets.First();
             basket.PurchaseProduct.First().Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid));
-            res.Should().BeTrue();
+            res.Should().NotBeNull();
     
         }
 
