@@ -14,18 +14,15 @@ namespace BoomaEcommerce.Api.Controllers
     [Route("api/[controller]")]
     public class StoresController : ControllerBase
     {
-        private readonly ILogger<StoresController> _logger;
         private readonly IStoresService _storeService;
 
-        public StoresController(ILogger<StoresController> logger, IStoresService storeService)
+        public StoresController(IStoresService storeService)
         {
-            _logger = logger;
             _storeService = storeService;
         }
 
         [Authorize]
-        [Route(ApiRoutes.Products.Post)]
-        [HttpPost]
+        [HttpPost(ApiRoutes.Products.Post)]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDto product)
         {
             var productResult = await _storeService.CreateStoreProductAsync(product);
@@ -36,20 +33,6 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return Ok(productResult);
-        }
-
-
-        [HttpPost(ApiRoutes.Me)]
-        public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
-        {
-            var storeResult = await _storeService.CreateStoreAsync(store);
-
-            if (storeResult == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(storeResult);
         }
     }
 }

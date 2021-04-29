@@ -28,20 +28,28 @@ namespace BoomaEcommerce.Api
 
         public static class Cart
         {
-            public const string CartsBase = "cart";
-            public const string GetMe = CartsBase + "/" + Me;
-
+            public const string CartsMeBase = Me + "/cart";
+            public const string MeGet = CartsMeBase;
             public static class Baskets
             {
-                public const string BasketsBase = CartsBase + "/baskets";
-                public const string PostMe = CartsBase + "/" + BasketsBase + "/" + Me;
-
+                public const string BasketsMeBase = CartsMeBase + "/baskets";
+                public const string MePost = BasketsMeBase;
+                public const string Get = BasketsMeBase + "/{basketGuid}";
+                public const string MeDelete = BasketsMeBase + "/{basketGuid}";
                 public static class PurchaseProducts
                 {
-                    public const string Post = BasketsBase + "/{basketGuid}" + "/products";
+                    public const string PurchaseProductsMeBase = BasketsMeBase + "/{basketGuid}" + "/products";
+                    public const string MePost = PurchaseProductsMeBase;
+                    public const string MeDelete = PurchaseProductsMeBase + "/{purchaseProductGuid}";
                 }
 
             }
+        }
+
+        public class Store
+        {
+            public const string StoresMeBase = "stores";
+            public const string MePost = Me + "/" + StoresMeBase;
         }
     }
 }
