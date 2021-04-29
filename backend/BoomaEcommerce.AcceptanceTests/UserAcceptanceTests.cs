@@ -28,6 +28,7 @@ namespace BoomaEcommerce.AcceptanceTests
         private ProductDto product1;
         private ProductDto product2;
         private PurchaseProductDto purchase_product1;
+        private PurchaseProductDto purchase_product2;
 
 
         public async Task InitializeAsync()
@@ -76,7 +77,8 @@ namespace BoomaEcommerce.AcceptanceTests
                                             .With(pp => pp.Price, product1_withGuid.Price)
                                             .With(pp => pp.Amount, 1)
                                             .Create();
-            var purchase_product2 = _fixture.Build<PurchaseProductDto>()
+
+            purchase_product2 = _fixture.Build<PurchaseProductDto>()
                                             .With(pp => pp.ProductGuid, product2_withGuid.Guid)
                                             .With(pp => pp.Price, product2_withGuid.Price)
                                             .With(pp => pp.Amount, 1)
@@ -186,6 +188,7 @@ namespace BoomaEcommerce.AcceptanceTests
         [Fact]
         public async Task AddPurchaseProductToShoppingBasketAsync_ShouldReturnTrueAndAddPurchaseProduct_WhenDetailsAreValid()
         {
+            // Arrange
             var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
 
             var fixtureShoppingBasket = _fixture
@@ -197,12 +200,107 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var shoppingBasket = await _usersService.CreateShoppingBasketAsync(shoppingCart.Guid, fixtureShoppingBasket);
 
+            // Act
             var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(shoppingBasket.Guid, purchase_product1);
             var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
             var basket = shoppingCart1.Baskets.First();
             basket.PurchaseProducts.First(x => x.ProductGuid == purchase_product1.ProductGuid).Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid));
-            res.Should().NotBeNull();
-    
+            res.Should().NotBeNull();    
+        }
+
+        [Fact]
+        public async Task GetShoppingCartAsync_ReturnsValidContentOfCart_WhenCartExists()
+        {
+            // Arrange
+            var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
+
+            var fixtureShoppingBasket = _fixture
+                .Build<ShoppingBasketDto>()
+                .With(s => s.StoreGuid, _store_withGuid.Guid)
+                .With(s => s.PurchaseProducts, purchase_product_lst)
+                .Without(s => s.Guid)
+                .Create();
+
+            var shoppingBasket = await _usersService.CreateShoppingBasketAsync(shoppingCart.Guid, fixtureShoppingBasket);
+            var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(shoppingBasket.Guid, purchase_product1);
+
+            // Act
+            var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
+
+            shoppingCart1.Baskets.Count.Should().Be(1);
+
+        }
+
+        [Fact]
+        public async Task GetShoppingCartAsync_ReturnsEmptyCart_WhenCartDoesNotExist()
+        {
+            // Act
+            var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
+            
+            // Assert
+            shoppingCart.Baskets.Count.Should().Be(0);
+
+        }
+
+        [Fact]
+        public async Task PurchaseProduct_ShouldPerformPurchase_WhenPurchaseDetailsAreValid()
+        {
+            //Arrange
+            var myStorePurchase = _fixture.Build<StorePurchaseDto>()
+                .With(storePurchaseDto => storePurchaseDto.StoreGuid, _store_withGuid.Guid)
+                .With(storePurchaseDto => storePurchaseDto.BuyerGuid, UserGuid)
+                .With(storePurchaseDto => storePurchaseDto.PurchaseProducts, purchase_product_lst)
+                .Without(storePurchaseDto => storePurchaseDto.Guid)
+                .With(storePurchaseDto => storePurchaseDto.TotalPrice, purchase_product1.Price + purchase_product2.Price)
+                .Create();
+
+            List<StorePurchaseDto> sp = new List<StorePurchaseDto>();
+            sp.Add(myStorePurchase);
+
+            var myPurchase = _fixture.Build<PurchaseDto>()
+                .With(p => p.StorePurchases, sp)
+                .With(p => p.TotalPrice, purchase_product1.Price + purchase_product2.Price)
+                .Without(p => p.BuyerGuid)
+                .Without(p => p.Guid)
+                .Create();
+
+            // Act 
+
+            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
+
+            // Assert
+            purchaseWasSuccessful.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task PurchaseProduct_ShouldNotPerformPurchase_WhenPurchaseDetailsAreInvalid()
+        {
+            //Arrange
+            var myStorePurchase = _fixture.Build<StorePurchaseDto>()
+                .With(sp => sp.StoreGuid, _store_withGuid.Guid)
+                .With(sp => sp.BuyerGuid, UserGuid)
+                .With(sp => sp.PurchaseProducts, purchase_product_lst)
+                .Without(sp => sp.Guid)
+                .With(sp => sp.TotalPrice, purchase_product1.Price + purchase_product2.Price)
+                .Create();
+
+            List<StorePurchaseDto> sp = new List<StorePurchaseDto>();
+            sp.Add(myStorePurchase);
+
+            var myPurchase = _fixture.Build<PurchaseDto>()
+                .With(p => p.StorePurchases, sp)
+                .With(p => p.TotalPrice, purchase_product1.Price + purchase_product2.Price + 1)
+                .Without(p => p.BuyerGuid)
+                .Without(p => p.Guid)
+                .Create();
+
+           
+
+            // Act 
+            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
+
+            // Assert
+            purchaseWasSuccessful.Should().BeFalse();
         }
 
 
