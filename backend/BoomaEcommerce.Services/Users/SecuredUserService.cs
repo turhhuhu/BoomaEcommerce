@@ -68,7 +68,8 @@ namespace BoomaEcommerce.Services.Users
             throw new UnAuthorizedException($"User {userGuidInToken} can not add a basket to {shoppingCartGuid} shopping cart.");
         }
 
-        public async Task<bool> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid, PurchaseProductDto purchaseProduct)
+        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+            PurchaseProductDto purchaseProduct)
         {
             ServiceUtilities.ValidateDto<PurchaseProductDto, UserServiceValidators.AddPurchaseProductToShoppingBasketAsync>(purchaseProduct);
             CheckAuthenticated();
