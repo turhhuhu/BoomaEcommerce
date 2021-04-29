@@ -22,6 +22,10 @@ class LoginForm extends Component {
     event.preventDefault();
     this.setState({ loading: true });
     this.startLoading();
+    if (this.state.username === "" || this.state.password === "") {
+      this.setState({ error: "Fields are required" });
+      return;
+    }
     const creds = {
       username: this.state.username.trim(),
       password: this.state.password.trim(),
@@ -108,7 +112,7 @@ class LoginForm extends Component {
               <div>
                 <Alert severity="success" onClick={() => this.setState(null)}>
                   Successfuly Logged in!
-                  <br /> redirecing to home page...{" "}
+                  <br /> redirecting to home page...{" "}
                 </Alert>
               </div>
             )}

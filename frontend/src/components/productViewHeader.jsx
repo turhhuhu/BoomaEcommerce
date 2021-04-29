@@ -9,12 +9,12 @@ class ProductViewHeader extends Component {
           <span className="mr-md-auto">
             {this.props.amount} Items were found{" "}
           </span>
-          <select className="mr-2 form-control">
+          {/* <select className="mr-2 form-control">
             <option>Latest items</option>
             <option>Trending</option>
             <option>Most Popular</option>
             <option>Cheapest</option>
-          </select>
+          </select> */}
         </div>
       </header>
     );

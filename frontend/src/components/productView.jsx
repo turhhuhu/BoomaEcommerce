@@ -10,11 +10,13 @@ class ProductView extends Component {
     return (
       <React.Fragment>
         <ProductViewHeader
-          amount={this.props.products ? this.props.products.length : 0}
+          amount={
+            this.props.filteredProducts ? this.props.filteredProducts.length : 0
+          }
         />
         <main className="col-md-12.5">
           <div className="row">
-            {this.props.products?.map((product) => (
+            {this.props.filteredProducts?.map((product) => (
               <Product
                 key={product.guid}
                 name={product.name}
@@ -31,4 +33,11 @@ class ProductView extends Component {
   }
 }
 
-export default connect()(ProductView);
+const mapStateToProps = (store) => {
+  return {
+    products: store.products.products,
+    filteredProducts: store.products.filteredProducts,
+  };
+};
+
+export default connect(mapStateToProps)(ProductView);
