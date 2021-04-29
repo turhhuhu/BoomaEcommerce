@@ -22,6 +22,8 @@ namespace BoomaEcommerce.Api
             public const string ProductsBase = "products";
             public const string Get = "{productGuid}";
             public const string Post = ProductsBase;
+            public const string Delete = "{productGuid}";
+            public const string Put = ProductsBase;
         }
 
         public const string Me = "me";
@@ -46,10 +48,11 @@ namespace BoomaEcommerce.Api
             }
         }
 
-        public class Store
+        public class Stores
         {
             public const string StoresMeBase = "stores";
             public const string MePost = Me + "/" + StoresMeBase;
+            public const string GetAllProducts = "{storeGuid}/" + Products.ProductsBase;
         }
     }
 }

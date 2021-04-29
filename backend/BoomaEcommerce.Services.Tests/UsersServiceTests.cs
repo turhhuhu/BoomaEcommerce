@@ -116,7 +116,7 @@ namespace BoomaEcommerce.Services.Tests
             var result = await sut.AddPurchaseProductToShoppingBasketAsync(Guid.NewGuid(), purchaseProductDto);
 
             // Assert
-            result.Should().NotBeNull();
+            result.Should().BeNull();
             purchaseProductDict.Keys.Should().BeEmpty();
         }
         

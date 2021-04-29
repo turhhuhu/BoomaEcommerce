@@ -184,14 +184,14 @@ namespace BoomaEcommerce.AcceptanceTests
         }
 
         [Fact]
-        public async Task AddPurchaseProductToShoppingBasketAsync_ShouldReturnTrueAndAddPurchaseProduct_WhenDetalisAreValid()
+        public async Task AddPurchaseProductToShoppingBasketAsync_ShouldReturnTrueAndAddPurchaseProduct_WhenDetailsAreValid()
         {
             var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
 
             var fixtureShoppingBasket = _fixture
                 .Build<ShoppingBasketDto>()
                 .With(s => s.StoreGuid, _store_withGuid.Guid)
-                .With(s => s.PurchaseProduct , purchase_product_lst)
+                .With(s => s.PurchaseProducts , purchase_product_lst)
                 .Without(s => s.Guid)
                 .Create();
 
@@ -200,7 +200,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(shoppingBasket.Guid, purchase_product1);
             var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
             var basket = shoppingCart1.Baskets.First();
-            basket.PurchaseProduct.First().Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid));
+            basket.PurchaseProducts.First(x => x.ProductGuid == purchase_product1.ProductGuid).Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid));
             res.Should().NotBeNull();
     
         }

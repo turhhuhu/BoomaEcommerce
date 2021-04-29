@@ -95,7 +95,7 @@ namespace BoomaEcommerce.Api.Controllers
             return NotFound();
         }
 
-        [HttpPost(ApiRoutes.Store.MePost)]
+        [HttpPost(ApiRoutes.Stores.MePost)]
         public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
         {
             var storeResult = await _storesService.CreateStoreAsync(store);
