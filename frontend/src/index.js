@@ -8,9 +8,11 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import thunkMiddleware from "redux-thunk";
 import api from "./middleware/api";
 import combinedReducers from "./reducers/combinedReducers";
+import { Redirect } from "react-router";
 import LoginPage from "./pages/loginPage";
 import RegisterPage from "./pages/registerPage";
 import ProductsPage from "./pages/productsPage";
+import CartPage from "./pages/cartPage";
 
 let createStoreWithMiddleware = applyMiddleware(
   thunkMiddleware,
@@ -35,10 +37,13 @@ ReactDOM.render(
           <ProductsPage />
         </Route>
         <Route path="/home">
-          <ProductsPage />
+          <CartPage />
+        </Route>
+        <Route path="/cart">
+          <CartPage />
         </Route>
         <Route path="/">
-          <ProductsPage />
+          <Redirect to="/home" />;
         </Route>
       </Switch>
     </BrowserRouter>
