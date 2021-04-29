@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using AutoMapper.Configuration;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Services.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BoomaEcommerce.Services
 {
@@ -15,23 +17,29 @@ namespace BoomaEcommerce.Services
         private readonly ILogger<AppInitializer> _logger;
         private readonly UserManager<User> _userManager;
         private readonly IStoreUnitOfWork _storeUnitOfWork;
-
+        private readonly AppInitializationSettings _settings;
         public AppInitializer(ILogger<AppInitializer> logger,
             UserManager<User> userManager,
-            IStoreUnitOfWork storeUnitOfWork)
+            IStoreUnitOfWork storeUnitOfWork,
+            IOptions<AppInitializationSettings> options)
         {
             _logger = logger;
             _userManager = userManager;
             _storeUnitOfWork = storeUnitOfWork;
+            _settings = options.Value;
         }
         public async Task InitializeAsync()
         {
             var user = await InitAdmin();
-            await SeedData(user);
+            if (_settings.SeedDummyData)
+            {
+                await SeedData(user);
+            }
         }
 
         private async Task SeedData(User user)
         {
+            _logger.LogInformation("Seeding dummy data...");
             var store = new Store
             {
                 StoreFounder = user,
@@ -52,6 +60,12 @@ namespace BoomaEcommerce.Services
                 Price = i,
             }).ToList();
             await _storeUnitOfWork.ProductRepo.InsertManyAsync(products);
+            var ownership = new StoreOwnership
+            {
+                Store = store,
+                User = user
+            };
+            await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
         }
 
         private async Task<User> InitAdmin()

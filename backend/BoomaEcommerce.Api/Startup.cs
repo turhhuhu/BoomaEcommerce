@@ -92,8 +92,8 @@ namespace BoomaEcommerce.Api
 
             services.AddSingleton<AppInitializer>();
 
-            services.Configure<JwtSettings>(Configuration.GetSection("Jwt"));
-
+            services.Configure<AppInitializationSettings>(Configuration.GetSection(AppInitializationSettings.Section));
+            services.Configure<JwtSettings>(Configuration.GetSection(JwtSettings.Section));
             services.AddSingleton(_ => new UserManager<User>(
                 new InMemoryUserStore(), Options.Create
                     (new IdentityOptions
@@ -166,7 +166,9 @@ namespace BoomaEcommerce.Api
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BoomaEcommerce.Api v1"));
+                app.UseMiddleware<LoggingMiddleware>();
             }
+            app.UseMiddleware<ExceptionsMiddleware>();
 
             app.UseHttpsRedirection();
 
@@ -175,8 +177,7 @@ namespace BoomaEcommerce.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMiddleware<LoggingMiddleware>();
-            app.UseMiddleware<ExceptionsMiddleware>();
+
 
             app.UseEndpoints(endpoints =>
             {
