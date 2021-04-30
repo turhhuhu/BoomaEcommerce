@@ -17,7 +17,7 @@ namespace BoomaEcommerce.Services.Products
         /// A task that represents the asynchronous operation
         /// The task result contains the products collection.
         /// </returns>
-        Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync();
+        Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync(string category = null, string productName = null, decimal? rating = null);
 
         /// <summary>
         /// Get a product by guid.

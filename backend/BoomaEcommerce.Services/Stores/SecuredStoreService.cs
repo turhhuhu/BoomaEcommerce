@@ -62,6 +62,7 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(GetStorePurchaseHistoryAsync), userGuid);
         }
 
+
         public Task<StoreDto> CreateStoreAsync(StoreDto store)
         {
             ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
@@ -95,6 +96,11 @@ namespace BoomaEcommerce.Services.Stores
             var userGuid = ClaimsPrincipal.GetUserGuid();
 
             var product = await _storeService.GetStoreProductAsync(productGuid);
+
+            if (product == null)
+            {
+                return false;
+            }
 
             if (await CanPerformSellerAction(management => management.CanDeleteProduct, product.StoreGuid))
             {

@@ -92,8 +92,8 @@ namespace BoomaEcommerce.Api
 
             services.AddSingleton<AppInitializer>();
 
-            services.Configure<JwtSettings>(Configuration.GetSection("Jwt"));
-
+            services.Configure<AppInitializationSettings>(Configuration.GetSection(AppInitializationSettings.Section));
+            services.Configure<JwtSettings>(Configuration.GetSection(JwtSettings.Section));
             services.AddSingleton(_ => new UserManager<User>(
                 new InMemoryUserStore(), Options.Create
                     (new IdentityOptions
@@ -154,7 +154,10 @@ namespace BoomaEcommerce.Api
                 return new SecuredUserService(claims, userService);
             });
 
-            services.AddSingleton(_ => new Mock<IMistakeCorrection>().Object);
+            var mistakeCorrectionMock = new Mock<IMistakeCorrection>();
+            mistakeCorrectionMock.Setup(x => x.CorrectMistakeIfThereIsAny(It.IsAny<string>()))
+                .Returns<string>(x => x);
+            services.AddSingleton(_ => mistakeCorrectionMock.Object);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -166,7 +169,9 @@ namespace BoomaEcommerce.Api
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BoomaEcommerce.Api v1"));
+                app.UseMiddleware<LoggingMiddleware>();
             }
+            app.UseMiddleware<ExceptionsMiddleware>();
 
             app.UseHttpsRedirection();
 
@@ -175,8 +180,7 @@ namespace BoomaEcommerce.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMiddleware<LoggingMiddleware>();
-            app.UseMiddleware<ExceptionsMiddleware>();
+
 
             app.UseEndpoints(endpoints =>
             {

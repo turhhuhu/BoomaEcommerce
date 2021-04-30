@@ -73,6 +73,18 @@ namespace BoomaEcommerce.Api.Controllers
             return Ok(storesRes);
         }
 
+        [HttpGet(ApiRoutes.Stores.Get)]
+        public async Task<IActionResult> GetStore(Guid storeGuid)
+        {
+            var store = await _storeService.GetStoreAsync(storeGuid);
+            if (store == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(store);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetStores()
         {

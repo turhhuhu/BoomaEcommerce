@@ -16,6 +16,6 @@ namespace BoomaEcommerce.Services.DTO
         public int? Amount { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public float? Rating { get; set; }
+        public decimal? Rating { get; set; }
     }
 }

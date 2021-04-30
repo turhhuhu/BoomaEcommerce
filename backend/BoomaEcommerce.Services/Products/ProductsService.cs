@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 
 
@@ -27,11 +29,31 @@ namespace BoomaEcommerce.Services.Products
             _mistakeCorrection = mistakeCorrection;
         }
 
-        public async Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync()
+        public async Task<IReadOnlyCollection<ProductDto>> GetAllProductsAsync(
+            string category = null,
+            string productName = null,
+            decimal? rating = null)
         {
+            if (rating != null && (rating < Product.MinRating || rating > Product.MaxRating))
+            {
+                throw new ValidationException("Product filtering rating provided is out of range");
+            }
             try
             {
-                var products = await _productRepo.FindAllAsync();
+
+                if (category != null)
+                {
+                    category = _mistakeCorrection.CorrectMistakeIfThereIsAny(category);
+                }
+                if (productName != null)
+                {
+                    productName = _mistakeCorrection.CorrectMistakeIfThereIsAny(productName);
+                }
+                var products = await _productRepo.FilterByAsync(product => !product.IsSoftDeleted &&
+                                                                       (category == null || product.Category == category) &&
+                                                                       (productName == null || product.Name == productName) &&
+                                                                       (rating == null || product.Rating == rating));
+
                 return _mapper.Map<IReadOnlyCollection<ProductDto>>(products);
             }
             catch (Exception e)
