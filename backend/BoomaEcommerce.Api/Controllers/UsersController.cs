@@ -98,14 +98,17 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Stores.MePost)]
         public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
         {
+            
             var storeResult = await _storesService.CreateStoreAsync(store);
 
             if (storeResult == null)
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
+            var baseUrl = this.GetBaseUrl();
+            var locationUrl = $"{baseUrl}/stores/{storeResult.Guid}";
 
-            return Ok(storeResult);
+            return Created(locationUrl, storeResult);
         }
         [Authorize]
         [HttpGet(ApiRoutes.Cart.MeGet)]
