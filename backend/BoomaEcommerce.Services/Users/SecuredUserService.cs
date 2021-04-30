@@ -37,14 +37,14 @@ namespace BoomaEcommerce.Services.Users
                 return false;
             }
         }
-        public Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid)
+        public async Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid)
         {
             CheckAuthenticated();
             var userGuidInToken = ClaimsPrincipal.GetUserGuid();
-
-            if (userGuid == userGuidInToken)
+            var userInfo = await _next.GetUserInfoAsync(userGuid);
+            if (userInfo != null && userGuid == userGuidInToken)
             {
-                return _next.GetShoppingCartAsync(userGuid);
+                return await _next.GetShoppingCartAsync(userGuid);
             }
 
             throw new UnAuthorizedException($"User {userGuidInToken} can not access {userGuid} shopping cart.");

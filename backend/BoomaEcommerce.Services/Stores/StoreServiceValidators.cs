@@ -62,7 +62,7 @@ namespace BoomaEcommerce.Services.Stores
                 RuleFor(store => store.Rating)
                     .Null();
                 RuleFor(store => store.FounderUserGuid)
-                    .Must(founder => founder != default);
+                    .Must(founder => founder == default);
             }
         }
 

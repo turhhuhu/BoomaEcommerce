@@ -11,6 +11,8 @@ namespace BoomaEcommerce.Services.DTO
     {
         public string StoreName { get; set; }
         public string Description { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Guid FounderUserGuid { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

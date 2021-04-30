@@ -45,11 +45,10 @@ namespace BoomaEcommerce.AcceptanceTests
             var usersService = serviceMockFactory.MockUserService();
 
             await InitUser(storeService, authService, purchasesService ,usersService);
-            _fixture.Customize<StoreDto>(s =>
-                                         s.Without(ss => ss.Guid).Without(ss => ss.Rating).With(ss => ss.FounderUserGuid , UserGuid));
-
-
-            
+            _fixture.Customize<StoreDto>(s => s
+                .Without(ss => ss.Guid)
+                .Without(ss => ss.Rating)
+                .Without(ss => ss.FounderUserGuid));
 
             await InitPurchase(storeService);
         }
@@ -170,7 +169,7 @@ namespace BoomaEcommerce.AcceptanceTests
             //Arrange
             var fixtureStore = _fixture
                 .Build<StoreDto>()
-                .With(s => s.FounderUserGuid, UserGuid )
+                .Without(s => s.FounderUserGuid)
                 .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();

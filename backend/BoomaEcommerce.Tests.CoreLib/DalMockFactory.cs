@@ -221,7 +221,8 @@ namespace BoomaEcommerce.Tests.CoreLib
         public static Mock<IUserUnitOfWork> MockUserUnitOfWork(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
             IDictionary<Guid, ShoppingCart> shoppingCarts, 
-            IDictionary<Guid, PurchaseProduct> purchaseProducts)
+            IDictionary<Guid, PurchaseProduct> purchaseProducts,
+            Mock<UserManager<User>> userManagerMock = null)
         {
             var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
             var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
@@ -231,6 +232,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             userUnitOfWork.SetupGet(x => x.ShoppingBasketRepo).Returns(shoppingBasketRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.ShoppingCartRepo).Returns(shoppingCartRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.PurchaseProductRepo).Returns(purchaseProductRepoMock?.Object);
+            userUnitOfWork.SetupGet(x => x.UserManager).Returns(userManagerMock?.Object);
             return userUnitOfWork;
         }
     }

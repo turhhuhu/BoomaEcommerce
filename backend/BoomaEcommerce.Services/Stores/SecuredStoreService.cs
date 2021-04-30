@@ -68,12 +68,8 @@ namespace BoomaEcommerce.Services.Stores
             ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
-            if (store.FounderUserGuid == userGuid)
-            {
-                return _storeService.CreateStoreAsync(store);
-            }
-
-            throw new UnAuthorizedException($"User with guid {userGuid} is not authorized to create a store for user with guid {store.FounderUserGuid}");
+            store.FounderUserGuid = userGuid;
+            return _storeService.CreateStoreAsync(store);
         }
 
         public async Task<ProductDto> CreateStoreProductAsync(ProductDto product)
