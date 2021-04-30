@@ -358,8 +358,12 @@ namespace BoomaEcommerce.AcceptanceTests
             var success =
                 await _usersService.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasket.Guid,
                     Guid.NewGuid());
+            var shoppingCartUpdated = await _usersService.GetShoppingCartAsync(UserGuid);
+
+            var countAfterEditing = shoppingCartUpdated.Baskets.First().PurchaseProducts.Count;
 
             // Assert
+            countAfterEditing.Should().Be(countBeforeEditing);
             success.Should().BeFalse();
 
         }
