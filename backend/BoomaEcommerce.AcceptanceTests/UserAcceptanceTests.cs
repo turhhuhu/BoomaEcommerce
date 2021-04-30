@@ -319,19 +319,17 @@ namespace BoomaEcommerce.AcceptanceTests
             var guidToDelete = ((await _usersService.GetShoppingCartAsync(UserGuid)).Baskets.First())
                 .PurchaseProducts[0].Guid;
 
-            var countBeforeEditing = shoppingBasket.PurchaseProducts.Count;
-
             // Act
             var success =
                 await _usersService.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasket.Guid,
                     guidToDelete);
-
             var shoppingCartUpdated = await _usersService.GetShoppingCartAsync(UserGuid);
+            var list = shoppingCartUpdated.Baskets.First().PurchaseProducts;
 
-            var countAfterEditing = shoppingCartUpdated.Baskets.First().PurchaseProducts.Count;
 
             // Assert
-            (countAfterEditing - countBeforeEditing).Should().Be(-1);
+            list.Find(p => p.Guid == guidToDelete).Should().BeNull();
+            success.Should().BeTrue();
 
         }
 
@@ -340,7 +338,6 @@ namespace BoomaEcommerce.AcceptanceTests
         {
             // Arrange
             var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
-
             var fixtureShoppingBasket = _fixture
                 .Build<ShoppingBasketDto>()
                 .With(s => s.StoreGuid, _store_withGuid.Guid)
@@ -352,18 +349,15 @@ namespace BoomaEcommerce.AcceptanceTests
             var guidToDelete = ((await _usersService.GetShoppingCartAsync(UserGuid)).Baskets.First())
                 .PurchaseProducts[0].Guid;
 
-            var countBeforeEditing = shoppingBasket.PurchaseProducts.Count;
-
             // Act
             var success =
                 await _usersService.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasket.Guid,
                     Guid.NewGuid());
             var shoppingCartUpdated = await _usersService.GetShoppingCartAsync(UserGuid);
-
-            var countAfterEditing = shoppingCartUpdated.Baskets.First().PurchaseProducts.Count;
+            var list = shoppingCartUpdated.Baskets.First().PurchaseProducts;
 
             // Assert
-            countAfterEditing.Should().Be(countBeforeEditing);
+            list.Find(p => p.Guid == guidToDelete).Should().NotBeNull();
             success.Should().BeFalse();
 
         }
