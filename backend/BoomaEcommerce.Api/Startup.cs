@@ -154,7 +154,10 @@ namespace BoomaEcommerce.Api
                 return new SecuredUserService(claims, userService);
             });
 
-            services.AddSingleton(_ => new Mock<IMistakeCorrection>().Object);
+            var mistakeCorrectionMock = new Mock<IMistakeCorrection>();
+            mistakeCorrectionMock.Setup(x => x.CorrectMistakeIfThereIsAny(It.IsAny<string>()))
+                .Returns<string>(x => x);
+            services.AddSingleton(_ => mistakeCorrectionMock.Object);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -9,13 +9,16 @@ namespace BoomaEcommerce.Domain
 {
     public class Product : BaseEntity
     {
+        public const int MaxRating = 10;
+        public const int MinRating = 1;
+
         public int Id { get; set; }
         public string Name { get; set; }
         public Store Store { get; set; }
         public string Category { get; set; }
         public decimal Price { get; set; }
         public int Amount { get; set; }
-        public float Rating { get; set; }
+        public decimal Rating { get; set; }
         public SemaphoreSlim ProductLock { get; set; } = new(1);
         public bool IsSoftDeleted { get; set; }
         public IPurchaseType PurchaseType { get; set; }

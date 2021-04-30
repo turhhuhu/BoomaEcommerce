@@ -39,14 +39,26 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts(
+            [FromQuery] string keyword,
+            [FromQuery] string category,
+            [FromQuery] string productName,
+            [FromQuery] decimal? rating)
         {
-            var products = await _productService.GetAllProductsAsync();
+
+            IReadOnlyCollection<ProductDto> products;
+            if (keyword != null)
+            {
+                products = await _productService.GetProductByKeywordAsync(keyword);
+            }
+            else
+            {
+                products = await _productService.GetAllProductsAsync(category, productName, rating);
+            }
             if (products == null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-
             return Ok(products);
         }
         [Authorize]
@@ -87,5 +99,6 @@ namespace BoomaEcommerce.Api.Controllers
             }
             return NotFound();
         }
+
     }
 }

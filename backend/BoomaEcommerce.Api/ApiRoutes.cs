@@ -53,6 +53,7 @@ namespace BoomaEcommerce.Api
             public const string StoresMeBase = "stores";
             public const string MePost = Me + "/" + StoresMeBase;
             public const string GetAllProducts = "{storeGuid}/" + Products.ProductsBase;
+            public const string Get = "{storeGuid}";
         }
     }
 }
