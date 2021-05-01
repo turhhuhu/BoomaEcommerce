@@ -52,7 +52,7 @@ export function addProductToBasket(purchaseProduct) {
       config: {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: purchaseProduct.purchaseProduct,
+        body: JSON.stringify(purchaseProduct.purchaseProduct),
       },
       extraPayload: purchaseProduct.basketGuid,
     },
@@ -65,14 +65,14 @@ export function createBasketWithProduct(basket) {
       endpoint: USER_CART_BASKETS_URL,
       authenticated: true,
       types: [
-        UserActionTypes.ADD_PRODUCT_TO_BASKET_REQUEST,
-        UserActionTypes.ADD_PRODUCT_TO_BASKET_SUCCESS,
-        UserActionTypes.ADD_PRODUCT_TO_BASKET_FAILURE,
+        UserActionTypes.ADD_PRODUCT_WITH_BASKET_REQUEST,
+        UserActionTypes.ADD_PRODUCT_WITH_BASKET_SUCCESS,
+        UserActionTypes.ADD_PRODUCT_WITH_BASKET_FAILURE,
       ],
       config: {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: basket,
+        body: JSON.stringify(basket),
       },
     },
   };

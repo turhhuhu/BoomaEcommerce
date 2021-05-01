@@ -22,7 +22,7 @@ class Product extends Component {
 
   handleAddToCart = () => {
     let basketToAddTo = this.props.baskets.find(
-      (basket) => basket.guid === this.props.storeGuid
+      (basket) => basket.storeGuid === this.props.storeGuid
     );
     if (basketToAddTo) {
       this.props.dispatch(
@@ -30,24 +30,25 @@ class Product extends Component {
           basketGuid: basketToAddTo.guid,
           purchaseProduct: {
             productGuid: this.props.guid,
-            amount: this.quantity,
+            amount: this.state.quantity,
             price: this.props.price,
           },
         })
       );
-    } else
+    } else {
       this.props.dispatch(
         createBasketWithProduct({
           storeGuid: this.props.storeGuid,
           purchaseProducts: [
             {
               productGuid: this.props.guid,
-              amount: this.quantity,
+              amount: this.state.quantity,
               price: this.props.price,
             },
           ],
         })
       );
+    }
   };
   render() {
     return (

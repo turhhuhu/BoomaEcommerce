@@ -13,15 +13,20 @@ async function callApi(endpoint, authenticated, config) {
       if (!isValidJWT(token)) {
         throw new Error("unvalid Token!");
       }
-      config["headers"] = {
-        Authorization: `bearer ${token}`,
-      };
+      if (config.headers) {
+        config["headers"] = {
+          ...config.headers,
+          authorization: `bearer ${token}`,
+        };
+      } else {
+        config["headers"] = {
+          authorization: `bearer ${token}`,
+        };
+      }
     } else {
       throw new Error("no Token saved!");
     }
   }
-
-  console.log(config);
 
   return await fetch(endpoint, config)
     .then(
@@ -67,11 +72,12 @@ const middleware = (store) => (next) => (action) => {
         type: successType,
         extraPayload: extraPayload,
       }),
-    (error) =>
+    (error) => {
       next({
         error: error.message || "There was an error.",
         type: errorType,
-      })
+      });
+    }
   );
 };
 
