@@ -1,21 +1,27 @@
+import { isValidJWT } from "../utils/jwtUtils";
+
 export const CALL_API = Symbol("Call API");
 
-async function callApi(endpoint, authenticated) {
+async function callApi(endpoint, authenticated, config) {
   let token = localStorage.getItem("access_token") || null;
-  let config = {};
+  if (!config) {
+    config = {};
+  }
 
   if (authenticated) {
-    // TODO: add token validation here
     if (token) {
-      config = {
-        headers: {
-          Authorization: `bearer ${token}`,
-        },
+      if (!isValidJWT(token)) {
+        throw new Error("unvalid Token!");
+      }
+      config["headers"] = {
+        Authorization: `bearer ${token}`,
       };
     } else {
       throw new Error("no Token saved!");
     }
   }
+
+  console.log(config);
 
   return await fetch(endpoint, config)
     .then(
@@ -42,7 +48,7 @@ const middleware = (store) => (next) => (action) => {
     return next(action);
   }
 
-  let { endpoint, types, authenticated } = callAPI;
+  let { endpoint, types, authenticated, config, extraPayload } = callAPI;
 
   const [requestType, successType, errorType] = types;
 
@@ -51,7 +57,7 @@ const middleware = (store) => (next) => (action) => {
     type: requestType,
   });
 
-  return callApi(endpoint, authenticated).then(
+  return callApi(endpoint, authenticated, config).then(
     (response) =>
       next({
         payload: {
@@ -59,6 +65,7 @@ const middleware = (store) => (next) => (action) => {
           authenticated,
         },
         type: successType,
+        extraPayload: extraPayload,
       }),
     (error) =>
       next({

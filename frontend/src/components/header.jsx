@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import bootstrapIcon from "../images/logo.png";
+import ecommerceLogo from "../images/ecommerce.png";
 import "../css/navbar.css";
 import CartIcon from "./cartIcon";
 import UserIcon from "./userIcon";
@@ -8,17 +8,31 @@ import MessageIcon from "./messageIcon";
 import NotificationIcon from "./notificationIcon";
 
 class Header extends Component {
-  state = {};
+  state = {
+    scrollbar: undefined,
+  };
+
+  handleChange = (event) => {
+    console.log(this.state.scrollbar);
+    this.setState({
+      [event.target.name]: event.target.value,
+    });
+  };
 
   render() {
     return (
       <header className="section-header">
         <section className="header-main border-bottom">
-          <div className="container">
+          <div className="container" style={{ maxWidth: "1500px" }}>
             <div className="row align-items-center">
-              <div className="col-lg-2 col-4">
-                <a href="/login" className="brand-wrap">
-                  <img className="Logo" alt="" src={bootstrapIcon}></img>
+              <div className="col-lg-1 col-4">
+                <a href="/home" className="brand-wrap">
+                  <img
+                    className="Logo"
+                    alt=""
+                    src={ecommerceLogo}
+                    style={{ width: "70px" }}
+                  ></img>
                 </a>
               </div>
               <div className="col-lg-6 col-sm-12">
@@ -30,7 +44,11 @@ class Header extends Component {
                       placeholder="Search"
                       style={{ width: "55%" }}
                     ></input>
-                    <select className="custom-select" name="category_name">
+                    <select
+                      onChange={this.handleChange}
+                      className="custom-select"
+                      name="scrollbar"
+                    >
                       <option value="Keyword">Keyword</option>
                       <option value="Categories">Categories</option>
                       <option value="Name">Name</option>
@@ -43,13 +61,11 @@ class Header extends Component {
                   </div>
                 </form>
               </div>
-              <div className="col-lg-4 col-sm-6 col-12">
-                <div className="widgets-wrap float-md-right row">
-                  <NotificationIcon />
-                  <MessageIcon />
-                  <CartIcon />
-                  <UserIcon />
-                </div>
+              <div className="widgets-wrap ml-5 float-md-right">
+                <NotificationIcon />
+                <MessageIcon />
+                <CartIcon />
+                <UserIcon />
               </div>
             </div>
           </div>

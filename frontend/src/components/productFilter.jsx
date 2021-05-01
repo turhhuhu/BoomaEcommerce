@@ -27,10 +27,14 @@ class ProductFilter extends Component {
       let filteredMaxPrice = this.props.filteredProducts.length
         ? Math.max(...filteredProductsPrices)
         : 1;
+      let filteredMinPrice = this.props.filteredProducts.length
+        ? Math.min(...filteredProductsPrices)
+        : 1;
       this.setState({
         minPrice,
         maxPrice,
         MaxPriceFilter: filteredMaxPrice,
+        MinPriceFilter: filteredMinPrice,
       });
     }
   }
