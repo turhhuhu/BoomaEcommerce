@@ -72,7 +72,8 @@ namespace BoomaEcommerce.Api.Controllers
                 return BadRequest();
             }
 
-            return Ok(productResult);
+            var locationUrl = $"{this.GetBaseUrl()}/products/{productResult.Guid}";
+            return Created(locationUrl, productResult);
         }
 
         [Authorize]
