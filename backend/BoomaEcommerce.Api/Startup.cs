@@ -32,6 +32,7 @@ using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
+using Serilog;
 
 namespace BoomaEcommerce.Api
 {
@@ -179,7 +180,7 @@ namespace BoomaEcommerce.Api
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseSerilogRequestLogging();
 
 
             app.UseEndpoints(endpoints =>
