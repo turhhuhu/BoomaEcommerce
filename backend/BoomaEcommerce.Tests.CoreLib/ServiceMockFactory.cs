@@ -93,7 +93,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         {
             var loggerMock = new Mock<ILogger<UsersService>>();
             var userUnitOfWork =
-                DalMockFactory.MockUserUnitOfWork(_shoppingBaskets, _shoppingCarts, _purchaseProducts);
+                DalMockFactory.MockUserUnitOfWork(_shoppingBaskets, _shoppingCarts, _purchaseProducts, _userManagerMock);
             return new UsersService(MapperFactory.GetMapper(), loggerMock.Object, userUnitOfWork.Object);
         }
     }

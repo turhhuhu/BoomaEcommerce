@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Purchases;
@@ -45,11 +46,10 @@ namespace BoomaEcommerce.AcceptanceTests
             var usersService = serviceMockFactory.MockUserService();
 
             await InitUser(storeService, authService, purchasesService ,usersService);
-            _fixture.Customize<StoreDto>(s =>
-                                         s.Without(ss => ss.Guid).Without(ss => ss.Rating).With(ss => ss.FounderUserGuid , UserGuid));
-
-
-            
+            _fixture.Customize<StoreDto>(s => s
+                .Without(ss => ss.Guid)
+                .Without(ss => ss.Rating)
+                .Without(ss => ss.FounderUserGuid));
 
             await InitPurchase(storeService);
         }
@@ -170,7 +170,7 @@ namespace BoomaEcommerce.AcceptanceTests
             //Arrange
             var fixtureStore = _fixture
                 .Build<StoreDto>()
-                .With(s => s.FounderUserGuid, UserGuid )
+                .Without(s => s.FounderUserGuid)
                 .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();
@@ -182,7 +182,6 @@ namespace BoomaEcommerce.AcceptanceTests
             
 
             expectedStore.Should().BeEquivalentTo(newStore);
-           
         }
 
         [Fact]
@@ -302,6 +301,67 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             purchaseWasSuccessful.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task DeletePurchaseProductFromShoppingBasketAsync_UpdatesContentOfCart_WhenDetailsAreValid()
+        {
+            // Arrange
+            var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
+
+            var fixtureShoppingBasket = _fixture
+                .Build<ShoppingBasketDto>()
+                .With(s => s.StoreGuid, _store_withGuid.Guid)
+                .With(s => s.PurchaseProducts, purchase_product_lst)
+                .Without(s => s.Guid)
+                .Create();
+
+            var shoppingBasket = await _usersService.CreateShoppingBasketAsync(shoppingCart.Guid, fixtureShoppingBasket);
+            var guidToDelete = ((await _usersService.GetShoppingCartAsync(UserGuid)).Baskets.First())
+                .PurchaseProducts[0].Guid;
+
+            // Act
+            var success =
+                await _usersService.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasket.Guid,
+                    guidToDelete);
+            var shoppingCartUpdated = await _usersService.GetShoppingCartAsync(UserGuid);
+            var list = shoppingCartUpdated.Baskets.First().PurchaseProducts;
+
+
+            // Assert
+            list.Find(p => p.Guid == guidToDelete).Should().BeNull();
+            success.Should().BeTrue();
+
+        }
+
+        [Fact]
+        public async Task DeletePurchaseProductFromShoppingBasketAsync_UpdatesContentOfCartDoesNotHappen_WhenDetailsAreNotValid()
+        {
+            // Arrange
+            var shoppingCart = await _usersService.GetShoppingCartAsync(UserGuid);
+            var fixtureShoppingBasket = _fixture
+                .Build<ShoppingBasketDto>()
+                .With(s => s.StoreGuid, _store_withGuid.Guid)
+                .With(s => s.PurchaseProducts, purchase_product_lst)
+                .Without(s => s.Guid)
+                .Create();
+
+            var shoppingBasket = await _usersService.CreateShoppingBasketAsync(shoppingCart.Guid, fixtureShoppingBasket);
+            var guidToDelete = ((await _usersService.GetShoppingCartAsync(UserGuid)).Baskets.First())
+                .PurchaseProducts[0].Guid;
+
+            // Act
+            var success =
+                await _usersService.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasket.Guid,
+                    Guid.NewGuid());
+            var shoppingCartUpdated = await _usersService.GetShoppingCartAsync(UserGuid);
+            var list = shoppingCartUpdated.Baskets.First().PurchaseProducts;
+
+            // Assert
+            list.Find(p => p.Guid == guidToDelete).Should().NotBeNull();
+            success.Should().BeFalse();
+
+        }
+
 
 
         public Task DisposeAsync()

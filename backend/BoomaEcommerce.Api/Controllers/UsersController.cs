@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Api.Controllers
 
         [Authorize]
         [HttpPost(ApiRoutes.Cart.Baskets.MePost)]
-        public async Task<IActionResult> PostBasket([FromBody] ShoppingBasketDto shoppingBasket)
+        public async Task<IActionResult> CreateBasket([FromBody] ShoppingBasketDto shoppingBasket)
         {
             var userGuid = User.GetUserGuid();
             var createdBasket = await _userService.CreateShoppingBasketAsync(userGuid, shoppingBasket);
@@ -51,8 +51,8 @@ namespace BoomaEcommerce.Api.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
+            return CreatedAtAction(nameof(CreateBasket), createdBasket);
 
-            return Ok(createdBasket);
         }
 
         [Authorize]
@@ -70,7 +70,7 @@ namespace BoomaEcommerce.Api.Controllers
 
         [Authorize]
         [HttpPost(ApiRoutes.Cart.Baskets.PurchaseProducts.MePost)]
-        public async Task<IActionResult> PostPurchaseProduct(Guid basketGuid, [FromBody] PurchaseProductDto purchaseProduct)
+        public async Task<IActionResult> CreatePurchaseProduct(Guid basketGuid, [FromBody] PurchaseProductDto purchaseProduct)
         {
             var res =
                 await _userService.AddPurchaseProductToShoppingBasketAsync(basketGuid, purchaseProduct);
@@ -78,8 +78,7 @@ namespace BoomaEcommerce.Api.Controllers
             {
                 return NotFound();
             }
-
-            return Ok(res);
+            return CreatedAtAction(nameof(CreatePurchaseProduct), res);
         }
 
         [Authorize]
@@ -91,21 +90,24 @@ namespace BoomaEcommerce.Api.Controllers
             {
                 return NoContent();
             }
-
+            
             return NotFound();
         }
 
         [HttpPost(ApiRoutes.Stores.MePost)]
         public async Task<IActionResult> CreateStore([FromBody] StoreDto store)
         {
+            
             var storeResult = await _storesService.CreateStoreAsync(store);
 
             if (storeResult == null)
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
+            var baseUrl = this.GetBaseUrl();
+            var locationUrl = $"{baseUrl}/stores/{storeResult.Guid}";
 
-            return Ok(storeResult);
+            return Created(locationUrl, storeResult);
         }
         [Authorize]
         [HttpGet(ApiRoutes.Cart.MeGet)]
