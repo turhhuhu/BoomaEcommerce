@@ -158,5 +158,135 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             statusCodeResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }
 
+        [Fact]
+        public async Task CreateBasket_ShouldReturnCreatedBasket_WhenUserServiceCreatesBasket()
+        {
+            // Arrange
+
+            var basketGuid = Guid.NewGuid();
+            _usersServiceMock.Setup(x => x.CreateShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<ShoppingBasketDto>()))
+                .ReturnsAsync((Guid _, ShoppingBasketDto shoppingBasket) => shoppingBasket);
+            var shoppingBasketDto = new ShoppingBasketDto { Guid = basketGuid };
+
+            // Act
+            var basketResult = await _usersController.CreateBasket(shoppingBasketDto);
+
+            // Assert
+            basketResult.Should().BeOfType<CreatedAtActionResult>();
+            var createdBasketResult = (CreatedAtActionResult) basketResult;
+            createdBasketResult.Value.Should().BeEquivalentTo(shoppingBasketDto);
+        }
+
+        [Fact]
+        public async Task CreateBasket_ShouldReturnStatusCodeInternalServerError_WhenUserServiceReturnsNull()
+        {
+            // Arrange
+            var basketGuid = Guid.NewGuid();
+            _usersServiceMock.Setup(x => x.CreateShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<ShoppingBasketDto>()))
+                .ReturnsAsync((Guid _, ShoppingBasketDto _) => null);
+            var shoppingBasketDto = new ShoppingBasketDto { Guid = basketGuid };
+
+            // Act
+            var basketResult = await _usersController.CreateBasket(shoppingBasketDto);
+
+            // Assert
+            basketResult.Should().BeOfType<StatusCodeResult>();
+            var statusCodeResult = (StatusCodeResult)basketResult;
+            statusCodeResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        }
+
+        [Fact]
+        public async Task DeletePurchaseProduct_ShouldReturnNoContent_WhenUserServiceReturnsTrue()
+        {
+            // Arrange
+            _usersServiceMock.Setup(x =>
+                    x.DeletePurchaseProductFromShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync((Guid _, Guid _) => true);
+
+
+            // Act
+            var deletionResult = await _usersController.DeletePurchaseProduct(Guid.Empty, Guid.Empty);
+
+            // Assert
+            deletionResult.Should().BeOfType<NoContentResult>();
+        }
+
+        [Fact]
+        public async Task DeletePurchaseProduct_ShouldReturnNotFound_WhenUserServiceReturnsFalse()
+        {
+            // Arrange
+            _usersServiceMock.Setup(x =>
+                    x.DeletePurchaseProductFromShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .ReturnsAsync((Guid _, Guid _) => false);
+
+
+            // Act
+            var deletionResult = await _usersController.DeletePurchaseProduct(Guid.Empty, Guid.Empty);
+
+            // Assert
+            deletionResult.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Fact]
+        public async Task CreatePurchaseProduct_ShouldReturnCreated_WhenUserServiceReturnsCreatedPurchaseProduct()
+        {
+            // Arrange
+            var purchaseProductDto = new PurchaseProductDto { Guid = Guid.NewGuid() };
+            _usersServiceMock.Setup(x =>
+                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
+                .ReturnsAsync((Guid _, PurchaseProductDto pp) => pp);
+
+            // Act
+            var purchaseProductResult = await _usersController.CreatePurchaseProduct(Guid.Empty, purchaseProductDto);
+
+            // Assert
+            purchaseProductResult.Should().BeOfType<CreatedAtActionResult>();
+            var createdResult = (CreatedAtActionResult) purchaseProductResult;
+            createdResult.Value.Should().BeEquivalentTo(purchaseProductDto);
+        }
+
+        [Fact]
+        public async Task CreatePurchaseProduct_ShouldReturnNotFound_WhenUserServiceReturnsNull()
+        {
+            // Arrange
+            var purchaseProductDto = new PurchaseProductDto { Guid = Guid.NewGuid() };
+            _usersServiceMock.Setup(x =>
+                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
+                .ReturnsAsync((Guid _, PurchaseProductDto _) => null);
+
+            // Act
+            var purchaseProductResult = await _usersController.CreatePurchaseProduct(Guid.Empty, purchaseProductDto);
+
+            // Assert
+            purchaseProductResult.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Fact]
+        public async Task DeleteBasket_ShouldReturnNoContent_WhenUserServiceReturnsTrue()
+        {
+            // Arrange
+            _usersServiceMock.Setup(x => x.DeleteShoppingBasketAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid _) => true);
+
+            // Act
+            var deletionResult = await _usersController.DeleteBasket(Guid.Empty);
+
+            // Assert
+            deletionResult.Should().BeOfType<NoContentResult>();
+        }
+
+        [Fact]
+        public async Task DeleteBasket_ShouldReturnNotFound_WhenUserServiceReturnsFalse()
+        {
+            // Arrange
+            _usersServiceMock.Setup(x => x.DeleteShoppingBasketAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid _) => false);
+
+            // Act
+            var deletionResult = await _usersController.DeleteBasket(Guid.Empty);
+
+            // Assert
+            deletionResult.Should().BeOfType<NotFoundResult>();
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Purchases;
@@ -181,7 +182,6 @@ namespace BoomaEcommerce.AcceptanceTests
             
 
             expectedStore.Should().BeEquivalentTo(newStore);
-           
         }
 
         [Fact]
