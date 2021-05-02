@@ -48,18 +48,8 @@ namespace BoomaEcommerce.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                    builder =>
-                    {
-                        builder
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowAnyOrigin();
-                    });
-            });
-
+            services.AddCors();
+            
             services.AddControllers();
 
             services.AddMvc().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
@@ -170,14 +160,17 @@ namespace BoomaEcommerce.Api
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BoomaEcommerce.Api v1"));
-                app.UseMiddleware<LoggingMiddleware>();
+                
             }
             app.UseMiddleware<ExceptionsMiddleware>();
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseCors();
+            app.UseCors(builder => builder.AllowAnyHeader()
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .SetIsOriginAllowed(origin => true));
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSerilogRequestLogging();

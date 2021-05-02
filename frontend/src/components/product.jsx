@@ -2,9 +2,13 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import "../css/product.css";
 import ProductRating from "./productRating";
+import {
+  addProductToBasket,
+  createBasketWithProduct,
+} from "../actions/userActions";
 
 class Product extends Component {
-  state = {};
+  state = { quantity: 1 };
 
   handleChange = (event) => {
     this.setState({
@@ -12,6 +16,40 @@ class Product extends Component {
     });
   };
 
+  handleInputDisable = (event) => {
+    event.preventDefault();
+  };
+
+  handleAddToCart = () => {
+    let basketToAddTo = this.props.baskets.find(
+      (basket) => basket.storeGuid === this.props.storeGuid
+    );
+    if (basketToAddTo) {
+      this.props.dispatch(
+        addProductToBasket({
+          basketGuid: basketToAddTo.guid,
+          purchaseProduct: {
+            productGuid: this.props.guid,
+            amount: this.state.quantity,
+            price: this.props.price,
+          },
+        })
+      );
+    } else {
+      this.props.dispatch(
+        createBasketWithProduct({
+          storeGuid: this.props.storeGuid,
+          purchaseProducts: [
+            {
+              productGuid: this.props.guid,
+              amount: this.state.quantity,
+              price: this.props.price,
+            },
+          ],
+        })
+      );
+    }
+  };
   render() {
     return (
       <div className="col-md-4">
@@ -37,6 +75,14 @@ class Product extends Component {
                 <div className="input-group input-spinner">
                   <div className="input-group-prepend">
                     <button
+                      onClick={
+                        this.state.quantity < this.props.amount
+                          ? () =>
+                              this.setState({
+                                quantity: this.state.quantity + 1,
+                              })
+                          : null
+                      }
                       className="btn btn-outline-primary"
                       type="button"
                       id="button-plus"
@@ -47,12 +93,23 @@ class Product extends Component {
                   </div>
                   <input
                     type="text"
+                    min="1"
+                    max={this.props.amount}
+                    onKeyDown={this.handleInputDisable}
                     className="form-control"
                     onChange={this.handleChange}
-                    value={"1"}
+                    value={this.state.quantity}
                   ></input>
                   <div className="input-group-append">
                     <button
+                      onClick={
+                        this.state.quantity > 1
+                          ? () =>
+                              this.setState({
+                                quantity: this.state.quantity - 1,
+                              })
+                          : null
+                      }
                       className="btn btn-outline-primary"
                       type="button"
                       id="button-minus"
@@ -64,7 +121,10 @@ class Product extends Component {
                 </div>
               </div>
             </div>
-            <button className="btn btn-outline-primary btn-block">
+            <button
+              onClick={this.handleAddToCart}
+              className="btn btn-outline-primary btn-block"
+            >
               {" "}
               Add to cart
               <i className="fa fa-shopping-cart"></i>
@@ -76,4 +136,10 @@ class Product extends Component {
   }
 }
 
-export default connect()(Product);
+const mapStateToProps = (store) => {
+  return {
+    baskets: store.user.cart.baskets,
+  };
+};
+
+export default connect(mapStateToProps)(Product);

@@ -1,5 +1,7 @@
 import * as URLS from "../utils/constants";
 import * as AuthActionTypes from "./types/authActionsTypes";
+import storage from "redux-persist/lib/storage";
+import { fetchUserCart } from "./userActions";
 
 function requestLogin() {
   return {
@@ -73,6 +75,7 @@ export function loginUser(creds) {
           localStorage.setItem("refresh_token", responsePayload.refreshToken);
           // Dispatch the success action
           dispatch(receiveLogin({ responsePayload }));
+          dispatch(fetchUserCart());
         }
       })
       .catch((err) => {
@@ -188,8 +191,12 @@ function receiveLogout() {
 export function logoutUser() {
   return (dispatch) => {
     dispatch(requestLogout());
+    dispatch({
+      type: "RESET",
+    });
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    storage.removeItem("persist:root");
     dispatch(receiveLogout());
   };
 }

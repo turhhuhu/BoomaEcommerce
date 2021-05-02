@@ -19,6 +19,8 @@ class ProductView extends Component {
             {this.props.filteredProducts?.map((product) => (
               <Product
                 key={product.guid}
+                storeGuid={product.storeGuid}
+                guid={product.guid}
                 name={product.name}
                 rating={product.rating}
                 price={product.price}

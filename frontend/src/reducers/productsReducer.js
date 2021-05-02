@@ -24,6 +24,7 @@ export function products(
       return Object.assign({}, state, {
         filteredProducts: action.payload.filteredProducts,
       });
+
     default:
       return state;
   }
