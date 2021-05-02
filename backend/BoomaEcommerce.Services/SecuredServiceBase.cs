@@ -47,18 +47,9 @@ namespace BoomaEcommerce.Services
             return claims;
         }
 
-        protected bool CheckRoleAuthorized(MethodInfo? method)
+        protected bool CheckRoleAuthorized(string role)
         {
-            if (ClaimsPrincipal == null || method == null)
-            {
-                return false;
-            }
-
-            var authAttributes = method.GetCustomAttributes<AuthorizeAttribute>(true);
-            var roles = authAttributes
-                .SelectMany(att => att.Roles?.Split(',') ?? Enumerable.Empty<string>());
-
-            return roles.Any(role => ClaimsPrincipal.IsInRole(role));
+            return ClaimsPrincipal != null && ClaimsPrincipal.IsInRole(role);
         }
 
         protected void CheckAuthenticated()

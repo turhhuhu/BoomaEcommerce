@@ -59,13 +59,11 @@ namespace BoomaEcommerce.Services.Purchases
             return _purchaseService.CreatePurchaseAsync(purchase);
         }
 
-        [Authorize(Roles = UserRoles.AdminRole)]
         public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userGuid)
         {
             CheckAuthenticated();
 
-            var method = typeof(SecuredPurchaseService).GetMethod(nameof(GetAllUserPurchaseHistoryAsync));
-            if (CheckRoleAuthorized(method))
+            if (CheckRoleAuthorized(UserRoles.AdminRole))
             {
                 return _purchaseService.GetAllUserPurchaseHistoryAsync(userGuid);
             }
