@@ -23,9 +23,9 @@ class Header extends Component {
     return (
       <header className="section-header">
         <section className="header-main border-bottom">
-          <div className="container" style={{ maxWidth: "1500px" }}>
-            <div className="row align-items-center">
-              <div className="col-lg-1 col-4">
+          <div className="container" style={{ maxWidth: "1300px" }}>
+            <div className="row align-items-center ml-5">
+              <div className="col-lg-1 ml-4 col-4">
                 <a href="/home" className="brand-wrap">
                   <img
                     className="Logo"

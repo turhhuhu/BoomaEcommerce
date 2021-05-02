@@ -8,7 +8,7 @@ class MessageIcon extends Component {
         <a href="/login" className="icon icon-sm rounded-circle border">
           <i className="fa fa-envelope"></i>
         </a>
-        <span className="badge badge-pill badge-info notify">0</span>
+        <span className="badge badge-pill badge-dark notify">0</span>
       </div>
     );
   }

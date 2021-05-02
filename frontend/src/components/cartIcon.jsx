@@ -9,7 +9,7 @@ class CartIcon extends Component {
         <a href="/cart" className="icon icon-sm rounded-circle border">
           <i className="fa fa-shopping-cart"></i>
         </a>
-        <span className="badge badge-pill badge-danger notify">
+        <span className="badge badge-pill badge-info notify">
           {this.props.baskets.length > 0
             ? this.props.baskets.reduce((acc, basket) => {
                 return acc + basket.purchaseProducts.length;
