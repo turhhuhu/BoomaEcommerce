@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Domain.Tests
         [Fact]
         public async Task MakePurchase_ReturnsTrue_WhenStorePurchasesAreValid()
         {
-            var sut = new Purchase {StorePurchases = TestData.GetTestValidStorePurchases()};
+            var sut = new Purchase {StorePurchases = TestData.GetTestValidStorePurchases(), TotalPrice = 450};
 
             var result = await sut.MakePurchase();
 
@@ -25,9 +25,28 @@ namespace BoomaEcommerce.Domain.Tests
         [Fact]
         public async Task MakePurchase_ReturnsFalse_WhenStorePurchasesAreInvalid()
         {
-            var sut = new Purchase {StorePurchases = TestData.GetTestInvalidStorePurchases()};
+            var sut = new Purchase {StorePurchases = TestData.GetTestInvalidStorePurchases(), TotalPrice = 450};
 
             var result = await sut.MakePurchase();
+
+            result.Should().BeFalse();
+        }
+        
+        [Fact]
+        public void ValidatePrice_ReturnsTrue_WhenPriceValid()
+        {
+            var sut = new Purchase {StorePurchases = TestData.GetTestValidStorePurchases(), TotalPrice = 450};
+            var result = sut.ValidatePrice();
+
+            result.Should().BeTrue();
+        }
+        
+        [Fact]
+        public void ValidatePrice_ReturnsFalse_WhenPriceInvalid()
+        {
+            var sut = new Purchase {StorePurchases = TestData.GetTestInvalidStorePurchases(), TotalPrice = 450};
+
+            var result = sut.ValidatePrice();
 
             result.Should().BeFalse();
         }

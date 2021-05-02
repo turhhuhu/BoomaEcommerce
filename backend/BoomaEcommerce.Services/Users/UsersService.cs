@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
-using BoomaEcommerce.Services.External;
-using BoomaEcommerce.Services.Purchases;
 using Microsoft.Extensions.Logging;
-using BoomaEcommerce.Services.Stores;
 
 namespace BoomaEcommerce.Services.Users
 {
@@ -36,42 +31,44 @@ namespace BoomaEcommerce.Services.Users
                     .FindOneAsync(x => x.User.Guid == userGuid);
                 
                 if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
-                
-                shoppingCart = new ShoppingCart {User = new User {Guid = userGuid}};
+
+                shoppingCart = new ShoppingCart(new User {Guid = userGuid});
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
                 return _mapper.Map<ShoppingCartDto>(shoppingCart);
             }
             catch (Exception e)
             {
-                
+                _logger.LogError(e, "Failed to get shopping cart for user with UserDto {User}", userGuid);
                 return null;
             }
         }
 
-        public async Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasketDto)
+        public async Task<ShoppingBasketDto> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasketDto)
         {
             try
             {
                 var shoppingBasket = _mapper.Map<ShoppingBasket>(shoppingBasketDto);
                 var shoppingCart = await _userUnitOfWork.ShoppingCartRepo
-                    .FindOneAsync(x => x.Guid == shoppingCartGuid);
+                    .FindOneAsync(x => x.Guid == shoppingCartGuid) 
+                                   ?? new ShoppingCart(new User {Guid = shoppingCartGuid});
+
                 if (!shoppingCart.AddShoppingBasket(shoppingBasket))
                 {
-                    return false;
+                    return null;
                 }
                 await _userUnitOfWork.ShoppingBasketRepo.InsertOneAsync(shoppingBasket);
                 await _userUnitOfWork.ShoppingCartRepo.ReplaceOneAsync(shoppingCart);
                 await _userUnitOfWork.SaveAsync();
-                return true;
+                return _mapper.Map<ShoppingBasketDto>(shoppingBasket);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to create shopping basket for shopping cart with Guid {ShoppingCartGuid}", shoppingCartGuid);
-                return false;
+                _logger.LogError(e, "Failed to create shopping basket for shopping cart with UserDto {ShoppingCartGuid}", shoppingCartGuid);
+                return null;
             }
         }
         
-        public async Task<bool> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
             PurchaseProductDto purchaseProductDto)
         {
             try
@@ -79,20 +76,20 @@ namespace BoomaEcommerce.Services.Users
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
                     .FindOneAsync(x => x.Guid == shoppingBasketGuid);
-                if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
+                if (shoppingBasket == null || !shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
-                    return false;
+                    return null;
                 }
 
                 await _userUnitOfWork.PurchaseProductRepo.InsertOneAsync(purchaseProduct);
                 await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
                 await _userUnitOfWork.SaveAsync();
-                return true;
+                return _mapper.Map<PurchaseProductDto>(purchaseProduct);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to add purchase product to shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
-                return false;
+                _logger.LogError(e, "Failed to add purchase product to shopping basket with UserDto {ShoppingBasketGuid}", shoppingBasketGuid);
+                return null;
             }
         }
 
@@ -102,7 +99,7 @@ namespace BoomaEcommerce.Services.Users
             {
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
                     .FindOneAsync(x => x.Guid == shoppingBasketGuid);
-                if (!shoppingBasket.RemovePurchaseProduct(purchaseProductGuid))
+                if (shoppingBasket == null || !shoppingBasket.RemovePurchaseProduct(purchaseProductGuid))
                 {
                     return false;
                 }
@@ -113,7 +110,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to Delete purchase product from shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
+                _logger.LogError(e, "Failed to Delete purchase product from shopping basket with UserDto {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
@@ -128,19 +125,40 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to Delete shopping basket with Guid {ShoppingBasketGuid}", shoppingBasketGuid);
+                _logger.LogError(e, "Failed to Delete shopping basket with UserDto {ShoppingBasketGuid}", shoppingBasketGuid);
                 return false;
             }
         }
 
-        public Task<UserDto> GetUserInfoAsync(Guid userGuid)
+        public async Task<UserDto> GetUserInfoAsync(Guid userGuid)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Getting user info for user with guid {userGuid}", userGuid);
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+                return _mapper.Map<UserDto>(user);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get info for userDto {userGuid}", userGuid);
+                return null;
+            }
         }
 
-        public Task UpdateUserInfoAsync(UserDto user)
+        public async Task<bool> UpdateUserInfoAsync(UserDto userDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation("Updating user info for user with guid {userGuid}", userDto.Guid);
+                var user = _mapper.Map<User>(userDto);
+                await _userUnitOfWork.UserManager.UpdateAsync(user);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to update info for userDto {userGuid}", userDto.Guid);
+                return false;
+            }
         }
     }
 }

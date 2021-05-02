@@ -11,37 +11,38 @@ namespace BoomaEcommerce.Services.Users
     {
 
         /// <summary>
-        /// Gets shopping cart by user guid.
+        /// Gets shopping cart by userDto guid.
         /// </summary>
         /// <param name="userGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the user's shopping cart.
+        /// The task result contains the userDto's shopping cart.
         /// </returns>
         Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid);
 
         /// <summary>
-        /// Creates a shopping basket in a user's shopping cart.
+        /// Creates a shopping basket in a userDto's shopping cart.
         /// </summary>
         /// <param name="shoppingBasket"></param>
         /// <param name="shoppingCartGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<bool> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket);
+        Task<ShoppingBasketDto> CreateShoppingBasketAsync(Guid shoppingCartGuid, ShoppingBasketDto shoppingBasket);
 
         /// <summary>
-        /// Adds a product to a user's shopping basket.
+        /// Adds a product to a userDto's shopping basket.
         /// </summary>
         /// <param name="shoppingBasketGuid"></param>
         /// <param name="purchaseProduct"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<bool> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid, PurchaseProductDto purchaseProduct);
+        Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+            PurchaseProductDto purchaseProduct);
 
         /// <summary>
-        /// Deletes a product from a user's shopping basket.
+        /// Deletes a product from a userDto's shopping basket.
         /// </summary>
         /// <param name="shoppingBasketGuid"></param>
         /// <param name="purchaseProductGuid"></param>
@@ -51,7 +52,7 @@ namespace BoomaEcommerce.Services.Users
         Task<bool> DeletePurchaseProductFromShoppingBasketAsync(Guid shoppingBasketGuid, Guid purchaseProductGuid);
 
         /// <summary>
-        /// Deletes a shopping basket in a user's shopping cart.
+        /// Deletes a shopping basket in a userDto's shopping cart.
         /// </summary>
         /// <param name="shoppingBasketGuid"></param>
         /// <returns>
@@ -60,23 +61,23 @@ namespace BoomaEcommerce.Services.Users
         Task<bool> DeleteShoppingBasketAsync(Guid shoppingBasketGuid);
 
         /// <summary>
-        /// Gets user info by id.
+        /// Gets userDto info by id.
         /// </summary>
         /// <param name="userGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the user's info.
+        /// The task result contains the userDto's info.
         /// </returns>
         Task<UserDto> GetUserInfoAsync(Guid userGuid);
 
         /// <summary>
-        /// Updates user info by id.
+        /// Updates userDto info by id.
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="userDto"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task UpdateUserInfoAsync(UserDto user);
+        Task<bool> UpdateUserInfoAsync(UserDto userDto);
 
     }
 }

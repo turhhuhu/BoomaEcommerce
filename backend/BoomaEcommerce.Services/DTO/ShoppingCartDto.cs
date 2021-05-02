@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class ShoppingCartDto : BaseEntityDto, IUserRelatedResource
+    public class ShoppingCartDto : BaseEntityDto
     {
-        public UserDto User { get; set; }
-        public List<ShoppingBasketDto> Baskets { get; set; }
+        public IReadOnlyCollection<ShoppingBasketDto> Baskets { get; set; }
+
     }
 }

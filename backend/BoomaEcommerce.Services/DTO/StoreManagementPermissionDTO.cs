@@ -10,9 +10,10 @@ namespace BoomaEcommerce.Services.DTO
 {
     public class StoreManagementPermissionDto : BaseEntityDto
     {
-        public bool CanDoSomething { get; set; }
-        public bool ExampleFlag1 { get; set; }
-        public bool ExampleFlag2 { get; set; }
-        public StoreManagementDto StoreManagement { get; set; }
+        public bool CanAddProduct { get; set; }
+        public bool CanDeleteProduct { get; set; }
+        public bool CanUpdateProduct { get; set; }
+        public bool CanGetSellersInfo { get; set; }
+
     }
 }

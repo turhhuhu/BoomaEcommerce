@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
 
@@ -11,23 +12,50 @@ namespace BoomaEcommerce.Services.Stores
     {
 
         /// <summary>
-        /// Gets the store's purchase history.
+        /// Gets the UserStore's purchase history.
         /// </summary>
         /// <param name="storeGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the store purchase history collection.
+        /// The task result contains the UserStore purchase history collection.
         /// </returns>
-        Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistory(Guid storeGuid);
+        Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistoryAsync(Guid storeGuid);
 
         /// <summary>
-        /// Creates a store for a registered user.
+        /// Creates a UserStore for a registered user.
         /// </summary>
         /// <param name="store"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task CreateStoreAsync(StoreDto store);
+        Task<StoreDto> CreateStoreAsync(StoreDto store);
+
+        /// <summary>
+        /// Creates a product in a UserStore.
+        /// </summary>
+        /// <param name="productDto"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// </returns>
+        Task<ProductDto> CreateStoreProductAsync(ProductDto productDto);
+
+        /// <summary>
+        /// Deletes a product by guid.
+        /// </summary>
+        /// <param name="productGuid"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// </returns>
+        Task<bool> DeleteProductAsync(Guid productGuid);
+
+        /// <summary>
+        /// Updates a product by guid.
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// </returns>
+        Task<bool> UpdateProductAsync(ProductDto product);
 
         /// <summary>
         /// Gets all stores.
@@ -39,17 +67,17 @@ namespace BoomaEcommerce.Services.Stores
         Task<IReadOnlyCollection<StoreDto>> GetStoresAsync();
 
         /// <summary>
-        /// Gets a store by guid.
+        /// Gets a UserStore by guid.
         /// </summary>
         /// <param name="storeGuid"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the store.
+        /// The task result contains the UserStore.
         /// </returns>
         Task<StoreDto> GetStoreAsync(Guid storeGuid);
 
         /// <summary>
-        /// Deletes a store by guid.
+        /// Deletes a UserStore by guid.
         /// </summary>
         /// <param name="storeGuid"></param>
         /// <returns>
@@ -58,33 +86,64 @@ namespace BoomaEcommerce.Services.Stores
         Task<bool> DeleteStoreAsync(Guid storeGuid);
 
         /// <summary>
-        /// Adds a new owner to a store
+        /// Adds a new ownerGuid to a UserStore
         /// </summary>
-        /// <param name="owner"></param>
+        /// <param name="ownerGuid"></param>
         /// <param name="newOwnerDto"></param>
         /// <returns>
         /// return bool that represents if the nomination process was successful
         /// </returns>
-        Task<bool> NominateNewStoreOwner(Guid owner, StoreOwnershipDto newOwnerDto);
+        Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto);
 
         /// <summary>
-        /// Adds a new manager to a store
+        /// Adds a new ownerGuid to a UserStore
         /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="newOwnerDto"></param>
+        /// <param name="ownerGuid"></param>
+        /// <param name="newManagementDto"></param>
         /// <returns>
         /// return bool that represents if the nomination process was successful
         /// </returns>
-        Task<bool> NominateNewStoreManager(Guid owner, StoreManagementDto newOwnerDto);
+        Task<bool> NominateNewStoreManagerAsync(Guid ownerGuid, StoreManagementDto newManagementDto);
 
         /// <summary>
-        /// Get of all subordinates under the store owner provided
+        /// Get of all subordinates under the UserStore ownerGuid provided
         /// </summary>
         /// <param name="storeOwnerGuid"></param>
+        /// <param name="level"></param>
         /// <returns>
         /// A task that represents the asynchronous operation.
-        /// returns a store seller response containing all subordinates of the owner requested.
+        /// returns a UserStore seller response containing all subordinates of the ownerGuid requested.
         /// </returns>
-        Task<StoreSellersResponse> GetAllSubordinateSellers(Guid storeOwnerGuid);
+        Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null);
+        
+        Task<StoreOwnershipDto> GetStoreOwnerShipAsync(Guid userGuid, Guid storeGuid);
+        Task<StoreManagementDto> GetStoreManagementAsync(Guid userGuid, Guid storeGuid);
+        Task<ProductDto> GetStoreProductAsync(Guid productGuid);
+
+        Task<StoreSellersResponse> GetAllSellersInformationAsync(Guid storeGuid);
+
+        Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShipsAsync(Guid userGuid);
+        
+        Task<IReadOnlyCollection<StoreManagementDto>> GetAllStoreManagementsAsync(Guid userGuid);
+      
+        Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid);
+
+
+        Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto);
+
+        Task<StoreManagementDto> GetStoreManagementAsync(Guid storeManagementGuid);
+
+        Task<StoreOwnershipDto> GetStoreOwnershipAsync(Guid storeOwnershipGuid);
+
+        /// <summary>
+        /// Removing a ownerGuid that ownerGuid nominated
+        /// </summary>
+        /// <param name="removeOwner"></param>
+        /// <param name="removeManager"></param>
+        /// <returns>
+        /// returns true if succeed else false
+        /// </returns>
+        Task<bool> RemoveManagerAsync(Guid ownershipToRemoveFrom, Guid managerToRemove);
     }
+
 }

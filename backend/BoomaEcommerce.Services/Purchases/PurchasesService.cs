@@ -42,8 +42,8 @@ namespace BoomaEcommerce.Services.Purchases
                 purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
                 
                 var purchaseProducts = purchase.StorePurchases
-                    .SelectMany(product =>
-                        product.ProductsPurchases, (_, purchaseProduct) => purchaseProduct);
+                    .SelectMany(storePurchase =>
+                        storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
                 var taskList = purchaseProducts.Select(purchaseProduct => 
                     Task.Run(async () =>
@@ -63,14 +63,16 @@ namespace BoomaEcommerce.Services.Purchases
 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
-                await _purchaseUnitOfWork.ShoppingCartRepository
-                    .DeleteOneAsync(cart =>
-                    cart.User.Guid == purchase.Buyer.Guid);
+                if (purchase.Buyer is not null)
+                {
+                    await _purchaseUnitOfWork.ShoppingCartRepository
+                        .DeleteOneAsync(cart =>
+                            cart.User.Guid == purchase.Buyer.Guid);
+                }
 
                 await _supplyClient.NotifyOrder(purchase);
 
                 await _purchaseUnitOfWork.SaveAsync();
-
 
                 return true;
             }
@@ -101,11 +103,6 @@ namespace BoomaEcommerce.Services.Purchases
             
         }
 
-        // function not supported yet.
-        public Task<PurchaseDto> GetPurchaseAsync(Guid purchaseGuid)
-        {
-            throw new NotSupportedException();
-        }
 
         // function not supported yet.
         public Task DeletePurchaseAsync(Guid purchaseGuid)

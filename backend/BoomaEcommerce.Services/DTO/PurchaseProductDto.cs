@@ -8,7 +8,9 @@ namespace BoomaEcommerce.Services.DTO
 {
     public class PurchaseProductDto : BaseEntityDto
     {
-        public ProductDto ProductDto { get; set; }
+        public Guid ProductGuid { get; set; }
         public int Amount { get; set; }
+        
+        public decimal Price { get; set; }
     }
 }

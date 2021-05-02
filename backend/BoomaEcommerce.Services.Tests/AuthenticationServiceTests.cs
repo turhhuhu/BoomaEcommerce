@@ -10,6 +10,7 @@ using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Settings;
+using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ namespace BoomaEcommerce.Services.Tests
                     {
                         Secret = Secret, TokenLifeTime = TimeSpan.FromHours(1), RefreshTokenExpirationMonthsAmount = 6
 
-                    }, null, _refreshTokenRepo.Object);
+                    }, null, _refreshTokenRepo.Object, MapperFactory.GetMapper());
 
         }
 
@@ -55,7 +56,7 @@ namespace BoomaEcommerce.Services.Tests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Act
-            var response = await _authService.RegisterAsync("user", "pass");
+            var response = await _authService.RegisterAsync(new UserDto {UserName = "user"}, "pass");
 
             // Assert
             response.Success.Should().BeTrue();
@@ -72,7 +73,7 @@ namespace BoomaEcommerce.Services.Tests
             _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Failed());
             // Act
-            var response = await _authService.RegisterAsync("user", "pass");
+            var response = await _authService.RegisterAsync(new UserDto { UserName = "user" }, "pass");
 
             // Assert
             response.Success.Should().BeFalse();
@@ -85,7 +86,7 @@ namespace BoomaEcommerce.Services.Tests
             var tokenHandler = new JwtSecurityTokenHandler();
 
             // Act
-            var response = await _authService.RegisterAdminAsync("user", "pass");
+            var response = await _authService.RegisterAdminAsync(new AdminUserDto { UserName = "user" }, "pass");
 
             // Assert
             response.Success.Should().BeTrue();
@@ -102,8 +103,9 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var user = _fixture.Build<User>().Create();
-            _userStore.Add(user);
             var tokenHandler = new JwtSecurityTokenHandler();
+            var registerResponse = await _authService.RegisterAsync(new UserDto { UserName = user.UserName }, "pass");
+            user.Guid = registerResponse.UserGuid;
 
             // Act
             var response = await _authService.LoginAsync(user.UserName, "pass");

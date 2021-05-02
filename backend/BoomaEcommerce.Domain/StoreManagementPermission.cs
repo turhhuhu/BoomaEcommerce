@@ -8,10 +8,9 @@ namespace BoomaEcommerce.Domain
 {
     public class StoreManagementPermission : BaseEntity
     {
-        // Example flag of permission.
-        public bool CanDoSomething { get; set; }
-        public bool ExampleFlag1 { get; set; }
-        public bool ExampleFlag2 { get; set; }
-        public StoreManagement StoreManagement { get; set; }
+        public bool CanAddProduct { get; set; } = true;
+        public bool CanDeleteProduct { get; set; } = true;
+        public bool CanUpdateProduct { get; set; } = true;
+        public bool CanGetSellersInfo { get; set; } = true;
     }
 }
