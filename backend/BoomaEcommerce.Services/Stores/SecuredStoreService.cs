@@ -39,15 +39,13 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        [Authorize(Roles = UserRoles.AdminRole)]
         public async Task<IReadOnlyCollection<StorePurchaseDto>> GetStorePurchaseHistoryAsync(Guid storeGuid)
         {
             // authentication
             CheckAuthenticated();
 
             // role authorization
-            var method = typeof(SecuredStoreService).GetMethod(nameof(GetStorePurchaseHistoryAsync));
-            if (CheckRoleAuthorized(method))
+            if (CheckRoleAuthorized(UserRoles.AdminRole))
             {
                 return await _storeService.GetStorePurchaseHistoryAsync(storeGuid);
             }
@@ -143,13 +141,11 @@ namespace BoomaEcommerce.Services.Stores
             return _storeService.GetStoreAsync(storeGuid);
         }
 
-        [Authorize(Roles = UserRoles.AdminRole)]
         public async Task<bool> DeleteStoreAsync(Guid storeGuid)
         {
             CheckAuthenticated();
 
-            var method = typeof(SecuredStoreService).GetMethod(nameof(DeleteProductAsync));
-            if (CheckRoleAuthorized(method))
+            if (CheckRoleAuthorized(UserRoles.AdminRole))
             {
                 return await _storeService.DeleteProductAsync(storeGuid);
             }
