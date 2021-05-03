@@ -167,7 +167,8 @@ namespace BoomaEcommerce.Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseCors(builder => builder.AllowAnyHeader()
+            app.UseCors(builder => builder
+                .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials()
                 .SetIsOriginAllowed(origin => true));

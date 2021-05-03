@@ -28,13 +28,15 @@ async function callApi(endpoint, authenticated, config) {
     }
   }
 
-  return await fetch(endpoint, config)
-    .then(
-      async (response) =>
-        await response
-          .json()
-          .then((responsePayLoad) => ({ responsePayLoad, response }))
-    )
+  return fetch(endpoint, config)
+    .then((response) => {
+      if (response.status === 204) {
+        return { responsePayLoad: null, response };
+      }
+      return response
+        .json()
+        .then((responsePayLoad) => ({ responsePayLoad, response }));
+    })
     .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
         return Promise.reject(responsePayLoad);
@@ -73,6 +75,7 @@ const middleware = (store) => (next) => (action) => {
         extraPayload: extraPayload,
       }),
     (error) => {
+      console.log("in error");
       next({
         error: error.message || "There was an error.",
         type: errorType,

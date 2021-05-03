@@ -144,8 +144,6 @@ export function RegisterUser(userInfo) {
             .then((responsePayload) => ({ responsePayload, response }))
       )
       .then(({ responsePayload, response }) => {
-        console.log(JSON.stringify(responsePayload));
-        console.log(response);
         gotResponse = true;
         if (!response.ok) {
           // If there was a problem, we want to
