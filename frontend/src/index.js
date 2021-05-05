@@ -11,6 +11,7 @@ import ProductsPage from "./pages/productsPage";
 import CartPage from "./pages/cartPage";
 import { PersistGate } from "redux-persist/integration/react";
 import configureStore from "./store";
+import StorePage from "./pages/storePage";
 
 const { store, persistor } = configureStore();
 
@@ -19,21 +20,12 @@ ReactDOM.render(
     <PersistGate loading={null} persistor={persistor}>
       <BrowserRouter>
         <Switch>
-          <Route path="/register">
-            <RegisterPage />
-          </Route>
-          <Route path="/login">
-            <LoginPage />
-          </Route>
-          <Route path="/products">
-            <ProductsPage />
-          </Route>
-          <Route path="/home">
-            <ProductsPage />
-          </Route>
-          <Route path="/cart">
-            <CartPage />
-          </Route>
+          <Route path="/register" component={RegisterPage}></Route>
+          <Route path="/login" component={LoginPage}></Route>
+          <Route path="/products" component={ProductsPage}></Route>
+          <Route path="/home" component={ProductsPage}></Route>
+          <Route path="/cart" component={CartPage}></Route>
+          <Route path="/store/:guid" component={StorePage}></Route>
           <Route path="/">
             <Redirect to="/home" />;
           </Route>

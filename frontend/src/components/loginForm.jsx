@@ -61,6 +61,7 @@ class LoginForm extends Component {
                 onChange={this.handleChange}
                 className="form-control"
                 placeholder="Username"
+                required
               ></input>
             </div>
             <div className="form-group">
@@ -72,6 +73,7 @@ class LoginForm extends Component {
                 className="form-control"
                 placeholder="******"
                 type="password"
+                required
               ></input>
             </div>
             <div className="form-group">

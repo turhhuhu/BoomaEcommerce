@@ -47,11 +47,11 @@ export function fetchUserCart() {
   }
 
   return async (dispatch) => {
+    dispatch(requestCart());
     if (!token) {
       dispatch(cartError("not logged in"));
       return;
     }
-    dispatch(requestCart());
     let response = await fetch(USER_CART_URL, config)
       .then(
         async (response) =>

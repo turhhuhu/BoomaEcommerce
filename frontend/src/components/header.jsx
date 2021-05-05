@@ -6,17 +6,30 @@ import CartIcon from "./cartIcon";
 import UserIcon from "./userIcon";
 import MessageIcon from "./messageIcon";
 import NotificationIcon from "./notificationIcon";
+import { fetchAllProducts } from "../actions/productsActions";
+import { withRouter } from "react-router";
 
 class Header extends Component {
   state = {
-    scrollbar: undefined,
+    scrollbar: "keyword",
+    searchBar: "",
   };
 
   handleChange = (event) => {
-    console.log(this.state.scrollbar);
     this.setState({
       [event.target.name]: event.target.value,
     });
+  };
+
+  handleSearch = (event) => {
+    event.preventDefault();
+    if (!this.state.searchBar) {
+      return;
+    }
+    this.props.dispatch(
+      fetchAllProducts({ [this.state.scrollbar]: this.state.searchBar })
+    );
+    this.props.history.push("/products");
   };
 
   render() {
@@ -40,21 +53,29 @@ class Header extends Component {
                   <div className="input-group w-100">
                     <input
                       type="text"
+                      value={this.state.searchBar}
+                      onChange={this.handleChange}
+                      name="searchBar"
                       className="form-control"
                       placeholder="Search"
                       style={{ width: "55%" }}
+                      required
                     ></input>
                     <select
                       onChange={this.handleChange}
                       className="custom-select"
                       name="scrollbar"
                     >
-                      <option value="Keyword">Keyword</option>
-                      <option value="Categories">Categories</option>
-                      <option value="Name">Name</option>
+                      <option value="keyword">Keyword</option>
+                      <option value="category">Category</option>
+                      <option value="productName">Name</option>
                     </select>
                     <div className="input-group-append">
-                      <button className="btn btn-primary" type="submit">
+                      <button
+                        onClick={this.handleSearch}
+                        className="btn btn-primary"
+                        type="submit"
+                      >
                         <i className="fa fa-search"></i>
                       </button>
                     </div>
@@ -82,4 +103,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(mapStateToProps)(Header);
+export default withRouter(connect(mapStateToProps)(Header));

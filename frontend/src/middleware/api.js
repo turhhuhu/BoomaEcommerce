@@ -75,7 +75,6 @@ const middleware = (store) => (next) => (action) => {
         extraPayload: extraPayload,
       }),
     (error) => {
-      console.log("in error");
       next({
         error: error.message || "There was an error.",
         type: errorType,

@@ -58,7 +58,7 @@ class Product extends Component {
             <div className="fix-height">
               <h6 className="title product-card-item">{this.props.name}</h6>
               <p className="text-muted small product-card-item">
-                Store: Ori's store
+                Store: {this.props.storeName}
                 <br />
                 Amount in store: {this.props.amount}
                 <br />

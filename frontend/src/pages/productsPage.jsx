@@ -10,7 +10,8 @@ class ProductPage extends Component {
   state = {};
 
   componentDidMount(prevProps) {
-    if (this.props !== prevProps) {
+    console.log(this.props);
+    if (this.props !== prevProps && this.props.history.action !== "PUSH") {
       this.props.dispatch(fetchAllProducts());
     }
   }

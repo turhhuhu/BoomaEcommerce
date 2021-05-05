@@ -26,6 +26,7 @@ class ProductView extends Component {
                 price={product.price}
                 amount={product.amount}
                 category={product.category}
+                storeName={product.store.storeName}
               />
             ))}
           </div>
