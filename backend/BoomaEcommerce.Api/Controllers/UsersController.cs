@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
@@ -121,6 +122,32 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return Ok(cart);
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Stores.AllRolesGet)]
+        public async Task<IActionResult> GetStoreRoles()
+        {
+            var userGuid = User.GetUserGuid();
+            var ownershipsTask = _storesService.GetAllStoreOwnerShipsAsync(userGuid);
+            var managements = await _storesService.GetAllStoreManagementsAsync(userGuid);
+            var ownerships = await ownershipsTask;
+
+            if (ownerships == null || managements == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            var (founderRoles, ownershipRoles) =
+                ownerships.Split(ownership => ownership.Store.FounderUserGuid == userGuid);
+
+            var roles = new StoreRolesResponse
+            {
+                OwnerFounderRoles = founderRoles,
+                OwnerNotFounderRoles = ownershipRoles,
+                ManagerRoles = managements
+            };
+            return Ok(roles);
         }
     }
 }
