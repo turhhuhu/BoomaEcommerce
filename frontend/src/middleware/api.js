@@ -62,6 +62,7 @@ const middleware = (store) => (next) => (action) => {
   // Passing the authenticated boolean back in our data will let us distinguish between normal and secret quotes
   next({
     type: requestType,
+    payload: { isFetching: true },
   });
 
   return callApi(endpoint, authenticated, config).then(
@@ -70,6 +71,7 @@ const middleware = (store) => (next) => (action) => {
         payload: {
           response,
           authenticated,
+          isFetching: false,
         },
         type: successType,
         extraPayload: extraPayload,
@@ -77,6 +79,9 @@ const middleware = (store) => (next) => (action) => {
     (error) => {
       next({
         error: error.message || "There was an error.",
+        payload: {
+          isFetching: false,
+        },
         type: errorType,
       });
     }

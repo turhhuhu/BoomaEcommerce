@@ -13,11 +13,11 @@ export function user(
 
   switch (action.type) {
     case UserActionTypes.USER_INFO_REQUEST:
-      return state;
+      return Object.assign({}, state, action.payload);
     case UserActionTypes.USER_INFO_SUCCESS:
-      console.log(action);
       return Object.assign({}, state, {
         userInfo: action.payload.response,
+        isFetching: action.payload.isFetching,
       });
     case UserActionTypes.USER_INFO_FAILURE:
       console.error(`error occured while getting user info: ${action.error}`);
@@ -27,25 +27,31 @@ export function user(
     case UserActionTypes.USER_CART_SUCCESS:
       return Object.assign({}, state, {
         cart: action.payload.response,
+        isFetching: action.payload.isFetching,
       });
     case UserActionTypes.USER_CART_FAILURE:
       console.error(`error occured while getting user's cart: ${action.error}`);
       return Object.assign({}, state, action.payload);
     case UserActionTypes.ADD_PRODUCT_WITH_BASKET_REQUEST:
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.ADD_PRODUCT_WITH_BASKET_SUCCESS:
       return Object.assign({}, state, {
         cart: {
           baskets: [...state.cart.baskets, action.payload.response],
         },
+        isFetching: action.payload.isFetching,
       });
     case UserActionTypes.ADD_PRODUCT_WITH_BASKET_FAILURE:
       console.error(
         `error occured while adding basket with product: ${action.error}`
       );
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.ADD_PRODUCT_TO_BASKET_REQUEST:
-      return state;
+      return Object.assign({}, state, action.payload);
     case UserActionTypes.ADD_PRODUCT_TO_BASKET_SUCCESS: {
       const basketToAddToIndex = state.cart.baskets.findIndex(
         (basket) => basket.guid === action.extraPayload
@@ -70,9 +76,11 @@ export function user(
       console.error(
         `error occured while adding product to basket: ${action.error}`
       );
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_REQUEST:
-      return state;
+      return Object.assign({}, state, action.payload);
     case UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_SUCCESS: {
       const basketToAddToIndex = state.cart.baskets.findIndex(
         (basket) => basket.guid === action.extraPayload.basketGuid
@@ -106,7 +114,9 @@ export function user(
       console.error(
         `error occured while removing product from basket: ${action.error}`
       );
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
 
     default:
       return state;

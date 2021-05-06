@@ -1,82 +1,89 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchUserInfo } from "../actions/userActions";
+import ProfileSideBar from "./profileSideBar";
 
 class UserProfile extends Component {
-  handleClick = () => {
-    this.props.dispatch(fetchUserInfo());
+  state = {
+    username: undefined,
+    name: undefined,
+    lastName: undefined,
   };
+
+  handleChange = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    if (state.username === undefined)
+      return {
+        username: props.username,
+        name: props.name,
+        lastName: props.lastName,
+      };
+    return null;
+  }
 
   render() {
     return (
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title mb-4">Profile</h4>
-          <form>
-            <div class="form-group">
-              <img
-                src="bootstrap-ecommerce-html/images/avatars/avatar1.jpg"
-                class="img-sm rounded-circle border"
-              ></img>
-            </div>
-            <div class="form-row">
-              <div class="col form-group">
-                <label>Name</label>
-                <input type="text" class="form-control" value="Mike"></input>
+      <div className="ml-5 row">
+        <ProfileSideBar isProfile="true" />
+        <main className="card col-md-6">
+          <div className="card-body">
+            <h4 className="card-title mb-4">Profile</h4>
+            <form>
+              <div className="form-row">
+                <div className="form-group col">
+                  <label>Username:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={this.state.username}
+                    onChange={this.handleChange}
+                    name="username"
+                    required
+                  ></input>
+                </div>
               </div>
-              <div class="col form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  value="Johnson"
-                ></input>
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label>Country</label>
-                <select id="inputState" class="form-control">
-                  <option> Choose...</option>
-                  <option>Uzbekistan</option>
-                  <option>Russia</option>
-                  <option selected="">United States</option>
-                  <option>India</option>
-                  <option>Afganistan</option>
-                </select>
+              <div className="form-row">
+                <div className="form-group col">
+                  <label>Name:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={this.state.name}
+                    onChange={this.handleChange}
+                    name="name"
+                    required
+                  ></input>
+                </div>
               </div>
-              <div class="form-group col-md-6">
-                <label>City</label>
-                <input type="text" class="form-control"></input>
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label>Zip</label>
-                <input type="text" class="form-control" value="123009"></input>
+              <div className="form-row">
+                <div className="form-group col">
+                  <label>Last Name:</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={this.state.lastName}
+                    onChange={this.handleChange}
+                    name="lastName"
+                    required
+                  ></input>
+                </div>
               </div>
-              <div class="form-group col-md-6">
-                <label>Phone</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  value="+123456789"
-                ></input>
-              </div>
-            </div>
 
-            <button class="btn btn-primary btn-block">Save info</button>
-          </form>
-        </div>
+              <button className="btn btn-outline-primary btn-block">
+                Save info
+              </button>
+            </form>
+          </div>
+        </main>
       </div>
     );
   }
 }
 
-const mapStateToProps = (store) => {
-  return { userInfo: store.user.userInfo };
-};
-
-export default connect(mapStateToProps)(UserProfile);
+export default connect()(UserProfile);

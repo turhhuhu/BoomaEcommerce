@@ -11,7 +11,7 @@ class UserIcon extends Component {
   render() {
     return (
       <div className="widget-header icontext mr-3">
-        <a href="/login" className="icon icon-sm rounded-circle border">
+        <a href="/user" className="icon icon-sm rounded-circle border">
           <i className="fa fa-user"></i>
         </a>
         <div className="text">
