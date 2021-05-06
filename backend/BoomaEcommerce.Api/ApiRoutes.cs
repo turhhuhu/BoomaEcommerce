@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Domain;
 
 namespace BoomaEcommerce.Api
 {
@@ -51,10 +52,22 @@ namespace BoomaEcommerce.Api
         public class Stores
         {
             public const string StoreGuid = "{storeGuid}";
-            public const string StoresMeBase = "stores";
-            public const string MePost = Me + "/" + StoresMeBase;
+            public const string StoresBase = "stores";
+            public const string MePost = Me + "/" + StoresBase;
             public const string GetAllProducts = StoreGuid + "/" + Products.ProductsBase;
             public const string Get = StoreGuid;
+            public const string AllRolesGet = Me + "/" + StoresBase + "/" + "allRoles";
+
+            public static class Sellers
+            {
+                public const string SellersBase = "sellers";
+                public const string Get = StoreGuid + "/" + SellersBase;
+            }
+
+            public class Owners
+            {
+                public const string OwnersBase = "owners";
+            }
         }
     }
 }
