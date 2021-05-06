@@ -96,5 +96,19 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(stores);
         }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Stores.Sellers.Get)]
+        public async Task<IActionResult> GetStoreSellers(Guid storeGuid)
+        {
+            var storeSellersResponse = await _storeService.GetAllSellersInformationAsync(storeGuid);
+            if (storeSellersResponse == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok(storeSellersResponse);
+        }
+
     }
 }
