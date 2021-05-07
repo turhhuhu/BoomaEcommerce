@@ -117,7 +117,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync((Guid guid) => entities[guid]);
 
             repoMock.Setup(x => x.InsertManyAsync(It.IsAny<ICollection<TEntity>>()))
-                .Callback<ICollection<TEntity>>(entitiesToAdd =>
+                .Callback<IEnumerable<TEntity>>(entitiesToAdd =>
                     entitiesToAdd.ToList().ForEach(ent => entities.Add(ent.Guid, ent)));
 
             repoMock.Setup(x => x.ReplaceOneAsync(It.IsAny<TEntity>()))
@@ -185,6 +185,8 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, Product> products,
             IDictionary<Guid, User> users,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
+            IDictionary<Guid, StoreOwnership> ownerships,
+            IDictionary<Guid, Notification> notifications,
             IDictionary<Guid, StorePurchase> storePurchases = null,
             IDictionary<Guid, PurchaseProduct> purchaseProducts = null,
             Mock<UserManager<User>> userManagerMock = null)
@@ -210,11 +212,15 @@ namespace BoomaEcommerce.Tests.CoreLib
             var productRepoMock = MockRepository(products);
             var userRepoMock = userManagerMock ?? MockUserManager(users is null ? new List<User>() : users.Values.ToList());
             var shoppingCartMock = MockRepository(shoppingCarts);
+            var ownershipsMock = MockRepository(ownerships);
+            var notificationsMock = MockRepository(notifications);
             var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
+            purchaseUnitOfWork.SetupGet(x => x.StoreOwnershipRepository).Returns(ownershipsMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
+            purchaseUnitOfWork.SetupGet(x => x.NotificationRepository).Returns(notificationsMock?.Object);
             return purchaseUnitOfWork;
         }
         

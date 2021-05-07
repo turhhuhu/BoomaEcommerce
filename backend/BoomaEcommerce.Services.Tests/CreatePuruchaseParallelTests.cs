@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Tests.CoreLib;
@@ -29,9 +31,10 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, User> users,
             IDictionary<Guid, ShoppingCart> shoppingCarts)
         {
-            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts);
+            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts,
+                new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>());
             return new PurchasesService(_mapper, _loggerMock.Object, _paymentClientMock.Object,
-                purchaseUnitOfWorkMock.Object, _supplyClientMock.Object);
+                purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationHub>());
         }
 
         [Fact]
