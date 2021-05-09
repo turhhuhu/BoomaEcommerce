@@ -220,7 +220,6 @@ namespace BoomaEcommerce.Tests.CoreLib
             purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
-            purchaseUnitOfWork.SetupGet(x => x.NotificationRepository).Returns(notificationsMock?.Object);
             return purchaseUnitOfWork;
         }
         

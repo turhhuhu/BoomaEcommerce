@@ -12,6 +12,7 @@ using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using BoomaEcommerce.Services;
 
 namespace BoomaEcommerce.Api.Controllers
 {
@@ -21,11 +22,20 @@ namespace BoomaEcommerce.Api.Controllers
     {
         private readonly IUsersService _userService;
         private readonly IStoresService _storesService;
+        private readonly INotificationHub _notificationHub;
 
-        public UsersController(IUsersService userService, IStoresService storesService)
+        public UsersController(IUsersService userService, IStoresService storesService, INotificationHub notificationHub)
         {
             _userService = userService;
             _storesService = storesService;
+            _notificationHub = notificationHub;
+        }
+
+        [HttpPost(ApiRoutes.Notifications.Post)]
+        public async Task<IActionResult> PostNotification(Guid userGuid, NotificationDto notf)
+        {
+            await _notificationHub.NotifyAsync(notf, userGuid);
+            return Ok();
         }
 
         [Authorize]

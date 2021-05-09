@@ -6,17 +6,22 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
-namespace BoomaEcommerce.Api
+namespace BoomaEcommerce.Api.Hubs
 {
+    [Authorize(Policy = "TokenHasUserGuidPolicy")]
     public class NotificationHub : Hub<INotificationClient>, INotificationHub
     {
         private readonly ConcurrentDictionary<Guid, string> _userGuidToConnectionIdMapping;
+        private readonly ILogger<NotificationHub> _logger;
 
-        public NotificationHub()
+        public NotificationHub(ILogger<NotificationHub> logger)
         {
             _userGuidToConnectionIdMapping = new ConcurrentDictionary<Guid, string>();
+            _logger = logger;
         }
 
         public override Task OnConnectedAsync()
@@ -33,16 +38,17 @@ namespace BoomaEcommerce.Api
             return base.OnDisconnectedAsync(exception);
         }
 
-        public Task NotifyAsync(NotificationDto notification)
+        public Task NotifyAsync(NotificationDto notification, Guid userToNotify)
         {
-            return _userGuidToConnectionIdMapping.TryGetValue(notification.NotifiedUserGuid, out var connectionId) 
+            return _userGuidToConnectionIdMapping.TryGetValue(userToNotify, out var connectionId) 
                 ? Clients.Client(connectionId).ReceiveNotification(notification) 
                 : Task.CompletedTask;
         }
 
-        public Task NotifyAsync(IEnumerable<NotificationDto> notifications)
+        public Task NotifyManyAsync(NotificationDto notification, IEnumerable<Guid> usersToNotify)
         {
-            return Task.WhenAll(notifications.Select(NotifyAsync));
+            return Task.WhenAll(usersToNotify.Select(userGuid => NotifyAsync(notification, userGuid)));
         }
+
     }
 }

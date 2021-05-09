@@ -10,7 +10,7 @@ namespace BoomaEcommerce.Services
 {
     public interface INotificationHub
     {
-        Task NotifyAsync(NotificationDto notification);
-        Task NotifyAsync(IEnumerable<NotificationDto> notifications);
+        Task NotifyAsync(NotificationDto notification, Guid userToNotify);
+        Task NotifyManyAsync(NotificationDto notification, IEnumerable<Guid> usersToNotify);
     }
 }

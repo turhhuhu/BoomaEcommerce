@@ -9,13 +9,11 @@ namespace BoomaEcommerce.Domain
 {
     public class Notification : BaseEntity
     {
-        public User NotifiedUser { get; set; }
         public string Message { get; set; }
         public bool WasSeen { get; set; }
 
-        protected Notification(User notifiedUser, string message)
+        public Notification(string message)
         {
-            NotifiedUser = notifiedUser;
             Message = message;
             WasSeen = false;
         }
@@ -25,10 +23,10 @@ namespace BoomaEcommerce.Domain
     {
         public StorePurchase Purchase { get; }
 
-        public StorePurchaseNotification(User notifiedUser,
+        public StorePurchaseNotification(
             StorePurchase purchase,
             string message = "A store purchase has been made.") 
-            : base(notifiedUser, message)
+            : base(message)
         {
             Purchase = purchase;
         }

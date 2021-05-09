@@ -99,12 +99,16 @@ namespace BoomaEcommerce.Services.Purchases
                 await _purchaseUnitOfWork.StoreOwnershipRepository.FilterByAsync(ownership =>
                     ownership.Store.Guid == storePurchase.Store.Guid);
 
-            var notifications =
-                ownerships.Select(ownership => new StorePurchaseNotification(ownership.User, storePurchase));
-            var insertTask = _purchaseUnitOfWork.NotificationRepository.InsertManyAsync(notifications);
-            var notifyTask = _notificationHub.NotifyAsync(_mapper.Map<IEnumerable<StorePurchaseNotificationDto>>(notifications));
+            var notification = new StorePurchaseNotification(storePurchase);
 
-            await Task.WhenAll(insertTask, notifyTask);
+            foreach (var ownership in ownerships)
+            {
+                ownership.User.Notifications.Add(notification);
+            }
+            var notifyTask = _notificationHub.NotifyManyAsync(_mapper.Map<StorePurchaseNotificationDto>(notification),
+                ownerships.Select(ownership => ownership.User.Guid));
+
+            await Task.WhenAll(_purchaseUnitOfWork.SaveAsync(), notifyTask);
         }
 
         public async Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userGuid)

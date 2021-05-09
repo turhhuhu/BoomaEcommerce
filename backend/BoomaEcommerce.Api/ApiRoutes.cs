@@ -28,6 +28,11 @@ namespace BoomaEcommerce.Api
         }
 
         public const string Me = "me";
+        public static class Notifications
+        {
+            public const string NotificationsBase = "notifications";
+            public const string Post = "{userGuid}" + "/" + NotificationsBase + "/";
+        }
 
         public static class Cart
         {

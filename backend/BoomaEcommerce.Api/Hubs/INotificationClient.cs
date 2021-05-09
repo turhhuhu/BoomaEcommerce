@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
 
-namespace BoomaEcommerce.Api
+namespace BoomaEcommerce.Api.Hubs
 {
     public interface INotificationClient
     {
