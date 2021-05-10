@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Api.Hubs;
 using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
@@ -13,6 +14,7 @@ using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using BoomaEcommerce.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BoomaEcommerce.Api.Controllers
 {
@@ -22,19 +24,18 @@ namespace BoomaEcommerce.Api.Controllers
     {
         private readonly IUsersService _userService;
         private readonly IStoresService _storesService;
-        private readonly INotificationHub _notificationHub;
-
-        public UsersController(IUsersService userService, IStoresService storesService, INotificationHub notificationHub)
+        private readonly INotificationPublisher _notificationPublisher;
+        public UsersController(IUsersService userService, IStoresService storesService, INotificationPublisher notificationPublisher)
         {
             _userService = userService;
             _storesService = storesService;
-            _notificationHub = notificationHub;
+            _notificationPublisher = notificationPublisher;
         }
 
         [HttpPost(ApiRoutes.Notifications.Post)]
         public async Task<IActionResult> PostNotification(Guid userGuid, NotificationDto notf)
         {
-            await _notificationHub.NotifyAsync(notf, userGuid);
+            await _notificationPublisher.NotifyAsync(notf, userGuid);
             return Ok();
         }
 

@@ -48,7 +48,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts, new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>());
             return new PurchasesService(_mapper, _purchaseLoggerMock.Object, _paymentClientMock.Object,
-                purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationHub>());
+                purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
 
         [Fact]

@@ -13,7 +13,7 @@ namespace BoomaEcommerce.Api.Controllers
     public class NotificationsController : ControllerBase
     {
 
-        public NotificationsController(INotificationHub notificationHub)
+        public NotificationsController(INotificationPublisher notificationPublisher)
         {
         }
 

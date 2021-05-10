@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,41 +14,31 @@ using Microsoft.Extensions.Logging;
 namespace BoomaEcommerce.Api.Hubs
 {
     [Authorize(Policy = "TokenHasUserGuidPolicy")]
-    public class NotificationHub : Hub<INotificationClient>, INotificationHub
+    public class NotificationHub : Hub<INotificationClient>
     {
-        private readonly ConcurrentDictionary<Guid, string> _userGuidToConnectionIdMapping;
         private readonly ILogger<NotificationHub> _logger;
+        private readonly IConnectionContainer _connectionContainer;
 
-        public NotificationHub(ILogger<NotificationHub> logger)
+        public NotificationHub(ILogger<NotificationHub> logger, IConnectionContainer connectionContainer)
         {
-            _userGuidToConnectionIdMapping = new ConcurrentDictionary<Guid, string>();
             _logger = logger;
+            _connectionContainer = connectionContainer;
         }
 
         public override Task OnConnectedAsync()
         {
-            var useGuid = Context.User.GetUserGuid();
-            _userGuidToConnectionIdMapping[useGuid] = Context.ConnectionId;
+            var userGuid = Context.User.GetUserGuid();
+            _logger.LogInformation($"User with Guid {userGuid} connected to notifications hub.");
+            _connectionContainer.SaveConnection(userGuid, Context.ConnectionId);
             return base.OnConnectedAsync();
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            var useGuid = Context.User.GetUserGuid();
-            _userGuidToConnectionIdMapping.Remove(useGuid, out _);
+            var userGuid = Context.User.GetUserGuid();
+            _logger.LogInformation($"User with Guid {userGuid} disconnected from notifications hub.");
+            _connectionContainer.RemoveConnection(userGuid);
             return base.OnDisconnectedAsync(exception);
-        }
-
-        public Task NotifyAsync(NotificationDto notification, Guid userToNotify)
-        {
-            return _userGuidToConnectionIdMapping.TryGetValue(userToNotify, out var connectionId) 
-                ? Clients.Client(connectionId).ReceiveNotification(notification) 
-                : Task.CompletedTask;
-        }
-
-        public Task NotifyManyAsync(NotificationDto notification, IEnumerable<Guid> usersToNotify)
-        {
-            return Task.WhenAll(usersToNotify.Select(userGuid => NotifyAsync(notification, userGuid)));
         }
 
     }

@@ -61,6 +61,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .IncludeAllDerived()
                 .ForMember(x => x.Guid, x => x.Condition(xx => xx.Guid != default));
             CreateMap<AdminUserDto, AdminUser>();
+            CreateMap<NotificationDto, Notification>();
+            CreateMap<StorePurchaseNotificationDto, StorePurchaseNotification>();
         }
     }
 }

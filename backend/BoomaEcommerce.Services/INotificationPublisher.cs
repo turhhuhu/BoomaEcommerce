@@ -8,7 +8,7 @@ using BoomaEcommerce.Services.DTO;
 
 namespace BoomaEcommerce.Services
 {
-    public interface INotificationHub
+    public interface INotificationPublisher
     {
         Task NotifyAsync(NotificationDto notification, Guid userToNotify);
         Task NotifyManyAsync(NotificationDto notification, IEnumerable<Guid> usersToNotify);

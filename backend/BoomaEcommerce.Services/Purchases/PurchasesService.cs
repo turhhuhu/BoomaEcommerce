@@ -18,7 +18,7 @@ namespace BoomaEcommerce.Services.Purchases
         private readonly IPaymentClient _paymentClient;
         private readonly ISupplyClient _supplyClient;
         private readonly IPurchaseUnitOfWork _purchaseUnitOfWork;
-        private readonly INotificationHub _notificationHub;
+        private readonly INotificationPublisher _notificationPublisher;
 
         public PurchasesService(
             IMapper mapper,
@@ -26,14 +26,14 @@ namespace BoomaEcommerce.Services.Purchases
             IPaymentClient paymentClient,
             IPurchaseUnitOfWork purchaseUnitOfWork,
             ISupplyClient supplyClient,
-            INotificationHub notificationHub)
+            INotificationPublisher notificationPublisher)
         {
             _mapper = mapper;
             _logger = logger;
             _paymentClient = paymentClient;
             _purchaseUnitOfWork = purchaseUnitOfWork;
             _supplyClient = supplyClient;
-            _notificationHub = notificationHub;
+            _notificationPublisher = notificationPublisher;
         }
 
         public async Task<bool> CreatePurchaseAsync(PurchaseDto purchaseDto)
@@ -96,8 +96,8 @@ namespace BoomaEcommerce.Services.Purchases
         private async Task NotifyStoreSellersOnPurchase(StorePurchase storePurchase)
         {
             var ownerships =
-                await _purchaseUnitOfWork.StoreOwnershipRepository.FilterByAsync(ownership =>
-                    ownership.Store.Guid == storePurchase.Store.Guid);
+                (await _purchaseUnitOfWork.StoreOwnershipRepository.FilterByAsync(ownership =>
+                    ownership.Store.Guid == storePurchase.Store.Guid)).ToList();
 
             var notification = new StorePurchaseNotification(storePurchase);
 
@@ -105,7 +105,7 @@ namespace BoomaEcommerce.Services.Purchases
             {
                 ownership.User.Notifications.Add(notification);
             }
-            var notifyTask = _notificationHub.NotifyManyAsync(_mapper.Map<StorePurchaseNotificationDto>(notification),
+            var notifyTask = _notificationPublisher.NotifyManyAsync(_mapper.Map<StorePurchaseNotificationDto>(notification),
                 ownerships.Select(ownership => ownership.User.Guid));
 
             await Task.WhenAll(_purchaseUnitOfWork.SaveAsync(), notifyTask);

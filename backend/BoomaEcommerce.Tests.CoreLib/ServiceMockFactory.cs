@@ -77,7 +77,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 x.NotifyOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
-                purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationHub>());
+                purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
 
         public IProductsService MockProductService()

@@ -49,6 +49,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StoreManagementPermission, StoreManagementPermissionDto>();
 
             CreateMap<StorePurchaseNotification, StorePurchaseNotificationDto>();
+            CreateMap<Notification, NotificationDto>();
         }
     }
 }

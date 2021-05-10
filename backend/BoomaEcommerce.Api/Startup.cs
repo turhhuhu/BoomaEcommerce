@@ -56,12 +56,12 @@ namespace BoomaEcommerce.Api
 
             services.AddControllers();
 
-            services.AddMvc().AddNewtonsoftJson().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
+            services.AddMvc().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
             services.AddSignalR(hubOptions =>
             {
                 hubOptions.EnableDetailedErrors = true;
-                hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(1);
+                hubOptions.KeepAliveInterval = TimeSpan.FromMilliseconds(500);
                 hubOptions.AddFilter<ExceptionHandlingFilter>();
             });
 
@@ -169,7 +169,8 @@ namespace BoomaEcommerce.Api
             mistakeCorrectionMock.Setup(x => x.CorrectMistakeIfThereIsAny(It.IsAny<string>()))
                 .Returns<string>(x => x);
             services.AddSingleton(_ => mistakeCorrectionMock.Object);
-            services.AddSingleton<INotificationHub, NotificationHub>();
+            services.AddSingleton<INotificationPublisher, NotificationPublisher>();
+            services.AddSingleton<IConnectionContainer, ConnectionContainer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
