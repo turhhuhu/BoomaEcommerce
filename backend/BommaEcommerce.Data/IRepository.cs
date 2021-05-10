@@ -79,7 +79,7 @@ namespace BoomaEcommerce.Data
         /// Inserts a collection of T entities.
         /// </summary>
         /// <param name="entities"></param>
-        Task InsertManyAsync(ICollection<T> entities);
+        Task InsertManyAsync(IEnumerable<T> entities);
 
         /// <summary>
         /// Replaces existing T entity with new T entity.

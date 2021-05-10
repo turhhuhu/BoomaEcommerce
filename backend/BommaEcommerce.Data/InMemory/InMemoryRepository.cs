@@ -50,7 +50,7 @@ namespace BoomaEcommerce.Data.InMemory
             return Task.CompletedTask;
         }
 
-        public async Task InsertManyAsync(ICollection<T> entities)
+        public async Task InsertManyAsync(IEnumerable<T> entities)
         {
             foreach (var entity in entities)
             {

@@ -57,7 +57,7 @@ namespace BoomaEcommerce.Services
                 Category = "AdminProduct",
                 Amount = i,
                 Rating = i,
-                Price = i,
+                Price = i
             }).ToList();
             await _storeUnitOfWork.ProductRepo.InsertManyAsync(products);
             var ownership = new StoreOwnership

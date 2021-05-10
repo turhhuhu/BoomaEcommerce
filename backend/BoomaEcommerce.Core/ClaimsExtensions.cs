@@ -20,5 +20,16 @@ namespace BoomaEcommerce.Core
             }
             return new Guid(guidString);
         }
+        public static bool TryGetUserGuid(this ClaimsPrincipal claimsPrincipal, out Guid? userGuid)
+        {
+            var guidString = claimsPrincipal.FindFirst(claim => claim.Type == "guid")?.Value;
+            if (guidString == null)
+            {
+                userGuid = null;
+                return false;
+            }
+            userGuid = new Guid(guidString);
+            return true;
+        }
     }
 }

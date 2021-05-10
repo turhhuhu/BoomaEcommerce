@@ -47,6 +47,9 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(dto => dto.BuyerGuid, x => x.MapFrom(purchase => purchase.Buyer.Guid));
 
             CreateMap<StoreManagementPermission, StoreManagementPermissionDto>();
+
+            CreateMap<StorePurchaseNotification, StorePurchaseNotificationDto>();
+            CreateMap<Notification, NotificationDto>();
         }
     }
 }

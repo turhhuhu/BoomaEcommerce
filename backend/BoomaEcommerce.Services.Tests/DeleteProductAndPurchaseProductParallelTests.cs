@@ -46,9 +46,9 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, User> users,
             IDictionary<Guid, ShoppingCart> shoppingCarts)
         {
-            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts);
+            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts, new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>());
             return new PurchasesService(_mapper, _purchaseLoggerMock.Object, _paymentClientMock.Object,
-                purchaseUnitOfWorkMock.Object, _supplyClientMock.Object);
+                purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
 
         [Fact]

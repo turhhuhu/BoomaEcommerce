@@ -294,7 +294,9 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Assert
             result.Should().BeTrue();
-            addedOwner.Should().BeEquivalentTo(newOwner, options => options.Excluding(ownership => ownership.Guid));
+            addedOwner.Should().BeEquivalentTo(newOwner, options => options
+                .Excluding(ownership => ownership.Guid)
+                .Excluding(management => management.User.Notifications));
         }
 
         [Fact]
@@ -375,7 +377,9 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             result.Should().BeTrue();
             addedManager.Should()
-                .BeEquivalentTo(newManager, options => options.Excluding(management => management.Guid));
+                .BeEquivalentTo(newManager, options => options
+                    .Excluding(management => management.Guid)
+                    .Excluding(management => management.User.Notifications));
         }
 
         [Fact]
