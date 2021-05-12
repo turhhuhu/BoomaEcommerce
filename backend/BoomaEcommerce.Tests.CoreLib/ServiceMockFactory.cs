@@ -28,7 +28,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         private IDictionary<Guid, StoreOwnership> _storeOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
         private IDictionary<Guid, StorePurchase> _storePurchases = new ConcurrentDictionary<Guid, StorePurchase>();
         private IDictionary<Guid, StoreManagement> _storeManagements = new ConcurrentDictionary<Guid, StoreManagement>();
-        private IDictionary<Guid, StoreManagementPermission> _storeManagementPermissions = new ConcurrentDictionary<Guid, StoreManagementPermission>();
+        private IDictionary<Guid, StoreManagementPermissions> _storeManagementPermissions = new ConcurrentDictionary<Guid, StoreManagementPermissions>();
         private IDictionary<Guid, Product> _products = new ConcurrentDictionary<Guid, Product>();
         private IDictionary<Guid, Purchase> _purchases = new ConcurrentDictionary<Guid, Purchase>();
         private IDictionary<Guid, PurchaseProduct> _purchaseProducts = new ConcurrentDictionary<Guid, PurchaseProduct>();

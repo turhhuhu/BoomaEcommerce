@@ -6,7 +6,7 @@ using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Domain
 {
-    public class StoreManagementPermission : BaseEntity
+    public class StoreManagementPermissions : BaseEntity
     {
         public bool CanAddProduct { get; set; } = true;
         public bool CanDeleteProduct { get; set; } = true;

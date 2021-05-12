@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using BoomaEcommerce.Api.Hubs;
 using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
@@ -25,11 +26,18 @@ namespace BoomaEcommerce.Api.Controllers
         private readonly IUsersService _userService;
         private readonly IStoresService _storesService;
         private readonly INotificationPublisher _notificationPublisher;
-        public UsersController(IUsersService userService, IStoresService storesService, INotificationPublisher notificationPublisher)
+        private readonly IMapper _mapper;
+
+
+        public UsersController(IUsersService userService,
+            IStoresService storesService,
+            INotificationPublisher notificationPublisher,
+            IMapper mapper)
         {
             _userService = userService;
             _storesService = storesService;
             _notificationPublisher = notificationPublisher;
+            _mapper = mapper;
         }
 
         [HttpPost(ApiRoutes.Notifications.Post)]
@@ -154,11 +162,33 @@ namespace BoomaEcommerce.Api.Controllers
 
             var roles = new StoreRolesResponse
             {
-                OwnerFounderRoles = founderRoles,
-                OwnerNotFounderRoles = ownershipRoles,
-                ManagerRoles = managements
+                OwnerFounderRoles = _mapper.Map<IEnumerable<OwnerShipRoleResponse>>(founderRoles),
+                OwnerNotFounderRoles = _mapper.Map<IEnumerable<OwnerShipRoleResponse>>(ownershipRoles),
+                ManagerRoles = _mapper.Map<IEnumerable<ManagementRoleResponse>>(managements)
             };
             return Ok(roles);
+        }
+        
+        [Authorize]
+        [HttpGet(ApiRoutes.Stores.Roles.MeRoleGet)]
+        public async Task<IActionResult> GetRole(Guid storeGuid)
+        {
+            var userGuid = User.GetUserGuid();
+
+            var ownership = await _storesService.GetStoreOwnerShipAsync(userGuid, storeGuid);
+            if (ownership != null)
+            {
+                return Ok(_mapper.Map<OwnerShipRoleResponse>(ownership));
+            }
+
+            var management = await _storesService.GetStoreManagementAsync(userGuid, storeGuid);
+            if (management != null)
+            {
+                return Ok(_mapper.Map<ManagementRoleResponse>(management));
+            }
+
+            return NotFound();
+
         }
     }
 }

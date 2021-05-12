@@ -103,7 +103,11 @@ namespace BoomaEcommerce.Api
                         Stores = new StoreOptions { ProtectPersonalData = false }
                     }), new PasswordHasher<User>(), new IUserValidator<User>[0], new IPasswordValidator<User>[0], new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), new DataColumn(), new Logger<UserManager<User>>(new LoggerFactory())));
 
-            services.AddAutoMapper(typeof(DomainToDtoProfile), typeof(DtoToDomainProfile));
+            services.AddAutoMapper(
+                typeof(DomainToDtoProfile),
+                typeof(DtoToDomainProfile),
+                typeof(DtoToResponseMappingProfile),
+                typeof(RequestToDtoMappingProfile));
 
             var tokenValidationParams = new TokenValidationParameters
             {

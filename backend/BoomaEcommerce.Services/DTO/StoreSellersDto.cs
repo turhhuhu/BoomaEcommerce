@@ -2,17 +2,17 @@
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class StoreSellersResponse
+    public class StoreSellersDto
     {
         public List<StoreManagementDto> StoreManagers { get; set; }
         public List<StoreOwnershipDto> StoreOwners { get; set; }
-        public StoreSellersResponse(List<StoreOwnershipDto> owners, List<StoreManagementDto> managers)
+        public StoreSellersDto(List<StoreOwnershipDto> owners, List<StoreManagementDto> managers)
         {
             StoreManagers = managers;
             StoreOwners = owners;
         }
 
-        public StoreSellersResponse()
+        public StoreSellersDto()
         {
             StoreManagers = new List<StoreManagementDto>();
             StoreOwners = new List<StoreOwnershipDto>();

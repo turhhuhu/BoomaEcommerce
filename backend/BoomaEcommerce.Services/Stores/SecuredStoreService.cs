@@ -119,7 +119,7 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(UpdateProductAsync), userGuid);
         }
 
-        private async Task<bool> CanPerformSellerAction(Func<StoreManagementPermissionDto, bool> actionPredicate, Guid storeGuid)
+        private async Task<bool> CanPerformSellerAction(Func<StoreManagementPermissionsDto, bool> actionPredicate, Guid storeGuid)
         {
             var userGuid = ClaimsPrincipal.GetUserGuid();
             var ownership = await _storeService.GetStoreOwnerShipAsync(userGuid, storeGuid);
@@ -193,9 +193,9 @@ namespace BoomaEcommerce.Services.Stores
             return _storeService.GetProductsFromStoreAsync(storeGuid);
         }
 
-        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto)
+        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionsDto smpDto)
         {
-            ServiceUtilities.ValidateDto<StoreManagementPermissionDto, StoreServiceValidators.UpdateManagerPermission>(smpDto);
+            ServiceUtilities.ValidateDto<StoreManagementPermissionsDto, StoreServiceValidators.UpdateManagerPermission>(smpDto);
             var storeManagement = await _storeService.GetStoreManagementAsync(smpDto.Guid);
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
             var owner = await _storeService.GetStoreOwnerShipAsync(userGuidInClaims, storeManagement.Store.Guid);
@@ -238,7 +238,7 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(GetStoreOwnershipAsync), userGuid);
         }
 
-        public async Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level)
+        public async Task<StoreSellersDto> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level)
         {
             CheckAuthenticated();
 
@@ -277,7 +277,7 @@ namespace BoomaEcommerce.Services.Stores
 
         }
 
-        public async Task<StoreSellersResponse> GetAllSellersInformationAsync(Guid storeGuid)
+        public async Task<StoreSellersDto> GetAllSellersInformationAsync(Guid storeGuid)
         {
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();

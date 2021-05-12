@@ -138,7 +138,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StoreOwnership> storeOwnerships,
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
-            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions,
+            IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products
         )
         {
@@ -157,8 +157,8 @@ namespace BoomaEcommerce.Tests.CoreLib
 
             var storeManagementPermissionsRepoMock = MockRepository(storeManagementPermissions);
 
-            storeManagementPermissionsRepoMock?.Setup(x => x.ReplaceOneAsync(It.IsAny<StoreManagementPermission>()))
-                .Callback<StoreManagementPermission>(smp =>
+            storeManagementPermissionsRepoMock?.Setup(x => x.ReplaceOneAsync(It.IsAny<StoreManagementPermissions>()))
+                .Callback<StoreManagementPermissions>(smp =>
                 {
                     storeManagementPermissions[smp.Guid] = smp;
                     if (storeManagements != null && storeManagements.TryGetValue(smp.Guid, out var storeManagement))

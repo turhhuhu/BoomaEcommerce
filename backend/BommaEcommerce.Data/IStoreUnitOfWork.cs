@@ -13,7 +13,7 @@ namespace BoomaEcommerce.Data
         IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         IRepository<StorePurchase> StorePurchaseRepo { get; set; }
         IRepository<StoreManagement> StoreManagementRepo { get; set; }
-        IRepository<StoreManagementPermission> StoreManagementPermissionsRepo { get; set; }
+        IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         IRepository<Product> ProductRepo { get; set; }
         Task SaveAsync();
     }

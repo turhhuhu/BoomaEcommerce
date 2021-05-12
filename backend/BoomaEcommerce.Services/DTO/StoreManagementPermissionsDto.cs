@@ -8,7 +8,7 @@ using BoomaEcommerce.Domain;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class StoreManagementPermissionDto : BaseEntityDto
+    public class StoreManagementPermissionsDto : BaseEntityDto
     {
         public bool CanAddProduct { get; set; }
         public bool CanDeleteProduct { get; set; }
