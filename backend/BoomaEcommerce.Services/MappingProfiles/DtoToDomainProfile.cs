@@ -55,7 +55,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<StoreOwnershipDto, StoreOwnership>();
 
-            CreateMap<StoreManagementPermissionDto, StoreManagementPermission>();
+            CreateMap<StoreManagementPermissionsDto, StoreManagementPermissions>();
 
             CreateMap<BaseEntityDto, BaseEntity>()
                 .IncludeAllDerived()

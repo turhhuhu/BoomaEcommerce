@@ -55,7 +55,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var loginResponse = await authService.LoginAsync(user.UserName, password);
 
             var fixtureStoreManagementPermissions = _fixture
-                .Build<StoreManagementPermissionDto>()
+                .Build<StoreManagementPermissionsDto>()
                 .With(sm => sm.CanAddProduct, false)
                 .With(sm => sm.CanDeleteProduct, false)
                 .With(sm => sm.CanUpdateProduct, false)
@@ -95,7 +95,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var loginResponse = await authService.LoginAsync(user.UserName, password);
 
             var fixtureStoreManagementPermissions = _fixture
-                .Build<StoreManagementPermissionDto>()
+                .Build<StoreManagementPermissionsDto>()
                 .With(sm => sm.CanAddProduct, true)
                 .With(sm => sm.CanDeleteProduct, true)
                 .With(sm => sm.CanUpdateProduct, true)

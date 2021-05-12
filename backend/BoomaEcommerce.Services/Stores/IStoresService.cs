@@ -114,13 +114,13 @@ namespace BoomaEcommerce.Services.Stores
         /// A task that represents the asynchronous operation.
         /// returns a UserStore seller response containing all subordinates of the ownerGuid requested.
         /// </returns>
-        Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null);
+        Task<StoreSellersDto> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null);
         
         Task<StoreOwnershipDto> GetStoreOwnerShipAsync(Guid userGuid, Guid storeGuid);
         Task<StoreManagementDto> GetStoreManagementAsync(Guid userGuid, Guid storeGuid);
         Task<ProductDto> GetStoreProductAsync(Guid productGuid);
 
-        Task<StoreSellersResponse> GetAllSellersInformationAsync(Guid storeGuid);
+        Task<StoreSellersDto> GetAllSellersInformationAsync(Guid storeGuid);
 
         Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShipsAsync(Guid userGuid);
         
@@ -129,7 +129,7 @@ namespace BoomaEcommerce.Services.Stores
         Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid);
 
 
-        Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto);
+        Task UpdateManagerPermissionAsync(StoreManagementPermissionsDto smpDto);
 
         Task<StoreManagementDto> GetStoreManagementAsync(Guid storeManagementGuid);
 

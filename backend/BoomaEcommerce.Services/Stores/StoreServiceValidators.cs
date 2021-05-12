@@ -92,7 +92,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public class UpdateManagerPermission : AbstractValidator<StoreManagementPermissionDto>
+        public class UpdateManagerPermission : AbstractValidator<StoreManagementPermissionsDto>
         {
             public UpdateManagerPermission()
             {

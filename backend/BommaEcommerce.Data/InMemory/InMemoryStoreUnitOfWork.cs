@@ -13,14 +13,14 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         public IRepository<StorePurchase> StorePurchaseRepo { get; set; }
         public IRepository<StoreManagement> StoreManagementRepo { get; set; }
-        public IRepository<StoreManagementPermission> StoreManagementPermissionsRepo { get; set; }
+        public IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         public IRepository<Product> ProductRepo { get; set; }
         public InMemoryStoreUnitOfWork(
             IRepository<Store> storeRepo,
             IRepository<StoreOwnership> ownershipRepo,
             IRepository<StorePurchase> purchaseRepo,
             IRepository<StoreManagement> storeManagementRepo,
-            IRepository<StoreManagementPermission> storeManagementPermissionsRepo,
+            IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo)
         {
             StoreRepo = storeRepo;

@@ -10,11 +10,11 @@ namespace BoomaEcommerce.Domain
     {
         public StoreManagement()
         {
-            Permissions = new StoreManagementPermission { Guid = this.Guid };
+            Permissions = new StoreManagementPermissions { Guid = this.Guid };
         }
         public User User { get; set; }
         public Store Store { get; set; }
-        public StoreManagementPermission Permissions { get; set; }
+        public StoreManagementPermissions Permissions { get; set; }
     }
 
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BoomaEcommerce.Api.Controllers;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.DTO;
@@ -27,7 +28,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         {
             _storeServicesMock = new Mock<IStoresService>();
             _usersServiceMock = new Mock<IUsersService>();
-            _usersController = new UsersController(_usersServiceMock.Object, _storeServicesMock.Object, Mock.Of<INotificationPublisher>());
+            _usersController = new UsersController(_usersServiceMock.Object, _storeServicesMock.Object, Mock.Of<INotificationPublisher>(), null);
             _userGuidInClaims = Guid.NewGuid();
             var fakeClaims = new List<Claim>
             {

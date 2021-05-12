@@ -290,11 +290,11 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto)
+        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionsDto smpDto)
         {
             try
             {
-                var permission = _mapper.Map<StoreManagementPermission>(smpDto);
+                var permission = _mapper.Map<StoreManagementPermissions>(smpDto);
                 await _storeUnitOfWork.StoreManagementPermissionsRepo.ReplaceOneAsync(permission);
                 await _storeUnitOfWork.SaveAsync();
             }
@@ -332,7 +332,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreSellersResponse> GetAllSellersInformationAsync(Guid storeGuid)
+        public async Task<StoreSellersDto> GetAllSellersInformationAsync(Guid storeGuid)
         {
             try
             {
@@ -362,7 +362,7 @@ namespace BoomaEcommerce.Services.Stores
 
                 var storeManagementDtos = _mapper.Map<List<StoreManagementDto>>(managers);
                 var storeOwnerDtos = _mapper.Map<List<StoreOwnershipDto>>(owners);
-                return new StoreSellersResponse(storeOwnerDtos, storeManagementDtos);
+                return new StoreSellersDto(storeOwnerDtos, storeManagementDtos);
                 // Seller - A seller is either an Owner or a Manager.
             }
             catch (Exception e)
@@ -402,14 +402,14 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null)
+        public async Task<StoreSellersDto> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null)
         {
             try
             {
                 var storeOwner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnerGuid);
                 var (storeOwnerships, storeManagements) = storeOwner.GetSubordinates(level);
 
-                return new StoreSellersResponse(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),
+                return new StoreSellersDto(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),
                     _mapper.Map<List<StoreManagementDto>>(storeManagements));
             }
             catch (Exception e)

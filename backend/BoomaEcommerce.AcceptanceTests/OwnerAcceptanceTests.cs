@@ -316,7 +316,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, newOwner);
             newOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
             var sellers = await _ownerStoreService.GetSubordinateSellersAsync(newOwner.Guid);
-            sellers.Should().BeEquivalentTo(new StoreSellersResponse());
+            sellers.Should().BeEquivalentTo(new StoreSellersDto());
             result.Should().BeFalse();
         }
 
@@ -407,7 +407,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
             newOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
             var sellers = await _ownerStoreService.GetSubordinateSellersAsync(newOwner.Guid);
-            sellers.Should().BeEquivalentTo(new StoreSellersResponse());
+            sellers.Should().BeEquivalentTo(new StoreSellersDto());
             result.Should().BeFalse();
         }
 
@@ -462,7 +462,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
             newManager = await _ownerStoreService.GetStoreManagementAsync(newManager.User.Guid, newManager.Store.Guid);
-            var newPermissions = new StoreManagementPermissionDto
+            var newPermissions = new StoreManagementPermissionsDto
             {
                 Guid = newManager.Permissions.Guid,
                 CanGetSellersInfo = false,
@@ -489,7 +489,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Create();
 
             await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
-            var newPermissions = new StoreManagementPermissionDto
+            var newPermissions = new StoreManagementPermissionsDto
             {
                 CanGetSellersInfo = false,
                 CanAddProduct = true,
