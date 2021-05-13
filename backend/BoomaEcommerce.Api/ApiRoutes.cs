@@ -24,7 +24,7 @@ namespace BoomaEcommerce.Api
             public const string Get = "{productGuid}";
             public const string Post = ProductsBase;
             public const string Delete = "{productGuid}";
-            public const string Put = ProductsBase;
+            public const string Put = "{productGuid}";
         }
 
         public const string Me = "me";
@@ -55,7 +55,7 @@ namespace BoomaEcommerce.Api
 
         }
 
-        public class Stores
+        public static class Stores
         {
             public const string StoreGuid = "{storeGuid}";
             public const string StoresBase = "stores";
@@ -64,23 +64,37 @@ namespace BoomaEcommerce.Api
             public const string Get = StoreGuid;
             public const string AllRolesGet = Me + "/" + StoresBase + "/" + "allRoles";
 
-            public class Roles
+            public static class Roles
             {
                 public const string RolesBase = "roles";
                 public const string Get = StoreGuid + "/" + RolesBase;
                 public const string MeRoleGet = Me + "/" + StoresBase + "/" + StoreGuid + "/" + "role";
-                public class Ownerships
+                public static class Ownerships
                 {
                     public const string OwnershipsBase = "ownerships";
                     public const string Post = StoreGuid + "/" + RolesBase + "/" + OwnershipsBase;
                 }
 
-                public class Managements
+                public static class Managements
                 {
                     public const string ManagementsBase = "managements";
                     public const string Post = StoreGuid + "/" + RolesBase + "/" + ManagementsBase;
                 }
             }
+            public static class Products
+            {
+                public const string ProductsBase = "products";
+                public const string Get = "{storeGuid}" + "/" + ProductsBase + "/" + "{productGuid}";
+                public const string Post = "{storeGuid}" + "/" + ProductsBase;
+                public const string Delete = "{storeGuid}" + "/" + ProductsBase + "/" + "{productGuid}";
+                public const string Put = "{storeGuid}" + "/" + ProductsBase + "/" + "{productGuid}";
+            }
+        }
+
+        public static class Purchases
+        {
+            public const string PurchasesBase = "purchases";
+            public const string Get = Me + "/" + PurchasesBase;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Services.Purchases
     public class SecuredPurchaseService : SecuredServiceBase, IPurchasesService
     {
         private readonly IPurchasesService _purchaseService;
-        protected SecuredPurchaseService(ClaimsPrincipal claimsPrincipal, IPurchasesService purchasesService) : base(claimsPrincipal)
+        public SecuredPurchaseService(ClaimsPrincipal claimsPrincipal, IPurchasesService purchasesService) : base(claimsPrincipal)
         {
             _purchaseService = purchasesService;
         }
