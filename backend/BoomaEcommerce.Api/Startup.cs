@@ -33,7 +33,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
 using Serilog;
-
+using Microsoft.AspNetCore.Http.Connections;
+using BoomaEcommerce.Api.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using BoomaEcommerce.Api.Authorization;
+using Microsoft.AspNetCore.Authorization;
 namespace BoomaEcommerce.Api
 {
     public class Startup
@@ -49,10 +53,17 @@ namespace BoomaEcommerce.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            
+
             services.AddControllers();
 
             services.AddMvc().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
+
+            services.AddSignalR(hubOptions =>
+            {
+                hubOptions.EnableDetailedErrors = true;
+                hubOptions.KeepAliveInterval = TimeSpan.FromMilliseconds(500);
+                hubOptions.AddFilter<ExceptionHandlingFilter>();
+            });
 
             services.AddSwaggerGen(c =>
             {
@@ -92,7 +103,11 @@ namespace BoomaEcommerce.Api
                         Stores = new StoreOptions { ProtectPersonalData = false }
                     }), new PasswordHasher<User>(), new IUserValidator<User>[0], new IPasswordValidator<User>[0], new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), new DataColumn(), new Logger<UserManager<User>>(new LoggerFactory())));
 
-            services.AddAutoMapper(typeof(DomainToDtoProfile), typeof(DtoToDomainProfile));
+            services.AddAutoMapper(
+                typeof(DomainToDtoProfile),
+                typeof(DtoToDomainProfile),
+                typeof(DtoToResponseMappingProfile),
+                typeof(RequestToDtoMappingProfile));
 
             var tokenValidationParams = new TokenValidationParameters
             {
@@ -115,6 +130,15 @@ namespace BoomaEcommerce.Api
                     x.SaveToken = true;
                     x.TokenValidationParameters = tokenValidationParams;
                 });
+
+            services.AddSingleton<IAuthorizationHandler, TokenHasUserGuidAuthorizationHandler>();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TokenHasUserGuidPolicy", policy =>
+                {
+                    policy.Requirements.Add(new TokenHasUserGuidRequirement());
+                });
+            });
 
             services.AddSingleton(typeof(IRepository<>), typeof(InMemoryRepository<>));
             services.AddTransient(_ => tokenValidationParams);
@@ -149,6 +173,8 @@ namespace BoomaEcommerce.Api
             mistakeCorrectionMock.Setup(x => x.CorrectMistakeIfThereIsAny(It.IsAny<string>()))
                 .Returns<string>(x => x);
             services.AddSingleton(_ => mistakeCorrectionMock.Object);
+            services.AddSingleton<INotificationPublisher, NotificationPublisher>();
+            services.AddSingleton<IConnectionContainer, ConnectionContainer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -162,24 +188,30 @@ namespace BoomaEcommerce.Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BoomaEcommerce.Api v1"));
                 
             }
-            app.UseMiddleware<ExceptionsMiddleware>();
 
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
             app.UseCors(builder => builder
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials()
                 .SetIsOriginAllowed(origin => true));
+
+            app.UseMiddleware<WebSocketsMiddleware>();
+            app.UseMiddleware<ExceptionsMiddleware>();
+
             app.UseAuthentication();
+            app.UseRouting();
             app.UseAuthorization();
+            //app.UseHttpsRedirection();
+
+
             app.UseSerilogRequestLogging();
-
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<NotificationHub>("/hub/notifications", options =>
+                {
+                    options.Transports = HttpTransportType.WebSockets;
+                });
             });
         }
     }

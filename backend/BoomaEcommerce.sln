@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Tests.CoreLi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Api", "BoomaEcommerce.Api\BoomaEcommerce.Api.csproj", "{509E25ED-3514-4E64-B4ED-FD9B3B8505AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoomaEcommerce.Controllers.Tests", "BoomaEcommerce.Controllers.Tests\BoomaEcommerce.Controllers.Tests.csproj", "{79AF87DE-1207-4EA1-9AEF-2773BC9B65C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoomaEcommerce.Controllers.Tests", "BoomaEcommerce.Controllers.Tests\BoomaEcommerce.Controllers.Tests.csproj", "{79AF87DE-1207-4EA1-9AEF-2773BC9B65C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

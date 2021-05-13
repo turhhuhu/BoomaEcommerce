@@ -8,8 +8,8 @@ namespace BoomaEcommerce.Api.Responses
 {
     public class StoreRolesResponse
     {
-        public IEnumerable<StoreOwnershipDto> OwnerFounderRoles { get; set; }
-        public IEnumerable<StoreOwnershipDto> OwnerNotFounderRoles { get; set; }
-        public IReadOnlyCollection<StoreManagementDto> ManagerRoles { get; set; }
+        public IEnumerable<OwnerShipRoleResponse> OwnerFounderRoles { get; set; }
+        public IEnumerable<OwnerShipRoleResponse> OwnerNotFounderRoles { get; set; }
+        public IEnumerable<ManagementRoleResponse> ManagerRoles { get; set; }
     }
 }

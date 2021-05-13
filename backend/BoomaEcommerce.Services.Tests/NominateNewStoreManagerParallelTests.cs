@@ -24,7 +24,7 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StoreOwnership> storeOwnerships,
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
-            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions,
+            IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
@@ -50,7 +50,7 @@ namespace BoomaEcommerce.Services.Tests
             {
                 Store = new StoreDto { Guid = storeGuid },
                 User = new UserDto { Guid = Guid.NewGuid() },
-                Permissions = new StoreManagementPermissionDto()
+                Permissions = new StoreManagementPermissionsDto()
             };
 
             var sut = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);

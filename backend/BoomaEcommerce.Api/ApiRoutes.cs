@@ -28,6 +28,11 @@ namespace BoomaEcommerce.Api
         }
 
         public const string Me = "me";
+        public static class Notifications
+        {
+            public const string NotificationsBase = "notifications";
+            public const string Post = "{userGuid}" + "/" + NotificationsBase + "/";
+        }
 
         public static class Cart
         {
@@ -47,6 +52,7 @@ namespace BoomaEcommerce.Api
                 }
 
             }
+
         }
 
         public class Stores
@@ -58,15 +64,22 @@ namespace BoomaEcommerce.Api
             public const string Get = StoreGuid;
             public const string AllRolesGet = Me + "/" + StoresBase + "/" + "allRoles";
 
-            public static class Sellers
+            public class Roles
             {
-                public const string SellersBase = "sellers";
-                public const string Get = StoreGuid + "/" + SellersBase;
-            }
+                public const string RolesBase = "roles";
+                public const string Get = StoreGuid + "/" + RolesBase;
+                public const string MeRoleGet = Me + "/" + StoresBase + "/" + StoreGuid + "/" + "role";
+                public class Ownerships
+                {
+                    public const string OwnershipsBase = "ownerships";
+                    public const string Post = StoreGuid + "/" + RolesBase + "/" + OwnershipsBase;
+                }
 
-            public class Owners
-            {
-                public const string OwnersBase = "owners";
+                public class Managements
+                {
+                    public const string ManagementsBase = "managements";
+                    public const string Post = StoreGuid + "/" + RolesBase + "/" + ManagementsBase;
+                }
             }
         }
     }

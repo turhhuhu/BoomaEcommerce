@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using BoomaEcommerce.Api.Requests;
+using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Authorization;
@@ -16,10 +19,12 @@ namespace BoomaEcommerce.Api.Controllers
     public class StoresController : ControllerBase
     {
         private readonly IStoresService _storeService;
+        private readonly IMapper _mapper;
 
-        public StoresController(IStoresService storeService)
+        public StoresController(IStoresService storeService, IMapper mapper)
         {
             _storeService = storeService;
+            _mapper = mapper;
         }
 
         [Authorize]
@@ -98,17 +103,50 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet(ApiRoutes.Stores.Sellers.Get)]
-        public async Task<IActionResult> GetStoreSellers(Guid storeGuid)
+        [HttpGet(ApiRoutes.Stores.Roles.Get)]
+        public async Task<IActionResult> GetStoreRoles(Guid storeGuid)
         {
-            var storeSellersResponse = await _storeService.GetAllSellersInformationAsync(storeGuid);
-            if (storeSellersResponse == null)
+            var storeSellers = await _storeService.GetAllSellersInformationAsync(storeGuid);
+            if (storeSellers == null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            return Ok(storeSellersResponse);
+            return Ok(_mapper.Map<StoreSellersResponse>(storeSellers));
         }
 
+        [Authorize]
+        [HttpPost(ApiRoutes.Stores.Roles.Ownerships.Post)]
+        public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateOwnershipRequest request)
+        {
+            var nominatedOwnership = _mapper.Map<StoreOwnershipDto>(request,
+                opt => opt.AfterMap((_, dest) => dest.Store.Guid = storeGuid));
+
+            var result = await _storeService.NominateNewStoreOwnerAsync(request.NominatingOwnershipGuid, nominatedOwnership);
+
+            if (result)
+            {
+                return Ok();
+            }
+
+            return BadRequest();
+        }
+
+        [Authorize]
+        [HttpPost(ApiRoutes.Stores.Roles.Managements.Post)]
+        public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateManagementRequest request)
+        {
+            var nominatedOwnership = _mapper.Map<StoreManagementDto>(request,
+                opt => opt.AfterMap((_, dest) => dest.Store.Guid = storeGuid));
+
+            var result = await _storeService.NominateNewStoreManagerAsync(request.NominatingOwnershipGuid, nominatedOwnership);
+
+            if (result)
+            {
+                return Ok();
+            }
+
+            return BadRequest();
+        }
     }
 }
