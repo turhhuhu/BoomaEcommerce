@@ -6,9 +6,6 @@ import ProductViewHeader from "./productViewHeader";
 class StoreProductView extends Component {
   state = {};
 
-  componentDidMount() {
-    console.log("mounted");
-  }
   render() {
     return (
       <React.Fragment>

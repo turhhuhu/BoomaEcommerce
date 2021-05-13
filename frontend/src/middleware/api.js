@@ -27,7 +27,6 @@ async function callApi(endpoint, authenticated, config) {
       throw new Error("no Token saved!");
     }
   }
-
   return fetch(endpoint, config)
     .then((response) => {
       if (response.status === 204) {
@@ -39,7 +38,9 @@ async function callApi(endpoint, authenticated, config) {
     })
     .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
-        return Promise.reject(responsePayLoad);
+        return responsePayLoad.errors
+          ? Promise.reject(responsePayLoad.errors[""][0])
+          : Promise.reject(responsePayLoad.join("\n"));
       }
 
       return responsePayLoad;
@@ -78,7 +79,7 @@ const middleware = (store) => (next) => (action) => {
       }),
     (error) => {
       next({
-        error: error.message || "There was an error.",
+        error: error || "There was an error.",
         payload: {
           isFetching: false,
         },

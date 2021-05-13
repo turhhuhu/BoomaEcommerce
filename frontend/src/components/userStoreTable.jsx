@@ -25,10 +25,10 @@ class UserStoreTable extends Component {
                 </tr>
                 {this.props.stores?.map((store) => (
                   <UserStoreEntry
-                    key={store.guid}
+                    key={store.storeGuid}
                     storeName={store.storeName}
                     description={store.description}
-                    guid={store.guid}
+                    guid={store.storeGuid}
                   />
                 ))}
               </tbody>

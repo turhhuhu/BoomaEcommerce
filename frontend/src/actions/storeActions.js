@@ -1,5 +1,9 @@
 import { CALL_API } from "../middleware/api";
-import { STORE_PRODUCTS_URL, STORE_URL } from "../utils/constants";
+import {
+  STORE_PRODUCTS_URL,
+  STORE_PRODUCT_URL,
+  STORE_URL,
+} from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
 export function fetchStoreInfo(storeGuid) {
@@ -35,6 +39,25 @@ export function filterStoreProducts(filteredProducts) {
     type: StoreActionTypes.FILTER_STORE_PRODUCTS,
     payload: {
       filteredProducts: filteredProducts,
+    },
+  };
+}
+
+export function addProductToStore(product) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PRODUCT_URL,
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_PRODUCT_TO_STORE_REQUEST,
+        StoreActionTypes.ADD_PRODUCT_TO_STORE_SUCCESS,
+        StoreActionTypes.ADD_PRODUCT_TO_STORE_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product),
+      },
     },
   };
 }

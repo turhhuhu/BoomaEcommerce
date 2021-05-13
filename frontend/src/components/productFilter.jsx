@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import "../css/productFilter.css";
-import { filterProducts } from "../actions/productsActions";
 
 class ProductFilter extends Component {
   state = {
@@ -46,13 +45,13 @@ class ProductFilter extends Component {
     });
     let keyword = event.target.value;
     if (!keyword) {
-      this.props.dispatch(filterProducts(this.props.products));
+      this.props.dispatch(this.props.filterFunction(this.props.products));
     } else {
       var filteredProducts = this.props.products.filter(
         (product) =>
           product.name.includes(keyword) || product.category.includes(keyword)
       );
-      this.props.dispatch(filterProducts(filteredProducts));
+      this.props.dispatch(this.props.filterFunction(filteredProducts));
     }
   };
 
@@ -62,7 +61,7 @@ class ProductFilter extends Component {
     var filteredProducts = this.props.products.filter(
       (product) => product.category === category
     );
-    this.props.dispatch(filterProducts(filteredProducts));
+    this.props.dispatch(this.props.filterFunction(filteredProducts));
   };
 
   handlePriceFilter = (event) => {
@@ -72,7 +71,7 @@ class ProductFilter extends Component {
         product.price >= this.state.MinPriceFilter &&
         product.price <= this.state.MaxPriceFilter
     );
-    this.props.dispatch(filterProducts(filteredProducts));
+    this.props.dispatch(this.props.filterFunction(filteredProducts));
   };
 
   handleInputDisable = (event) => {
@@ -80,6 +79,7 @@ class ProductFilter extends Component {
   };
 
   handleChange = (event) => {
+    event.preventDefault();
     this.setState({
       [event.target.name]: event.target.value,
     });
@@ -96,7 +96,7 @@ class ProductFilter extends Component {
       MaxPriceFilter: this.state.maxPrice,
       searchFilter: "",
     });
-    this.props.dispatch(filterProducts(this.props.products));
+    this.props.dispatch(this.props.filterFunction(this.props.products));
   };
 
   render() {
