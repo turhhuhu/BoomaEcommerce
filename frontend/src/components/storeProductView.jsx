@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import Product from "./product";
+import StoreProduct from "./storeProduct";
 import ProductViewHeader from "./productViewHeader";
 
-class ProductView extends Component {
+class StoreProductView extends Component {
   state = {};
 
   render() {
@@ -17,7 +17,7 @@ class ProductView extends Component {
         <main className="col-md-12.5">
           <div className="row">
             {this.props.filteredProducts?.map((product) => (
-              <Product
+              <StoreProduct
                 key={product.guid}
                 storeGuid={product.storeGuid}
                 guid={product.guid}
@@ -26,7 +26,7 @@ class ProductView extends Component {
                 price={product.price}
                 amount={product.amount}
                 category={product.category}
-                storeName={product.store?.storeName}
+                storeName={this.props.storeInfo.storeName}
               />
             ))}
           </div>
@@ -38,9 +38,10 @@ class ProductView extends Component {
 
 const mapStateToProps = (store) => {
   return {
-    products: store.products.products,
-    filteredProducts: store.products.filteredProducts,
+    storeInfo: store.store.storeInfo,
+    products: store.store.products,
+    filteredProducts: store.store.filteredProducts,
   };
 };
 
-export default connect(mapStateToProps)(ProductView);
+export default connect(mapStateToProps)(StoreProductView);

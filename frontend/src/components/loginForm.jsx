@@ -47,7 +47,7 @@ class LoginForm extends Component {
       <div
         className="row col-2 mx-auto card"
         style={{
-          marginTop: "200px",
+          marginTop: "75px",
         }}
       >
         <article className="card-body">

@@ -38,7 +38,6 @@ export function fetchAllProducts(searchFilter) {
     await Promise.all(productsPromises).catch((error) =>
       dispatch(productsError(error))
     );
-    console.log(response);
     dispatch(receiveProducts(response));
   };
 }
