@@ -55,7 +55,7 @@ class SignUpForm extends Component {
       <div
         className="row col-4 mx-auto card"
         style={{
-          marginTop: "200px",
+          marginTop: "75px",
         }}
       >
         <article className="card-body">
