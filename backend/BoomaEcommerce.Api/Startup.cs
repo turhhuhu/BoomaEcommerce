@@ -37,6 +37,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using BoomaEcommerce.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using BoomaEcommerce.Api.Authorization;
+using BoomaEcommerce.Services.Purchases;
 using Microsoft.AspNetCore.Authorization;
 namespace BoomaEcommerce.Api
 {
@@ -167,6 +168,18 @@ namespace BoomaEcommerce.Api
                 var userService = sp.GetService<UsersService>();
                 var claims = sp.GetService<ClaimsPrincipal>();
                 return new SecuredUserService(claims, userService);
+            });
+
+            // Purchase service
+            services.AddSingleton<IPurchaseUnitOfWork, InMemoryPurchaseUnitOfWork>();
+            services.AddSingleton(_ => Mock.Of<IPaymentClient>());
+            services.AddSingleton(_ => Mock.Of<ISupplyClient>());
+            services.AddSingleton<PurchasesService>();
+            services.AddTransient<IPurchasesService, SecuredPurchaseService>(sp =>
+            {
+                var purchaseService = sp.GetService<PurchasesService>();
+                var claims = sp.GetService<ClaimsPrincipal>();
+                return new SecuredPurchaseService(claims, purchaseService);
             });
 
             var mistakeCorrectionMock = new Mock<IMistakeCorrection>();

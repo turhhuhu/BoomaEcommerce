@@ -28,9 +28,10 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost(ApiRoutes.Products.Post)]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductDto product)
+        [HttpPost(ApiRoutes.Stores.Products.Post)]
+        public async Task<IActionResult> CreateProduct(Guid storeGuid, [FromBody] ProductDto product)
         {
+            product.StoreGuid = storeGuid;
             var productResult = await _storeService.CreateStoreProductAsync(product);
 
             if (productResult == null)
@@ -42,7 +43,7 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpDelete(ApiRoutes.Products.Delete)]
+        [HttpDelete(ApiRoutes.Stores.Products.Delete)]
         public async Task<IActionResult> DeleteProduct(Guid productGuid)
         {
             var res = await _storeService.DeleteProductAsync(productGuid);
@@ -55,9 +56,11 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpPut(ApiRoutes.Products.Put)]
-        public async Task<IActionResult> UpdateProduct(ProductDto product)
+        [HttpPut(ApiRoutes.Stores.Products.Put)]
+        public async Task<IActionResult> UpdateProduct(Guid storeGuid, Guid productGuid, ProductDto product)
         {
+            product.Guid = productGuid;
+            product.StoreGuid = storeGuid;
             var res = await _storeService.UpdateProductAsync(product);
             if (res)
             {
@@ -76,6 +79,18 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return Ok(storesRes);
+        }
+
+        [HttpGet(ApiRoutes.Stores.Products.Get)]
+        public async Task<IActionResult> GetStoreProduct(Guid productGuid)
+        {
+            var product = await _storeService.GetStoreProductAsync(productGuid);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(product);
         }
 
         [HttpGet(ApiRoutes.Stores.Get)]

@@ -15,6 +15,7 @@ using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using BoomaEcommerce.Services;
+using BoomaEcommerce.Services.Purchases;
 using Microsoft.AspNetCore.SignalR;
 
 namespace BoomaEcommerce.Api.Controllers
@@ -25,17 +26,20 @@ namespace BoomaEcommerce.Api.Controllers
     {
         private readonly IUsersService _userService;
         private readonly IStoresService _storesService;
+        private readonly IPurchasesService _purchaseService;
         private readonly INotificationPublisher _notificationPublisher;
         private readonly IMapper _mapper;
 
 
         public UsersController(IUsersService userService,
             IStoresService storesService,
+            IPurchasesService purchaseService,
             INotificationPublisher notificationPublisher,
             IMapper mapper)
         {
             _userService = userService;
             _storesService = storesService;
+            _purchaseService = purchaseService;
             _notificationPublisher = notificationPublisher;
             _mapper = mapper;
         }
@@ -188,7 +192,20 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return NotFound();
+        }
 
+        [Authorize]
+        [HttpGet(ApiRoutes.Purchases.Get)]
+        public async Task<IActionResult> GetPurchaseHistory()
+        {
+            var userGuid = User.GetUserGuid();
+            var history = await _purchaseService.GetAllUserPurchaseHistoryAsync(userGuid);
+            if (history == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok(history);
         }
     }
 }

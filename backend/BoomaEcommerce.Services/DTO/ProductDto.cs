@@ -10,6 +10,8 @@ namespace BoomaEcommerce.Services.DTO
     public class ProductDto : BaseEntityDto
     {
         public string Name { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Guid StoreGuid { get; set; }
         public string Category { get; set; }
         public decimal? Price { get; set; }
