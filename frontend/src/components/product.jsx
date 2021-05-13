@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import "../css/product.css";
-import ProductRating from "./productRating";
+import Rating from "./rating";
 import {
   addProductToBasket,
   createBasketWithProduct,
@@ -64,7 +64,9 @@ class Product extends Component {
                 <br />
                 Category: {this.props.category}
               </p>
-              <ProductRating rating={this.props.rating} />
+              <div className="product-card-item">
+                <Rating rating={this.props.rating} />
+              </div>
               <div className="price-wrap mt-2 product-card-item">
                 <label>Price:</label>
                 <span className="price"> {this.props.price}</span>

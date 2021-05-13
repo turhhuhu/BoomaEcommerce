@@ -3,6 +3,7 @@ export function user(
   state = {
     isFetching: false,
     userInfo: {},
+    userRoles: {},
     cart: {
       baskets: [],
     },
@@ -86,10 +87,11 @@ export function user(
         (basket) => basket.guid === action.extraPayload.basketGuid
       );
       const basketToRemoveFrom = state.cart.baskets[basketToAddToIndex];
-      const purchaseProductToRemoveIndex = basketToRemoveFrom.purchaseProducts.findIndex(
-        (purchaseProduct) =>
-          purchaseProduct.guid === action.extraPayload.purchaseProductGuid
-      );
+      const purchaseProductToRemoveIndex =
+        basketToRemoveFrom.purchaseProducts.findIndex(
+          (purchaseProduct) =>
+            purchaseProduct.guid === action.extraPayload.purchaseProductGuid
+        );
       const newBasket = {
         ...basketToRemoveFrom,
         purchaseProducts: [
@@ -117,6 +119,17 @@ export function user(
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
       });
+
+    case UserActionTypes.USER_ROLES_REQUEST:
+      return Object.assign({}, state, action.payload);
+    case UserActionTypes.USER_ROLES_SUCCESS:
+      return Object.assign({}, state, {
+        userRoles: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.USER_ROLES_FAILURE:
+      console.error(`error occured while getting user roles: ${action.error}`);
+      return state;
 
     default:
       return state;

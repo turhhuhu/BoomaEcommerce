@@ -15,6 +15,8 @@ export const ADD_PRODUCT_TO_BASKET_URL = USER_CART_BASKET_URL + "/products";
 export const USER_CART_BASKET_PRODUCTS_URL = USER_CART_BASKET_URL + "/products";
 export const DELETE_PURCHASE_PRODUCT_FROM_BASKET_URL =
   USER_CART_BASKET_PRODUCTS_URL + "/{purchaseProductGuid}";
+export const USER_STORES_URL = USER_INFO_URL + "/stores";
+export const USER_ROLES_URL = USER_STORES_URL + "/allRoles";
 
 //products
 export const PRODUCTS_URL = BASE_URL + "/Products";
@@ -24,3 +26,5 @@ export const GET_ALL_PRODUCTS_URL = PRODUCTS_URL;
 //stores
 export const STORES_URL = BASE_URL + "/Stores";
 export const STORE_URL = STORES_URL + "/{storeGuid}";
+export const STORE_PRODUCTS_URL = STORE_URL + "/products";
+export const STORE_PRODUCT_URL = STORES_URL + "/products";

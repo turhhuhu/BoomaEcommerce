@@ -101,7 +101,14 @@ class ProductFilter extends Component {
 
   render() {
     return (
-      <aside className="col-md-3">
+      <aside
+        className="col-md-3"
+        style={
+          this.props.maxWidthStyle
+            ? { maxWidth: this.props.maxWidthStyle }
+            : null
+        }
+      >
         <div className="card">
           <article className="filter-group">
             <header className="card-header">
@@ -221,11 +228,4 @@ class ProductFilter extends Component {
   }
 }
 
-const mapStateToProps = (store) => {
-  return {
-    filteredProducts: store.products.filteredProducts,
-    products: store.products.products,
-  };
-};
-
-export default connect(mapStateToProps)(ProductFilter);
+export default connect()(ProductFilter);

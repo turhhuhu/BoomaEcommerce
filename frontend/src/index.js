@@ -11,9 +11,10 @@ import ProductsPage from "./pages/productsPage";
 import CartPage from "./pages/cartPage";
 import { PersistGate } from "redux-persist/integration/react";
 import configureStore from "./store";
-import StorePage from "./pages/storePage";
+import StoreInformationPage from "./pages/storeInformationPage";
 import ProfilePage from "./pages/userProfilePage";
 import UserStoresPage from "./pages/userStoresPage";
+import StoreProductsPage from "./pages/storeProductsPage";
 
 const { store, persistor } = configureStore();
 
@@ -29,7 +30,16 @@ ReactDOM.render(
           <Route path="/cart" component={CartPage}></Route>
           <Route exact path="/user/stores" component={UserStoresPage}></Route>
           <Route exact path="/user" component={ProfilePage}></Route>
-          <Route path="/store/:guid" component={StorePage}></Route>
+          <Route
+            exact
+            path="/store/:guid/products"
+            component={StoreProductsPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid"
+            component={StoreInformationPage}
+          ></Route>
           <Route path="/">
             <Redirect to="/home" />;
           </Route>

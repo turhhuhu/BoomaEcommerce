@@ -26,9 +26,13 @@ class ProductPage extends Component {
               <ProductFilter
                 categories={[
                   ...new Set(
-                    this.props.products?.map((product) => product.category)
+                    this.props.filteredProducts?.map(
+                      (product) => product.category
+                    )
                   ),
                 ]}
+                products={this.props.products}
+                filteredProducts={this.props.filteredProducts}
               />
               <main className="col-md-9">
                 <ProductView />
@@ -44,6 +48,7 @@ class ProductPage extends Component {
 const mapStateToProps = (store) => {
   return {
     products: store.products.products,
+    filteredProducts: store.products.filteredProducts,
   };
 };
 

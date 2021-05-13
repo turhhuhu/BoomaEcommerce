@@ -8,6 +8,7 @@ import {
   PRODUCT_URL,
   STORE_URL,
   DELETE_PURCHASE_PRODUCT_FROM_BASKET_URL,
+  USER_ROLES_URL,
 } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
@@ -20,6 +21,20 @@ export function fetchUserInfo() {
         UserActionTypes.USER_INFO_REQUEST,
         UserActionTypes.USER_INFO_SUCCESS,
         UserActionTypes.USER_INFO_FAILURE,
+      ],
+    },
+  };
+}
+
+export function fetchUserRoles() {
+  return {
+    [CALL_API]: {
+      endpoint: USER_ROLES_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.USER_ROLES_REQUEST,
+        UserActionTypes.USER_ROLES_SUCCESS,
+        UserActionTypes.USER_ROLES_FAILURE,
       ],
     },
   };

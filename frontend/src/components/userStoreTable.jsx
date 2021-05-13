@@ -1,15 +1,19 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import "../css/userStore.css";
+import UserStoreEntry from "./userStoreEntry";
 
-class UserStore extends Component {
+class UserStoreTable extends Component {
   state = {};
+
   render() {
     return (
       <div>
-        <article className="card">
-          <header class="card-header pl-2">
-            <h5>Founder stores</h5>
+        <article className="card mb-3">
+          <header
+            className="card-header pl-3"
+            style={{ backgroundColor: "rgba(69, 136, 236, 0.125)" }}
+          >
+            <h5>{this.props.title}</h5>
           </header>
           <div className="table-responsive">
             <table className="table table-hover">
@@ -19,37 +23,24 @@ class UserStore extends Component {
                   <th scope="col">Description:</th>
                   <th> </th>
                 </tr>
-                <tr>
-                  <td>
-                    <p className="title mb-0">store name goes here </p>
-                  </td>
-                  <td> owner </td>
-                  <td>
-                    <a href="/home" className="btn btn-light">
-                      {" "}
-                      Details{" "}
-                    </a>{" "}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p className="title mb-0">store name goes here </p>
-                  </td>
-                  <td> manager </td>
-                  <td>
-                    <a href="/home" className="btn btn-light">
-                      {" "}
-                      Details{" "}
-                    </a>{" "}
-                  </td>
-                </tr>
+                {this.props.stores?.map((store) => (
+                  <UserStoreEntry
+                    key={store.guid}
+                    storeName={store.storeName}
+                    description={store.description}
+                    guid={store.guid}
+                  />
+                ))}
               </tbody>
             </table>
           </div>
         </article>
 
-        <article className="card mt-4">
-          <header class="card-header pl-2">
+        {/* <article className="card mt-4">
+          <header
+            className="card-header pl-3"
+            style={{ backgroundColor: "rgba(69, 136, 236, 0.125)" }}
+          >
             <h5>Owner stores</h5>
           </header>
           <div className="table-responsive">
@@ -66,7 +57,7 @@ class UserStore extends Component {
                   </td>
                   <td> owner </td>
                   <td>
-                    <a href="/home" className="btn btn-light">
+                    <a href="/home" className="btn btn-outline-primary">
                       {" "}
                       Details{" "}
                     </a>{" "}
@@ -78,7 +69,7 @@ class UserStore extends Component {
                   </td>
                   <td> manager </td>
                   <td>
-                    <a href="/home" className="btn btn-light">
+                    <a href="/home" className="btn btn-outline-primary">
                       {" "}
                       Details{" "}
                     </a>{" "}
@@ -90,7 +81,10 @@ class UserStore extends Component {
         </article>
 
         <article className="card mt-4">
-          <header class="card-header pl-2">
+          <header
+            className="card-header pl-3"
+            style={{ backgroundColor: "rgba(69, 136, 236, 0.125)" }}
+          >
             <h5>Manager stores</h5>
           </header>
           <div className="table-responsive">
@@ -107,7 +101,7 @@ class UserStore extends Component {
                   </td>
                   <td> owner </td>
                   <td>
-                    <a href="/home" className="btn btn-light">
+                    <a href="/home" className="btn btn-outline-primary">
                       {" "}
                       Details{" "}
                     </a>{" "}
@@ -119,7 +113,7 @@ class UserStore extends Component {
                   </td>
                   <td> manager </td>
                   <td>
-                    <a href="/home" className="btn btn-light">
+                    <a href="/home" className="btn btn-outline-primary">
                       {" "}
                       Details{" "}
                     </a>{" "}
@@ -128,10 +122,10 @@ class UserStore extends Component {
               </tbody>
             </table>
           </div>
-        </article>
+        </article> */}
       </div>
     );
   }
 }
 
-export default connect()(UserStore);
+export default connect()(UserStoreTable);

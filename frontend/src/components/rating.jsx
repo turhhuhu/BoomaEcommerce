@@ -1,15 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-class ProductRating extends Component {
+class rating extends Component {
   state = {};
   render() {
     return (
-      <div className="rating-wrap product-card-item">
+      <div className="rating-wrap">
         <ul className="rating-stars">
-          {
-            //TODO: need to change width dynmically (0% - 100%) to fit actual review value
-          }
           <li
             style={{ width: `${this.props.rating * 10}%` }}
             className="stars-active"
@@ -37,4 +34,4 @@ class ProductRating extends Component {
   }
 }
 
-export default connect()(ProductRating);
+export default connect()(rating);

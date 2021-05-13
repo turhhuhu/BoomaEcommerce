@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import ProfileSideBar from "./profileSideBar";
-
+import { fetchUserInfo } from "../actions/userActions";
 class UserProfile extends Component {
   state = {
-    username: undefined,
-    name: undefined,
-    lastName: undefined,
+    username: "",
+    name: "",
+    lastName: "",
   };
 
   handleChange = (event) => {
@@ -15,14 +15,19 @@ class UserProfile extends Component {
     });
   };
 
-  static getDerivedStateFromProps(props, state) {
-    if (state.username === undefined)
-      return {
-        username: props.username,
-        name: props.name,
-        lastName: props.lastName,
-      };
-    return null;
+  componentDidMount() {
+    if (this.props.isAuthenticated) {
+      const userInfoPromise = this.props.dispatch(fetchUserInfo());
+      userInfoPromise
+        .then((action) =>
+          this.setState({
+            username: action.payload.response.userName,
+            name: action.payload.response.name,
+            lastName: action.payload.response.lastName,
+          })
+        )
+        .catch((error) => console.error(error));
+    }
   }
 
   render() {
@@ -31,9 +36,11 @@ class UserProfile extends Component {
         <ProfileSideBar isProfile="true" />
         <main className="card col-md-6">
           <div className="card-body">
-            <h4 className="card-title mb-4">Profile</h4>
+            <div className="border-bottom" style={{ height: "40px" }}>
+              <h4 className="card-title mb-4">Profile</h4>
+            </div>
             <form>
-              <div className="form-row">
+              <div className="form-row mt-2">
                 <div className="form-group col">
                   <label>Username:</label>
                   <input
@@ -86,4 +93,11 @@ class UserProfile extends Component {
   }
 }
 
-export default connect()(UserProfile);
+const mapStateToProps = (store) => {
+  return {
+    userInfo: store.user.userInfo,
+    isAuthenticated: store.auth.isAuthenticated,
+  };
+};
+
+export default connect(mapStateToProps)(UserProfile);
