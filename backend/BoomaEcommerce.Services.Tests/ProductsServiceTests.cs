@@ -48,7 +48,7 @@ namespace BoomaEcommerce.Services.Tests
             }
             var softDeletedProductGuid = Guid.NewGuid();
             productsDict.Add(softDeletedProductGuid,
-                new Product{Guid = softDeletedProductGuid, Store = new Store{Guid =  storeGuid}, IsSoftDeleted = true});
+                new Product{Guid = softDeletedProductGuid, Store = new Store(null) { Guid =  storeGuid}, IsSoftDeleted = true});
             
             var sut = GetProductService(productsDict);
 
