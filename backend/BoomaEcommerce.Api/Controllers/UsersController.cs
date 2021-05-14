@@ -194,6 +194,7 @@ namespace BoomaEcommerce.Api.Controllers
             return NotFound();
         }
 
+
         [Authorize]
         [HttpGet(ApiRoutes.Purchases.Get)]
         public async Task<IActionResult> GetPurchaseHistory()

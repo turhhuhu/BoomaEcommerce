@@ -1,44 +1,26 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using BoomaEcommerce.Api.Middleware;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
-using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.Settings;
-using BoomaEcommerce.Services.Stores;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Services;
-using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.MappingProfiles;
-using BoomaEcommerce.Services.Products;
-using BoomaEcommerce.Services.Users;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Moq;
 using Serilog;
 using Microsoft.AspNetCore.Http.Connections;
 using BoomaEcommerce.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using BoomaEcommerce.Api.Authorization;
-using BoomaEcommerce.Services.Purchases;
-using Microsoft.AspNetCore.Authorization;
+
 namespace BoomaEcommerce.Api
 {
     public class Startup
@@ -96,13 +78,20 @@ namespace BoomaEcommerce.Api
             services.AddSingleton<AppInitializer>();
 
             services.Configure<AppInitializationSettings>(Configuration.GetSection(AppInitializationSettings.Section));
-            services.Configure<JwtSettings>(Configuration.GetSection(JwtSettings.Section));
+
             services.AddSingleton(_ => new UserManager<User>(
                 new InMemoryUserStore(), Options.Create
                     (new IdentityOptions
                     {
                         Stores = new StoreOptions { ProtectPersonalData = false }
-                    }), new PasswordHasher<User>(), new IUserValidator<User>[0], new IPasswordValidator<User>[0], new UpperInvariantLookupNormalizer(), new IdentityErrorDescriber(), new DataColumn(), new Logger<UserManager<User>>(new LoggerFactory())));
+                    }),
+                new PasswordHasher<User>(),
+                new IUserValidator<User>[0],
+                new IPasswordValidator<User>[0],
+                new UpperInvariantLookupNormalizer(),
+                new IdentityErrorDescriber(),
+                new DataColumn(),
+                new Logger<UserManager<User>>(new LoggerFactory())));
 
             services.AddAutoMapper(
                 typeof(DomainToDtoProfile),
@@ -110,82 +99,16 @@ namespace BoomaEcommerce.Api
                 typeof(DtoToResponseMappingProfile),
                 typeof(RequestToDtoMappingProfile));
 
-            var tokenValidationParams = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["Jwt:Secret"])),
-                ValidateLifetime = true,
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ClockSkew = TimeSpan.Zero
-            };
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(x =>
-                {
-                    x.SaveToken = true;
-                    x.TokenValidationParameters = tokenValidationParams;
-                });
-
-            services.AddSingleton<IAuthorizationHandler, TokenHasUserGuidAuthorizationHandler>();
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("TokenHasUserGuidPolicy", policy =>
-                {
-                    policy.Requirements.Add(new TokenHasUserGuidRequirement());
-                });
-            });
+            services.AddTokenAuthentication(Configuration);
 
             services.AddSingleton(typeof(IRepository<>), typeof(InMemoryRepository<>));
-            services.AddTransient(_ => tokenValidationParams);
-            services.AddSingleton<IAuthenticationService, AuthenticationService>();
 
-            services.AddSingleton<IStoreUnitOfWork, InMemoryStoreUnitOfWork>();
-            services.AddSingleton<StoresService>();
-            services.AddSingleton<IProductsService, ProductsService>();
+            services
+                .AddStoresService()
+                .AddUsersService()
+                .AddPurchasesService()
+                .AddProductsService();
 
-            services.AddHttpContextAccessor();
-
-            services.AddTransient(s =>
-                s.GetService<IHttpContextAccessor>()?.HttpContext?.User);
-
-            services.AddTransient<IStoresService, SecuredStoreService>(sp =>
-            {
-                var storeService = sp.GetService<StoresService>();
-                var claims = sp.GetService<ClaimsPrincipal>();
-                return new SecuredStoreService(claims, storeService);
-            });
-
-            services.AddSingleton<IUserUnitOfWork, InMemoryUserUnitOfWork>();
-            services.AddSingleton<UsersService>();
-            services.AddTransient<IUsersService, SecuredUserService>(sp =>
-            {
-                var userService = sp.GetService<UsersService>();
-                var claims = sp.GetService<ClaimsPrincipal>();
-                return new SecuredUserService(claims, userService);
-            });
-
-            // Purchase service
-            services.AddSingleton<IPurchaseUnitOfWork, InMemoryPurchaseUnitOfWork>();
-            services.AddSingleton(_ => Mock.Of<IPaymentClient>());
-            services.AddSingleton(_ => Mock.Of<ISupplyClient>());
-            services.AddSingleton<PurchasesService>();
-            services.AddTransient<IPurchasesService, SecuredPurchaseService>(sp =>
-            {
-                var purchaseService = sp.GetService<PurchasesService>();
-                var claims = sp.GetService<ClaimsPrincipal>();
-                return new SecuredPurchaseService(claims, purchaseService);
-            });
-
-            var mistakeCorrectionMock = new Mock<IMistakeCorrection>();
-            mistakeCorrectionMock.Setup(x => x.CorrectMistakeIfThereIsAny(It.IsAny<string>()))
-                .Returns<string>(x => x);
-            services.AddSingleton(_ => mistakeCorrectionMock.Object);
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddSingleton<IConnectionContainer, ConnectionContainer>();
         }
@@ -214,7 +137,7 @@ namespace BoomaEcommerce.Api
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
 
             app.UseSerilogRequestLogging();

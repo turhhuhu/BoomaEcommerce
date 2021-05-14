@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Api.Requests;
 using BoomaEcommerce.Api.Responses;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Authorization;
@@ -18,12 +19,12 @@ namespace BoomaEcommerce.Api.Controllers
     [Route("api/[controller]")]
     public class StoresController : ControllerBase
     {
-        private readonly IStoresService _storeService;
+        private readonly IStoresService _storesService;
         private readonly IMapper _mapper;
 
-        public StoresController(IStoresService storeService, IMapper mapper)
+        public StoresController(IStoresService storesService, IMapper mapper)
         {
-            _storeService = storeService;
+            _storesService = storesService;
             _mapper = mapper;
         }
 
@@ -32,7 +33,7 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> CreateProduct(Guid storeGuid, [FromBody] ProductDto product)
         {
             product.StoreGuid = storeGuid;
-            var productResult = await _storeService.CreateStoreProductAsync(product);
+            var productResult = await _storesService.CreateStoreProductAsync(product);
 
             if (productResult == null)
             {
@@ -46,7 +47,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpDelete(ApiRoutes.Stores.Products.Delete)]
         public async Task<IActionResult> DeleteProduct(Guid productGuid)
         {
-            var res = await _storeService.DeleteProductAsync(productGuid);
+            var res = await _storesService.DeleteProductAsync(productGuid);
             if (res)
             {
                 return NoContent();
@@ -61,7 +62,7 @@ namespace BoomaEcommerce.Api.Controllers
         {
             product.Guid = productGuid;
             product.StoreGuid = storeGuid;
-            var res = await _storeService.UpdateProductAsync(product);
+            var res = await _storesService.UpdateProductAsync(product);
             if (res)
             {
                 return NoContent();
@@ -72,7 +73,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpGet(ApiRoutes.Stores.GetAllProducts)]
         public async Task<IActionResult> GetStoreProducts(Guid storeGuid)
         {
-            var storesRes = await _storeService.GetProductsFromStoreAsync(storeGuid);
+            var storesRes = await _storesService.GetProductsFromStoreAsync(storeGuid);
             if (storesRes == null)
             {
                 return NotFound();
@@ -84,7 +85,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpGet(ApiRoutes.Stores.Products.Get)]
         public async Task<IActionResult> GetStoreProduct(Guid productGuid)
         {
-            var product = await _storeService.GetStoreProductAsync(productGuid);
+            var product = await _storesService.GetStoreProductAsync(productGuid);
             if (product == null)
             {
                 return NotFound();
@@ -96,7 +97,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpGet(ApiRoutes.Stores.Get)]
         public async Task<IActionResult> GetStore(Guid storeGuid)
         {
-            var store = await _storeService.GetStoreAsync(storeGuid);
+            var store = await _storesService.GetStoreAsync(storeGuid);
             if (store == null)
             {
                 return NotFound();
@@ -108,7 +109,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStores()
         {
-            var stores = await _storeService.GetStoresAsync();
+            var stores = await _storesService.GetStoresAsync();
             if (stores == null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -121,7 +122,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpGet(ApiRoutes.Stores.Roles.Get)]
         public async Task<IActionResult> GetStoreRoles(Guid storeGuid)
         {
-            var storeSellers = await _storeService.GetAllSellersInformationAsync(storeGuid);
+            var storeSellers = await _storesService.GetAllSellersInformationAsync(storeGuid);
             if (storeSellers == null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -137,7 +138,7 @@ namespace BoomaEcommerce.Api.Controllers
             var nominatedOwnership = _mapper.Map<StoreOwnershipDto>(request,
                 opt => opt.AfterMap((_, dest) => dest.Store.Guid = storeGuid));
 
-            var result = await _storeService.NominateNewStoreOwnerAsync(request.NominatingOwnershipGuid, nominatedOwnership);
+            var result = await _storesService.NominateNewStoreOwnerAsync(request.NominatingOwnershipGuid, nominatedOwnership);
 
             if (result)
             {
@@ -154,7 +155,7 @@ namespace BoomaEcommerce.Api.Controllers
             var nominatedOwnership = _mapper.Map<StoreManagementDto>(request,
                 opt => opt.AfterMap((_, dest) => dest.Store.Guid = storeGuid));
 
-            var result = await _storeService.NominateNewStoreManagerAsync(request.NominatingOwnershipGuid, nominatedOwnership);
+            var result = await _storesService.NominateNewStoreManagerAsync(request.NominatingOwnershipGuid, nominatedOwnership);
 
             if (result)
             {
@@ -162,6 +163,18 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return BadRequest();
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Stores.Roles.Ownerships.SubordinatesGet)]
+        public async Task<IActionResult> GetSubordinates(Guid ownershipGuid)
+        {
+            var subordinates = await _storesService.GetSubordinateSellersAsync(ownershipGuid);
+            if (subordinates == null)
+            {
+                return NotFound();
+            }
+            return Ok(_mapper.Map<StoreSellersResponse>(subordinates));
         }
     }
 }
