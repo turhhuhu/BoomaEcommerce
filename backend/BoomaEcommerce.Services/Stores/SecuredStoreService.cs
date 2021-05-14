@@ -214,8 +214,8 @@ namespace BoomaEcommerce.Services.Stores
             var userGuid = ClaimsPrincipal.GetUserGuid();
             var storeManagement = await _storeService.GetStoreManagementAsync(storeManagementGuid);
 
-            if (storeManagement.User.Guid == userGuid
-                || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeManagement.Store.Guid))
+            if (storeManagement != null && (storeManagement.User.Guid == userGuid
+                || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeManagement.Store.Guid)))
             {
                 return storeManagement;
             }
@@ -229,8 +229,8 @@ namespace BoomaEcommerce.Services.Stores
             var userGuid = ClaimsPrincipal.GetUserGuid();
             var storeOwnership = await _storeService.GetStoreOwnershipAsync(storeOwnershipGuid);
 
-            if (storeOwnership.User.Guid == userGuid
-                || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeOwnership.Store.Guid))
+            if (storeOwnership != null && (storeOwnership.User.Guid == userGuid
+                || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeOwnership.Store.Guid)))
             {
                 return storeOwnership;
             }
@@ -245,7 +245,7 @@ namespace BoomaEcommerce.Services.Stores
             var storeOwnership =  await _storeService.GetStoreOwnershipAsync(storeOwnerGuid);
             var userInClaims = ClaimsPrincipal.GetUserGuid();
 
-            if (await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeOwnership.Store.Guid))
+            if (storeOwnership != null && await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeOwnership.Store.Guid))
             {
                 return await _storeService.GetSubordinateSellersAsync(storeOwnerGuid, level);
             }

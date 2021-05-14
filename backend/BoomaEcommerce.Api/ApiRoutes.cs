@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
 
@@ -17,6 +18,25 @@ namespace BoomaEcommerce.Api
             public const string Login = "login";
 
             public const string Refresh = "refresh";
+        }
+
+        public static class Roles
+        {
+            public static class Managements
+            {
+                public const string ManagementsBase = "managements";
+                public const string ManagementGuid = "{managementGuid}";
+                public const string Get = ManagementsBase + "/" + ManagementGuid;
+                public const string PutPermissions = ManagementsBase + "/" + ManagementGuid + "/" + "permissions";
+            }
+
+            public static class Ownerships
+            {
+                public const string OwnershipsBase = "ownerships";
+                public const string OwnershipGuid = "{ownershipGuid}";
+                public const string Get = OwnershipsBase + "/" + OwnershipGuid;
+                public const string GetSubordinates = OwnershipsBase + "/" + OwnershipGuid + "/subordinates";
+            }
         }
         public static class Products
         {
@@ -73,6 +93,7 @@ namespace BoomaEcommerce.Api
                 {
                     public const string OwnershipsBase = "ownerships";
                     public const string Post = StoreGuid + "/" + RolesBase + "/" + OwnershipsBase;
+                    public const string SubordinatesGet = StoreGuid + "/" + RolesBase + "/" + OwnershipsBase + "/" +"{ownershipGuid}" + "/" + "subordinates";
                 }
 
                 public static class Managements
@@ -80,6 +101,8 @@ namespace BoomaEcommerce.Api
                     public const string ManagementsBase = "managements";
                     public const string Post = StoreGuid + "/" + RolesBase + "/" + ManagementsBase;
                 }
+
+                public const string MePermissionsGet = Me + "/" + StoresBase + "/" + StoreGuid + "/" + "role" + "/" + "subordinates";
             }
             public static class Products
             {
