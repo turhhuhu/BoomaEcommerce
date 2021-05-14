@@ -24,10 +24,6 @@ class StoreProductsPage extends Component {
     }
   }
 
-  refreshStoreProducts = () => {
-    this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
-  };
-
   render() {
     return (
       <React.Fragment>
@@ -37,7 +33,6 @@ class StoreProductsPage extends Component {
             <StoreProductsHeader
               storeName={this.props.storeInfo.storeName}
               guid={this.props.match.params.guid}
-              refreshStoreProducts={this.refreshStoreProducts}
             />
             <br />
             <div className="row">

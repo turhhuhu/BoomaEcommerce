@@ -43,10 +43,10 @@ export function filterStoreProducts(filteredProducts) {
   };
 }
 
-export function addProductToStore(product) {
+export function addProductToStore(product, storeGuid) {
   return {
     [CALL_API]: {
-      endpoint: STORE_PRODUCT_URL,
+      endpoint: STORE_PRODUCTS_URL.replace("{storeGuid}", storeGuid),
       authenticated: true,
       types: [
         StoreActionTypes.ADD_PRODUCT_TO_STORE_REQUEST,
@@ -58,6 +58,51 @@ export function addProductToStore(product) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
       },
+    },
+  };
+}
+
+export function removeStoreProduct(storeGuid, productGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PRODUCT_URL.replace("{storeGuid}", storeGuid).replace(
+        "{productGuid}",
+        productGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_REQUEST,
+        StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_SUCCESS,
+        StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_FAILURE,
+      ],
+      config: {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      },
+      extraPayload: { productGuid },
+    },
+  };
+}
+
+export function editStoreProduct(storeGuid, productGuid, editedProduct) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PRODUCT_URL.replace("{storeGuid}", storeGuid).replace(
+        "{productGuid}",
+        productGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.EDIT_PRODUCT_FROM_STORE_REQUEST,
+        StoreActionTypes.EDIT_PRODUCT_FROM_STORE_SUCCESS,
+        StoreActionTypes.EDIT_PRODUCT_FROM_STORE_FAILURE,
+      ],
+      config: {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editedProduct),
+      },
+      extraPayload: { editedProduct, productGuid },
     },
   };
 }

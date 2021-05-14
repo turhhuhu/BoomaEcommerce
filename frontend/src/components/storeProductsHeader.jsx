@@ -42,18 +42,19 @@ class StoreProductsHeader extends Component {
       event.preventDefault();
       this.props
         .dispatch(
-          addProductToStore({
-            name: this.state.name,
-            category: this.state.category,
-            amount: this.state.amount,
-            price: this.state.price,
-            storeGuid: this.props.guid,
-          })
+          addProductToStore(
+            {
+              name: this.state.name,
+              category: this.state.category,
+              amount: this.state.amount,
+              price: this.state.price,
+            },
+            this.props.guid
+          )
         )
         .then((success) => {
           if (success) {
             this.setState({ isDialogOpen: false });
-            this.props.refreshStoreProducts();
           }
         });
     }
@@ -69,6 +70,7 @@ class StoreProductsHeader extends Component {
               className="btn btn-outline-primary my-2"
             >
               Add Product
+              <i className="ml-2 fa fa-plus"></i>
             </button>
             <Dialog
               open={this.state.isDialogOpen}

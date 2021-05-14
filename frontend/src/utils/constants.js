@@ -27,4 +27,4 @@ export const GET_ALL_PRODUCTS_URL = PRODUCTS_URL;
 export const STORES_URL = BASE_URL + "/Stores";
 export const STORE_URL = STORES_URL + "/{storeGuid}";
 export const STORE_PRODUCTS_URL = STORE_URL + "/products";
-export const STORE_PRODUCT_URL = STORES_URL + "/products";
+export const STORE_PRODUCT_URL = STORE_PRODUCTS_URL + "/{productGuid}";

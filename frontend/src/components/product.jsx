@@ -129,7 +129,7 @@ class Product extends Component {
             >
               {" "}
               Add to cart
-              <i className="fa fa-shopping-cart"></i>
+              <i className="ml-2 fa fa-shopping-cart"></i>
             </button>
           </figcaption>
         </figure>

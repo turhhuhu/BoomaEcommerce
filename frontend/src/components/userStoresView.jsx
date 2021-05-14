@@ -20,19 +20,19 @@ class UserStoresView extends Component {
         <main className="col-md-6">
           <UserStoreTable
             title="Founder Stores"
-            stores={this.props.userRoles?.ownerFounderRoles.map(
+            stores={this.props.userRoles?.ownerFounderRoles?.map(
               (role) => role.storeMetaData
             )}
           />
           <UserStoreTable
             title="Owner Stores"
-            stores={this.props.userRoles?.ownerNotFounderRoles.map(
+            stores={this.props.userRoles?.ownerNotFounderRoles?.map(
               (role) => role.storeMetaData
             )}
           />
           <UserStoreTable
             title="Manager Stores"
-            stores={this.props.userRoles?.managerRoles.map(
+            stores={this.props.userRoles?.managerRoles?.map(
               (role) => role.storeMetaData
             )}
           />
