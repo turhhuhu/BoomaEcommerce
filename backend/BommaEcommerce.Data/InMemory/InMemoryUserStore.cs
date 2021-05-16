@@ -12,11 +12,11 @@ namespace BoomaEcommerce.Data.InMemory
 {
     public class InMemoryUserStore : IUserStore<User>, IUserPasswordStore<User>, IUserRoleStore<User>
     {
-        public static ConcurrentDictionary<string, User> Users = new ();
+        public static Dictionary<string, User> Users = new ();
 
-        public static ConcurrentDictionary<Guid, string> PasswordHash = new();
+        public static Dictionary<Guid, string> PasswordHash = new();
 
-        public static ConcurrentDictionary<Guid, ConcurrentDictionary<string, byte>> Roles { get; set; } = new();
+        public static Dictionary<Guid, ConcurrentDictionary<string, byte>> Roles { get; set; } = new();
 
         public void Dispose()
         {
@@ -78,7 +78,7 @@ namespace BoomaEcommerce.Data.InMemory
 
         public Task<IdentityResult> DeleteAsync(User user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(Users.TryRemove(user.Guid.ToString(), out _) 
+            return Task.FromResult(Users.Remove(user.Guid.ToString(), out _) 
                 ? IdentityResult.Success 
                 : IdentityResult.Failed());
         }
