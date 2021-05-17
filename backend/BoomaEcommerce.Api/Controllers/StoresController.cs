@@ -186,7 +186,7 @@ namespace BoomaEcommerce.Api.Controllers
             return BadRequest();
         }
 
-        public async Task<TReq> PopulateWithUserGuid<TReq>(TReq createRoleRequest) 
+        private async Task<TReq> PopulateWithUserGuid<TReq>(TReq createRoleRequest) 
             where TReq : CreateRoleRequest
         {
             if (createRoleRequest.NominatedUserName == null)

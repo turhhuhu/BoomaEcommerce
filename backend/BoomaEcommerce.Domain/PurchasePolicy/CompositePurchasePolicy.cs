@@ -13,14 +13,18 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
         private PolicyOperator Operator { get; set; }
         private readonly List<PurchasePolicy> _policies;
 
+
         public CompositePurchasePolicy(PolicyOperator op)
         {
             Operator = op;
+            op.Level = Level;
+            op.ErrorPrefix = ErrorPrefix;
             _policies = new List<PurchasePolicy>();
         }
-        public void AddPolicy(CompositePurchasePolicy compositePurchasePolicy)
+        public void AddPolicy(PurchasePolicy purchasePolicy)
         {
-            _policies.Add(compositePurchasePolicy);
+            purchasePolicy.SetPolicyNode(Level + 1, ErrorPrefix + "\t");
+            _policies.Add(purchasePolicy);
         }
         public void RemovePolicy(Guid policyId)
         {
@@ -30,12 +34,21 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
                 _policies.Remove(policy);
             }
         }
-        public override bool CheckPolicy(User user, ShoppingBasket basket)
+
+        protected internal override void SetPolicyNode(int level, string prefix)
+        {
+            base.SetPolicyNode(level, prefix);
+            Operator.ErrorPrefix = prefix;
+            Operator.Level = level;
+            _policies.ForEach(p => p.SetPolicyNode(Level + 1, prefix + "\t"));
+        }
+
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             return Operator.CheckPolicy(user, basket, _policies);
         }
 
-        public override bool CheckPolicy(StorePurchase purchase)
+        public override PolicyResult CheckPolicy(StorePurchase purchase)
         {
             return Operator.CheckPolicy(purchase, _policies);
         }

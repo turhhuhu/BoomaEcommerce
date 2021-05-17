@@ -15,24 +15,31 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
         {
             Product = product;
             MinAmount = minAmount;
+            ErrorMessage = "Product '{0}' must at-least have '{1}' amount but has '{2}' amount.";
         }
 
-        public override bool CheckPolicy(User user, ShoppingBasket basket)
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var purchaseProduct = basket.PurchaseProducts
                 .Values
                 .FirstOrDefault(p => p.Product.Guid == Product.Guid);
 
-            return purchaseProduct == null || purchaseProduct.Amount >= MinAmount;
+            if(purchaseProduct == null || purchaseProduct.Amount >= MinAmount)
+            {
+                return PolicyResult.Ok();
+            }
+            return PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MinAmount, purchaseProduct.Amount));
         }
 
-        public override bool CheckPolicy(StorePurchase purchase)
+        public override PolicyResult CheckPolicy(StorePurchase purchase)
         {
             var purchaseProduct = purchase
                 .PurchaseProducts
                 .FirstOrDefault(p => p.Product.Guid == Product.Guid);
 
-            return purchaseProduct == null || purchaseProduct.Amount >= MinAmount;
+            return purchaseProduct?.Amount >= MinAmount 
+                ? PolicyResult.Ok() 
+                : PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MinAmount, purchaseProduct?.Amount ?? 0));
         }
     }
 }

@@ -22,6 +22,11 @@ namespace BoomaEcommerce.Api.Requests
     }
     public class CreateManagementRequest : CreateRoleRequest
     {
+        protected CreateManagementRequest(StoreManagementPermissionsDto permissions)
+        {
+            Permissions = permissions;
+        }
+
         public StoreManagementPermissionsDto Permissions { get; set; }
 
     }

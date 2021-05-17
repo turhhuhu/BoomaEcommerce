@@ -8,14 +8,33 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
 {
     public class AndPolicyOperator : PolicyOperator
     {
-        public override bool CheckPolicy(User user, ShoppingBasket basket, IEnumerable<PurchasePolicy> policies)
+        private readonly string _failMessage;
+        public AndPolicyOperator()
         {
-            return policies.All(p => p.CheckPolicy(user, basket));
+            _failMessage = "All of the following policies must be met:";
+        }
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, IEnumerable<PurchasePolicy> policies)
+        {
+            var fails = policies
+                .Select(p => p.CheckPolicy(user, basket))
+                .Where(r => !r.IsOk)
+                .ToList();
+
+            return fails.Any()
+                ? PolicyResult.CombineFail(fails, ErrorPrefix + _failMessage)
+                : PolicyResult.Ok();
         }
 
-        public override bool CheckPolicy(StorePurchase purchase, IEnumerable<PurchasePolicy> policies)
+        public override PolicyResult CheckPolicy(StorePurchase purchase, IEnumerable<PurchasePolicy> policies)
         {
-            return policies.All(p => p.CheckPolicy(purchase));
+            var fails = policies
+                .Select(p => p.CheckPolicy(purchase))
+                .Where(r => !r.IsOk)
+                .ToList();
+
+            return fails.Any()
+                ? PolicyResult.CombineFail(fails, ErrorPrefix + _failMessage)
+                : PolicyResult.Ok();
         }
     }
 }
