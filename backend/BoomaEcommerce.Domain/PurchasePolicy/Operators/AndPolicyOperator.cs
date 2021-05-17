@@ -8,12 +8,9 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
 {
     public class AndPolicyOperator : PolicyOperator
     {
-        private readonly string _failMessage;
-        public AndPolicyOperator()
-        {
-            _failMessage = "All of the following policies must be met:";
-        }
-        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, IEnumerable<PurchasePolicy> policies)
+        private const string FailMessage = "All of the following policies must be met:";
+
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params PurchasePolicy[] policies)
         {
             var fails = policies
                 .Select(p => p.CheckPolicy(user, basket))
@@ -21,11 +18,11 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
                 .ToList();
 
             return fails.Any()
-                ? PolicyResult.CombineFail(fails, ErrorPrefix + _failMessage)
+                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
                 : PolicyResult.Ok();
         }
 
-        public override PolicyResult CheckPolicy(StorePurchase purchase, IEnumerable<PurchasePolicy> policies)
+        public override PolicyResult CheckPolicy(StorePurchase purchase, params PurchasePolicy[] policies)
         {
             var fails = policies
                 .Select(p => p.CheckPolicy(purchase))
@@ -33,7 +30,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
                 .ToList();
 
             return fails.Any()
-                ? PolicyResult.CombineFail(fails, ErrorPrefix + _failMessage)
+                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
                 : PolicyResult.Ok();
         }
     }

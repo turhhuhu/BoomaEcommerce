@@ -13,7 +13,6 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
         private PolicyOperator Operator { get; set; }
         private readonly List<PurchasePolicy> _policies;
 
-
         public CompositePurchasePolicy(PolicyOperator op)
         {
             Operator = op;
@@ -45,12 +44,12 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
 
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
-            return Operator.CheckPolicy(user, basket, _policies);
+            return Operator.CheckPolicy(user, basket, _policies.ToArray());
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase)
         {
-            return Operator.CheckPolicy(purchase, _policies);
+            return Operator.CheckPolicy(purchase, _policies.ToArray());
         }
     }
 }

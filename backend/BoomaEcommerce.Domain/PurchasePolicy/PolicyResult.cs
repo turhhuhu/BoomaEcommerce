@@ -25,11 +25,11 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
         public static PolicyResult Fail(string error) => new(false, error);
         public static PolicyResult Ok() => new(true);
 
-        public static PolicyResult CombineFail(IEnumerable<PolicyResult> failResults, string operatorFailError)
+        public static PolicyResult CombineFail(IEnumerable<PolicyResult> failResults, string prefix = "", string infix = "", string suffix = "")
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine(operatorFailError);
-            stringBuilder.AppendJoin("\n", failResults.Select(res => res.PolicyError));
+            stringBuilder.AppendLine(prefix);
+            stringBuilder.AppendJoin("\n" + infix, failResults.Select(res => res.PolicyError));
             return new PolicyResult(false, stringBuilder.ToString());
         }
 
