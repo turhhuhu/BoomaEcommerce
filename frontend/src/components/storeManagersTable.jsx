@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import UserStoreEntry from "./userStoreEntry";
+import StoreManagerEntry from "./storeManagerEntry";
 
-class UserStoreTable extends Component {
+class StoreManagersTable extends Component {
   state = {};
 
   render() {
@@ -23,21 +23,46 @@ class UserStoreTable extends Component {
               overflowY: "scroll",
             }}
           >
-            <table className="table table-hover table-striped">
+            <table className="table table-hover table-striped table-bordered">
               <tbody>
                 <tr>
-                  <th scope="col">Store name:</th>
-                  <th scope="col">Description:</th>
+                  <th scope="col">Manager username:</th>
+                  <th scope="col">Can add product:</th>
+                  <th scope="col">Can remove product:</th>
+                  <th scope="col">Can edit product:</th>
+                  <th scope="col">Can view other managers/owners:</th>
+                  <th> </th>
                   <th> </th>
                 </tr>
-                {this.props.stores?.map((store) => (
-                  <UserStoreEntry
-                    key={store.storeGuid}
-                    storeName={store.storeName}
-                    description={store.description}
-                    guid={store.storeGuid}
-                  />
-                ))}
+                {this.props.managers?.map((managementship) => {
+                  if (managementship.guid === this.props.myRole.guid) {
+                    return null;
+                  }
+                  if (
+                    this.props.subordinates.some(
+                      (subordinate) => subordinate.guid === managementship.guid
+                    )
+                  ) {
+                    return (
+                      <StoreManagerEntry
+                        isSubordinate={true}
+                        key={managementship.guid}
+                        username={managementship.userMetaData?.userName}
+                        permissions={managementship.permissions}
+                        guid={managementship.guid}
+                      />
+                    );
+                  }
+                  return (
+                    <StoreManagerEntry
+                      isSubordinate={false}
+                      key={managementship.guid}
+                      username={managementship.userMetaData?.userName}
+                      permissions={managementship.permissions}
+                      guid={managementship.guid}
+                    />
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -47,4 +72,4 @@ class UserStoreTable extends Component {
   }
 }
 
-export default connect()(UserStoreTable);
+export default connect()(StoreManagersTable);

@@ -5,8 +5,8 @@ export function store(
     products: [],
     filteredProducts: [],
     storeInfo: {},
-    storeOwners: [],
-    storeManagers: [],
+    storeRoles: {},
+    subordinates: [],
   },
   action
 ) {
@@ -153,6 +153,38 @@ export function store(
       );
       return Object.assign({}, state, {
         error: action.error,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_ROLES_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.GET_STORE_ROLES_SUCCESS:
+      return Object.assign({}, state, {
+        storeRoles: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_ROLES_FAILURE:
+      console.error(`error occured while getting store roles: ${action.error}`);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_SUBORDINATES_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.GET_STORE_SUBORDINATES_SUCCESS:
+      return Object.assign({}, state, {
+        subordinates: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_SUBORDINATES_FAILURE:
+      console.error(
+        `error occured while getting store subordinates: ${action.error}`
+      );
+      return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
       });
     default:

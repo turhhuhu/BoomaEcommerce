@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import StoreManagementTable from "./storeManagersTable";
+import StoreManagersTable from "./storeManagersTable";
+import StoreOwnersTable from "./storeOwnersTable";
 import StoreSideBar from "./storeSideBar";
 
 class StoreManagementView extends Component {
@@ -10,23 +11,35 @@ class StoreManagementView extends Component {
     return (
       <div className="row mt-3">
         <StoreSideBar isManagement="true" />
-        <main className="col-md-6">
-          <StoreManagementTable
-            title="Owners"
-            stores={this.props.userRoles?.ownerFounderRoles?.map(
-              (role) => role.storeMetaData
-            )}
-          />
-          <StoreManagementTable
-            title="Managers"
-            stores={this.props.userRoles?.ownerNotFounderRoles?.map(
-              (role) => role.storeMetaData
-            )}
-          />
+        <main className="row col">
+          <div>
+            <StoreManagersTable
+              title="Managers"
+              myRole={this.props.myRole}
+              subordinates={this.props.subordinates?.storeManagers}
+              managers={this.props.storeRoles?.storeManagers}
+            />
+          </div>
+          <div>
+            <StoreOwnersTable
+              title="Owners"
+              myRole={this.props.myRole}
+              subordinates={this.props.subordinates?.storeOwners}
+              owners={this.props.storeRoles?.storeOwners}
+            />
+          </div>
         </main>
       </div>
     );
   }
 }
 
-export default connect()(StoreManagementView);
+const mapStateToProps = (store) => {
+  return {
+    myRole: store.user.storeRole,
+    storeRoles: store.store.storeRoles,
+    subordinates: store.store.subordinates,
+  };
+};
+
+export default connect(mapStateToProps)(StoreManagementView);

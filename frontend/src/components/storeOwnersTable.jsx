@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import UserStoreEntry from "./userStoreEntry";
+import StoreOwnerEntry from "./storeOwnerEntry";
 
-class UserStoreTable extends Component {
+class StoreOwnerTable extends Component {
   state = {};
 
   render() {
@@ -23,21 +23,39 @@ class UserStoreTable extends Component {
               overflowY: "scroll",
             }}
           >
-            <table className="table table-hover table-striped">
+            <table className="table table-hover table-striped table-bordered">
               <tbody>
                 <tr>
-                  <th scope="col">Store name:</th>
-                  <th scope="col">Description:</th>
+                  <th scope="col">Owner username:</th>
                   <th> </th>
                 </tr>
-                {this.props.stores?.map((store) => (
-                  <UserStoreEntry
-                    key={store.storeGuid}
-                    storeName={store.storeName}
-                    description={store.description}
-                    guid={store.storeGuid}
-                  />
-                ))}
+                {this.props.owners?.map((ownership) => {
+                  if (ownership.guid === this.props.myRole.guid) {
+                    return null;
+                  }
+                  if (
+                    this.props.subordinates.some(
+                      (subordinate) => subordinate.guid === ownership.guid
+                    )
+                  ) {
+                    return (
+                      <StoreOwnerEntry
+                        isSubordinate={true}
+                        key={ownership.guid}
+                        username={ownership.userMetaData?.userName}
+                        guid={ownership.guid}
+                      />
+                    );
+                  }
+                  return (
+                    <StoreOwnerEntry
+                      isSubordinate={false}
+                      key={ownership.guid}
+                      username={ownership.userMetaData?.userName}
+                      guid={ownership.guid}
+                    />
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -47,4 +65,4 @@ class UserStoreTable extends Component {
   }
 }
 
-export default connect()(UserStoreTable);
+export default connect()(StoreOwnerTable);

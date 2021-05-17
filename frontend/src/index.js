@@ -15,6 +15,7 @@ import StoreInformationPage from "./pages/storeInformationPage";
 import ProfilePage from "./pages/userProfilePage";
 import UserStoresPage from "./pages/userStoresPage";
 import StoreProductsPage from "./pages/storeProductsPage";
+import StoreManagementPage from "./pages/storeManagementPage";
 
 const { store, persistor } = configureStore();
 
@@ -34,6 +35,11 @@ ReactDOM.render(
             exact
             path="/store/:guid/products"
             component={StoreProductsPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/management"
+            component={StoreManagementPage}
           ></Route>
           <Route
             exact

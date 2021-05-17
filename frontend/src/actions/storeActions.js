@@ -2,7 +2,9 @@ import { CALL_API } from "../middleware/api";
 import {
   STORE_PRODUCTS_URL,
   STORE_PRODUCT_URL,
+  STORE_ROLES_URL,
   STORE_URL,
+  STORE_SUBORDINATES_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -103,6 +105,37 @@ export function editStoreProduct(storeGuid, productGuid, editedProduct) {
         body: JSON.stringify(editedProduct),
       },
       extraPayload: { editedProduct, productGuid },
+    },
+  };
+}
+
+export function fetchStoreRoles(storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_ROLES_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_ROLES_REQUEST,
+        StoreActionTypes.GET_STORE_ROLES_SUCCESS,
+        StoreActionTypes.GET_STORE_ROLES_FAILURE,
+      ],
+    },
+  };
+}
+
+export function fetchStoreSubordinates(storeGuid, ownershipGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_SUBORDINATES_URL.replace(
+        "{storeGuid}",
+        storeGuid
+      ).replace("{ownershipGuid}", ownershipGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_SUBORDINATES_REQUEST,
+        StoreActionTypes.GET_STORE_SUBORDINATES_SUCCESS,
+        StoreActionTypes.GET_STORE_SUBORDINATES_FAILURE,
+      ],
     },
   };
 }

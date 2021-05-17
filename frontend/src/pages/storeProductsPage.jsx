@@ -5,6 +5,7 @@ import Header from "../components/header";
 import {
   fetchAllStoreProducts,
   filterStoreProducts,
+  fetchStoreInfo,
 } from "../actions/storeActions";
 import StoreProductView from "../components/storeProductView";
 import StoreSideBar from "../components/storeSideBar";
@@ -20,6 +21,7 @@ class StoreProductsPage extends Component {
   };
   componentDidMount(prevProps) {
     if (this.props !== prevProps) {
+      this.props.dispatch(fetchStoreInfo(this.props.match.params.guid));
       this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
     }
   }

@@ -26,7 +26,7 @@ class StoreSideBar extends Component {
             className={`list-group-item ${
               this.props.isManagement ? "active" : null
             }`}
-            href={`/store/${this.props.guid}/managment`}
+            href={`/store/${this.props.guid}/management`}
           >
             {" "}
             Managment{" "}

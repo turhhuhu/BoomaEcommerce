@@ -5,14 +5,12 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { addStore, fetchUserRoles } from "../actions/userActions";
 import { Alert } from "@material-ui/lab";
 
-class AddStoreDialog extends Component {
+class AddStoreOwnerDialog extends Component {
   state = {
     error: undefined,
-    name: "",
-    description: "",
+    nominatedUserName: "",
   };
 
   handleChange = (event) => {
@@ -27,25 +25,24 @@ class AddStoreDialog extends Component {
   };
 
   handleSubmit = (event) => {
-    if (!this.state.name || !this.state.description) {
+    if (!this.state.nominatedUserName) {
       this.setState({ error: "Please fill all fields" });
       return;
     } else {
       event.preventDefault();
       this.setState({ error: undefined });
-      this.props
-        .dispatch(
-          addStore({
-            storeName: this.state.name,
-            description: this.state.description,
-          })
-        )
-        .then((success) => {
-          if (success) {
-            this.props.closeDialog();
-            this.props.dispatch(fetchUserRoles());
-          }
-        });
+      // this.props
+      //   .dispatch(
+      //     addStoreOwner({
+      //       nominatedUserName: this.state.nominatedUserName,
+      //     })
+      //   )
+      //   .then((success) => {
+      //     if (success) {
+      //       this.props.closeDialog();
+      //       //TODO: add fetch for other sellers
+      //     }
+      //   });
     }
   };
   render() {
@@ -55,28 +52,19 @@ class AddStoreDialog extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add product</DialogTitle>
+        <DialogTitle id="form-dialog-title">Add Owner</DialogTitle>
         <form>
           <DialogContent>
             <DialogContentText>
-              Please fill out the following store details:
+              Please fill out the following username for the new owner:
             </DialogContentText>
-            <label>Name:</label>
+            <label>Username:</label>
             <input
               type="text"
               className="form-control mb-2"
               name="name"
               required
-              value={this.state.name}
-              onChange={this.handleChange}
-            ></input>
-            <label>Description:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="description"
-              required
-              value={this.state.description}
+              value={this.state.nominatedUserName}
               onChange={this.handleChange}
             ></input>
           </DialogContent>
@@ -111,4 +99,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(mapStateToProps)(AddStoreDialog);
+export default connect(mapStateToProps)(AddStoreOwnerDialog);
