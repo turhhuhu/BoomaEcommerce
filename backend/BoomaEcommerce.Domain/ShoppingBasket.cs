@@ -13,6 +13,7 @@ namespace BoomaEcommerce.Domain
         public Store Store { get; set; }
         public ConcurrentDictionary<Guid, PurchaseProduct> PurchaseProducts { get; set; } = new();
 
+
         public bool AddPurchaseProduct(PurchaseProduct purchaseProduct)
         {
             return purchaseProduct is not null && PurchaseProducts.TryAdd(purchaseProduct.Guid ,purchaseProduct);

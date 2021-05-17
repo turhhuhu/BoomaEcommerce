@@ -9,19 +9,29 @@ using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Data.InMemory
 {
+    public static class RepoContainer
+    {
+        public static Dictionary<Type, Dictionary<Guid, BaseEntity>> AllEntities { get; set; } = new();
+    }
     public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
     {
-        public ConcurrentDictionary<Guid, T> Entities { get; set; } = new();
+        public InMemoryRepository()
+        {
+            var dict = new Dictionary<Guid, T>();
+            RepoContainer.AllEntities.TryAdd(typeof(T), dict.ToDictionary(x => x.Key, x => (BaseEntity)x.Value));
+        }
 
         public Task<IEnumerable<T>> FindAllAsync()
         {
-            return Task.FromResult<IEnumerable<T>>(Entities.Values);
+            var entities = RepoContainer.AllEntities[typeof(T)];
+            return Task.FromResult<IEnumerable<T>>(entities.Values.Select(x => (T)x));
         }
 
         public Task<IEnumerable<T>> FilterByAsync(Expression<Func<T, bool>> predicateExp)
         {
+            var entities = RepoContainer.AllEntities[typeof(T)];
             var predicate = predicateExp.Compile();
-            return Task.FromResult(Entities.Values.Where(x => predicate(x)));
+            return Task.FromResult(entities.Values.Select(x => (T)x).Where(x => predicate((T)x)));
         }
 
         public async Task<IEnumerable<TMapped>> FilterByAsync<TMapped>(Expression<Func<T, bool>> predicateExp, Expression<Func<T, TMapped>> mapExp)
@@ -39,14 +49,16 @@ namespace BoomaEcommerce.Data.InMemory
 
         public Task<T> FindByIdAsync(Guid guid)
         {
-            return Entities.TryGetValue(guid, out var entity) 
-                ? Task.FromResult(entity) 
+            var entities = RepoContainer.AllEntities[typeof(T)];
+            return entities.TryGetValue(guid, out var entity) 
+                ? Task.FromResult((T)entity) 
                 : Task.FromResult<T>(null);
         }
 
-        public Task InsertOneAsync(T entity)
+        public virtual Task InsertOneAsync(T entity)
         {
-            Entities.TryAdd(entity.Guid, entity);
+            var entities = RepoContainer.AllEntities[typeof(T)];
+            entities.TryAdd(entity.Guid, entity);
             return Task.CompletedTask;
         }
 
@@ -60,21 +72,23 @@ namespace BoomaEcommerce.Data.InMemory
 
         public Task ReplaceOneAsync(T entity)
         {
-            if (Entities.ContainsKey(entity.Guid))
+            var entities = RepoContainer.AllEntities[typeof(T)];
+            if (entities.ContainsKey(entity.Guid))
             {
-                Entities[entity.Guid] = entity;
+                entities[entity.Guid] = entity;
             }
             return Task.CompletedTask;
         }
 
         public Task DeleteOneAsync(Expression<Func<T, bool>> predicate)
         {
+            var entities = RepoContainer.AllEntities[typeof(T)];
             var pred = predicate.Compile();
-            foreach (var (guid, entity) in Entities)
+            foreach (var (guid, entity) in entities)
             {
-                if (pred(entity))
+                if (pred((T)entity))
                 {
-                    Entities.Remove(guid, out _);
+                    entities.Remove(guid, out _);
                     return Task.CompletedTask;
                 }
             }
@@ -83,18 +97,20 @@ namespace BoomaEcommerce.Data.InMemory
 
         public Task DeleteByIdAsync(Guid guid)
         {
-            Entities.Remove(guid, out _);
+            var entity = RepoContainer.AllEntities[typeof(T)];
+            entity.Remove(guid, out _);
             return Task.CompletedTask;
         }
 
         public Task DeleteManyAsync(Expression<Func<T, bool>> predicate)
         {
+            var entities = RepoContainer.AllEntities[typeof(T)];
             var pred = predicate.Compile();
-            var keysToRemove = Entities.Keys.Where(guid => pred(Entities[guid]));
+            var keysToRemove = entities.Keys.Where(guid => pred((T)entities[guid]));
 
             foreach (var key in keysToRemove)
             {
-                Entities.Remove(key, out _);
+                entities.Remove(key, out _);
             }
             return Task.CompletedTask;
         }

@@ -50,6 +50,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<StorePurchaseNotification, StorePurchaseNotificationDto>();
             CreateMap<Notification, NotificationDto>();
+            CreateMap<User, BasicUserInfoDto>();
         }
     }
 }

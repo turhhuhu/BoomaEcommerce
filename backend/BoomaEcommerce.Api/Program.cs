@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Api
             }
             catch (Exception e)
             {
-                Log.Fatal(e, "Failed to start application. exiting.");
+                 Log.Fatal(e, "Failed to start application. exiting.");
             }
             finally
             {

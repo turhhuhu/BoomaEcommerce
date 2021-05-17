@@ -54,6 +54,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             _usersServiceMock.Setup(x => x.GetUserInfoAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid guid) => new UserDto {Guid = guid});
+
             var expectedResult = new UserDto {Guid = _userGuidInClaims};
 
             // Act
@@ -118,8 +119,10 @@ namespace BoomaEcommerce.Controllers.Tests.unit
 
             // Arrange
             var storeGuid =  Guid.NewGuid();
-            _storeServicesMock.Setup(x => x.CreateStoreAsync(It.IsAny<StoreDto>()))
+
+            _storeServicesMock.Setup(storeService => storeService.CreateStoreAsync(It.IsAny<StoreDto>()))
                 .ReturnsAsync((StoreDto store) => store);
+
             var expectedResult = new StoreDto
             {
                 Guid = storeGuid
