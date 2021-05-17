@@ -12,7 +12,10 @@ export function store(
 ) {
   switch (action.type) {
     case StoreActionTypes.STORE_INFO_REQUEST:
-      return Object.assign({}, state, { ...action.payload, error: undefined });
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     case StoreActionTypes.STORE_INFO_SUCCESS:
       return Object.assign({}, state, {
         storeInfo: action.payload.response,
@@ -24,7 +27,10 @@ export function store(
         isFetching: action.payload.isFetching,
       });
     case StoreActionTypes.GET_ALL_STORE_PRODUCTS_REQUEST:
-      return Object.assign({}, state, { ...action.payload, error: undefined });
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     case StoreActionTypes.GET_ALL_STORE_PRODUCTS_SUCCESS:
       return Object.assign({}, state, {
         products: action.payload.response,
@@ -43,7 +49,10 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.ADD_PRODUCT_TO_STORE_REQUEST:
-      return Object.assign({}, state, { ...action.payload, error: undefined });
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     case StoreActionTypes.ADD_PRODUCT_TO_STORE_SUCCESS: {
       const newProducts = [...state.products, action.payload.response];
       return Object.assign({}, state, {
@@ -60,7 +69,10 @@ export function store(
         isFetching: action.payload.isFetching,
       });
     case StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_REQUEST:
-      return Object.assign({}, state, { ...action.payload, error: undefined });
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     case StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_SUCCESS: {
       const productToRemoveIndexInProducts = state.products.findIndex(
         (product) => product.guid === action.extraPayload.productGuid
@@ -99,7 +111,10 @@ export function store(
         isFetching: action.payload.isFetching,
       });
     case StoreActionTypes.EDIT_PRODUCT_FROM_STORE_REQUEST:
-      return Object.assign({}, state, { ...action.payload, error: undefined });
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     case StoreActionTypes.EDIT_PRODUCT_FROM_STORE_SUCCESS:
       const productToEditIndexInProducts = state.products.findIndex(
         (product) => product.guid === action.extraPayload.productGuid

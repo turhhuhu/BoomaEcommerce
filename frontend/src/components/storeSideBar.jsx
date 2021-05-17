@@ -1,13 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { logoutUser } from "../actions/authActions";
 import "../css/profileSidebar.css";
-class ProfileSideBar extends Component {
-  state = {};
 
-  handleSignOut = () => {
-    this.props.dispatch(logoutUser());
-  };
+class StoreSideBar extends Component {
+  state = {};
 
   render() {
     return (
@@ -28,7 +24,7 @@ class ProfileSideBar extends Component {
           </a>
           <a
             className={`list-group-item ${
-              this.props.isManagment ? "active" : null
+              this.props.isManagement ? "active" : null
             }`}
             href={`/store/${this.props.guid}/managment`}
           >
@@ -50,4 +46,4 @@ class ProfileSideBar extends Component {
   }
 }
 
-export default connect()(ProfileSideBar);
+export default connect()(StoreSideBar);

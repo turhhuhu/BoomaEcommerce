@@ -5,16 +5,14 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { editStoreProduct } from "../actions/storeActions";
+import { addStore, fetchUserRoles } from "../actions/userActions";
 import { Alert } from "@material-ui/lab";
 
-class EditStoreProductDialog extends Component {
+class AddStoreDialog extends Component {
   state = {
     error: undefined,
     name: "",
-    category: "",
-    amount: "",
-    price: "",
+    description: "",
   };
 
   handleChange = (event) => {
@@ -29,34 +27,27 @@ class EditStoreProductDialog extends Component {
   };
 
   handleSubmit = (event) => {
-    if (
-      !this.state.name &&
-      !this.state.category &&
-      !this.state.amount &&
-      !this.state.price
-    ) {
-      this.setState({ error: "Please fill at least one field" });
+    if (!this.state.name || !this.state.description) {
+      this.setState({ error: "Please fill all fields" });
       return;
     } else {
-      this.setState({ error: undefined });
       event.preventDefault();
+      this.setState({ error: undefined });
       this.props
         .dispatch(
-          editStoreProduct(this.props.storeGuid, this.props.guid, {
-            name: this.state.name ? this.state.name : undefined,
-            category: this.state.category ? this.state.category : undefined,
-            amount: this.state.amount ? this.state.amount : undefined,
-            price: this.state.price ? this.state.price : undefined,
+          addStore({
+            storeName: this.state.name,
+            description: this.state.description,
           })
         )
         .then((success) => {
           if (success) {
             this.props.closeDialog();
+            this.props.dispatch(fetchUserRoles());
           }
         });
     }
   };
-
   render() {
     return (
       <Dialog
@@ -64,11 +55,11 @@ class EditStoreProductDialog extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Edit product</DialogTitle>
+        <DialogTitle id="form-dialog-title">Add product</DialogTitle>
         <form>
           <DialogContent>
             <DialogContentText>
-              Please fill out the following product details:
+              Please fill out the following store details:
             </DialogContentText>
             <label>Name:</label>
             <input
@@ -79,31 +70,13 @@ class EditStoreProductDialog extends Component {
               value={this.state.name}
               onChange={this.handleChange}
             ></input>
-            <label>category:</label>
+            <label>Description:</label>
             <input
               type="text"
               className="form-control mb-2"
-              name="category"
+              name="description"
               required
-              value={this.state.category}
-              onChange={this.handleChange}
-            ></input>
-            <label>amount:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="amount"
-              required
-              value={this.state.amount}
-              onChange={this.handleChange}
-            ></input>
-            <label>price:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="price"
-              required
-              value={this.state.price}
+              value={this.state.description}
               onChange={this.handleChange}
             ></input>
           </DialogContent>
@@ -118,7 +91,7 @@ class EditStoreProductDialog extends Component {
               className="btn btn-outline-primary my-2"
               onClick={this.handleSubmit}
             >
-              Save
+              Add
             </button>
           </DialogActions>
           {(this.props.error || this.state.error) && (
@@ -138,4 +111,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(mapStateToProps)(EditStoreProductDialog);
+export default connect(mapStateToProps)(AddStoreDialog);

@@ -17,6 +17,8 @@ export const DELETE_PURCHASE_PRODUCT_FROM_BASKET_URL =
   USER_CART_BASKET_PRODUCTS_URL + "/{purchaseProductGuid}";
 export const USER_STORES_URL = USER_INFO_URL + "/stores";
 export const USER_ROLES_URL = USER_STORES_URL + "/allRoles";
+export const ADD_STORE_URL = USER_STORES_URL;
+export const USER_STORE_ROLE = USER_STORES_URL + "/{storeGuid}/role";
 
 //products
 export const PRODUCTS_URL = BASE_URL + "/Products";

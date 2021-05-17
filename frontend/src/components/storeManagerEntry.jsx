@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-class UserStoreEntry extends Component {
+class StoreManagementEntry extends Component {
   state = {};
   render() {
     return (
