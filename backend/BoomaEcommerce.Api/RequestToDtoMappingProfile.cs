@@ -14,11 +14,11 @@ namespace BoomaEcommerce.Api
         {
             CreateMap<CreateOwnershipRequest, StoreOwnershipDto>()
                 .ForMember(dto => dto.Store, x => x.MapFrom(req => new StoreDto()))
-                .ForMember(dto => dto.User, x => x.MapFrom(req => new UserDto {Guid = req.NominatedUserGuid}));
+                .ForMember(dto => dto.User, x => x.MapFrom(req => new UserDto {Guid = req.NominatedUserGuid.Value}));
 
             CreateMap<CreateManagementRequest, StoreManagementDto>()
                 .ForMember(dto => dto.Store, x => x.MapFrom(req => new StoreDto()))
-                .ForMember(dto => dto.User, x => x.MapFrom(req => new UserDto { Guid = req.NominatedUserGuid }));
+                .ForMember(dto => dto.User, x => x.MapFrom(req => new UserDto { Guid = req.NominatedUserGuid.Value }));
         }
     }
 }

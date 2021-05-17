@@ -65,6 +65,7 @@ namespace BoomaEcommerce.Services
                 Store = store,
                 User = user
             };
+            await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
             await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
         }
 
