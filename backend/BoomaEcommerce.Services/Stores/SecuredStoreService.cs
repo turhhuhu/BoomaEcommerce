@@ -268,8 +268,9 @@ namespace BoomaEcommerce.Services.Stores
         public async Task<StoreManagementDto> GetStoreManagementAsync(Guid userGuid, Guid storeGuid)
         {
             CheckAuthenticated();
+            
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
-            if (await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeGuid))
+            if (userGuidInClaims == userGuid || await CanPerformSellerAction(permissions => permissions.CanGetSellersInfo, storeGuid))
             {
                 return await _storeService.GetStoreManagementAsync(userGuid, storeGuid);
             }
