@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace BoomaEcommerce.Api.Requests
     {
         protected CreateRoleRequest() { }
         public Guid? NominatedUserGuid { get; set; }
-        public string? NominatedUserName { get; set; }
+        public string NominatedUserName { get; set; }
         public Guid NominatingOwnershipGuid { get; set; }
     }
 

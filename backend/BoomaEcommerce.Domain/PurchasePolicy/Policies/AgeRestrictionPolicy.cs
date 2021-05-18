@@ -10,20 +10,26 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
     {
         public Product Product { get; set; }
         public int MinAge { get; set; }
+
         public AgeRestrictionPolicy(Product product, int minAge)
         {
             Product = product;
             MinAge = minAge;
+            ErrorMessage = "User '{0}' must at-least be of age {1} to purchase {2}.";
         }
 
-        public override bool CheckPolicy(User user, ShoppingBasket basket)
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
-            return DateTime.Today.Year - user.DateOfBirth.Year >= MinAge;
+            return DateTime.Today.Year - user.DateOfBirth.Year >= MinAge 
+                ? PolicyResult.Ok() 
+                : PolicyResult.Fail(string.Format(ErrorMessage, user.UserName, MinAge, Product.Name));
         }
 
-        public override bool CheckPolicy(StorePurchase purchase)
+        public override PolicyResult CheckPolicy(StorePurchase purchase)
         {
-            return DateTime.Today.Year - purchase.Buyer.DateOfBirth.Year >= MinAge;
+            return DateTime.Today.Year - purchase.Buyer.DateOfBirth.Year >= MinAge
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail(string.Format(ErrorMessage, purchase.Buyer.UserName, MinAge, Product.Name));
         }
     }
 }

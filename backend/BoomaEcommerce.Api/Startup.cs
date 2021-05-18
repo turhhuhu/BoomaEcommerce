@@ -39,7 +39,12 @@ namespace BoomaEcommerce.Api
 
             services.AddControllers();
 
-            services.AddMvc().AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
+            services.AddMvc()
+                .AddNewtonsoftJson(x =>
+                {
+                    x.SerializerSettings.Converters.Add(new NotificationCreationConverter());
+                })
+                .AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
             services.AddSignalR(hubOptions =>
             {
