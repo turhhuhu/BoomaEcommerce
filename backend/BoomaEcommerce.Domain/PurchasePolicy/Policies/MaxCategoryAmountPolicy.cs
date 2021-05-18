@@ -11,8 +11,6 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
         public string Category { get; set; }
         public int MaxAmount { get; set; }
 
-
-
         public MaxCategoryAmountPolicy(string category, int maxAmount)
         {
             Category = category;

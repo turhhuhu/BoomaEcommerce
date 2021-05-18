@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Services
+namespace BoomaEcommerce.Api
 {
     class NotificationCreationConverter : JsonCreationConverter<NotificationDto>
     {
