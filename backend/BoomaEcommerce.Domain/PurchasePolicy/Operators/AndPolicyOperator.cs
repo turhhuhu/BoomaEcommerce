@@ -3,19 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
 {
     public class AndPolicyOperator : PolicyOperator
     {
-        public override bool CheckPolicy(User user, ShoppingBasket basket, IEnumerable<PurchasePolicy> policies)
+        private const string FailMessage = "All of the following policies must be met:";
+
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params PurchasePolicy[] policies)
         {
-            return policies.All(p => p.CheckPolicy(user, basket));
+            var fails = policies
+                .Select(p => p.CheckPolicy(user, basket))
+                .Where(r => !r.IsOk)
+                .ToList();
+
+            return fails.Any()
+                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
+                : PolicyResult.Ok();
+
         }
 
-        public override bool CheckPolicy(StorePurchase purchase, IEnumerable<PurchasePolicy> policies)
+        public override PolicyResult CheckPolicy(StorePurchase purchase, params PurchasePolicy[] policies)
         {
-            return policies.All(p => p.CheckPolicy(purchase));
+            var fails = policies
+                .Select(p => p.CheckPolicy(purchase))
+                .Where(r => !r.IsOk)
+                .ToList();
+
+            return fails.Any()
+                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
+                : PolicyResult.Ok();
         }
     }
 }
