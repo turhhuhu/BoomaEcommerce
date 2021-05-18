@@ -20,8 +20,8 @@ class StoreProductsPage extends Component {
       [event.target.name]: event.target.value,
     });
   };
-  componentDidMount(prevProps) {
-    if (this.props !== prevProps) {
+  componentDidMount() {
+    if (this.props.match.params.guid) {
       this.props.dispatch(fetchStoreInfo(this.props.match.params.guid));
       this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
       this.props.dispatch(fetchUserStoreRole(this.props.match.params.guid));
