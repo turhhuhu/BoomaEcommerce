@@ -5,16 +5,14 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { addProductToStore } from "../actions/storeActions";
+import { addStore, fetchUserRoles } from "../actions/userActions";
 import { Alert } from "@material-ui/lab";
 
-class AddStoreProductDialog extends Component {
+class AddStoreDialog extends Component {
   state = {
     error: undefined,
     name: "",
-    category: "",
-    amount: "",
-    price: "",
+    description: "",
   };
 
   handleChange = (event) => {
@@ -29,12 +27,7 @@ class AddStoreProductDialog extends Component {
   };
 
   handleSubmit = (event) => {
-    if (
-      !this.state.name ||
-      !this.state.category ||
-      !this.state.amount ||
-      !this.state.price
-    ) {
+    if (!this.state.name || !this.state.description) {
       this.setState({ error: "Please fill all fields" });
       return;
     } else {
@@ -42,19 +35,15 @@ class AddStoreProductDialog extends Component {
       this.setState({ error: undefined });
       this.props
         .dispatch(
-          addProductToStore(
-            {
-              name: this.state.name,
-              category: this.state.category,
-              amount: this.state.amount,
-              price: this.state.price,
-            },
-            this.props.guid
-          )
+          addStore({
+            storeName: this.state.name,
+            description: this.state.description,
+          })
         )
         .then((success) => {
           if (success) {
             this.props.closeDialog();
+            this.props.dispatch(fetchUserRoles());
           }
         });
     }
@@ -70,7 +59,7 @@ class AddStoreProductDialog extends Component {
         <form>
           <DialogContent>
             <DialogContentText>
-              Please fill out the following product details:
+              Please fill out the following store details:
             </DialogContentText>
             <label>Name:</label>
             <input
@@ -81,31 +70,13 @@ class AddStoreProductDialog extends Component {
               value={this.state.name}
               onChange={this.handleChange}
             ></input>
-            <label>category:</label>
+            <label>Description:</label>
             <input
               type="text"
               className="form-control mb-2"
-              name="category"
+              name="description"
               required
-              value={this.state.category}
-              onChange={this.handleChange}
-            ></input>
-            <label>amount:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="amount"
-              required
-              value={this.state.amount}
-              onChange={this.handleChange}
-            ></input>
-            <label>price:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="price"
-              required
-              value={this.state.price}
+              value={this.state.description}
               onChange={this.handleChange}
             ></input>
           </DialogContent>
@@ -140,4 +111,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(mapStateToProps)(AddStoreProductDialog);
+export default connect(mapStateToProps)(AddStoreDialog);

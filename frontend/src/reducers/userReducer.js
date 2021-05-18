@@ -130,6 +130,27 @@ export function user(
     case UserActionTypes.USER_ROLES_FAILURE:
       console.error(`error occured while getting user roles: ${action.error}`);
       return state;
+    case UserActionTypes.ADD_STORE_REQUEST:
+      return Object.assign({}, state, action.payload);
+    case UserActionTypes.ADD_STORE_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.ADD_STORE_FAILURE:
+      console.error(`error occured while adding store: ${action.error}`);
+      return state;
+    case UserActionTypes.USER_STORE_ROLE_REQUEST:
+      return Object.assign({}, state, action.payload);
+    case UserActionTypes.USER_STORE_ROLE_SUCCESS:
+      return Object.assign({}, state, {
+        storeRole: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.USER_STORE_ROLE_FAILURE:
+      console.error(
+        `error occured while getting user store role: ${action.error}`
+      );
+      return state;
 
     default:
       return state;

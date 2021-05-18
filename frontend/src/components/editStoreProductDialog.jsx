@@ -5,10 +5,10 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { addProductToStore } from "../actions/storeActions";
+import { editStoreProduct } from "../actions/storeActions";
 import { Alert } from "@material-ui/lab";
 
-class AddStoreProductDialog extends Component {
+class EditStoreProductDialog extends Component {
   state = {
     error: undefined,
     name: "",
@@ -30,27 +30,24 @@ class AddStoreProductDialog extends Component {
 
   handleSubmit = (event) => {
     if (
-      !this.state.name ||
-      !this.state.category ||
-      !this.state.amount ||
+      !this.state.name &&
+      !this.state.category &&
+      !this.state.amount &&
       !this.state.price
     ) {
-      this.setState({ error: "Please fill all fields" });
+      this.setState({ error: "Please fill at least one field" });
       return;
     } else {
-      event.preventDefault();
       this.setState({ error: undefined });
+      event.preventDefault();
       this.props
         .dispatch(
-          addProductToStore(
-            {
-              name: this.state.name,
-              category: this.state.category,
-              amount: this.state.amount,
-              price: this.state.price,
-            },
-            this.props.guid
-          )
+          editStoreProduct(this.props.storeGuid, this.props.guid, {
+            name: this.state.name ? this.state.name : undefined,
+            category: this.state.category ? this.state.category : undefined,
+            amount: this.state.amount ? this.state.amount : undefined,
+            price: this.state.price ? this.state.price : undefined,
+          })
         )
         .then((success) => {
           if (success) {
@@ -59,6 +56,7 @@ class AddStoreProductDialog extends Component {
         });
     }
   };
+
   render() {
     return (
       <Dialog
@@ -66,7 +64,7 @@ class AddStoreProductDialog extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add product</DialogTitle>
+        <DialogTitle id="form-dialog-title">Edit product</DialogTitle>
         <form>
           <DialogContent>
             <DialogContentText>
@@ -120,7 +118,7 @@ class AddStoreProductDialog extends Component {
               className="btn btn-outline-primary my-2"
               onClick={this.handleSubmit}
             >
-              Add
+              Save
             </button>
           </DialogActions>
           {(this.props.error || this.state.error) && (
@@ -140,4 +138,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(mapStateToProps)(AddStoreProductDialog);
+export default connect(mapStateToProps)(EditStoreProductDialog);

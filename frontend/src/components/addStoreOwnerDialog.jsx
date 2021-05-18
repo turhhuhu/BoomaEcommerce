@@ -5,16 +5,17 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import { addProductToStore } from "../actions/storeActions";
 import { Alert } from "@material-ui/lab";
+import {
+  addStoreOwner,
+  fetchStoreRoles,
+  fetchStoreSubordinates,
+} from "../actions/storeActions";
 
-class AddStoreProductDialog extends Component {
+class AddStoreOwnerDialog extends Component {
   state = {
     error: undefined,
-    name: "",
-    category: "",
-    amount: "",
-    price: "",
+    nominatedUserName: "",
   };
 
   handleChange = (event) => {
@@ -29,12 +30,7 @@ class AddStoreProductDialog extends Component {
   };
 
   handleSubmit = (event) => {
-    if (
-      !this.state.name ||
-      !this.state.category ||
-      !this.state.amount ||
-      !this.state.price
-    ) {
+    if (!this.state.nominatedUserName) {
       this.setState({ error: "Please fill all fields" });
       return;
     } else {
@@ -42,19 +38,26 @@ class AddStoreProductDialog extends Component {
       this.setState({ error: undefined });
       this.props
         .dispatch(
-          addProductToStore(
+          addStoreOwner(
             {
-              name: this.state.name,
-              category: this.state.category,
-              amount: this.state.amount,
-              price: this.state.price,
+              nominatedUserName: this.state.nominatedUserName,
+              nominatingOwnershipGuid: this.props.myRole?.guid,
             },
-            this.props.guid
+            this.props.storeGuid
           )
         )
         .then((success) => {
           if (success) {
             this.props.closeDialog();
+            this.props.dispatch(fetchStoreRoles(this.props.storeGuid));
+            if (this.props.myRole?.type === "ownership") {
+              this.props.dispatch(
+                fetchStoreSubordinates(
+                  this.props.storeGuid,
+                  this.props.myRole.guid
+                )
+              );
+            }
           }
         });
     }
@@ -66,46 +69,19 @@ class AddStoreProductDialog extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add product</DialogTitle>
+        <DialogTitle id="form-dialog-title">Add Owner</DialogTitle>
         <form>
           <DialogContent>
             <DialogContentText>
-              Please fill out the following product details:
+              Please fill out the following username for the new owner:
             </DialogContentText>
-            <label>Name:</label>
+            <label>Username:</label>
             <input
               type="text"
               className="form-control mb-2"
-              name="name"
+              name="nominatedUserName"
               required
-              value={this.state.name}
-              onChange={this.handleChange}
-            ></input>
-            <label>category:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="category"
-              required
-              value={this.state.category}
-              onChange={this.handleChange}
-            ></input>
-            <label>amount:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="amount"
-              required
-              value={this.state.amount}
-              onChange={this.handleChange}
-            ></input>
-            <label>price:</label>
-            <input
-              type="text"
-              className="form-control mb-2"
-              name="price"
-              required
-              value={this.state.price}
+              value={this.state.nominatedUserName}
               onChange={this.handleChange}
             ></input>
           </DialogContent>
@@ -137,7 +113,8 @@ class AddStoreProductDialog extends Component {
 const mapStateToProps = (store) => {
   return {
     error: store.store.error,
+    myRole: store.user.storeRole,
   };
 };
 
-export default connect(mapStateToProps)(AddStoreProductDialog);
+export default connect(mapStateToProps)(AddStoreOwnerDialog);

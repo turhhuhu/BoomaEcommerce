@@ -2,7 +2,11 @@ import { CALL_API } from "../middleware/api";
 import {
   STORE_PRODUCTS_URL,
   STORE_PRODUCT_URL,
+  STORE_ROLES_URL,
   STORE_URL,
+  STORE_SUBORDINATES_URL,
+  ADD_STORE_OWNER_URL,
+  ADD_STORE_MANAGER_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -43,10 +47,10 @@ export function filterStoreProducts(filteredProducts) {
   };
 }
 
-export function addProductToStore(product) {
+export function addProductToStore(product, storeGuid) {
   return {
     [CALL_API]: {
-      endpoint: STORE_PRODUCT_URL,
+      endpoint: STORE_PRODUCTS_URL.replace("{storeGuid}", storeGuid),
       authenticated: true,
       types: [
         StoreActionTypes.ADD_PRODUCT_TO_STORE_REQUEST,
@@ -57,6 +61,120 @@ export function addProductToStore(product) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
+      },
+    },
+  };
+}
+
+export function removeStoreProduct(storeGuid, productGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PRODUCT_URL.replace("{storeGuid}", storeGuid).replace(
+        "{productGuid}",
+        productGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_REQUEST,
+        StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_SUCCESS,
+        StoreActionTypes.REMOVE_PRODUCT_FROM_STORE_FAILURE,
+      ],
+      config: {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      },
+      extraPayload: { productGuid },
+    },
+  };
+}
+
+export function editStoreProduct(storeGuid, productGuid, editedProduct) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PRODUCT_URL.replace("{storeGuid}", storeGuid).replace(
+        "{productGuid}",
+        productGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.EDIT_PRODUCT_FROM_STORE_REQUEST,
+        StoreActionTypes.EDIT_PRODUCT_FROM_STORE_SUCCESS,
+        StoreActionTypes.EDIT_PRODUCT_FROM_STORE_FAILURE,
+      ],
+      config: {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editedProduct),
+      },
+      extraPayload: { editedProduct, productGuid },
+    },
+  };
+}
+
+export function fetchStoreRoles(storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_ROLES_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_ROLES_REQUEST,
+        StoreActionTypes.GET_STORE_ROLES_SUCCESS,
+        StoreActionTypes.GET_STORE_ROLES_FAILURE,
+      ],
+    },
+  };
+}
+
+export function fetchStoreSubordinates(storeGuid, ownershipGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_SUBORDINATES_URL.replace(
+        "{storeGuid}",
+        storeGuid
+      ).replace("{ownershipGuid}", ownershipGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_SUBORDINATES_REQUEST,
+        StoreActionTypes.GET_STORE_SUBORDINATES_SUCCESS,
+        StoreActionTypes.GET_STORE_SUBORDINATES_FAILURE,
+      ],
+    },
+  };
+}
+
+export function addStoreOwner(owner, storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: ADD_STORE_OWNER_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_OWNER_REQUEST,
+        StoreActionTypes.ADD_STORE_OWNER_SUCCESS,
+        StoreActionTypes.ADD_STORE_OWNER_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(owner),
+      },
+    },
+  };
+}
+
+export function addStoreManager(manager, storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: ADD_STORE_MANAGER_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_MANAGER_REQUEST,
+        StoreActionTypes.ADD_STORE_MANAGER_SUCCESS,
+        StoreActionTypes.ADD_STORE_MANAGER_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(manager),
       },
     },
   };
