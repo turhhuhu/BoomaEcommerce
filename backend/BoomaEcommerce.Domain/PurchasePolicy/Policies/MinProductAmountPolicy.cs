@@ -24,11 +24,9 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
                 .Values
                 .FirstOrDefault(p => p.Product.Guid == Product.Guid);
 
-            if(purchaseProduct == null || purchaseProduct.Amount >= MinAmount)
-            {
-                return PolicyResult.Ok();
-            }
-            return PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MinAmount, purchaseProduct.Amount));
+            return purchaseProduct?.Amount >= MinAmount
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MinAmount, purchaseProduct?.Amount ?? 0));
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase)

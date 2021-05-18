@@ -24,11 +24,9 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
                 .Values
                 .FirstOrDefault(p => p.Product.Guid == Product.Guid);
 
-            if (purchaseProduct == null || purchaseProduct.Amount <= MaxAmount)
-            {
-                return PolicyResult.Ok();
-            }
-            return PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MaxAmount, purchaseProduct.Amount));
+            return (purchaseProduct?.Amount ?? 0) <= MaxAmount
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MaxAmount, purchaseProduct?.Amount ?? 0));
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase)
@@ -37,11 +35,9 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
                 .PurchaseProducts
                 .FirstOrDefault(p => p.Product.Guid == Product.Guid);
 
-            if (purchaseProduct == null || purchaseProduct.Amount <= MaxAmount)
-            {
-                return PolicyResult.Ok();
-            }
-            return PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MaxAmount, purchaseProduct.Amount));
+            return (purchaseProduct?.Amount ?? 0) <= MaxAmount
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail(string.Format(ErrorMessage, Product.Name, MaxAmount, purchaseProduct?.Amount ?? 0));
         }
     }
 }

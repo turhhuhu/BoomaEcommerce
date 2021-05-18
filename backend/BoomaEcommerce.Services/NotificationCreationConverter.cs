@@ -13,15 +13,12 @@ namespace BoomaEcommerce.Services
         protected override NotificationDto Create(Type objectType, JObject jObject)
         {
             var type = jObject["type"].ToObject<string>();
-            switch(type)
+            return type switch
             {
-                case "notification":
-                    return new NotificationDto();
-                case "storePurchaseNotification":
-                    return new StorePurchaseNotificationDto();
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                "notification" => new NotificationDto(),
+                "storePurchaseNotification" => new StorePurchaseNotificationDto(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }

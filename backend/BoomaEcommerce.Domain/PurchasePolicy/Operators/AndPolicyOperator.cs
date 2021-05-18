@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
 {
@@ -20,6 +21,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
             return fails.Any()
                 ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
                 : PolicyResult.Ok();
+
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase, params PurchasePolicy[] policies)

@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
         {
             Product = product;
             MinAge = minAge;
-            ErrorMessage = "User '{0}' must be at-least be of age {1} to purchase {2}.";
+            ErrorMessage = "User '{0}' must at-least be of age {1} to purchase {2}.";
         }
 
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
