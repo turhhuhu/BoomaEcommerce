@@ -37,25 +37,29 @@ class StoreManagementHeader extends Component {
         <section className="text-center border-bottom">
           <h1 className="jumbotron-heading">{`${this.props.storeName} Managment`}</h1>
           <p>
-            <button
-              onClick={this.handleAddOwner}
-              className="btn btn-outline-primary my-2"
-            >
-              Add owner
-              <i className="ml-2 fa fa-plus"></i>
-            </button>
+            {this.props.myRole?.type === "ownership" ? (
+              <button
+                onClick={this.handleAddOwner}
+                className="btn btn-outline-primary my-2"
+              >
+                Add owner
+                <i className="ml-2 fa fa-plus"></i>
+              </button>
+            ) : null}
             <AddStoreOwnerDialog
               storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isAddOwnerDialogOpen}
               closeDialog={this.closeAddOwnerDialog}
             />
-            <button
-              onClick={this.handleAddManager}
-              className="ml-3 btn btn-outline-primary my-2"
-            >
-              Add manager
-              <i className="ml-2 fa fa-plus"></i>
-            </button>
+            {this.props.myRole?.type === "ownership" ? (
+              <button
+                onClick={this.handleAddManager}
+                className="ml-3 btn btn-outline-primary my-2"
+              >
+                Add manager
+                <i className="ml-2 fa fa-plus"></i>
+              </button>
+            ) : null}
             <AddStoreManagerDialog
               storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isAddManagerDialogOpen}
@@ -71,6 +75,7 @@ class StoreManagementHeader extends Component {
 const mapStateToProps = (store) => {
   return {
     error: store.store.error,
+    myRole: store.user.storeRole,
   };
 };
 

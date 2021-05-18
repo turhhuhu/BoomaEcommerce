@@ -20,14 +20,14 @@ class StoreInformation extends Component {
               <div className="form-row mt-2">
                 <div className="form-group col">
                   <strong className="bold">Name:</strong>
-                  <p>{this.props.storeInfo.storeName}</p>
+                  <p>{this.props.storeInfo?.storeName}</p>
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group col">
                   <strong>Description:</strong>
-                  <p>{this.props.storeInfo.description}</p>
+                  <p>{this.props.storeInfo?.description}</p>
                 </div>
               </div>
 
@@ -35,7 +35,7 @@ class StoreInformation extends Component {
                 <div className="form-group col">
                   <strong>rating:</strong>
                   <div className="pr-4">
-                    <Rating rating={this.props.storeInfo.rating} />
+                    <Rating rating={this.props.storeInfo?.rating} />
                   </div>
                 </div>
               </div>
@@ -52,15 +52,17 @@ class StoreInformation extends Component {
                         <label>Add product:</label>
                         <Checkbox
                           color="primary"
-                          value={this.props.storeRole.permissions.canAddProduct}
+                          checked={
+                            this.props.storeRole?.permissions.canAddProduct
+                          }
                           onChange={(event) => event.preventDefault()}
                         />
                         <br />
                         <label>Remove product:</label>
                         <Checkbox
                           color="primary"
-                          value={
-                            this.props.storeRole.permissions.canDeleteProduct
+                          checked={
+                            this.props.storeRole?.permissions.canDeleteProduct
                           }
                           onChange={(event) => event.preventDefault()}
                         />
@@ -68,8 +70,8 @@ class StoreInformation extends Component {
                         <label>Edit product:</label>
                         <Checkbox
                           color="primary"
-                          value={
-                            this.props.storeRole.permissions.canUpdateProduct
+                          checked={
+                            this.props.storeRole?.permissions.canUpdateProduct
                           }
                           onChange={(event) => event.preventDefault()}
                         />
@@ -77,8 +79,8 @@ class StoreInformation extends Component {
                         <label>View other sellers:</label>
                         <Checkbox
                           color="primary"
-                          value={
-                            this.props.storeRole.permissions.canGetSellersInfo
+                          checked={
+                            this.props.storeRole?.permissions.canGetSellersInfo
                           }
                           onChange={(event) => event.preventDefault()}
                         />

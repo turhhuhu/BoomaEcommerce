@@ -9,7 +9,9 @@ class UserStoreEntry extends Component {
         <td> {this.props.description} </td>
         <td>
           <a
-            href={`/store/${this.props.guid}`}
+            href={
+              this.props.guid ? `/store/${this.props.guid}` : this.setState({})
+            }
             className="d-flex p-1 justify-content-center btn btn-outline-primary"
           >
             {" "}

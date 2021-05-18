@@ -39,7 +39,7 @@ class StoreManagersTable extends Component {
                     return null;
                   }
                   if (
-                    this.props.subordinates.some(
+                    this.props.subordinates?.some(
                       (subordinate) => subordinate.guid === managementship.guid
                     )
                   ) {

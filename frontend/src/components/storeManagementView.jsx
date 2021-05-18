@@ -10,7 +10,7 @@ class StoreManagementView extends Component {
   render() {
     return (
       <div className="row mt-3">
-        <StoreSideBar isManagement="true" />
+        <StoreSideBar isManagement="true" guid={this.props.guid} />
         <main className="row col">
           <div>
             <StoreManagersTable

@@ -10,8 +10,16 @@ class StoreInformationPage extends Component {
   componentDidMount() {
     if (this.props.match.params.guid) {
       this.props.dispatch(fetchStoreInfo(this.props.match.params.guid));
-      this.props.dispatch(fetchUserStoreRole(this.props.match.params.guid));
-      this.props.dispatch(fetchStoreRoles(this.props.match.params.guid));
+      this.props
+        .dispatch(fetchUserStoreRole(this.props.match.params.guid))
+        .then((action) => {
+          const role = action?.payload?.response;
+          if (
+            role?.type === "ownership" ||
+            (role?.type === "management" && role?.permissions.canGetSellersInfo)
+          )
+            this.props.dispatch(fetchStoreRoles(this.props.match.params.guid));
+        });
     }
   }
   render() {

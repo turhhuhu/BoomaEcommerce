@@ -19,7 +19,7 @@ class StoreManagement extends Component {
       this.props
         .dispatch(fetchUserStoreRole(this.props.match.params.guid))
         .then((action) => {
-          if (action.payload.response?.type === "ownership") {
+          if (action?.payload?.response?.type === "ownership") {
             this.props.dispatch(
               fetchStoreSubordinates(
                 this.props.match.params.guid,
@@ -27,8 +27,13 @@ class StoreManagement extends Component {
               )
             );
           }
+          const role = action?.payload?.response;
+          if (
+            role?.type === "ownership" ||
+            (role?.type === "management" && role?.permissions.canGetSellersInfo)
+          )
+            this.props.dispatch(fetchStoreRoles(this.props.match.params.guid));
         });
-      this.props.dispatch(fetchStoreRoles(this.props.match.params.guid));
     }
   }
 
@@ -42,7 +47,7 @@ class StoreManagement extends Component {
               storeName={this.props.storeInfo?.storeName}
               storeGuid={this.props.match.params.guid}
             />
-            <StoreManagementView />
+            <StoreManagementView guid={this.props.match.params.guid} />
           </section>
         </div>
       </React.Fragment>
