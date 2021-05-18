@@ -8,6 +8,7 @@ using AutoMapper;
 using BoomaEcommerce.Api.Hubs;
 using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
@@ -179,19 +180,25 @@ namespace BoomaEcommerce.Api.Controllers
         {
             var userGuid = User.GetUserGuid();
 
-            var ownership = await _storesService.GetStoreOwnerShipAsync(userGuid, storeGuid);
-            if (ownership != null)
-            {
-                return Ok(_mapper.Map<OwnerShipRoleResponse>(ownership));
-            }
-
             var management = await _storesService.GetStoreManagementAsync(userGuid, storeGuid);
             if (management != null)
             {
                 return Ok(_mapper.Map<ManagementRoleResponse>(management));
             }
 
+            try
+            {
+                var ownership = await _storesService.GetStoreOwnerShipAsync(userGuid, storeGuid);
+                if (ownership != null)
+                {
+                    return Ok(_mapper.Map<OwnerShipRoleResponse>(ownership));
+                }
+            }
+            catch (UnAuthorizedException)
+            {
+            }
             return NotFound();
+
         }
 
 
