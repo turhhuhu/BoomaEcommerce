@@ -41,8 +41,8 @@ namespace BoomaEcommerce.Services.Tests
             var entitiesManagements = new ConcurrentDictionary<Guid, StoreManagement>();
 
             var storeGuid = Guid.NewGuid();
-            var firstStoreOwner = new StoreOwnership {Store = new Store {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
-            var secondStoreOwner = new StoreOwnership {Store = new Store {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
+            var firstStoreOwner = new StoreOwnership {Store = new Store(null) {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
+            var secondStoreOwner = new StoreOwnership {Store = new Store(null) { Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
             entitiesOwnerships[firstStoreOwner.Guid] = firstStoreOwner;
             entitiesOwnerships[secondStoreOwner.Guid] = secondStoreOwner;
 
