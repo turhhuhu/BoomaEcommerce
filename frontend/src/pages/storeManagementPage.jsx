@@ -19,7 +19,7 @@ class StoreManagement extends Component {
       this.props
         .dispatch(fetchUserStoreRole(this.props.match.params.guid))
         .then((action) => {
-          if (action.payload.response.type === "ownership") {
+          if (action.payload.response?.type === "ownership") {
             this.props.dispatch(
               fetchStoreSubordinates(
                 this.props.match.params.guid,
@@ -38,7 +38,10 @@ class StoreManagement extends Component {
         <Header />
         <div className="container" style={{ maxWidth: "1200px" }}>
           <section className="section-conten padding-y">
-            <StoreManagementHeader storeName={this.props.storeInfo.storeName} />
+            <StoreManagementHeader
+              storeName={this.props.storeInfo?.storeName}
+              storeGuid={this.props.match.params.guid}
+            />
             <StoreManagementView />
           </section>
         </div>

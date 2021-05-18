@@ -10,6 +10,7 @@ import {
 import StoreProductView from "../components/storeProductView";
 import StoreSideBar from "../components/storeSideBar";
 import StoreProductsHeader from "../components/storeProductsHeader";
+import { fetchUserStoreRole } from "../actions/userActions";
 
 class StoreProductsPage extends Component {
   state = {};
@@ -23,6 +24,7 @@ class StoreProductsPage extends Component {
     if (this.props !== prevProps) {
       this.props.dispatch(fetchStoreInfo(this.props.match.params.guid));
       this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
+      this.props.dispatch(fetchUserStoreRole(this.props.match.params.guid));
     }
   }
 

@@ -50,16 +50,38 @@ class StoreInformation extends Component {
                       <strong>Permissions:</strong>
                       <div>
                         <label>Add product:</label>
-                        <Checkbox color="primary" />
+                        <Checkbox
+                          color="primary"
+                          value={this.props.storeRole.permissions.canAddProduct}
+                          onChange={(event) => event.preventDefault()}
+                        />
                         <br />
                         <label>Remove product:</label>
-                        <Checkbox color="primary" />
+                        <Checkbox
+                          color="primary"
+                          value={
+                            this.props.storeRole.permissions.canDeleteProduct
+                          }
+                          onChange={(event) => event.preventDefault()}
+                        />
                         <br />
-                        <label>Delete product:</label>
-                        <Checkbox color="primary" />
+                        <label>Edit product:</label>
+                        <Checkbox
+                          color="primary"
+                          value={
+                            this.props.storeRole.permissions.canUpdateProduct
+                          }
+                          onChange={(event) => event.preventDefault()}
+                        />
                         <br />
                         <label>View other sellers:</label>
-                        <Checkbox color="primary" />
+                        <Checkbox
+                          color="primary"
+                          value={
+                            this.props.storeRole.permissions.canGetSellersInfo
+                          }
+                          onChange={(event) => event.preventDefault()}
+                        />
                       </div>{" "}
                     </div>
                   ) : null}

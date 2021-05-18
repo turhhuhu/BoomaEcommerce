@@ -7,6 +7,11 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Checkbox } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import {
+  addStoreManager,
+  fetchStoreRoles,
+  fetchStoreSubordinates,
+} from "../actions/storeActions";
 
 class AddStoreOwnerDialog extends Component {
   state = {
@@ -42,22 +47,36 @@ class AddStoreOwnerDialog extends Component {
     } else {
       event.preventDefault();
       this.setState({ error: undefined });
-      // this.props
-      //   .dispatch(
-      //     addStoreManager({
-      //       nominatedUserName: this.state.nominatedUserName,
-      //       canAddProduct: this.state.canAddProduct,
-      //       canDeleteProduct: this.state.canDeleteProduct,
-      //       canUpdateProduct: this.state.canUpdateProduct,
-      //       canGetSellersInfo: this.state.facanGetSellersInfolse,
-      //     })
-      //   )
-      //   .then((success) => {
-      //     if (success) {
-      //       this.props.closeDialog();
-      //       //TODO: add fetch for other sellers
-      //     }
-      //   });
+      this.props
+        .dispatch(
+          addStoreManager(
+            {
+              nominatedUserName: this.state.nominatedUserName,
+              nominatingOwnershipGuid: this.props.myRole.guid,
+              permissions: {
+                canAddProduct: this.state.canAddProduct,
+                canDeleteProduct: this.state.canDeleteProduct,
+                canUpdateProduct: this.state.canUpdateProduct,
+                canGetSellersInfo: this.state.canGetSellersInfo,
+              },
+            },
+            this.props.storeGuid
+          )
+        )
+        .then((success) => {
+          if (success) {
+            this.props.closeDialog();
+            this.props.dispatch(fetchStoreRoles(this.props.storeGuid));
+            if (this.props.myRole?.type === "ownership") {
+              this.props.dispatch(
+                fetchStoreSubordinates(
+                  this.props.storeGuid,
+                  this.props.myRole.guid
+                )
+              );
+            }
+          }
+        });
     }
   };
   render() {
@@ -147,6 +166,7 @@ class AddStoreOwnerDialog extends Component {
 const mapStateToProps = (store) => {
   return {
     error: store.store.error,
+    myRole: store.user.storeRole,
   };
 };
 

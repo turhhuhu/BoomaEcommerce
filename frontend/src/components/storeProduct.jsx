@@ -41,28 +41,36 @@ class StoreProduct extends Component {
                 <span className="price"> {this.props.price}</span>
               </div>
             </div>
-            <button
-              onClick={this.handleEditProduct}
-              className="btn btn-outline-primary btn-block"
-            >
-              {" "}
-              Edit Product
-              <i className="ml-2 fa fa-edit"></i>
-            </button>
+            {this.props.myRole?.type === "ownership" ||
+            (this.props.myRole?.type === "management" &&
+              this.props.myRole.permissions.canUpdateProduct) ? (
+              <button
+                onClick={this.handleEditProduct}
+                className="btn btn-outline-primary btn-block"
+              >
+                {" "}
+                Edit Product
+                <i className="ml-2 fa fa-edit"></i>
+              </button>
+            ) : null}
             <EditStoreProductDialog
               isDialogOpen={this.state.isDialogOpen}
               closeDialog={this.closeDialog}
               guid={this.props.guid}
               storeGuid={this.props.storeGuid}
             />
-            <button
-              onClick={this.handleDeleteProduct}
-              className="btn btn-outline-primary btn-block"
-            >
-              {" "}
-              Remove Product
-              <i className="ml-2 fa fa-trash"></i>
-            </button>
+            {this.props.myRole?.type === "ownership" ||
+            (this.props.myRole?.type === "management" &&
+              this.props.myRole.permissions.canDeleteProduct) ? (
+              <button
+                onClick={this.handleDeleteProduct}
+                className="btn btn-outline-primary btn-block"
+              >
+                {" "}
+                Remove Product
+                <i className="ml-2 fa fa-trash"></i>
+              </button>
+            ) : null}
           </figcaption>
         </figure>
       </div>
@@ -70,4 +78,10 @@ class StoreProduct extends Component {
   }
 }
 
-export default connect()(StoreProduct);
+const mapStateToProps = (store) => {
+  return {
+    myRole: store.user.storeRole,
+  };
+};
+
+export default connect(mapStateToProps)(StoreProduct);

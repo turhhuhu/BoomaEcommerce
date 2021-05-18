@@ -6,6 +6,11 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
+import {
+  addStoreOwner,
+  fetchStoreRoles,
+  fetchStoreSubordinates,
+} from "../actions/storeActions";
 
 class AddStoreOwnerDialog extends Component {
   state = {
@@ -31,18 +36,30 @@ class AddStoreOwnerDialog extends Component {
     } else {
       event.preventDefault();
       this.setState({ error: undefined });
-      // this.props
-      //   .dispatch(
-      //     addStoreOwner({
-      //       nominatedUserName: this.state.nominatedUserName,
-      //     })
-      //   )
-      //   .then((success) => {
-      //     if (success) {
-      //       this.props.closeDialog();
-      //       //TODO: add fetch for other sellers
-      //     }
-      //   });
+      this.props
+        .dispatch(
+          addStoreOwner(
+            {
+              nominatedUserName: this.state.nominatedUserName,
+              nominatingOwnershipGuid: this.props.myRole?.guid,
+            },
+            this.props.storeGuid
+          )
+        )
+        .then((success) => {
+          if (success) {
+            this.props.closeDialog();
+            this.props.dispatch(fetchStoreRoles(this.props.storeGuid));
+            if (this.props.myRole?.type === "ownership") {
+              this.props.dispatch(
+                fetchStoreSubordinates(
+                  this.props.storeGuid,
+                  this.props.myRole.guid
+                )
+              );
+            }
+          }
+        });
     }
   };
   render() {
@@ -62,7 +79,7 @@ class AddStoreOwnerDialog extends Component {
             <input
               type="text"
               className="form-control mb-2"
-              name="name"
+              name="nominatedUserName"
               required
               value={this.state.nominatedUserName}
               onChange={this.handleChange}
@@ -96,6 +113,7 @@ class AddStoreOwnerDialog extends Component {
 const mapStateToProps = (store) => {
   return {
     error: store.store.error,
+    myRole: store.user.storeRole,
   };
 };
 

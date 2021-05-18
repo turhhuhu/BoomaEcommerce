@@ -33,3 +33,5 @@ export const STORE_PRODUCT_URL = STORE_PRODUCTS_URL + "/{productGuid}";
 export const STORE_ROLES_URL = STORE_URL + "/roles";
 export const STORE_SUBORDINATES_URL =
   STORE_ROLES_URL + "/ownerships/{ownershipGuid}/subordinates";
+export const ADD_STORE_OWNER_URL = STORE_ROLES_URL + "/ownerships";
+export const ADD_STORE_MANAGER_URL = STORE_ROLES_URL + "/managements";

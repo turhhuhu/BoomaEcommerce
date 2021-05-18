@@ -22,15 +22,19 @@ class StoreSideBar extends Component {
             {" "}
             Information{" "}
           </a>
-          <a
-            className={`list-group-item ${
-              this.props.isManagement ? "active" : null
-            }`}
-            href={`/store/${this.props.guid}/management`}
-          >
-            {" "}
-            Managment{" "}
-          </a>
+          {this.props.myRole?.type === "ownership" ||
+          (this.props.myRole?.type === "management" &&
+            this.props.myRole?.permissions.canGetSellersInfo) ? (
+            <a
+              className={`list-group-item ${
+                this.props.isManagement ? "active" : null
+              }`}
+              href={`/store/${this.props.guid}/management`}
+            >
+              {" "}
+              Managment{" "}
+            </a>
+          ) : null}
           <a
             className={`list-group-item ${
               this.props.isProducts ? "active" : null
@@ -46,4 +50,10 @@ class StoreSideBar extends Component {
   }
 }
 
-export default connect()(StoreSideBar);
+const mapStateToProps = (store) => {
+  return {
+    myRole: store.user.storeRole,
+  };
+};
+
+export default connect(mapStateToProps)(StoreSideBar);

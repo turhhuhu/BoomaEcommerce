@@ -45,7 +45,7 @@ class StoreManagementHeader extends Component {
               <i className="ml-2 fa fa-plus"></i>
             </button>
             <AddStoreOwnerDialog
-              guid={this.props.guid}
+              storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isAddOwnerDialogOpen}
               closeDialog={this.closeAddOwnerDialog}
             />
@@ -57,7 +57,7 @@ class StoreManagementHeader extends Component {
               <i className="ml-2 fa fa-plus"></i>
             </button>
             <AddStoreManagerDialog
-              guid={this.props.guid}
+              storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isAddManagerDialogOpen}
               closeDialog={this.closeAddManagerDialog}
             />

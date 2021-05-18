@@ -5,6 +5,8 @@ import {
   STORE_ROLES_URL,
   STORE_URL,
   STORE_SUBORDINATES_URL,
+  ADD_STORE_OWNER_URL,
+  ADD_STORE_MANAGER_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -136,6 +138,44 @@ export function fetchStoreSubordinates(storeGuid, ownershipGuid) {
         StoreActionTypes.GET_STORE_SUBORDINATES_SUCCESS,
         StoreActionTypes.GET_STORE_SUBORDINATES_FAILURE,
       ],
+    },
+  };
+}
+
+export function addStoreOwner(owner, storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: ADD_STORE_OWNER_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_OWNER_REQUEST,
+        StoreActionTypes.ADD_STORE_OWNER_SUCCESS,
+        StoreActionTypes.ADD_STORE_OWNER_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(owner),
+      },
+    },
+  };
+}
+
+export function addStoreManager(manager, storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: ADD_STORE_MANAGER_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_MANAGER_REQUEST,
+        StoreActionTypes.ADD_STORE_MANAGER_SUCCESS,
+        StoreActionTypes.ADD_STORE_MANAGER_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(manager),
+      },
     },
   };
 }
