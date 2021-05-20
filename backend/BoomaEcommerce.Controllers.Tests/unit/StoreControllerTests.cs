@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Api.Controllers;
+using BoomaEcommerce.Api.Requests;
 using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services;
@@ -36,7 +37,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         {
             _usersServiceMock = new Mock<IUsersService>();
             _storeServicesMock = new Mock<IStoresService>();
-            _storesController = new StoresController(_storeServicesMock.Object,_mapper,_usersServiceMock.Object);
+            _storesController = new StoresController(_storeServicesMock.Object, _mapper, _usersServiceMock.Object);
             _usersController = new UsersController(_usersServiceMock.Object, _storeServicesMock.Object, null, Mock.Of<INotificationPublisher>(), null);
             _userGuidInClaims = Guid.NewGuid();
             var fakeClaims = new List<Claim>
@@ -63,14 +64,15 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             var storeGuid = Guid.NewGuid();
             var productGuid = Guid.NewGuid();
-            var product = new ProductDto { Guid = productGuid ,  StoreGuid = storeGuid };
+            var product = new ProductDto { Guid = productGuid, StoreGuid = storeGuid };
 
             _storeServicesMock.Setup(x => x.CreateStoreProductAsync(It.IsAny<ProductDto>()))
-                .ReturnsAsync((ProductDto product) => 
+                .ReturnsAsync((ProductDto product) =>
                 {
                     product.Guid = productGuid;
-                 product.StoreGuid = storeGuid; 
-                    return product;});
+                    product.StoreGuid = storeGuid;
+                    return product;
+                });
 
             var expectedResult = new ProductDto
             {
@@ -79,7 +81,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             };
 
             // Act
-            var productResult = await _storesController.CreateProduct(storeGuid,product);
+            var productResult = await _storesController.CreateProduct(storeGuid, product);
 
             // Assert
 
@@ -143,7 +145,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
 
 
             // Act
-            var productResult = await _storesController.UpdateProduct(storeGuid,productGuid,product);
+            var productResult = await _storesController.UpdateProduct(storeGuid, productGuid, product);
 
             // Assert
             productResult.Should().BeOfType<NoContentResult>();
@@ -198,7 +200,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             Guid storeGuid = Guid.NewGuid();
             _storeServicesMock.Setup(x => x.GetProductsFromStoreAsync(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid guid) =>null);
+                .ReturnsAsync((Guid guid) => null);
 
             // Act
             var productsResult = await _storesController.GetStoreProducts(storeGuid);
@@ -229,7 +231,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             Guid productGuid = Guid.NewGuid();
             _storeServicesMock.Setup(x => x.GetStoreProductAsync(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid guid) =>null);
+                .ReturnsAsync((Guid guid) => null);
 
             // Act
             var productResult = await _storesController.GetStoreProduct(productGuid);
@@ -317,10 +319,6 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             var statusCodeResult = (StatusCodeResult)storeResult;
             statusCodeResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }
-
-        //public async Task<IActionResult> GetStoreRoles(Guid storeGuid)
-        
-        //FIX 
         [Fact]
         public async Task GetStoreRoles_ShouldReturnOk_WhenStoreServiceReturnsNotNullObject()
         {
@@ -330,7 +328,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             StoreManagementDto storeManagement = new() { Guid = storeMangmentGuid };
             var storeMangmentList = new List<StoreManagementDto>();
             storeMangmentList.Add(storeManagement);
-            StoreSellersDto storeSellers = new() { StoreManagers = storeMangmentList  };
+            StoreSellersDto storeSellers = new() { StoreManagers = storeMangmentList };
             _storeServicesMock.Setup(x => x.GetAllSellersInformationAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid storeGuid) => storeSellers);
 
@@ -344,14 +342,92 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             var createdstoreRolesResult = (OkObjectResult)storeRolesResult;
             createdstoreRolesResult.Value.Should().BeEquivalentTo(_mapper.Map<StoreSellersResponse>(storeSellers));
         }
+        [Fact]
+        public async Task GetStoreRoles_ShouldReturnInternalServerError_WhenStoreServiceReturnsNullObject()
+        {
+            // Arrange
+            var storeGuid = Guid.NewGuid();
+            var storeMangmentGuid = Guid.NewGuid();
+            StoreManagementDto storeManagement = new() { Guid = storeMangmentGuid };
+            var storeMangmentList = new List<StoreManagementDto>();
+            storeMangmentList.Add(storeManagement);
+            StoreSellersDto storeSellers = new() { StoreManagers = storeMangmentList };
+            _storeServicesMock.Setup(x => x.GetAllSellersInformationAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid storeGuid) => null);
 
+            // Act
+            var storeRolesResult = await _storesController.GetStoreRoles(storeGuid);
 
-        //public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateOwnershipRequest request)//public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateManagementRequest request)
+            // Assert
 
-        //public async Task<IActionResult> GetSubordinates(Guid ownershipGuid)
+            storeRolesResult.Should().BeOfType<StatusCodeResult>();
+            var createdstoreRolesResult = (StatusCodeResult)storeRolesResult;
+            createdstoreRolesResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        }
+        [Fact]
+        public async Task GetSubordinates_ShouldReturnOkResult_WhenOwnerExists()
+        {
 
+            // Arrange
+            _storeServicesMock.Setup(x => x.GetSubordinateSellersAsync(It.IsAny<Guid>(), It.IsAny<int?>()))
+                .ReturnsAsync((Guid storeSellers, int? level) => new StoreSellersDto() { StoreOwners = new List<StoreOwnershipDto>() });
 
+            Guid storeOwnershipGuid = Guid.NewGuid();
+            var expectedResult = new List<StoreOwnershipDto>();
 
+            // Act
+            var userInfoResult = await _storesController.GetSubordinates(storeOwnershipGuid);
 
+            // Assert
+            userInfoResult.Should().BeOfType<OkObjectResult>();
+            var okResult = (OkObjectResult)userInfoResult;
+            var res = (StoreSellersResponse)okResult.Value;
+            res.StoreOwners.Should().BeEquivalentTo(expectedResult);
+        }
+        [Fact]
+        public async Task GetSubordinates_ShouldReturnNotFound_WhenOwnerDoNotExists()
+        {
+
+            // Arrange
+            _storeServicesMock.Setup(x => x.GetSubordinateSellersAsync(It.IsAny<Guid>(), It.IsAny<int?>()))
+                .ReturnsAsync((Guid storeSellers, int? level) => null);
+
+            Guid storeOwnershipGuid = Guid.NewGuid();
+
+            // Act
+            var userInfoResult = await _storesController.GetSubordinates(storeOwnershipGuid);
+
+            // Assert
+            userInfoResult.Should().BeOfType<NotFoundResult>();
+
+        }
+        [Fact]
+        public async Task PostOwnershipRole_ShouldReturnOkResult_WhenStoreServiceReturnTrue()
+        {
+            //Arrange 
+            _storeServicesMock.Setup(x => x.NominateNewStoreManagerAsync(It.IsAny<Guid>(), It.IsAny<StoreManagementDto>()))
+                         .ReturnsAsync((Guid storeSellers, StoreManagementDto s) => true);
+            CreateManagementRequest c = new() { NominatedUserGuid = Guid.NewGuid() };
+            //Act
+            var userInfoResult = await _storesController.PostOwnershipRole(Guid.NewGuid(), c);
+
+            //Assert
+            userInfoResult.Should().BeOfType<OkResult>();
+
+        }
+        [Fact]
+        public async Task PostOwnershipRole_ShouldReturnBadRequest_WhenStoreServiceReturnFalse()
+        {
+            //Arrange 
+            _storeServicesMock.Setup(x => x.NominateNewStoreManagerAsync(It.IsAny<Guid>(), It.IsAny<StoreManagementDto>()))
+                         .ReturnsAsync((Guid storeSellers, StoreManagementDto s) => false);
+            CreateManagementRequest c = new() { NominatedUserGuid = Guid.NewGuid() };
+            //Act
+            var userInfoResult = await _storesController.PostOwnershipRole(Guid.NewGuid(), c);
+
+            //Assert
+            userInfoResult.Should().BeOfType<BadRequestResult>();
+
+        }
     }
 }
