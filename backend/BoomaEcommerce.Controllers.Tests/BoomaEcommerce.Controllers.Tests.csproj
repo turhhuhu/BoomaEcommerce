@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BoomaEcommerce.Api\BoomaEcommerce.Api.csproj" />
+    <ProjectReference Include="..\BoomaEcommerce.Tests.CoreLib\BoomaEcommerce.Tests.CoreLib.csproj" />
   </ItemGroup>
 
 </Project>

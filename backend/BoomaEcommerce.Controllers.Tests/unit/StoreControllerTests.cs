@@ -4,11 +4,15 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BoomaEcommerce.Api.Controllers;
+using BoomaEcommerce.Api.Responses;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
+using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,12 +30,13 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         private readonly UsersController _usersController;
         private readonly Mock<IUsersService> _usersServiceMock;
         private readonly Guid _userGuidInClaims;
+        private readonly IMapper _mapper = MapperFactory.GetMapper();
 
         public StoreControllerTests()
         {
             _usersServiceMock = new Mock<IUsersService>();
             _storeServicesMock = new Mock<IStoresService>();
-            _storesController = new StoresController(_storeServicesMock.Object,null);
+            _storesController = new StoresController(_storeServicesMock.Object,_mapper);
             _usersController = new UsersController(_usersServiceMock.Object, _storeServicesMock.Object, null, Mock.Of<INotificationPublisher>(), null);
             _userGuidInClaims = Guid.NewGuid();
             var fakeClaims = new List<Claim>
@@ -125,8 +130,41 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Assert
             productResult.Should().BeOfType<NotFoundResult>();
         }
+        [Fact]
+        public async Task UpdateProduct_ShouldReturnNoContent_WhenStoreServiceReturnsTrue()
+        {
+            // Arrange
+            var storeGuid = Guid.NewGuid();
+            var productGuid = Guid.NewGuid();
+            var product = new ProductDto { Guid = productGuid, StoreGuid = storeGuid };
 
-        //public async Task<IActionResult> UpdateProduct(Guid storeGuid, Guid productGuid, ProductDto product)
+            _storeServicesMock.Setup(x => x.UpdateProductAsync(It.IsAny<ProductDto>()))
+                .ReturnsAsync((ProductDto product) => true);
+
+
+            // Act
+            var productResult = await _storesController.UpdateProduct(storeGuid,productGuid,product);
+
+            // Assert
+            productResult.Should().BeOfType<NoContentResult>();
+        }
+        [Fact]
+        public async Task UpdateProduct_ShouldReturnNotFound_WhenStoreServiceReturnsFalse()
+        {
+            // Arrange
+            var storeGuid = Guid.NewGuid();
+            var productGuid = Guid.NewGuid();
+            var product = new ProductDto { Guid = productGuid, StoreGuid = storeGuid };
+
+            _storeServicesMock.Setup(x => x.UpdateProductAsync(It.IsAny<ProductDto>()))
+                .ReturnsAsync((ProductDto product) => false);
+
+            // Act
+            var productResult = await _storesController.UpdateProduct(storeGuid, productGuid, product);
+
+            // Assert
+            productResult.Should().BeOfType<NotFoundResult>();
+        }
         [Fact]
         public async Task GetStoreProducts_ShouldReturnOkResult_WhenStoreExists()
         {
@@ -281,7 +319,35 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         }
 
         //public async Task<IActionResult> GetStoreRoles(Guid storeGuid)
+        
+        //FIX 
+        [Fact]
+        public async Task GetStoreRoles_ShouldReturnOk_WhenStoreServiceReturnsNotNullObject()
+        {
+            // Arrange
+            var storeGuid = Guid.NewGuid();
+            var storeMangmentGuid = Guid.NewGuid();
+            StoreManagementDto storeManagement = new() { Guid = storeMangmentGuid };
+            var storeMangmentList = new List<StoreManagementDto>();
+            storeMangmentList.Add(storeManagement);
+            StoreSellersDto storeSellers = new() { StoreManagers = storeMangmentList  };
+            _storeServicesMock.Setup(x => x.GetAllSellersInformationAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid storeGuid) => storeSellers);
+
+
+            // Act
+            var storeRolesResult = await _storesController.GetStoreRoles(storeGuid);
+
+            // Assert
+
+            storeRolesResult.Should().BeOfType<OkObjectResult>();
+            var createdstoreRolesResult = (OkObjectResult)storeRolesResult;
+            createdstoreRolesResult.Value.Should().BeEquivalentTo(_mapper.Map<StoreSellersResponse>(storeSellers));
+        }
+
+
         //public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateOwnershipRequest request)//public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateManagementRequest request)
+
         //public async Task<IActionResult> GetSubordinates(Guid ownershipGuid)
 
 
