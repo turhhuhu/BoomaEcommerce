@@ -36,7 +36,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         {
             _usersServiceMock = new Mock<IUsersService>();
             _storeServicesMock = new Mock<IStoresService>();
-            _storesController = new StoresController(_storeServicesMock.Object,_mapper);
+            _storesController = new StoresController(_storeServicesMock.Object,_mapper,_usersServiceMock.Object);
             _usersController = new UsersController(_usersServiceMock.Object, _storeServicesMock.Object, null, Mock.Of<INotificationPublisher>(), null);
             _userGuidInClaims = Guid.NewGuid();
             var fakeClaims = new List<Claim>
