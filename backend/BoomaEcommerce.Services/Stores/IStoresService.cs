@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -144,6 +145,11 @@ namespace BoomaEcommerce.Services.Stores
         /// returns true if succeed else false
         /// </returns>
         Task<bool> RemoveManagerAsync(Guid ownershipToRemoveFrom, Guid managerToRemove);
+
+        Task<PolicyDto> AddPolicyAsync(Guid storeGuid, Guid policyGuid, PolicyDto childPolicyDto);
+        Task<bool> DeletePolicyAsync(Guid storeGuid, Guid policyGuid);
+        Task<PolicyDto> CreatePurchasePolicyAsync(Guid storeGuid, PolicyDto policyDto);
+        Task<PolicyDto> GetPolicyAsync(Guid storeGuid);
     }
 
 }

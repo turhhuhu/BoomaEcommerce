@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy
+namespace BoomaEcommerce.Domain.Policies
 {
-    public abstract class PurchasePolicy : BaseEntity
+    public abstract class Policy : BaseEntity
     {
-        protected PurchasePolicy()
+
+        public static EmptyPolicy Empty => EmptyPolicy.EmptyPol;
+        protected Policy()
         {
             Level = 0;
             ErrorMessage = "";
@@ -17,7 +19,6 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
         }
 
         protected internal string ErrorMessage { get; set; }
-
         protected internal string ErrorPrefix { get; set; }
         protected internal int Level { get; set; }
 
@@ -33,5 +34,26 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
         }
         public abstract PolicyResult CheckPolicy(User user, ShoppingBasket basket);
         public abstract PolicyResult CheckPolicy(StorePurchase purchase);
+
+
+    }
+    public class EmptyPolicy : Policy
+    {
+        public static EmptyPolicy EmptyPol => _emptyPolicy ??= new EmptyPolicy();
+
+        private static EmptyPolicy _emptyPolicy;
+        private EmptyPolicy()
+        {
+
+        }
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
+        {
+            return PolicyResult.Ok();
+        }
+
+        public override PolicyResult CheckPolicy(StorePurchase purchase)
+        {
+            return PolicyResult.Ok();
+        }
     }
 }

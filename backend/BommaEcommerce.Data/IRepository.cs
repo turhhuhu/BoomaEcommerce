@@ -116,5 +116,16 @@ namespace BoomaEcommerce.Data
         /// A task that represents the asynchronous operation
         /// </returns>
         Task DeleteManyAsync(Expression<Func<T, bool>> predicate);
+
+        /// <summary>
+        /// Finds entity of type TType with provided guid.
+        /// </summary>
+        /// <typeparam name="TType"></typeparam>
+        /// <param name="guid"></param>
+        /// <returns>
+        /// The found entity.
+        /// </returns>
+        Task<TType> FindByIdAsync<TType>(Guid guid)
+            where TType : BaseEntity;
     }
 }

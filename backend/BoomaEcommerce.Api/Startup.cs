@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Data;
+using System.Text.Json.Serialization;
 using BoomaEcommerce.Api.Middleware;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
@@ -20,6 +21,7 @@ using Serilog;
 using Microsoft.AspNetCore.Http.Connections;
 using BoomaEcommerce.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Converters;
 
 namespace BoomaEcommerce.Api
 {
@@ -43,6 +45,9 @@ namespace BoomaEcommerce.Api
                 .AddNewtonsoftJson(x =>
                 {
                     x.SerializerSettings.Converters.Add(new NotificationCreationConverter());
+                    x.SerializerSettings.Converters.Add(new StringEnumConverter());
+                    x.SerializerSettings.Converters.Add(new PolicyCreationConverter());
+
                 })
                 .AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
@@ -53,6 +58,7 @@ namespace BoomaEcommerce.Api
                 hubOptions.AddFilter<ExceptionHandlingFilter>();
             });
 
+            services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BoomaEcommerce.Api", Version = "v1" });

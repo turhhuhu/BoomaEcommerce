@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
+namespace BoomaEcommerce.Domain.Policies.Operators
 {
     public abstract class PolicyOperator
     {
@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
         protected internal string ErrorPrefix { get; set; }
 
         protected internal int Level { get; set; }
-        public abstract PolicyResult CheckPolicy(User user, ShoppingBasket basket, params PurchasePolicy[] policies);
-        public abstract PolicyResult CheckPolicy(StorePurchase purchase, params PurchasePolicy[] policies);
+        public abstract PolicyResult CheckPolicy(User user, ShoppingBasket basket, params Policy[] policies);
+        public abstract PolicyResult CheckPolicy(StorePurchase purchase, params Policy[] policies);
     }
 }

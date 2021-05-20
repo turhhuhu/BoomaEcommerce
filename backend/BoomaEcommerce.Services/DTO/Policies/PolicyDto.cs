@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Converters;
 
 namespace BoomaEcommerce.Services.DTO.Policies
 {
@@ -14,11 +16,12 @@ namespace BoomaEcommerce.Services.DTO.Policies
     {
         public override PolicyType Type { get; set; } = PolicyType.Composite;
         public OperatorType Operator { get; set; }
+        public IEnumerable<PolicyDto> SubPolicies { get; set; }
     }
     public class AgeRestrictionPolicyDto : PolicyDto
     {
         public override PolicyType Type { get; set; } = PolicyType.AgeRestriction;
-        public Guid UserGuid { get; set; }
+        public Guid ProductGuid { get; set; }
         public int MinAge { get; set; }
     }
     public class ProductAmountPolicyDto : PolicyDto
