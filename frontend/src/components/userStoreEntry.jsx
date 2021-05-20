@@ -5,14 +5,14 @@ class UserStoreEntry extends Component {
   render() {
     return (
       <tr>
-        <td>
-          <p className="title mb-0"> {this.props.storeName} </p>
-        </td>
+        <td>{this.props.storeName}</td>
         <td> {this.props.description} </td>
         <td>
           <a
-            href={`/store/${this.props.guid}`}
-            className="btn btn-outline-primary"
+            href={
+              this.props.guid ? `/store/${this.props.guid}` : this.setState({})
+            }
+            className="d-flex p-1 justify-content-center btn btn-outline-primary"
           >
             {" "}
             Details{" "}

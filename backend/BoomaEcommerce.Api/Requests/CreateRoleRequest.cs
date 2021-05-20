@@ -10,7 +10,8 @@ namespace BoomaEcommerce.Api.Requests
     public class CreateRoleRequest
     {
         protected CreateRoleRequest() { }
-        public Guid NominatedUserGuid { get; set; }
+        public Guid? NominatedUserGuid { get; set; }
+        public string NominatedUserName { get; set; }
         public Guid NominatingOwnershipGuid { get; set; }
     }
 

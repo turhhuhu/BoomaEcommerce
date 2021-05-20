@@ -160,5 +160,20 @@ namespace BoomaEcommerce.Services.Users
                 return false;
             }
         }
+
+        public async Task<BasicUserInfoDto> GetBasicUserInfoAsync(string userName)
+        {
+            try
+            {
+                _logger.LogInformation("Getting user by username {username}.", userName);
+                var user = await _userUnitOfWork.UserManager.FindByNameAsync(userName);
+                return _mapper.Map<BasicUserInfoDto>(user);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get user with username {userName}", userName);
+                return null;
+            }
+        }
     }
 }

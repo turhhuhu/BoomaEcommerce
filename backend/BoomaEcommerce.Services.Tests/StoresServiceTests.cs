@@ -473,7 +473,7 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var storesDict = new Dictionary<Guid, Store>();
             var storeGuid = Guid.NewGuid();
-            storesDict[storeGuid] = new Store {Guid = storeGuid};
+            storesDict[storeGuid] = new Store(null) { Guid = storeGuid};
 
             var productToReplaceGuid = Guid.NewGuid();
             productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid, storeGuid);

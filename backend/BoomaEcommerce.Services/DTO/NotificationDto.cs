@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    [JsonConverter(typeof(NotificationCreationConverter))]
     public class NotificationDto
     {
         public virtual string Type { get; set; } = "notification";

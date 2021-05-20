@@ -1,4 +1,4 @@
-﻿namespace BoomaEcommerce.Domain
+﻿namespace BoomaEcommerce.Domain.PurchasePolicy
 {
     public interface IStorePolicy
     {

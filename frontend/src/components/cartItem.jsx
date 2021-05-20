@@ -73,13 +73,14 @@ class CartItem extends Component {
             <br />
             <small className="text-muted"> {this.props.price}$ each </small>
           </div>
-          <div className="col">
+          <div className="pr-2">
             <button
               onClick={this.removeCartItem}
               className="btn btn-outline-primary"
             >
               {" "}
               Remove
+              <i className="ml-2 fa fa-trash"></i>
             </button>
           </div>
         </div>

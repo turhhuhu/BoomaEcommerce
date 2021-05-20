@@ -33,11 +33,18 @@ async function callApi(endpoint, authenticated, config) {
         return { responsePayLoad: null, response };
       }
       return response
-        .json()
+        .text()
+        .then((text) => (text ? JSON.parse(text) : {}))
         .then((responsePayLoad) => ({ responsePayLoad, response }));
     })
     .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
+        if (response.status === 400) {
+          return Promise.reject("Bad request");
+        }
+        if (response.status === 401) {
+          return Promise.reject("Unauthorized");
+        }
         return responsePayLoad.errors
           ? Promise.reject(responsePayLoad.errors[""][0])
           : Promise.reject(responsePayLoad.join("\n"));
@@ -45,7 +52,9 @@ async function callApi(endpoint, authenticated, config) {
 
       return responsePayLoad;
     })
-    .catch((err) => Promise.reject(err));
+    .catch((err) => {
+      return Promise.reject(err);
+    });
 }
 
 const middleware = (store) => (next) => (action) => {
@@ -78,6 +87,7 @@ const middleware = (store) => (next) => (action) => {
         extraPayload: extraPayload,
       }),
     (error) => {
+      console.log(error);
       next({
         error: error || "There was an error.",
         payload: {

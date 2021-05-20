@@ -9,25 +9,19 @@ class CartView extends Component {
   };
 
   getCartItems = () => {
-    let store = undefined;
-    let basketGuid = undefined;
-    return this.props.cart.baskets
-      ?.flatMap((basket) => {
-        store = basket.store;
-        basketGuid = basket.guid;
-        return basket.purchaseProducts;
-      })
-      .map((purchaseProduct) => (
+    return this.props.cart.baskets?.map((basket) => {
+      return basket.purchaseProducts.map((purchaseProduct) => (
         <CartItem
           key={purchaseProduct.guid}
           product={purchaseProduct.product}
           purchaseProductGuid={purchaseProduct.guid}
           price={purchaseProduct.price}
           maxQuantity={purchaseProduct.amount}
-          storeName={store?.storeName}
-          basketGuid={basketGuid}
+          storeName={basket.store?.storeName}
+          basketGuid={basket.guid}
         />
       ));
+    });
   };
 
   render() {

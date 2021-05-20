@@ -40,13 +40,13 @@ namespace BoomaEcommerce.Services
         private async Task SeedData(User user)
         {
             _logger.LogInformation("Seeding dummy data...");
-            var store = new Store
-            {
-                StoreFounder = user,
-                StoreName = "AdminStore",
-                Description = "AdminStore",
-                Rating = 10
-            };
+            var store = new Store(null);
+
+            store.StoreFounder = user;
+            store.StoreName = "AdminStore";
+            store.Description = "AdminStore";
+            store.Rating = 10;
+        
             await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
 
             var products = Enumerable.Range(1, 10).Select(i => new Product
@@ -65,6 +65,7 @@ namespace BoomaEcommerce.Services
                 Store = store,
                 User = user
             };
+            await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
             await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
         }
 

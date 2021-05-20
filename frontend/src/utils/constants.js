@@ -17,6 +17,8 @@ export const DELETE_PURCHASE_PRODUCT_FROM_BASKET_URL =
   USER_CART_BASKET_PRODUCTS_URL + "/{purchaseProductGuid}";
 export const USER_STORES_URL = USER_INFO_URL + "/stores";
 export const USER_ROLES_URL = USER_STORES_URL + "/allRoles";
+export const ADD_STORE_URL = USER_STORES_URL;
+export const USER_STORE_ROLE = USER_STORES_URL + "/{storeGuid}/role";
 
 //products
 export const PRODUCTS_URL = BASE_URL + "/Products";
@@ -27,4 +29,9 @@ export const GET_ALL_PRODUCTS_URL = PRODUCTS_URL;
 export const STORES_URL = BASE_URL + "/Stores";
 export const STORE_URL = STORES_URL + "/{storeGuid}";
 export const STORE_PRODUCTS_URL = STORE_URL + "/products";
-export const STORE_PRODUCT_URL = STORES_URL + "/products";
+export const STORE_PRODUCT_URL = STORE_PRODUCTS_URL + "/{productGuid}";
+export const STORE_ROLES_URL = STORE_URL + "/roles";
+export const STORE_SUBORDINATES_URL =
+  STORE_ROLES_URL + "/ownerships/{ownershipGuid}/subordinates";
+export const ADD_STORE_OWNER_URL = STORE_ROLES_URL + "/ownerships";
+export const ADD_STORE_MANAGER_URL = STORE_ROLES_URL + "/managements";

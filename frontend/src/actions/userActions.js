@@ -9,6 +9,8 @@ import {
   STORE_URL,
   DELETE_PURCHASE_PRODUCT_FROM_BASKET_URL,
   USER_ROLES_URL,
+  ADD_STORE_URL,
+  USER_STORE_ROLE,
 } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
@@ -200,6 +202,39 @@ export function createBasketWithProduct(basket) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(basket),
       },
+    },
+  };
+}
+
+export function addStore(store) {
+  return {
+    [CALL_API]: {
+      endpoint: ADD_STORE_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.ADD_STORE_REQUEST,
+        UserActionTypes.ADD_STORE_SUCCESS,
+        UserActionTypes.ADD_STORE_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(store),
+      },
+    },
+  };
+}
+
+export function fetchUserStoreRole(storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: USER_STORE_ROLE.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        UserActionTypes.USER_STORE_ROLE_REQUEST,
+        UserActionTypes.USER_STORE_ROLE_SUCCESS,
+        UserActionTypes.USER_STORE_ROLE_FAILURE,
+      ],
     },
   };
 }

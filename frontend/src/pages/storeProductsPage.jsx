@@ -5,10 +5,12 @@ import Header from "../components/header";
 import {
   fetchAllStoreProducts,
   filterStoreProducts,
+  fetchStoreInfo,
 } from "../actions/storeActions";
 import StoreProductView from "../components/storeProductView";
 import StoreSideBar from "../components/storeSideBar";
 import StoreProductsHeader from "../components/storeProductsHeader";
+import { fetchUserStoreRole } from "../actions/userActions";
 
 class StoreProductsPage extends Component {
   state = {};
@@ -18,15 +20,13 @@ class StoreProductsPage extends Component {
       [event.target.name]: event.target.value,
     });
   };
-  componentDidMount(prevProps) {
-    if (this.props !== prevProps) {
+  componentDidMount() {
+    if (this.props.match.params.guid) {
+      this.props.dispatch(fetchStoreInfo(this.props.match.params.guid));
       this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
+      this.props.dispatch(fetchUserStoreRole(this.props.match.params.guid));
     }
   }
-
-  refreshStoreProducts = () => {
-    this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
-  };
 
   render() {
     return (
@@ -37,7 +37,6 @@ class StoreProductsPage extends Component {
             <StoreProductsHeader
               storeName={this.props.storeInfo.storeName}
               guid={this.props.match.params.guid}
-              refreshStoreProducts={this.refreshStoreProducts}
             />
             <br />
             <div className="row">

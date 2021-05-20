@@ -15,8 +15,15 @@ class UserStoreTable extends Component {
           >
             <h5>{this.props.title}</h5>
           </header>
-          <div className="table-responsive">
-            <table className="table table-hover">
+          <div
+            className="table-responsive "
+            style={{
+              display: "block",
+              maxHeight: "300px",
+              overflowY: "scroll",
+            }}
+          >
+            <table className="table table-hover table-striped">
               <tbody>
                 <tr>
                   <th scope="col">Store name:</th>
@@ -35,94 +42,6 @@ class UserStoreTable extends Component {
             </table>
           </div>
         </article>
-
-        {/* <article className="card mt-4">
-          <header
-            className="card-header pl-3"
-            style={{ backgroundColor: "rgba(69, 136, 236, 0.125)" }}
-          >
-            <h5>Owner stores</h5>
-          </header>
-          <div className="table-responsive">
-            <table className="table table-hover">
-              <tbody>
-                <tr>
-                  <th scope="col">Store name:</th>
-                  <th scope="col">Description:</th>
-                  <th> </th>
-                </tr>
-                <tr>
-                  <td>
-                    <p className="title mb-0">store name goes here </p>
-                  </td>
-                  <td> owner </td>
-                  <td>
-                    <a href="/home" className="btn btn-outline-primary">
-                      {" "}
-                      Details{" "}
-                    </a>{" "}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p className="title mb-0">store name goes here </p>
-                  </td>
-                  <td> manager </td>
-                  <td>
-                    <a href="/home" className="btn btn-outline-primary">
-                      {" "}
-                      Details{" "}
-                    </a>{" "}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article className="card mt-4">
-          <header
-            className="card-header pl-3"
-            style={{ backgroundColor: "rgba(69, 136, 236, 0.125)" }}
-          >
-            <h5>Manager stores</h5>
-          </header>
-          <div className="table-responsive">
-            <table className="table table-hover">
-              <tbody>
-                <tr>
-                  <th scope="col">Store name:</th>
-                  <th scope="col">Description:</th>
-                  <th> </th>
-                </tr>
-                <tr>
-                  <td>
-                    <p className="title mb-0">store name goes here </p>
-                  </td>
-                  <td> owner </td>
-                  <td>
-                    <a href="/home" className="btn btn-outline-primary">
-                      {" "}
-                      Details{" "}
-                    </a>{" "}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p className="title mb-0">store name goes here </p>
-                  </td>
-                  <td> manager </td>
-                  <td>
-                    <a href="/home" className="btn btn-outline-primary">
-                      {" "}
-                      Details{" "}
-                    </a>{" "}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </article> */}
       </div>
     );
   }

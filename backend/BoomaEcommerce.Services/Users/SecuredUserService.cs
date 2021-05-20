@@ -143,5 +143,9 @@ namespace BoomaEcommerce.Services.Users
             throw new UnAuthorizedException($"User {userGuidInToken} can not update userDto information of userDto {userDto.Guid}");
         }
 
+        public Task<BasicUserInfoDto> GetBasicUserInfoAsync(string userName)
+        {
+            return _next.GetBasicUserInfoAsync(userName);
+        }
     }
 }
