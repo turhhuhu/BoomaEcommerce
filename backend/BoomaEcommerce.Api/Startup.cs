@@ -143,6 +143,7 @@ namespace BoomaEcommerce.Api
                 .AllowCredentials()
                 .SetIsOriginAllowed(origin => true));
 
+            app.UseSerilogRequestLogging();
             app.UseMiddleware<WebSocketsMiddleware>();
             app.UseMiddleware<ExceptionsMiddleware>();
 
@@ -152,7 +153,6 @@ namespace BoomaEcommerce.Api
             //app.UseHttpsRedirection();
 
 
-            app.UseSerilogRequestLogging();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
