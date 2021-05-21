@@ -63,7 +63,7 @@ namespace BoomaEcommerce.Api.Controllers
 
         [Authorize]
         [HttpPut(ApiRoutes.Stores.Products.Put)]
-        public async Task<IActionResult> UpdateProduct(Guid storeGuid, Guid productGuid, ProductDto product)
+        public async Task<IActionResult> UpdateProduct(Guid storeGuid, Guid productGuid, [FromBody] ProductDto product)
         {
             product.Guid = productGuid;
             product.StoreGuid = storeGuid;
