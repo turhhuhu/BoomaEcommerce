@@ -20,7 +20,7 @@ namespace BoomaEcommerce.Domain.Policies.Operators
             var thenPolicyResult = policies[1].CheckPolicy(user, basket);
             if (ifPolicyResult.IsOk && !thenPolicyResult.IsOk)
             {
-                return PolicyResult.CombineFail(
+                return PolicyResult.CombineFails(
                     new List<PolicyResult>{ifPolicyResult, thenPolicyResult},
                     "If then following policy is met:",
                     "Then the following policy must be met:");
@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Domain.Policies.Operators
             var thenPolicyResult = policies[1].CheckPolicy(purchase);
             if (ifPolicyResult.IsOk && !thenPolicyResult.IsOk)
             {
-                return PolicyResult.CombineFail(
+                return PolicyResult.CombineFails(
                     new List<PolicyResult> { ifPolicyResult, thenPolicyResult },
                     "If then following policy is met:",
                     "Then the following policy must be met:");

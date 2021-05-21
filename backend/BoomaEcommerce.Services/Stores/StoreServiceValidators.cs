@@ -114,8 +114,9 @@ namespace BoomaEcommerce.Services.Stores
                     {
                         v.Add(new ProductAmountPolicyValidator());
                         v.Add(new CategoryAmountPolicy());
-                        v.Add(new CompositePolicy());
+                        v.Add(new CompositePolicyValidator());
                         v.Add(new AgeRestrictionPolicyValidator());
+                        v.Add(new BinaryPolicyValidator());
                     });
             }
         }
@@ -160,10 +161,20 @@ namespace BoomaEcommerce.Services.Stores
                     .NotEmpty();
             }
         }
-
-        public class CompositePolicy : AbstractValidator<CompositePolicyDto>
+        public class BinaryPolicyValidator : AbstractValidator<CompositePolicyDto>
         {
-            public CompositePolicy()
+            public BinaryPolicyValidator()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Operator);
+            }
+        }
+
+        public class CompositePolicyValidator : AbstractValidator<CompositePolicyDto>
+        {
+            public CompositePolicyValidator()
             {
                 RuleFor(policy => policy.Guid)
                     .Must(guid => guid == default);

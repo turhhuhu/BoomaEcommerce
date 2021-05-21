@@ -19,12 +19,25 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
         }
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
-            throw new NotImplementedException();
+            var totalAmount = basket.PurchaseProducts
+                .Values
+                .Where(p => p.Product.Category == Category)
+                .Sum(p => p.Amount);
+
+            return totalAmount >= MinAmount
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail(string.Format(ErrorMessage, Category, MinAmount, totalAmount));
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase)
         {
-            throw new NotImplementedException();
+            var totalAmount = purchase.PurchaseProducts
+                .Where(p => p.Product.Category == Category)
+                .Sum(p => p.Amount);
+
+            return totalAmount >= MinAmount
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail(string.Format(ErrorMessage, Category, MinAmount, totalAmount));
         }
     }
 }
