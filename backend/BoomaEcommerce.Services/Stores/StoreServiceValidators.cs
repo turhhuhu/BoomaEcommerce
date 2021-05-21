@@ -103,9 +103,25 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public class CreateAgeRestrictionPolicy : AbstractValidator<AgeRestrictionPolicyDto>
+
+
+        public class CreatePolicyValidator : AbstractValidator<CreatePolicyDto>
         {
-            public CreateAgeRestrictionPolicy()
+            public CreatePolicyValidator()
+            {
+                RuleFor(c => c.PolicyToCreate)
+                    .SetInheritanceValidator(v =>
+                    {
+                        v.Add(new ProductAmountPolicyValidator());
+                        v.Add(new CategoryAmountPolicy());
+                        v.Add(new CompositePolicy());
+                        v.Add(new AgeRestrictionPolicyValidator());
+                    });
+            }
+        }
+        public class AgeRestrictionPolicyValidator : AbstractValidator<AgeRestrictionPolicyDto>
+        {
+            public AgeRestrictionPolicyValidator()
             {
                 RuleFor(policy => policy.Guid)
                     .Must(guid => guid == default);
@@ -114,9 +130,9 @@ namespace BoomaEcommerce.Services.Stores
                     .GreaterThan(0);
             }
         }
-        public class ProductAmountPolicy : AbstractValidator<ProductAmountPolicyDto>
+        public class ProductAmountPolicyValidator : AbstractValidator<ProductAmountPolicyDto>
         {
-            public ProductAmountPolicy()
+            public ProductAmountPolicyValidator()
             {
                 RuleFor(policy => policy.Guid)
                     .Must(guid => guid == default);

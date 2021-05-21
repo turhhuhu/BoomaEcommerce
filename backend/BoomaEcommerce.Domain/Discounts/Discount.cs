@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BoomaEcommerce.Domain.Policies;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace BoomaEcommerce.Domain.Discounts
         public int Percentage { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public Policy Policy { get; set; }
 
         protected Discount(int percentage, DateTime startTime, DateTime endTime)
         {
