@@ -6,7 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 using FluentValidation;
+using FluentValidation.Validators;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -98,6 +100,59 @@ namespace BoomaEcommerce.Services.Stores
             {
                 RuleFor(permissions => permissions.Guid)
                     .Must(guid => guid != default);
+            }
+        }
+
+        public class CreateAgeRestrictionPolicy : AbstractValidator<AgeRestrictionPolicyDto>
+        {
+            public CreateAgeRestrictionPolicy()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.MinAge)
+                    .GreaterThan(0);
+            }
+        }
+        public class ProductAmountPolicy : AbstractValidator<ProductAmountPolicyDto>
+        {
+            public ProductAmountPolicy()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Amount)
+                    .GreaterThan(0);
+
+                RuleFor(policy => policy.ProductGuid)
+                    .Must(guid => guid != default);
+
+            }
+        }
+        public class CategoryAmountPolicy : AbstractValidator<CategoryAmountPolicyDto>
+        {
+            public CategoryAmountPolicy()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Amount)
+                    .GreaterThan(0);
+
+                RuleFor(policy => policy.Category)
+                    .NotNull()
+                    .NotEmpty();
+            }
+        }
+
+        public class CompositePolicy : AbstractValidator<CompositePolicyDto>
+        {
+            public CompositePolicy()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Operator);
             }
         }
     }

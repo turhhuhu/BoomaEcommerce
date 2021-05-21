@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO.Policies;
+using FluentValidation;
+using FluentValidation.Results;
 using Newtonsoft.Json.Linq;
 
 namespace BoomaEcommerce.Api
@@ -11,6 +13,10 @@ namespace BoomaEcommerce.Api
     {
         protected override PolicyDto Create(Type objectType, JObject jObject)
         {
+            if (!jObject.ContainsKey("type"))
+            {
+                throw new ValidationException(new []{new ValidationFailure(nameof(PolicyDto.Type), "Type of policy must be provided.") });
+            }
             var type = jObject["type"].ToObject<PolicyType>();
             return type switch
             {
