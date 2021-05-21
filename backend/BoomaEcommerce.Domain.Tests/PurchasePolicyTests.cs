@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BoomaEcommerce.Domain.PurchasePolicy;
-using BoomaEcommerce.Domain.PurchasePolicy.Operators;
-using BoomaEcommerce.Domain.PurchasePolicy.Policies;
+using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.Policies.Operators;
+using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -28,11 +28,11 @@ namespace BoomaEcommerce.Domain.Tests
                 Name = "Milk",
                 Amount = 20
             };
-            var andComposite = new CompositePurchasePolicy(new AndPolicyOperator());
+            var andComposite = new CompositePolicy(new AndPolicyOperator());
             andComposite.AddPolicy(new AgeRestrictionPolicy(product, 18));
             andComposite.AddPolicy(new MaxProductAmountPolicy(product, 10));
 
-            var childAndComposite = new CompositePurchasePolicy(new AndPolicyOperator());
+            var childAndComposite = new CompositePolicy(new AndPolicyOperator());
 
             andComposite.AddPolicy(childAndComposite);
             childAndComposite.AddPolicy(new MinProductAmountPolicy(product, 9));

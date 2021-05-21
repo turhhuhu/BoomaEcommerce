@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AutoMapper;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.Policies.Operators;
+using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 
 namespace BoomaEcommerce.Services.MappingProfiles
 {
@@ -60,9 +65,51 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<BaseEntityDto, BaseEntity>()
                 .IncludeAllDerived()
                 .ForMember(x => x.Guid, x => x.Condition(xx => xx.Guid != default));
+
             CreateMap<AdminUserDto, AdminUser>();
             CreateMap<NotificationDto, Notification>();
             CreateMap<StorePurchaseNotificationDto, StorePurchaseNotification>();
+
+            CreateMap<PolicyDto, Policy>()
+                .Include<AgeRestrictionPolicyDto, AgeRestrictionPolicy>()
+                .Include<ProductAmountPolicyDto, Policy>()
+                .Include<CategoryAmountPolicyDto, Policy>()
+                .Include<CompositePolicyDto, CompositePolicy>();
+
+            CreateMap<ProductAmountPolicyDto, Policy>()
+                .ConstructUsing((policyDto, _) =>
+                    policyDto.Type switch
+                    {
+                        PolicyType.MaxProductAmount => new MaxProductAmountPolicy(new Product { Guid = policyDto.ProductGuid }, policyDto.Amount),
+                        PolicyType.MinProductAmount => new MinProductAmountPolicy(new Product { Guid = policyDto.ProductGuid }, policyDto.Amount),
+                        _ => throw new ArgumentOutOfRangeException()
+                    });
+
+            CreateMap<CategoryAmountPolicyDto, Policy>()
+                .ConstructUsing((policyDto, _) =>
+                    policyDto.Type switch
+                    {
+                        PolicyType.MaxCategoryAmount => new MaxCategoryAmountPolicy(policyDto.Category, policyDto.Amount),
+                        PolicyType.MinCategoryAmount => new MinCategoryAmountPolicy(policyDto.Category, policyDto.Amount),
+                        _ => throw new ArgumentOutOfRangeException()
+                    });
+
+            CreateMap<AgeRestrictionPolicyDto, AgeRestrictionPolicy>()
+                .ConstructUsing((policyDto, _) => new AgeRestrictionPolicy(new Product {Guid = policyDto.ProductGuid}, policyDto.MinAge));
+
+            CreateMap<CompositePolicyDto, CompositePolicy>()
+                .ConstructUsing((policyDto, context) => new CompositePolicy(context.Mapper.Map<PolicyOperator>(policyDto.Operator)));
+
+            CreateMap<OperatorType, PolicyOperator>()
+                .ConstructUsing((type, _) => 
+                    type switch
+                    {
+                        OperatorType.And => new AndPolicyOperator(),
+                        OperatorType.Or => new OrPolicyOperator(),
+                        OperatorType.Condition => new ConditionPolicyOperator(),
+                        OperatorType.Xor => new XorPolicyOperator(),
+                        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                    });
         }
     }
 }

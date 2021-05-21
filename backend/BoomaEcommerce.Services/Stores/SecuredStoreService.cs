@@ -6,6 +6,7 @@ using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Core.Exceptions;
+using BoomaEcommerce.Services.DTO.Policies;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 
@@ -326,6 +327,50 @@ namespace BoomaEcommerce.Services.Stores
             }
 
             throw new UnAuthorizedException(nameof(RemoveManagerAsync), userGuidInClaims);
+        }
+
+        public async Task<PolicyDto> AddPolicyAsync(Guid storeGuid, Guid policyGuid, PolicyDto childPolicyDto)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreatePolicy, storeGuid))
+            {
+                return await _storeService.AddPolicyAsync(storeGuid, policyGuid, childPolicyDto);
+            }
+
+            throw new UnAuthorizedException(nameof(AddPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<bool> DeletePolicyAsync(Guid storeGuid, Guid policyGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanDeletePolicy, storeGuid))
+            {
+                return await _storeService.DeletePolicyAsync(storeGuid, policyGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(DeletePolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<PolicyDto> CreatePurchasePolicyAsync(Guid storeGuid, PolicyDto policyDto)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreatePolicy, storeGuid))
+            {
+                return await _storeService.CreatePurchasePolicyAsync(storeGuid, policyDto);
+            }
+
+            throw new UnAuthorizedException(nameof(CreatePurchasePolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<PolicyDto> GetPolicyAsync(Guid storeGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanGetPolicyInfo, storeGuid))
+            {
+                return await _storeService.GetPolicyAsync(storeGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetPolicyAsync), ClaimsPrincipal.GetUserGuid());
         }
     }
 }
