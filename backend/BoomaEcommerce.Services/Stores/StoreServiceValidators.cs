@@ -161,14 +161,15 @@ namespace BoomaEcommerce.Services.Stores
                     .NotEmpty();
             }
         }
-        public class BinaryPolicyValidator : AbstractValidator<CompositePolicyDto>
+        public class BinaryPolicyValidator : AbstractValidator<BinaryPolicyDto>
         {
             public BinaryPolicyValidator()
             {
                 RuleFor(policy => policy.Guid)
                     .Must(guid => guid == default);
 
-                RuleFor(policy => policy.Operator);
+                RuleFor(policy => policy.Operator)
+                    .NotNull();
             }
         }
 
@@ -179,7 +180,8 @@ namespace BoomaEcommerce.Services.Stores
                 RuleFor(policy => policy.Guid)
                     .Must(guid => guid == default);
 
-                RuleFor(policy => policy.Operator);
+                RuleFor(policy => policy.Operator)
+                    .NotNull();
             }
         }
     }

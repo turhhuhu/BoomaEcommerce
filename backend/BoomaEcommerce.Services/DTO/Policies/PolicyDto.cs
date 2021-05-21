@@ -20,7 +20,7 @@ namespace BoomaEcommerce.Services.DTO.Policies
         public override PolicyType Type { get; set; } = PolicyType.Composite;
 
         [JsonRequired]
-        public OperatorType Operator { get; set; }
+        public OperatorType? Operator { get; set; }
         public IEnumerable<PolicyDto> SubPolicies { get; set; }
     }
     public class BinaryPolicyDto : PolicyDto
