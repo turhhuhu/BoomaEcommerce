@@ -17,5 +17,7 @@ namespace BoomaEcommerce.Services.DTO
         public bool CanCreatePolicy { get; set; }
         public bool CanDeletePolicy { get; set; }
         public bool CanGetPolicyInfo { get; set; }
+        public bool CanUpdatePolicyInfo { get; set; }
+
     }
 }

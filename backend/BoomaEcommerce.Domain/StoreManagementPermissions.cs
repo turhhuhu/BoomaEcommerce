@@ -12,5 +12,9 @@ namespace BoomaEcommerce.Domain
         public bool CanDeleteProduct { get; set; } = true;
         public bool CanUpdateProduct { get; set; } = true;
         public bool CanGetSellersInfo { get; set; } = true;
+        public bool CanCreatePolicy { get; set; } = true;
+        public bool CanDeletePolicy { get; set; } = true;
+        public bool CanGetPolicyInfo { get; set; } = true;
+        public bool CanUpdatePolicyInfo { get; set; } = true;
     }
 }
