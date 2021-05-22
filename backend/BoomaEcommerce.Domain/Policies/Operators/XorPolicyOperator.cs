@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BoomaEcommerce.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,12 +11,24 @@ namespace BoomaEcommerce.Domain.Policies.Operators
     {
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params Policy[] policies)
         {
-            throw new NotImplementedException();
+            var (okResults, failResults) = policies
+                .Select(policy => policy.CheckPolicy(user, basket))
+                .Split(res => res.IsOk);
+
+            return okResults.Count() == 1
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail();
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase, params Policy[] policies)
         {
-            throw new NotImplementedException();
+            var (okResults, failResults) = policies
+                .Select(policy => policy.CheckPolicy(purchase))
+                .Split(res => res.IsOk);
+
+            return okResults.Count() == 1
+                ? PolicyResult.Ok()
+                : PolicyResult.Fail();
         }
     }
 }

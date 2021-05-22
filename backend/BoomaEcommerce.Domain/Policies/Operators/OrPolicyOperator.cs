@@ -18,7 +18,7 @@ namespace BoomaEcommerce.Domain.Policies.Operators
 
             return okResults.Any()
                 ? PolicyResult.Ok()
-                : PolicyResult.CombineFail(failResults, ErrorPrefix + FailMessage);
+                : PolicyResult.CombineFails(failResults, ErrorPrefix + FailMessage);
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase, params Policy[] policies)
@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Domain.Policies.Operators
 
             return okResults.Any()
                 ? PolicyResult.Ok()
-                : PolicyResult.CombineFail(failResults, ErrorPrefix + FailMessage);
+                : PolicyResult.CombineFails(failResults, ErrorPrefix + FailMessage);
         }
     }
 }

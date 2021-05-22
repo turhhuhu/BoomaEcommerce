@@ -22,10 +22,11 @@ namespace BoomaEcommerce.Domain.Policies
             PolicyError = error;
         }
 
+        public static PolicyResult Fail() => new(false, "");
         public static PolicyResult Fail(string error) => new(false, error);
         public static PolicyResult Ok() => new(true);
 
-        public static PolicyResult CombineFail(IEnumerable<PolicyResult> failResults, string prefix = "", string infix = "", string suffix = "")
+        public static PolicyResult CombineFails(IEnumerable<PolicyResult> failResults, string prefix = "", string infix = "", string suffix = "")
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine(prefix);

@@ -50,12 +50,20 @@ namespace BoomaEcommerce.Domain.Policies
 
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
-            return Operator.CheckPolicy(user, basket, _subPolicies.ToArray());
+            if (_subPolicies.Any())
+            {
+                return Operator.CheckPolicy(user, basket, _subPolicies.ToArray());
+            }
+            return PolicyResult.Ok();
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase)
         {
-            return Operator.CheckPolicy(purchase, _subPolicies.ToArray());
+            if (_subPolicies.Any())
+            {
+                return Operator.CheckPolicy(purchase, _subPolicies.ToArray());
+            }
+            return PolicyResult.Ok();
         }
     }
 }

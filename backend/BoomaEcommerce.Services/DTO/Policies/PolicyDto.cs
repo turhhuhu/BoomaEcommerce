@@ -20,8 +20,18 @@ namespace BoomaEcommerce.Services.DTO.Policies
         public override PolicyType Type { get; set; } = PolicyType.Composite;
 
         [JsonRequired]
-        public OperatorType Operator { get; set; }
+        public OperatorType? Operator { get; set; }
         public IEnumerable<PolicyDto> SubPolicies { get; set; }
+    }
+    public class BinaryPolicyDto : PolicyDto
+    {
+        [JsonRequired]
+        public override PolicyType Type { get; set; } = PolicyType.Composite;
+
+        [JsonRequired]
+        public OperatorType Operator { get; set; }
+        public PolicyDto FirstPolicy { get; set; }
+        public PolicyDto SecondPolicy { get; set; }
     }
     public class AgeRestrictionPolicyDto : PolicyDto
     {
@@ -71,6 +81,7 @@ namespace BoomaEcommerce.Services.DTO.Policies
         MinCategoryAmount,
         MaxProductAmount,
         MinProductAmount,
-        Composite
+        Composite,
+        Binary
     }
 }

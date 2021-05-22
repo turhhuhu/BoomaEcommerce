@@ -74,7 +74,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .Include<AgeRestrictionPolicyDto, AgeRestrictionPolicy>()
                 .Include<ProductAmountPolicyDto, Policy>()
                 .Include<CategoryAmountPolicyDto, Policy>()
-                .Include<CompositePolicyDto, CompositePolicy>();
+                .Include<CompositePolicyDto, CompositePolicy>()
+                .Include<BinaryPolicyDto, BinaryPolicy>();
 
             CreateMap<ProductAmountPolicyDto, Policy>()
                 .ConstructUsing((policyDto, _) =>
@@ -99,6 +100,9 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<CompositePolicyDto, CompositePolicy>()
                 .ConstructUsing((policyDto, context) => new CompositePolicy(context.Mapper.Map<PolicyOperator>(policyDto.Operator)));
+
+            CreateMap<BinaryPolicyDto, BinaryPolicy>()
+                .ConstructUsing((policyDto, context) => new BinaryPolicy(context.Mapper.Map<PolicyOperator>(policyDto.Operator)));
 
             CreateMap<OperatorType, PolicyOperator>()
                 .ConstructUsing((type, _) => 

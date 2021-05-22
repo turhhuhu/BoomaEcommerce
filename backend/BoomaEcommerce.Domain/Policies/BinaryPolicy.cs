@@ -43,8 +43,9 @@ namespace BoomaEcommerce.Domain.Policies
         public BinaryPolicy(PolicyOperator @operator)
         {
             Operator = @operator;
+            FirstPolicy = Empty;
+            SecondPolicy = Empty;
         }
-
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             return Operator.CheckPolicy(user, basket, FirstPolicy, SecondPolicy);

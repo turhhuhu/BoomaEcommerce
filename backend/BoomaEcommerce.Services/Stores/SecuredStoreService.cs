@@ -331,6 +331,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<PolicyDto> AddPolicyAsync(Guid storeGuid, Guid policyGuid, PolicyDto childPolicyDto)
         {
+            ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = childPolicyDto });
             CheckAuthenticated();
             if (await CanPerformSellerAction(permissions => permissions.CanCreatePolicy, storeGuid))
             {
@@ -353,6 +354,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<PolicyDto> CreatePurchasePolicyAsync(Guid storeGuid, PolicyDto policyDto)
         {
+            ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = policyDto });
             CheckAuthenticated();
             if (await CanPerformSellerAction(permissions => permissions.CanCreatePolicy, storeGuid))
             {

@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Domain.Policies.Operators
                 .ToList();
 
             return fails.Any()
-                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
+                ? PolicyResult.CombineFails(fails, ErrorPrefix + FailMessage)
                 : PolicyResult.Ok();
 
         }
@@ -32,7 +32,7 @@ namespace BoomaEcommerce.Domain.Policies.Operators
                 .ToList();
 
             return fails.Any()
-                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
+                ? PolicyResult.CombineFails(fails, ErrorPrefix + FailMessage)
                 : PolicyResult.Ok();
         }
     }
