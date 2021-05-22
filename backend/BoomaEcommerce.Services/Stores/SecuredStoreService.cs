@@ -329,6 +329,22 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(RemoveManagerAsync), userGuidInClaims);
         }
 
+        public async Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom, Guid ownerGuidToRemove)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var storeOwnershipRemoveFrom = await _storeService.GetStoreOwnershipAsync(ownerGuidRemoveFrom);
+            if (userGuidInClaims == storeOwnershipRemoveFrom?.User.Guid)
+            {
+                var subordinate = await _storeService.GetSubordinateSellersAsync(ownerGuidRemoveFrom);
+                var storeOwnershipToRemove = await _storeService.GetStoreOwnershipAsync(ownerGuidToRemove);
+                if (subordinate.StoreOwners.Contains(storeOwnershipToRemove))
+                    return await _storeService.RemoveStoreOwnerAsync(ownerGuidRemoveFrom, ownerGuidToRemove);
+            }
+            throw new UnAuthorizedException(nameof(RemoveStoreOwnerAsync), userGuidInClaims);
+        }
+
+
         public async Task<PolicyDto> AddPolicyAsync(Guid storeGuid, Guid policyGuid, PolicyDto childPolicyDto)
         {
             ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = childPolicyDto });

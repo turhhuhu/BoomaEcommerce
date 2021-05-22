@@ -129,6 +129,7 @@ namespace BoomaEcommerce.Services.Stores
       
         Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid);
 
+        Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom, Guid ownerGuidToRemove);
 
         Task UpdateManagerPermissionAsync(StoreManagementPermissionsDto smpDto);
 

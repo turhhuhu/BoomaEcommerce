@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,6 +32,62 @@ namespace BoomaEcommerce.Services.Tests
                 storeManagements, storeManagementPermissions, products);
             
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
+        }
+
+        [Fact]
+        public async Task RemoveStoreOwnerShip_ShouldReturnTrue_WhenStoreOwnerExistsAndRemovalDetailsAreVaild()
+        {
+            //Arrange
+            var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
+            var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+
+
+            var matanUser = TestData.CreateUserObject("Matan");
+            var bennyUser = TestData.CreateUserObject("Benny");
+            var omerUser = TestData.CreateUserObject("Omer");
+            var arikUser = TestData.CreateUserObject("Arik");
+            var oriUser = TestData.CreateUserObject("Ori");
+
+            var storeMangementMatan = new StoreManagement {Guid = Guid.NewGuid() , User = matanUser };
+            
+            var storeOwnerShipBenny = new StoreOwnership { Guid = Guid.NewGuid(), User = bennyUser };
+
+            var storeOwnerShipOmerOwners = new ConcurrentDictionary<Guid, StoreOwnership>();
+            storeOwnerShipOmerOwners.TryAdd(storeOwnerShipBenny.Guid,storeOwnerShipBenny);
+            var storeManagmentOmerOwners = new ConcurrentDictionary<Guid, StoreManagement>();
+            storeManagmentOmerOwners.TryAdd(storeMangementMatan.Guid, storeMangementMatan);
+            var storeOwnerShipOmer = new StoreOwnership { Guid = Guid.NewGuid(), User = omerUser, StoreOwnerships = storeOwnerShipOmerOwners,StoreManagements=storeManagmentOmerOwners };
+
+            var storeOwnerShipArik = new StoreOwnership { Guid = Guid.NewGuid(), User = arikUser};
+            
+            var storeOwnerShipOriOwners = new ConcurrentDictionary<Guid, StoreOwnership>();
+            storeOwnerShipOriOwners.TryAdd(storeOwnerShipOmer.Guid, storeOwnerShipOmer);
+            storeOwnerShipOriOwners.TryAdd(storeOwnerShipArik.Guid, storeOwnerShipArik);
+           
+
+            var storeOwnerShipOri = new StoreOwnership { Guid = Guid.NewGuid(), User = oriUser, StoreOwnerships = storeOwnerShipOriOwners };
+
+
+            entitiesManagements.Add(storeMangementMatan.Guid, storeMangementMatan);
+            entitiesOwnerships.Add(storeOwnerShipArik.Guid, storeOwnerShipArik);
+            entitiesOwnerships.Add(storeOwnerShipOri.Guid, storeOwnerShipOri);
+            entitiesOwnerships.Add(storeOwnerShipBenny.Guid, storeOwnerShipBenny);
+            entitiesOwnerships.Add(storeOwnerShipOmer.Guid, storeOwnerShipOmer);
+
+            var storeService = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+
+            //Act
+            var result = await storeService.RemoveStoreOwnerAsync(storeOwnerShipOri.Guid, storeOwnerShipOmer.Guid);
+
+            //Assert
+            result.Should().BeTrue();
+            entitiesManagements.Should().BeEmpty();
+            entitiesOwnerships.ContainsKey(storeOwnerShipOri.Guid).Should().BeTrue();
+            entitiesOwnerships.ContainsKey(storeOwnerShipArik.Guid).Should().BeTrue();
+            entitiesOwnerships.Count.Should().Be(2);
+            entitiesOwnerships[storeOwnerShipOri.Guid].StoreOwnerships.Count.Should().Be(1);
+            entitiesOwnerships[storeOwnerShipOri.Guid].StoreOwnerships.ContainsKey(storeOwnerShipArik.Guid).Should().BeTrue();
+
         }
 
         [Fact]

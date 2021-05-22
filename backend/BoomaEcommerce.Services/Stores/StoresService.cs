@@ -208,6 +208,39 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+
+        public async Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom ,Guid ownerGuid)
+        {
+            try
+            {
+                var storeOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
+
+                foreach (var storeManagement in storeOwnership.StoreManagements)
+                {
+                    storeOwnership.RemoveManager(storeManagement.Key);
+                    await _storeUnitOfWork.StoreManagementRepo.DeleteByIdAsync(storeManagement.Key);
+
+                }
+
+                foreach (var storeOwner in storeOwnership.StoreOwnerships)
+                {
+                    storeOwnership.StoreOwnerships.TryRemove(storeOwner);
+                    await RemoveStoreOwnerAsync(ownerGuid, storeOwner.Key);
+                }
+
+                var storeOwnershipRemoveFrom = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuidRemoveFrom);
+                storeOwnershipRemoveFrom.StoreOwnerships.TryRemove(ownerGuid, out _);
+                await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid);
+                return true; 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to delete StoreOwnerShip with guid {ownerGuid}");
+                return false;
+            }
+        }
+
+     
         public async Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto)
         {
             try
