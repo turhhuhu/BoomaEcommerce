@@ -25,6 +25,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private Guid _notOwnerUser;
         private IStoresService _notOwnerStoreService;
+        private NotificationPublisherStub _notificationPublisher;
 
         private PurchaseDto _purchase;
         private IFixture _fixture;
@@ -40,6 +41,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
             var purchaseService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
             await InitOwnerUser(storeService, authService);
             await InitNotOwnerUser(storeService, authService);
             var product = await CreateStoreProduct(storeService);
@@ -73,7 +75,10 @@ namespace BoomaEcommerce.AcceptanceTests
             if (!result)
             {
                 throw new Exception("This shouldn't happen");
+
             }
+
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
         }
 
         private async Task InitNotOwnerUser(IStoresService storeService, IAuthenticationService authService)
@@ -90,6 +95,10 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 throw new Exception("This shouldn't happen");
             }
+
+            await _notificationPublisher.addNotifiedUser(notOwnerLoginResponse.UserGuid);
+
+
         }
         
         private async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
@@ -124,6 +133,8 @@ namespace BoomaEcommerce.AcceptanceTests
                 }
             };
             _purchase = purchaseDto;
+            // added 
+            
             var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
             if (!didPurchasedSucceeded)
             {

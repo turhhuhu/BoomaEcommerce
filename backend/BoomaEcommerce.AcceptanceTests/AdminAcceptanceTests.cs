@@ -22,6 +22,8 @@ namespace BoomaEcommerce.AcceptanceTests
         private IPurchasesService _adminPurchaseService;
         private PurchaseDto _purchase;
         private StoreDto _storeDto;
+        private NotificationPublisherStub _notificationPublisher;
+
 
         private IFixture _fixture;
         public async Task InitializeAsync()
@@ -32,6 +34,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var serviceMockFactory = new ServiceMockFactory(); 
             var storeService = serviceMockFactory.MockStoreService();
             var purchaseService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
             var authService = serviceMockFactory.MockAuthenticationService();
 
             await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
@@ -57,6 +60,8 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 throw new Exception("This shouldn't happen");
             }
+
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
         }
 
         private async Task InitStoreWithProductAndPurchase(IStoresService storeService,
@@ -67,7 +72,9 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await authService.RegisterAsync(user, password);
             var loginResponse = await authService.LoginAsync(user.UserName, password);
-            
+
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
+
             await CreateStore(storeService, loginResponse);
 
             var productDto = await CreateStoreProduct(storeService);

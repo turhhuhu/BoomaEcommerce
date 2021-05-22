@@ -38,6 +38,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         private IDictionary<Guid, User> _users = new Dictionary<Guid, User>();
         private IDictionary<Guid, Notification> _notifications = new ConcurrentDictionary<Guid, Notification>();
         private Mock<UserManager<User>>  _userManagerMock = DalMockFactory.MockUserManager(new List<User>());
+        private INotificationPublisher _notificationPublisherStub = new NotificationPublisherStub();
 
         public IStoresService MockStoreService()
         {
@@ -77,7 +78,12 @@ namespace BoomaEcommerce.Tests.CoreLib
                 x.NotifyOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
-                purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());
+                purchasesUnitOfWork.Object, supplyClientMock.Object, _notificationPublisherStub);
+        }
+
+        public NotificationPublisherStub GetNotificationPublisherStub()
+        {
+            return (NotificationPublisherStub) _notificationPublisherStub;
         }
 
         public IProductsService MockProductService()
