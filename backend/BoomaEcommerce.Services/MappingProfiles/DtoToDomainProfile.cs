@@ -32,13 +32,13 @@ namespace BoomaEcommerce.Services.MappingProfiles
                         .ToDictionary(pp => pp.Guid)));
 
             CreateMap<ShoppingBasketDto, ShoppingBasket>()
-                .ForMember(basket => basket.Store, x => x.MapFrom(dto => new Store(null) {Guid = dto.StoreGuid}))
+                .ForMember(basket => basket.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}))
                 .ForMember(basket => basket.PurchaseProducts, x => x.MapFrom(dto => dto.PurchaseProducts));
 
             CreateMap<ShoppingCartDto, ShoppingCart>();
 
             CreateMap<ProductDto, Product>()
-                .ForMember(product => product.Store, x => x.MapFrom(dto => new Store(null) { Guid = dto.StoreGuid }));
+                .ForMember(product => product.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }));
 
             CreateMap<PurchaseProductDto, PurchaseProduct>()
                 .ForMember(purchaseProduct => purchaseProduct.Product,
@@ -46,13 +46,13 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<StorePurchaseDto, StorePurchase>()
                 .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }))
-                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store(null) { Guid = dto.StoreGuid }));
+                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }));
 
             CreateMap<PurchaseDto, Purchase>()
                 .ForMember(purchase => purchase.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}));
 
             CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(storePurchase => storePurchase.Store, x => x.MapFrom(dto => new Store(null) { Guid = dto.StoreGuid }))
+                .ForMember(storePurchase => storePurchase.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }))
                 .ForMember(storePurchase => storePurchase.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }));
 
             CreateMap<StoreManagementDto, StoreManagement>()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Domain
 {
@@ -12,9 +13,9 @@ namespace BoomaEcommerce.Domain
         public User Buyer { get; set; }
         public decimal TotalPrice { get; set; }
 
-        public Task<bool> MakePurchase()
+        public Task<PurchaseResult> MakePurchase()
         {
-            return !ValidatePrice() ? Task.FromResult(false) : PurchaseStoreProducts();
+            return !ValidatePrice() ? Task.FromResult(PurchaseResult.Fail()) : PurchaseStoreProducts();
         }
 
         public bool ValidatePrice()
@@ -33,19 +34,31 @@ namespace BoomaEcommerce.Domain
             return TotalPrice == calculatedTotalPrice;
         }
 
-        private async Task<bool> PurchaseStoreProducts()
+        private async Task<PurchaseResult> PurchaseStoreProducts()
         {
-            if (!CanPurchase(StorePurchases))
+            var failedPolicyResults = StorePurchases
+                .Select(sp => (sp.Store.Guid, sp.CheckPolicyCompliance()))
+                .Where(result => !result.Item2.IsOk)
+                .Select(res => new StorePurchaseError(res.Item1, res.Item2.PolicyError))
+                .ToList();
+
+            if (failedPolicyResults.Any())
             {
-                return false;
+                PurchaseResult.Fail(failedPolicyResults);
             }
 
+            if (!CanPurchase())
+            {
+                return PurchaseResult.Fail();
+            }
             var results = await Task.WhenAll(StorePurchases.Select(x => x.PurchaseAllProducts()));
-            return results.All(x => x);
+            return results.All(x => x)
+                ? PurchaseResult.Ok() 
+                : PurchaseResult.Fail();
         }
         
 
-        private bool CanPurchase(List<StorePurchase> storePurchases)
+        private bool CanPurchase()
         {
             return StorePurchases.All(x => x.CanPurchase());
         }

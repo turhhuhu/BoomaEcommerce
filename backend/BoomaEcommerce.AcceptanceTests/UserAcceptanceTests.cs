@@ -268,7 +268,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
 
             // Assert
-            purchaseWasSuccessful.Should().BeTrue();
+            purchaseWasSuccessful.Success.Should().BeTrue();
         }
 
         [Fact]
@@ -299,7 +299,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
 
             // Assert
-            purchaseWasSuccessful.Should().BeFalse();
+            purchaseWasSuccessful.Success.Should().BeFalse();
         }
 
         [Fact]

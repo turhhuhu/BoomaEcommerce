@@ -36,30 +36,37 @@ namespace BoomaEcommerce.Services.Purchases
             _notificationPublisher = notificationPublisher;
         }
 
-        public async Task<bool> CreatePurchaseAsync(PurchaseDto purchaseDto)
+        public async Task<PurchaseResult> CreatePurchaseAsync(PurchaseDto purchaseDto)
         {
             try
             {
                 var purchase = _mapper.Map<Purchase>(purchaseDto);
-                
+
                 purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
-                
+
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>
                         storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
-                var taskList = purchaseProducts.Select(purchaseProduct => 
+                var productTasks = purchaseProducts.Select(purchaseProduct =>
                     Task.Run(async () =>
-                {
-                    var product = purchaseProduct.Product;
-                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                }));
+                    {
+                        var product = purchaseProduct.Product;
+                        purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+                    }));
 
-                await Task.WhenAll(taskList);
+                var storeTasks = purchase.StorePurchases.Select(storePurchase =>
+                    Task.Run(async () =>
+                    {
+                        storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                    }));
 
-                if (!await purchase.MakePurchase())
+                await Task.WhenAll(productTasks.Concat(storeTasks));
+
+                var purchaseResult = await purchase.MakePurchase();
+                if (!purchaseResult.Success)
                 {
-                    return false;
+                    return purchaseResult;
                 }
 
                 await _paymentClient.MakeOrder(purchase);
@@ -75,15 +82,14 @@ namespace BoomaEcommerce.Services.Purchases
 
                 await _supplyClient.NotifyOrder(purchase);
                 await NotifyOnPurchase(purchase);
-
                 await _purchaseUnitOfWork.SaveAsync();
 
-                return true;
+                return PurchaseResult.Ok();
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to make purchase.");
-                return false;
+                return PurchaseResult.Fail();
             }
 
         }
