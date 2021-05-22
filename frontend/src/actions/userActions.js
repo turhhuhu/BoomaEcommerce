@@ -238,3 +238,49 @@ export function fetchUserStoreRole(storeGuid) {
     },
   };
 }
+
+export function StartWebSocketConnection(webSocketConnection) {
+  return {
+    type: UserActionTypes.START_WEB_SOCKET_CONNECTION,
+    payload: { webSocketConnection: webSocketConnection },
+  };
+}
+
+export function CloseWebSocketConnection() {
+  return (dispatch, getState) => {
+    const webSocketConnection = getState().user.webSocketConnection;
+    webSocketConnection.stop();
+    dispatch({
+      type: UserActionTypes.CLOSE_WEB_SOCKET_CONNECTION,
+    });
+  };
+}
+
+export function receiveRegularNotification(notification) {
+  return {
+    type: UserActionTypes.RECIEVE_REGULAR_NOTIFICATION,
+    payload: {
+      notification,
+    },
+  };
+}
+
+export function seeNotification(notificationGuid) {
+  return (dispatch, getState) => {
+    const seenNotificationIndex = getState().user.notifications.findIndex(
+      (notification) => notification.guid === notificationGuid
+    );
+    if (seenNotificationIndex === -1) {
+      return;
+    }
+    let seenNotification = getState().user.notifications[seenNotificationIndex];
+    seenNotification.wasSeen = true;
+    dispatch({
+      type: UserActionTypes.SEE_NOTIFICATION,
+      payload: {
+        seenNotificationIndex,
+        seenNotification,
+      },
+    });
+  };
+}

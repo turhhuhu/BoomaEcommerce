@@ -1,4 +1,5 @@
 export const BASE_URL = "https://localhost:5001/api";
+export const NOTIFICATION_HUB_URL = "http://localhost:5000/hub/notifications";
 
 //authentication
 export const AUTHENTICATION_URL = BASE_URL + "/Authentication";

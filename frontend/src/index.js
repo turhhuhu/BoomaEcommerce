@@ -16,6 +16,7 @@ import ProfilePage from "./pages/userProfilePage";
 import UserStoresPage from "./pages/userStoresPage";
 import StoreProductsPage from "./pages/storeProductsPage";
 import StoreManagementPage from "./pages/storeManagementPage";
+import NotificationsPage from "./pages/notificationsPage";
 
 const { store, persistor } = configureStore();
 
@@ -30,6 +31,11 @@ ReactDOM.render(
           <Route path="/home" component={ProductsPage}></Route>
           <Route path="/cart" component={CartPage}></Route>
           <Route exact path="/user/stores" component={UserStoresPage}></Route>
+          <Route
+            exact
+            path="/user/notifications"
+            component={NotificationsPage}
+          ></Route>
           <Route exact path="/user" component={ProfilePage}></Route>
           <Route
             exact

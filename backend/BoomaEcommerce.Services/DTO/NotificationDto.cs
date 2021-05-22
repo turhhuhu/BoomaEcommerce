@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
-    public class NotificationDto
+    public class NotificationDto : BaseEntityDto
     {
         public virtual string Type { get; set; } = "notification";
         public string Message { get; set; }
