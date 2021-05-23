@@ -61,7 +61,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 throw new Exception("This shouldn't happen");
             }
 
-            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, new List<NotificationDto>());
         }
 
         private async Task InitStoreWithProductAndPurchase(IStoresService storeService,
@@ -73,7 +73,7 @@ namespace BoomaEcommerce.AcceptanceTests
             await authService.RegisterAsync(user, password);
             var loginResponse = await authService.LoginAsync(user.UserName, password);
 
-            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, new List<NotificationDto>());
 
             await CreateStore(storeService, loginResponse);
 

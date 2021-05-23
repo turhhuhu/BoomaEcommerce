@@ -143,7 +143,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 throw new Exception("This shouldn't happen");
             }
 
-            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, new List<NotificationDto>());
 
         }
 

@@ -204,6 +204,7 @@ namespace BoomaEcommerce.Services.Stores
                 return null;
             }
         }
+
         public async Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto)
         {
             try

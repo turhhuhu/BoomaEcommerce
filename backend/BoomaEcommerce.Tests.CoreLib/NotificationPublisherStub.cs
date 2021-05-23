@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.DTO;
 
@@ -12,9 +13,9 @@ namespace BoomaEcommerce.Tests.CoreLib
     {
         public Dictionary<Guid, List<NotificationDto>> _notificationsMap = new Dictionary<Guid, List<NotificationDto>>();
 
-        public Task addNotifiedUser(Guid guid)
+        public Task addNotifiedUser(Guid guid, List<NotificationDto> notifications)
         {
-            _notificationsMap.Add(guid, new List<NotificationDto>());
+            _notificationsMap.Add(guid, notifications);
             return Task.CompletedTask;
         }
 

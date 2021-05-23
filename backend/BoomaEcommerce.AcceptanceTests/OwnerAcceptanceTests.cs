@@ -78,7 +78,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             }
 
-            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, new List<NotificationDto>());
         }
 
         private async Task InitNotOwnerUser(IStoresService storeService, IAuthenticationService authService)
@@ -96,7 +96,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 throw new Exception("This shouldn't happen");
             }
 
-            await _notificationPublisher.addNotifiedUser(notOwnerLoginResponse.UserGuid);
+            await _notificationPublisher.addNotifiedUser(notOwnerLoginResponse.UserGuid, new List<NotificationDto>());
 
 
         }

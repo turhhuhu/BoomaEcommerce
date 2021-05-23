@@ -29,11 +29,11 @@ namespace BoomaEcommerce.AcceptanceTests
         private PurchaseDto _badPurchase;
         private IFixture _fixture;
         private StoreOwnershipDto _storeOwnership;
-        private Guid _ownerToCheckNotificationGuid;
-        private Guid _notOwnerGuid;
         private NotificationPublisherStub _notificationPublisher;
         private IStoresService _ownerStoreService;
         private IStoresService _notOwnerStoreService;
+        private List<NotificationDto> _ownerNotifications = new List<NotificationDto>();
+        private List<NotificationDto> _notOwnerNotifications = new List<NotificationDto>();
 
         public async Task InitializeAsync()
         {
@@ -63,8 +63,6 @@ namespace BoomaEcommerce.AcceptanceTests
             await authService.RegisterAsync(user, password);
             var loginResponse = await authService.LoginAsync(user.UserName, password);
 
-            _ownerToCheckNotificationGuid = loginResponse.UserGuid;
-
             var fixtureStore = _fixture
                 .Build<StoreDto>()
                 .With(s => s.FounderUserGuid, loginResponse.UserGuid)
@@ -91,7 +89,7 @@ namespace BoomaEcommerce.AcceptanceTests
             }
 
 
-            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid);
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, _ownerNotifications);
             //_purchasesServiceOwner.SetNotificationPublisher(_notificationPublisher);
 
         }
@@ -104,7 +102,6 @@ namespace BoomaEcommerce.AcceptanceTests
             const string notOwnerPassword = "SuperSecretPassword";
             await authenticationService.RegisterAsync(notOwnerUser, notOwnerPassword);
             var notOwnerLoginResponse = await authenticationService.LoginAsync(notOwnerUser.UserName, notOwnerPassword);
-            _notOwnerGuid = notOwnerLoginResponse.UserGuid;
             var result = SecuredPurchaseService.CreateSecuredPurchaseService(notOwnerLoginResponse.Token,
                 ServiceMockFactory.Secret, purchasesService, out _purchasesServiceBuyer);
             if (!result)
@@ -120,7 +117,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 throw new Exception("This shouldn't happen");
             }
 
-            await _notificationPublisher.addNotifiedUser(notOwnerLoginResponse.UserGuid);
+            await _notificationPublisher.addNotifiedUser(notOwnerLoginResponse.UserGuid, _notOwnerNotifications);
             //_purchasesServiceOwner.SetNotificationPublisher(_notificationPublisher);
 
             var purchaseDto = new PurchaseDto
@@ -208,8 +205,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(_purchase);
 
             // Assert
-            List<NotificationDto> notifications = _notificationPublisher._notificationsMap[_ownerToCheckNotificationGuid];
-            notifications.Should().NotBeEmpty();
+            _ownerNotifications.Should().NotBeEmpty();
         }
 
         [Fact]
@@ -220,8 +216,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(_badPurchase);
 
             // Assert
-            List<NotificationDto> notifications = _notificationPublisher._notificationsMap[_ownerToCheckNotificationGuid];
-            notifications.Should().BeEmpty();
+            _ownerNotifications.Should().BeEmpty();
         }
 
         [Fact]
@@ -232,7 +227,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(_purchase);
 
             // Assert
-            _notificationPublisher._notificationsMap[_notOwnerGuid].Count.Should().Be(0);
+            _notOwnerNotifications.Count.Should().Be(0);
         }
 
         public Task DisposeAsync()
