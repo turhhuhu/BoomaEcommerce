@@ -405,9 +405,9 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         public async Task PostOwnershipRole_ShouldReturnOkResult_WhenStoreServiceReturnTrue()
         {
             //Arrange 
-            _storeServicesMock.Setup(x => x.NominateNewStoreManagerAsync(It.IsAny<Guid>(), It.IsAny<StoreManagementDto>()))
-                         .ReturnsAsync((Guid storeSellers, StoreManagementDto s) => true);
-            CreateManagementRequest c = new() { NominatedUserGuid = Guid.NewGuid() };
+            _storeServicesMock.Setup(x => x.NominateNewStoreOwnerAsync(It.IsAny<Guid>(), It.IsAny<StoreOwnershipDto>()))
+                         .ReturnsAsync((Guid storeSellers, StoreOwnershipDto s) => true);
+            CreateOwnershipRequest c = new() { NominatedUserGuid = Guid.NewGuid() };
             //Act
             var userInfoResult = await _storesController.PostOwnershipRole(Guid.NewGuid(), c);
 
@@ -419,9 +419,9 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         public async Task PostOwnershipRole_ShouldReturnBadRequest_WhenStoreServiceReturnFalse()
         {
             //Arrange 
-            _storeServicesMock.Setup(x => x.NominateNewStoreManagerAsync(It.IsAny<Guid>(), It.IsAny<StoreManagementDto>()))
-                         .ReturnsAsync((Guid storeSellers, StoreManagementDto s) => false);
-            CreateManagementRequest c = new() { NominatedUserGuid = Guid.NewGuid() };
+            _storeServicesMock.Setup(x => x.NominateNewStoreOwnerAsync(It.IsAny<Guid>(), It.IsAny<StoreOwnershipDto>()))
+                         .ReturnsAsync((Guid storeSellers, StoreOwnershipDto s) => false);
+            CreateOwnershipRequest c = new() { NominatedUserGuid = Guid.NewGuid() };
             //Act
             var userInfoResult = await _storesController.PostOwnershipRole(Guid.NewGuid(), c);
 
