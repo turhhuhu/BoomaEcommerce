@@ -338,8 +338,11 @@ namespace BoomaEcommerce.Services.Stores
             {
                 var subordinate = await _storeService.GetSubordinateSellersAsync(ownerGuidRemoveFrom);
                 var storeOwnershipToRemove = await _storeService.GetStoreOwnershipAsync(ownerGuidToRemove);
-                if (subordinate.StoreOwners.Contains(storeOwnershipToRemove))
-                    return await _storeService.RemoveStoreOwnerAsync(ownerGuidRemoveFrom, ownerGuidToRemove);
+                foreach (var soDto in subordinate.StoreOwners)
+                {
+                    if(soDto.Guid == storeOwnershipToRemove.Guid)
+                        return await _storeService.RemoveStoreOwnerAsync(ownerGuidRemoveFrom, ownerGuidToRemove);
+                }
             }
             throw new UnAuthorizedException(nameof(RemoveStoreOwnerAsync), userGuidInClaims);
         }

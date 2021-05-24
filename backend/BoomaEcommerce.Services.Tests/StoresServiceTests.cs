@@ -34,6 +34,20 @@ namespace BoomaEcommerce.Services.Tests
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
         }
 
+        private StoresService GetStoreServiceRemoveOwner(
+            IDictionary<Guid, Store> stores,
+            IDictionary<Guid, StoreOwnership> storeOwnerships,
+            IDictionary<Guid, StorePurchase> storePurchases,
+            IDictionary<Guid, StoreManagement> storeManagements,
+            IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
+            IDictionary<Guid, Product> products)
+        {
+            var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
+                storeManagements, storeManagementPermissions, products);
+
+            return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
+        }
+
         [Fact]
         public async Task RemoveStoreOwnerShip_ShouldReturnTrue_WhenStoreOwnerExistsAndRemovalDetailsAreVaild()
         {
@@ -74,7 +88,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships.Add(storeOwnerShipBenny.Guid, storeOwnerShipBenny);
             entitiesOwnerships.Add(storeOwnerShipOmer.Guid, storeOwnerShipOmer);
 
-            var storeService = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var storeService = GetStoreServiceRemoveOwner(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
             //Act
             var result = await storeService.RemoveStoreOwnerAsync(storeOwnerShipOri.Guid, storeOwnerShipOmer.Guid);

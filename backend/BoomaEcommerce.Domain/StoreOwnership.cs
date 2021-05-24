@@ -35,6 +35,16 @@ namespace BoomaEcommerce.Domain
 
             return (StoreOwnerships.Values.ToList(), StoreManagements.Values.ToList());
         }
+
+        public void RemoveOwner()
+        {
+            this.StoreManagements.Clear(); // Remove all managers 
+            foreach (var (guid, ownership) in this.StoreOwnerships) // Call Recursively 
+            { 
+                ownership.RemoveOwner();
+            }
+            this.StoreOwnerships.Clear(); // Remove all owners 
+        }
     }
     
     
