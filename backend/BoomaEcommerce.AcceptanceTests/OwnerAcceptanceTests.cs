@@ -555,7 +555,7 @@ namespace BoomaEcommerce.AcceptanceTests
          * The tree in the RemoveOwner tests is arranged as follows : 
          *                  ORI
          *                 /   \
-         *               ARIK  OMER
+         *              ARIK   OMER
          *                        \
          *                        MATAN
          */
@@ -676,7 +676,7 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 var result = await _ownerStoreService.RemoveStoreOwnerAsync(_storeOwnership.Guid, toRemove.Guid);
             }
-            catch (UnAuthorizedException e)
+            catch (UnAuthorizedException)
             {
 
             }
