@@ -7,6 +7,8 @@ export function user(
     cart: {
       baskets: [],
     },
+    webSocketConnection: undefined,
+    notifications: [],
   },
   action
 ) {
@@ -16,8 +18,10 @@ export function user(
     case UserActionTypes.USER_INFO_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.USER_INFO_SUCCESS:
+      //TODO: add notifications to state when the backend is ready
+      const { notifications, ...userInfo } = action.payload.response;
       return Object.assign({}, state, {
-        userInfo: action.payload.response,
+        userInfo: userInfo,
         isFetching: action.payload.isFetching,
       });
     case UserActionTypes.USER_INFO_FAILURE:
@@ -151,6 +155,32 @@ export function user(
         `error occured while getting user store role: ${action.error}`
       );
       return state;
+    case UserActionTypes.START_WEB_SOCKET_CONNECTION:
+      return Object.assign({}, state, {
+        webSocketConnection: action.payload.webSocketConnection,
+      });
+    case UserActionTypes.CLOSE_WEB_SOCKET_CONNECTION:
+      return Object.assign({}, state, {
+        webSocketConnection: undefined,
+      });
+    case UserActionTypes.RECIEVE_REGULAR_NOTIFICATION:
+      return Object.assign({}, state, {
+        notifications: [...state.notifications, action.payload.notification],
+      });
+    case UserActionTypes.SEE_NOTIFICATION: {
+      const seenNotificationIndex = action.payload.seenNotificationIndex;
+      const seenNotification = action.payload.seenNotification;
+      console.log(seenNotificationIndex);
+      console.log(seenNotification);
+      const newNotifcations = [
+        ...state.notifications.slice(0, seenNotificationIndex),
+        seenNotification,
+        ...state.notifications.slice(seenNotificationIndex + 1),
+      ];
+      return Object.assign({}, state, {
+        notifications: newNotifcations,
+      });
+    }
 
     default:
       return state;

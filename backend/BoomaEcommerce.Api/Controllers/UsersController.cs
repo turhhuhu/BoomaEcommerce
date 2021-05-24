@@ -48,6 +48,8 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Notifications.Post)]
         public async Task<IActionResult> PostNotification(Guid userGuid, NotificationDto notf)
         {
+            //Generate fake guid only for frontend 
+            notf.Guid = Guid.NewGuid();
             await _notificationPublisher.NotifyAsync(notf, userGuid);
             return Ok();
         }
