@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
+namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class MaxCategoryAmountPolicy : PurchasePolicy
+    public class MaxCategoryAmountPolicy : Policy
     {
         public string Category { get; set; }
         public int MaxAmount { get; set; }

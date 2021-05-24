@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
+namespace BoomaEcommerce.Domain.Policies.Operators
 {
     public class OrPolicyOperator : PolicyOperator
     {
         private const string FailMessage = "One of the following policies must be met:";
-        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params PurchasePolicy[] policies)
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params Policy[] policies)
         {
             var (okResults, failResults) = policies
                 .Select(p => p.CheckPolicy(user, basket))
@@ -18,10 +18,10 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
 
             return okResults.Any()
                 ? PolicyResult.Ok()
-                : PolicyResult.CombineFail(failResults, ErrorPrefix + FailMessage);
+                : PolicyResult.CombineFails(failResults, ErrorPrefix + FailMessage);
         }
 
-        public override PolicyResult CheckPolicy(StorePurchase purchase, params PurchasePolicy[] policies)
+        public override PolicyResult CheckPolicy(StorePurchase purchase, params Policy[] policies)
         {
             var (okResults, failResults) = policies
                 .Select(p => p.CheckPolicy(purchase))
@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
 
             return okResults.Any()
                 ? PolicyResult.Ok()
-                : PolicyResult.CombineFail(failResults, ErrorPrefix + FailMessage);
+                : PolicyResult.CombineFails(failResults, ErrorPrefix + FailMessage);
         }
     }
 }

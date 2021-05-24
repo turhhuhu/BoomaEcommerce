@@ -31,14 +31,15 @@ namespace BoomaEcommerce.Data.InMemory
         {
             var entities = RepoContainer.AllEntities[typeof(T)];
             var predicate = predicateExp.Compile();
-            return Task.FromResult(entities.Values.Select(x => (T)x).Where(x => predicate((T)x)));
+            return Task.FromResult(entities.Values.Select(x => (T)x).Where(x => predicate(x)));
         }
 
-        public async Task<IEnumerable<TMapped>> FilterByAsync<TMapped>(Expression<Func<T, bool>> predicateExp, Expression<Func<T, TMapped>> mapExp)
+        public Task<IEnumerable<TMapped>> FilterByAsync<TMapped>(Expression<Func<T, bool>> predicateExp, Expression<Func<T, TMapped>> mapExp)
         {
-            var result = await FilterByAsync(predicateExp);
+            var entities = RepoContainer.AllEntities[typeof(T)];
+            var predicate = predicateExp.Compile();
             var mapFunc = mapExp.Compile();
-            return result.Select(mapFunc);
+            return Task.FromResult(entities.Values.Select(x => (T)x).Where(predicate).Select(mapFunc));
         }
 
         public async Task<T> FindOneAsync(Expression<Func<T, bool>> predicateExp)
@@ -113,6 +114,15 @@ namespace BoomaEcommerce.Data.InMemory
                 entities.Remove(key, out _);
             }
             return Task.CompletedTask;
+        }
+
+        public Task<TType> FindByIdAsync<TType>(Guid guid) 
+            where TType : BaseEntity
+        {
+            var entities = RepoContainer.AllEntities[typeof(T)];
+            return entities.TryGetValue(guid, out var entity)
+                ? Task.FromResult((TType)entity)
+                : Task.FromResult<TType>(null);
         }
     }
 }

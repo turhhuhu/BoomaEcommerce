@@ -32,6 +32,5 @@ namespace BoomaEcommerce.Api
         {
             return Task.WhenAll(usersToNotify.Select(userGuid => NotifyAsync(notification, userGuid)));
         }
-
     }
 }

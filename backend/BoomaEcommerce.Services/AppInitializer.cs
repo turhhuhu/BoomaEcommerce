@@ -47,6 +47,8 @@ namespace BoomaEcommerce.Services
                 Description = "AdminStore",
                 Rating = 10
             };
+
+
             await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
 
             var products = Enumerable.Range(1, 10).Select(i => new Product
