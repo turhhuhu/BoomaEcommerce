@@ -148,6 +148,28 @@ namespace BoomaEcommerce.Tests.CoreLib
             var storePurchasesRepoMock = MockRepository(storePurchases);
             var storeManagementRepoMock = MockRepository(storeManagements);
 
+
+            // Mock do to delete on cascade 
+            storeOwnershipRepoMock?.Setup(x => x.DeleteByIdAsync(It.IsAny<Guid>()))
+                .Callback<Guid>(soGuid =>
+                {
+                    var storeOwner = storeOwnerships[soGuid];
+
+                    var subOrdinates = storeOwner.GetSubordinates();
+
+                    foreach (var sm in subOrdinates.Item2)
+                    {
+                        storeManagements.Remove(sm.Guid);
+                    }
+
+                    foreach (var so in subOrdinates.Item1)
+                    {
+                        storeOwnerships.Remove(so.Guid);
+                    }
+
+                    storeOwnerships.Remove(soGuid);
+                });
+
             storeManagementRepoMock?.Setup(x => x.InsertOneAsync(It.IsAny<StoreManagement>()))
                 .Callback<StoreManagement>(sm =>
                 {
