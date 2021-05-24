@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
+namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class MinProductAmountPolicy : PurchasePolicy
+    public class MinProductAmountPolicy : Policy
     {
         public Product Product { get; set; }
-        private int MinAmount { get; set; }
+        public int MinAmount { get; set; }
 
         public MinProductAmountPolicy(Product product, int minAmount)
         {

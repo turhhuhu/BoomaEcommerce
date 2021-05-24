@@ -67,7 +67,7 @@ namespace BoomaEcommerce.Api.Controllers
         {
             var productResult = await _storesService.CreateStoreProductAsync(product);
 
-            if (productResult == null)
+            if (productResult == null)  
             {
                 return BadRequest();
             }

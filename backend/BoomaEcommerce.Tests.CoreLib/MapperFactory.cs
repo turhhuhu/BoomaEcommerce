@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BoomaEcommerce.Services.MappingProfiles;
+using BoomaEcommerce.Api;
 
 namespace BoomaEcommerce.Tests.CoreLib
 {
@@ -11,6 +12,9 @@ namespace BoomaEcommerce.Tests.CoreLib
             {
                 x.AddProfile(new DtoToDomainProfile());
                 x.AddProfile(new DomainToDtoProfile());
+                x.AddProfile(new DtoToResponseMappingProfile());
+                x.AddProfile(new RequestToDtoMappingProfile());
+
             });
             var mapper = mapperConfig.CreateMapper();
             return mapper;

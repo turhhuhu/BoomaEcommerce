@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
+namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class MaxProductAmountPolicy : PurchasePolicy
+    public class MaxProductAmountPolicy : Policy
     {
         public Product Product { get; set; }
-        private int MaxAmount { get; set; }
+        public int MaxAmount { get; set; }
 
         public MaxProductAmountPolicy(Product product, int maxAmount)
         {

@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.Policies.Operators;
+using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 
 namespace BoomaEcommerce.Services.MappingProfiles
 {
@@ -51,6 +55,54 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StorePurchaseNotification, StorePurchaseNotificationDto>();
             CreateMap<Notification, NotificationDto>();
             CreateMap<User, BasicUserInfoDto>();
+
+
+            CreateMap<Policy, PolicyDto>()
+                .Include<AgeRestrictionPolicy, AgeRestrictionPolicyDto>()
+                .Include<MaxProductAmountPolicy, ProductAmountPolicyDto>()
+                .Include<MinProductAmountPolicy, ProductAmountPolicyDto>()
+                .Include<MaxCategoryAmountPolicy, CategoryAmountPolicyDto>()
+                .Include<MinCategoryAmountPolicy, CategoryAmountPolicyDto>()
+                .Include<CompositePolicy, CompositePolicyDto>();
+
+            CreateMap<AgeRestrictionPolicy, AgeRestrictionPolicyDto>()
+                .ForMember(policyDto => policyDto.ProductGuid, x => x.MapFrom(policy => policy.Product.Guid));
+
+            CreateMap<MaxProductAmountPolicy, ProductAmountPolicyDto>()
+                .ForMember(policyDto => policyDto.ProductGuid, x => x.MapFrom(policy => policy.Product.Guid))
+                .ForMember(policyDto => policyDto.Amount, x => x.MapFrom(policy => policy.MaxAmount))
+                .ForMember(policyDto => policyDto.Type, x => x.MapFrom(_ => PolicyType.MaxProductAmount));
+
+            CreateMap<MinProductAmountPolicy, ProductAmountPolicyDto>()
+                .ForMember(policyDto => policyDto.ProductGuid, x => x.MapFrom(policy => policy.Product.Guid))
+                .ForMember(policyDto => policyDto.Amount, x => x.MapFrom(policy => policy.MinAmount))
+                .ForMember(policyDto => policyDto.Type, x => x.MapFrom(_ => PolicyType.MinProductAmount));
+
+            CreateMap<MaxCategoryAmountPolicy, CategoryAmountPolicyDto>()
+                .ForMember(policyDto => policyDto.Amount, x => x.MapFrom(policy => policy.MaxAmount))
+                .ForMember(policyDto => policyDto.Type, x => x.MapFrom(_ => PolicyType.MaxCategoryAmount));
+
+            CreateMap<MinCategoryAmountPolicy, CategoryAmountPolicyDto>()
+                .ForMember(policyDto => policyDto.Amount, x => x.MapFrom(policy => policy.MinAmount))
+                .ForMember(policyDto => policyDto.Type, x => x.MapFrom(_ => PolicyType.MinCategoryAmount));
+
+            CreateMap<CompositePolicy, CompositePolicyDto>()
+                .ConstructUsing((policy, context) => new CompositePolicyDto
+                {
+                    Operator = context.Mapper.Map<OperatorType>(policy.Operator),
+                    SubPolicies = context.Mapper.Map<IEnumerable<PolicyDto>>(policy.GetSubPolicies())
+                });
+
+            CreateMap<PolicyOperator, OperatorType>()
+                .ConstructUsing((@operator, _) =>
+                    @operator switch
+                    {
+                        AndPolicyOperator => OperatorType.And,
+                        ConditionPolicyOperator => OperatorType.Condition,
+                        OrPolicyOperator => OperatorType.Or,
+                        XorPolicyOperator => OperatorType.Xor,
+                        _ => throw new ArgumentOutOfRangeException(nameof(@operator))
+                    });
         }
     }
 }

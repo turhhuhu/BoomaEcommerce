@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Policies
+namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class AgeRestrictionPolicy : PurchasePolicy
+    public class AgeRestrictionPolicy : Policy
     {
         public Product Product { get; set; }
         public int MinAge { get; set; }

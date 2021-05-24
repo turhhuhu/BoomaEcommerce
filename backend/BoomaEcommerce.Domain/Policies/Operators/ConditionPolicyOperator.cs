@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
+namespace BoomaEcommerce.Domain.Policies.Operators
 {
     public class ConditionPolicyOperator : PolicyOperator
     {
 
-        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params PurchasePolicy[] policies)
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params Policy[] policies)
         {
             if (policies.Length != 2)
             {
@@ -20,7 +20,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
             var thenPolicyResult = policies[1].CheckPolicy(user, basket);
             if (ifPolicyResult.IsOk && !thenPolicyResult.IsOk)
             {
-                return PolicyResult.CombineFail(
+                return PolicyResult.CombineFails(
                     new List<PolicyResult>{ifPolicyResult, thenPolicyResult},
                     "If then following policy is met:",
                     "Then the following policy must be met:");
@@ -28,7 +28,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
             return PolicyResult.Ok();
         }
 
-        public override PolicyResult CheckPolicy(StorePurchase purchase, params PurchasePolicy[] policies)
+        public override PolicyResult CheckPolicy(StorePurchase purchase, params Policy[] policies)
         {
             if (policies.Length != 2)
             {
@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
             var thenPolicyResult = policies[1].CheckPolicy(purchase);
             if (ifPolicyResult.IsOk && !thenPolicyResult.IsOk)
             {
-                return PolicyResult.CombineFail(
+                return PolicyResult.CombineFails(
                     new List<PolicyResult> { ifPolicyResult, thenPolicyResult },
                     "If then following policy is met:",
                     "Then the following policy must be met:");

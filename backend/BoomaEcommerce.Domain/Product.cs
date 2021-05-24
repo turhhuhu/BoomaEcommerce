@@ -51,7 +51,8 @@ namespace BoomaEcommerce.Domain
 
         public bool ValidateStorePolicy()
         {
-            return Store.StorePolicy.CheckPolicy(PurchaseType);
+            //return Store.StorePolicy.CheckPolicy(PurchaseType);
+            return true;
         }
     }
 }

@@ -7,7 +7,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Data;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 using FluentValidation;
 
 namespace BoomaEcommerce.Services.Stores
@@ -146,6 +148,7 @@ namespace BoomaEcommerce.Services.Stores
                 return false;
             }
         }
+
         public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
             try
@@ -204,6 +207,29 @@ namespace BoomaEcommerce.Services.Stores
                 return null;
             }
         }
+
+
+        public async Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom ,Guid ownerGuid)
+        {
+            try
+            {
+                var storeOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
+
+                var storeOwnershipRemoveFrom = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuidRemoveFrom);
+                
+                storeOwnershipRemoveFrom.StoreOwnerships.TryRemove(ownerGuid, out _);
+                await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
+                storeOwnership.RemoveOwner();
+                return true; 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to delete StoreOwnerShip with guid {ownerGuid}");
+                return false;
+            }
+        }
+
+     
         public async Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto)
         {
             try
@@ -466,7 +492,6 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-
 		public async Task<bool> RemoveManagerAsync(Guid ownershipToRemoveFrom, Guid managerToRemove)
         {
             try
@@ -491,6 +516,104 @@ namespace BoomaEcommerce.Services.Stores
             {
                 _logger.LogError(e, "Failed to remove ownerGuid with guid: {guid}", managerToRemove);
                 return false;
+            }
+        }
+
+        public async Task<PolicyDto> CreatePurchasePolicyAsync(Guid storeGuid, PolicyDto policyDto)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to set store {storeGuid} with new policyDto.", storeGuid);
+                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(storeGuid);
+                if (store == null)
+                {
+                    return null;
+                }
+                var policy = _mapper.Map<Policy>(policyDto);
+                store.StorePolicy = policy;
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.PolicyRepo.InsertOneAsync(policy);
+
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully set new policyDto for store with guid {storeGuid}", storeGuid);
+                return _mapper.Map<PolicyDto>(policy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to set a new policyDto for store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<PolicyDto> GetPolicyAsync(Guid storeGuid)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to get policy from store with guid {storeGuid}", storeGuid);
+
+                var policy =
+                    (await _storeUnitOfWork.StoreRepo.FilterByAsync(
+                        store => store.Guid == storeGuid,
+                        store => store.StorePolicy))
+                    .FirstOrDefault();
+
+                if (policy == null || policy is EmptyPolicy)
+                {
+                    return null;
+                }
+
+                _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
+                return _mapper.Map<PolicyDto>(policy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get store policy from store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<bool> DeletePolicyAsync(Guid storeGuid, Guid policyGuid)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to delete policy with guid {policyGuid} from store with guid {storeGuid}.", policyGuid, storeGuid);
+                await _storeUnitOfWork.PolicyRepo.DeleteByIdAsync(policyGuid);
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully deleted policy with guid {policyGuid} from store with guid {storeGuid}.", policyGuid, storeGuid);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to delete policy with guid {policyGuid} from store with guid {storeGuid}", policyGuid, storeGuid);
+                return false;
+            }
+        }
+
+        public async Task<PolicyDto> AddPolicyAsync(Guid storeGuid, Guid policyGuid, PolicyDto childPolicyDto)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt add new child policy to policy with guid {policyGuid}.", policyGuid);
+                var compositePolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<CompositePolicy>(policyGuid);
+                if (compositePolicy == null)
+                {
+                    return null;
+                }
+                var childPolicy = _mapper.Map<Policy>(childPolicyDto);
+                compositePolicy.AddPolicy(childPolicy);
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
+
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully added new child policy for policy with guid {policyGuid}", policyGuid);
+                return _mapper.Map<PolicyDto>(childPolicy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to add a new child policy for policy with guid {policyGuid}", policyGuid);
+                return null;
             }
         }
     }

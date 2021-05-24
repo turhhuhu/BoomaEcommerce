@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BoomaEcommerce.Domain.PurchasePolicy.Operators;
+using BoomaEcommerce.Domain.Policies.Operators;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy
+namespace BoomaEcommerce.Domain.Policies
 {
-    public class BinaryPurchasePolicy : PurchasePolicy
+    public class BinaryPolicy : Policy
     {
         public PolicyOperator Operator { get; set; }
 
-        private PurchasePolicy _firstPolicy;
-        private PurchasePolicy _secondPolicy;
-        public PurchasePolicy FirstPolicy
+        private Policy _firstPolicy;
+        private Policy _secondPolicy;
+        public Policy FirstPolicy
         {
             get => _firstPolicy;
             set
@@ -23,7 +23,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
             }
         }
 
-        public PurchasePolicy SecondPolicy
+        public Policy SecondPolicy
         {
             get => _secondPolicy;
             set
@@ -33,18 +33,19 @@ namespace BoomaEcommerce.Domain.PurchasePolicy
             }
         }
 
-        public BinaryPurchasePolicy(PolicyOperator @operator, PurchasePolicy firstPolicy, PurchasePolicy secondPolicy)
+        public BinaryPolicy(PolicyOperator @operator, Policy firstPolicy, Policy secondPolicy)
         {
             Operator = @operator;
             FirstPolicy = firstPolicy;
             SecondPolicy = secondPolicy;
         }
 
-        public BinaryPurchasePolicy(PolicyOperator @operator)
+        public BinaryPolicy(PolicyOperator @operator)
         {
             Operator = @operator;
+            FirstPolicy = Empty;
+            SecondPolicy = Empty;
         }
-
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             return Operator.CheckPolicy(user, basket, FirstPolicy, SecondPolicy);

@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
+namespace BoomaEcommerce.Domain.Policies.Operators
 {
     public class AndPolicyOperator : PolicyOperator
     {
         private const string FailMessage = "All of the following policies must be met:";
 
-        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params PurchasePolicy[] policies)
+        public override PolicyResult CheckPolicy(User user, ShoppingBasket basket, params Policy[] policies)
         {
             var fails = policies
                 .Select(p => p.CheckPolicy(user, basket))
@@ -19,12 +19,12 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
                 .ToList();
 
             return fails.Any()
-                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
+                ? PolicyResult.CombineFails(fails, ErrorPrefix + FailMessage)
                 : PolicyResult.Ok();
 
         }
 
-        public override PolicyResult CheckPolicy(StorePurchase purchase, params PurchasePolicy[] policies)
+        public override PolicyResult CheckPolicy(StorePurchase purchase, params Policy[] policies)
         {
             var fails = policies
                 .Select(p => p.CheckPolicy(purchase))
@@ -32,7 +32,7 @@ namespace BoomaEcommerce.Domain.PurchasePolicy.Operators
                 .ToList();
 
             return fails.Any()
-                ? PolicyResult.CombineFail(fails, ErrorPrefix + FailMessage)
+                ? PolicyResult.CombineFails(fails, ErrorPrefix + FailMessage)
                 : PolicyResult.Ok();
         }
     }

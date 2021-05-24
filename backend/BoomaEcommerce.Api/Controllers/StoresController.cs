@@ -7,7 +7,9 @@ using AutoMapper;
 using BoomaEcommerce.Api.Requests;
 using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -61,7 +63,7 @@ namespace BoomaEcommerce.Api.Controllers
 
         [Authorize]
         [HttpPut(ApiRoutes.Stores.Products.Put)]
-        public async Task<IActionResult> UpdateProduct(Guid storeGuid, Guid productGuid, ProductDto product)
+        public async Task<IActionResult> UpdateProduct(Guid storeGuid, Guid productGuid, [FromBody] ProductDto product)
         {
             product.Guid = productGuid;
             product.StoreGuid = storeGuid;
@@ -161,8 +163,8 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost(ApiRoutes.Stores.Roles.Managements.Post)]
-        public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateManagementRequest request)
+        [HttpPost(ApiRoutes.Stores.Roles.Managements.Post)] 
+        public async Task<IActionResult> PostManagementRole(Guid storeGuid, [FromBody] CreateManagementRequest request)
         {
             if (!request.NominatedUserGuid.HasValue)
             {
@@ -213,6 +215,63 @@ namespace BoomaEcommerce.Api.Controllers
                 return NotFound();
             }
             return Ok(_mapper.Map<StoreSellersResponse>(subordinates));
+        }
+
+        //[Authorize]
+        [HttpPost("{storeGuid}/policy")]
+        public async Task<IActionResult> CreatePolicy(Guid storeGuid, [FromBody] PolicyDto policy)
+        {
+            var createdPolicy = await _storesService.CreatePurchasePolicyAsync(storeGuid, policy);
+
+            if (createdPolicy == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/policies/{createdPolicy.Guid}";
+
+            return Created(locationUrl, createdPolicy);
+        }
+
+        [Authorize]
+        [HttpPost("{storeGuid}/policy/{policyGuid}/sub-policies")]
+        public async Task<IActionResult> CreateSubPolicy(Guid storeGuid, Guid policyGuid, [FromBody] PolicyDto policy)
+        {
+            var createdPolicy = await _storesService.AddPolicyAsync(storeGuid, policyGuid, policy);
+
+            if (createdPolicy == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/policies/{createdPolicy.Guid}";
+
+            return Created(locationUrl, createdPolicy);
+        }
+
+        [Authorize]
+        [HttpDelete("{storeGuid}/policy/{policyGuid}")]
+        public async Task<IActionResult> DeletePolicy(Guid storeGuid, Guid policyGuid)
+        {
+            var deletionResult = await _storesService.DeletePolicyAsync(storeGuid, policyGuid);
+
+            if (!deletionResult)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        [Authorize]
+        [HttpGet("{storeGuid}/policy")]
+        public async Task<IActionResult> GetPolicy(Guid storeGuid)
+        {
+            var policy = await _storesService.GetPolicyAsync(storeGuid);
+
+            if (policy == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(policy);
         }
     }
 }

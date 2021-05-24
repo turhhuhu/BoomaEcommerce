@@ -21,7 +21,7 @@ namespace BoomaEcommerce.Services.Tests
                 ProductLock = new SemaphoreSlim(1),
                 Name = "Test",
                 Category = "TestCategory",
-                Store = new Store{Guid = storeGuid}
+                Store = new Store(null) { Guid = storeGuid}
             };
         }
         
@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             return new ()
             {
-                Store = new Store{Guid = storeGuid},
+                Store = new Store(null) { Guid = storeGuid},
                 Guid = productGuid,
                 Amount = 10,
                 ProductLock = new SemaphoreSlim(1),
@@ -144,12 +144,12 @@ namespace BoomaEcommerce.Services.Tests
         
         public static Store CreateStoreObject(string storeName)
         {
-            return new() { StoreName = storeName };
+            return new(null) { StoreName = storeName };
         }
 
         public static Store CreateStoreObject(string storeName,Guid guid)
         {
-            return new() { StoreName = storeName , Guid = guid};
+            return new(null) { StoreName = storeName , Guid = guid};
         }
 
         public static User CreateUserObject(string name)
@@ -223,7 +223,7 @@ namespace BoomaEcommerce.Services.Tests
 
         public static Store GetStoreData(string name)
         {
-            return new() { StoreName = name };
+            return new(null) { StoreName = name };
         }
 
         public static StoreManagement GetStoreManagementData(User u, Store s)
