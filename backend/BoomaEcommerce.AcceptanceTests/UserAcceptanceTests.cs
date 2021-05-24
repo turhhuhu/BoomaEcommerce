@@ -30,6 +30,7 @@ namespace BoomaEcommerce.AcceptanceTests
         private ProductDto product2;
         private PurchaseProductDto purchase_product1;
         private PurchaseProductDto purchase_product2;
+        private NotificationPublisherStub _notificationPublisher;
 
 
         public async Task InitializeAsync()
@@ -43,6 +44,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
             var purchasesService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
             var usersService = serviceMockFactory.MockUserService();
 
             await InitUser(storeService, authService, purchasesService ,usersService);
@@ -141,6 +143,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 throw new Exception("This shouldn't happen");
             }
 
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, new List<NotificationDto>());
 
         }
 

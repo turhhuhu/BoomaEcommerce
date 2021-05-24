@@ -23,6 +23,8 @@ namespace BoomaEcommerce.AcceptanceTests
         private IStoresService _ownerStoreService;
         private StoreOwnershipDto _storeOwnership;
 
+        private NotificationPublisherStub _notificationPublisher;
+        
         private Guid _notOwnerUserArik;
         private IStoresService _notOwnerStoreServiceArik;
 
@@ -31,6 +33,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private Guid _notOwnerUserMatan;
         private IStoresService _notOwnerStoreServiceMatan;
+
 
         private PurchaseDto _purchase;
         private IFixture _fixture;
@@ -46,6 +49,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
             var purchaseService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
             await InitOwnerUser(storeService, authService);
             await InitNotOwnerUserArik(storeService, authService);
             await InitNotOwnerUserOmer(storeService, authService);
@@ -81,7 +85,10 @@ namespace BoomaEcommerce.AcceptanceTests
             if (!result)
             {
                 throw new Exception("This shouldn't happen");
+
             }
+
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, new List<NotificationDto>());
         }
 
         private async Task InitNotOwnerUserArik(IStoresService storeService, IAuthenticationService authService)
@@ -98,6 +105,10 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 throw new Exception("This shouldn't happen");
             }
+
+            await _notificationPublisher.addNotifiedUser(notOwnerLoginResponse.UserGuid, new List<NotificationDto>());
+
+
         }
 
         private async Task InitNotOwnerUserOmer(IStoresService storeService, IAuthenticationService authService)
@@ -164,6 +175,8 @@ namespace BoomaEcommerce.AcceptanceTests
                 }
             };
             _purchase = purchaseDto;
+            // added 
+            
             var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
             if (!didPurchasedSucceeded)
             {

@@ -41,19 +41,19 @@ namespace BoomaEcommerce.Services.Purchases
             try
             {
                 var purchase = _mapper.Map<Purchase>(purchaseDto);
-                
+
                 purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
-                
+
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>
                         storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
-                var taskList = purchaseProducts.Select(purchaseProduct => 
+                var taskList = purchaseProducts.Select(purchaseProduct =>
                     Task.Run(async () =>
-                {
-                    var product = purchaseProduct.Product;
-                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                }));
+                    {
+                        var product = purchaseProduct.Product;
+                        purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+                    }));
 
                 await Task.WhenAll(taskList);
 
@@ -93,6 +93,7 @@ namespace BoomaEcommerce.Services.Purchases
             return Task.WhenAll(purchaseDto.StorePurchases.Select(NotifyStoreSellersOnPurchase));
         }
 
+
         private async Task NotifyStoreSellersOnPurchase(StorePurchase storePurchase)
         {
             var ownerships =
@@ -129,7 +130,6 @@ namespace BoomaEcommerce.Services.Purchases
             }
             
         }
-
 
         // function not supported yet.
         public Task DeletePurchaseAsync(Guid purchaseGuid)
