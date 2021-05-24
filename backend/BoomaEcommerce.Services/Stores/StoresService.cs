@@ -215,20 +215,8 @@ namespace BoomaEcommerce.Services.Stores
             {
                 var storeOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
 
-                /* foreach (var storeManagement in storeOwnership.StoreManagements)
-                {
-                    storeOwnership.RemoveManager(storeManagement.Key);
-                    //await _storeUnitOfWork.StoreManagementRepo.DeleteByIdAsync(storeManagement.Key);
-
-                }
-
-                foreach (var storeOwner in storeOwnership.StoreOwnerships)
-                {
-                    storeOwnership.StoreOwnerships.TryRemove(storeOwner);
-                    //await RemoveStoreOwnerAsync(ownerGuid, storeOwner.Key);
-                } */
-
                 var storeOwnershipRemoveFrom = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuidRemoveFrom);
+                
                 storeOwnershipRemoveFrom.StoreOwnerships.TryRemove(ownerGuid, out _);
                 await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
                 storeOwnership.RemoveOwner();
