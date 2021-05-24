@@ -25,16 +25,4 @@ namespace BoomaEcommerce.Api.Responses
         public override string Type { get; } = ManagementType;
         public StoreManagementPermissionsDto Permissions { get; set; }
     }
-    public class StoreMetaData
-    {
-        public Guid StoreGuid { get; set; }
-        public string StoreName { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class UserMetaData
-    {
-        public Guid UserGuid { get; set; }
-        public string UserName { get; set; }
-    }
 }
