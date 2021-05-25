@@ -52,10 +52,21 @@ namespace BoomaEcommerce.Services.MappingProfiles
             
             CreateMap<StoreManagementPermissions, StoreManagementPermissionsDto>();
 
-            CreateMap<StorePurchaseNotification, StorePurchaseNotificationDto>();
-            CreateMap<Notification, NotificationDto>();
-            CreateMap<User, BasicUserInfoDto>();
+            CreateMap<Notification, NotificationDto>()
+                .Include<StorePurchaseNotification, StorePurchaseNotificationDto>()
+                .Include<RoleDismissalNotification, RoleDismissalNotificationDto>();
 
+            CreateMap<StorePurchaseNotification, StorePurchaseNotificationDto>()
+                .ForMember(dto => dto.BuyerMetaData, x => x.MapFrom(n => n.Buyer))
+                .ForMember(dto => dto.StoreMetaData, x => x.MapFrom(n => n.Store));
+
+            CreateMap<RoleDismissalNotification, RoleDismissalNotificationDto>()
+                .ForMember(dto => dto.DismissingUserMetaData, x => x.MapFrom(n => n.DismissingUser))
+                .ForMember(dto => dto.StoreMetaData, x => x.MapFrom(n => n.Store));
+
+            CreateMap<User, BasicUserInfoDto>();
+            CreateMap<User, UserMetaData>();
+            CreateMap<Store, StoreMetaData>();
 
             CreateMap<Policy, PolicyDto>()
                 .Include<AgeRestrictionPolicy, AgeRestrictionPolicyDto>()

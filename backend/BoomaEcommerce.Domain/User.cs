@@ -18,5 +18,9 @@ namespace BoomaEcommerce.Domain
         {
             Notifications = new List<Notification>();
         }
+        public void AddNotification(Notification notification)
+        {
+            Notifications.Add(notification);
+        }
     }
 }

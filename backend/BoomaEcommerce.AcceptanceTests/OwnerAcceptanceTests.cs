@@ -565,7 +565,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
 
         /*
-         * The tree in the RemoveOwner tests is arranged as follows : 
+         * The tree in the RemoveSubordinatesRecursively tests is arranged as follows : 
          *                  ORI
          *                 /   \
          *              ARIK   OMER

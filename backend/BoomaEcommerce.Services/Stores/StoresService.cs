@@ -19,14 +19,17 @@ namespace BoomaEcommerce.Services.Stores
         private readonly ILogger<StoresService> _logger;
         private readonly IMapper _mapper;
         private readonly IStoreUnitOfWork _storeUnitOfWork;
+        private readonly INotificationPublisher _notificationPublisher;
 
         public StoresService(ILogger<StoresService> logger,
             IMapper mapper,
-            IStoreUnitOfWork storeUnitOfWork)
+            IStoreUnitOfWork storeUnitOfWork,
+            INotificationPublisher notificationPublisher)
         {
             _logger = logger;
             _mapper = mapper;
             _storeUnitOfWork = storeUnitOfWork;
+            _notificationPublisher = notificationPublisher;
         }
 
         public async Task<StoreDto> CreateStoreAsync(StoreDto store)
@@ -214,13 +217,21 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                var storeOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
-
                 var storeOwnershipRemoveFrom = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuidRemoveFrom);
-                
-                storeOwnershipRemoveFrom.StoreOwnerships.TryRemove(ownerGuid, out _);
+
+                var owner = storeOwnershipRemoveFrom.GetOwner(ownerGuid);
+                if (owner == null)
+                {
+                    return false;
+                }
+
+                var (owners, _) = owner.GetSubordinates();
+
                 await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
-                storeOwnership.RemoveOwner();
+                storeOwnershipRemoveFrom.RemoveOwner(ownerGuid);
+
+                await NotifyDismissal(storeOwnershipRemoveFrom, owners);
+                await _storeUnitOfWork.SaveAsync();
                 return true; 
             }
             catch (Exception e)
@@ -230,7 +241,14 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-     
+        private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
+        {
+            var notification = new RoleDismissalNotification(dismissingOwner.User, dismissingOwner.Store);
+            owners.ForEach(owner => owner.User.AddNotification(notification));
+            return _notificationPublisher.NotifyManyAsync(_mapper.Map<RoleDismissalNotificationDto>(notification), owners.Select(o => o.User.Guid));
+        }
+
+
         public async Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto)
         {
             try
@@ -434,6 +452,10 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var storeOwner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnerGuid);
+                if (storeOwner == null)
+                {
+                    return null;
+                }
                 var (storeOwnerships, storeManagements) = storeOwner.GetSubordinates(level);
 
                 return new StoreSellersDto(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),

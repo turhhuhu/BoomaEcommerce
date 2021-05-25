@@ -117,7 +117,7 @@ namespace BoomaEcommerce.Services.Purchases
                 (await _purchaseUnitOfWork.StoreOwnershipRepository.FilterByAsync(ownership =>
                     ownership.Store.Guid == storePurchase.Store.Guid)).ToList();
 
-            var notification = new StorePurchaseNotification(storePurchase);
+            var notification = new StorePurchaseNotification(storePurchase.Buyer, storePurchase.Guid, storePurchase.Store);
 
             foreach (var ownership in ownerships)
             {

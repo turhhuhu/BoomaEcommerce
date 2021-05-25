@@ -9,13 +9,28 @@ namespace BoomaEcommerce.Services.DTO
 {
     public class NotificationDto : BaseEntityDto
     {
-        public virtual string Type { get; set; } = "notification";
+        public virtual NotificationType Type { get; set; } = NotificationType.Notification;
         public string Message { get; set; }
         public bool WasSeen { get; set; }
     }
     public class StorePurchaseNotificationDto : NotificationDto
     {
-        public override string Type { get; set; } = "storePurchaseNotification";
-        public StorePurchaseDto Purchases { get; set; }
+        public override NotificationType Type { get; set; } = NotificationType.StorePurchaseNotification;
+        public UserMetaData BuyerMetaData { get; set; }
+        public StoreMetaData StoreMetaData { get; set; }
+        public Guid StorePurchaseGuid { get; set; }
+    }
+
+    public class RoleDismissalNotificationDto : NotificationDto
+    {
+        public override NotificationType Type { get; set; } = NotificationType.StorePurchaseNotification;
+        public UserMetaData DismissingUserMetaData { get; set; }
+        public StoreMetaData StoreMetaData { get; set; }
+    }
+    public enum NotificationType
+    {
+        Notification,
+        StorePurchaseNotification,
+        RoleDismissalNotification
     }
 }
