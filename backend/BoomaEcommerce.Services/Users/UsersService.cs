@@ -1,9 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Services.Users
@@ -75,7 +78,23 @@ namespace BoomaEcommerce.Services.Users
             {
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketGuid);
-                if (shoppingBasket == null || !shoppingBasket.AddPurchaseProduct(purchaseProduct))
+
+                if (shoppingBasket == null)
+                {
+                    return null;
+                }
+
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+
+                var policyResult =
+                    shoppingBasket.CheckPolicyCompliance(user, purchaseProduct);
+
+                if (!policyResult.IsOk)
+                {
+                    throw new PolicyValidationException(new StorePolicyError(shoppingBasket.Store.Guid, policyResult.PolicyError));
+                }
+
+                if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
                     return null;
                 }
@@ -84,6 +103,11 @@ namespace BoomaEcommerce.Services.Users
                 await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
                 await _userUnitOfWork.SaveAsync();
                 return _mapper.Map<PurchaseProductDto>(purchaseProduct);
+            }
+            catch (PolicyValidationException)
+            {
+                _logger.LogError($"Store policy failed after adding the product {purchaseProductDto.ProductGuid}.");
+                throw;
             }
             catch (Exception e)
             {

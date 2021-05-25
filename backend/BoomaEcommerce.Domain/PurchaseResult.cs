@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core.Exceptions;
 
 namespace BoomaEcommerce.Domain
 {
     public struct PurchaseResult
     {
         public bool Success { get; set; }
-        public List<StorePurchaseError> Errors { get; set; }
+        public List<StorePolicyError> Errors { get; set; }
 
-        public PurchaseResult(List<StorePurchaseError> errors)
+        public bool IsPolicyFailure => !Success && Errors.Any();
+
+        public PurchaseResult(List<StorePolicyError> errors)
         {
             Success = false;
             Errors = errors;
@@ -19,9 +22,9 @@ namespace BoomaEcommerce.Domain
         public PurchaseResult(bool state)
         {
             Success = state;
-            Errors = new List<StorePurchaseError>();
+            Errors = new List<StorePolicyError>();
         }
-        public static PurchaseResult Fail(List<StorePurchaseError> failedPolicyResults)
+        public static PurchaseResult Fail(List<StorePolicyError> failedPolicyResults)
         {
             return new PurchaseResult(failedPolicyResults);
         }
@@ -32,16 +35,6 @@ namespace BoomaEcommerce.Domain
         public static PurchaseResult Ok()
         {
             return new PurchaseResult(true);
-        }
-    }
-    public class StorePurchaseError
-    {
-        public string Error { get; set; }
-        public Guid StoreGuid { get; set; }
-        public StorePurchaseError(Guid storeGuid, string error)
-        {
-            Error = error;
-            StoreGuid = storeGuid;
         }
     }
 }

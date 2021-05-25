@@ -66,11 +66,15 @@ namespace BoomaEcommerce.Services.Purchases
                 await Task.WhenAll(productTasks.Concat(storeTasks));
 
                 var purchaseResult = await purchase.MakePurchase();
-                if (!purchaseResult.Success)
+                if (purchaseResult.IsPolicyFailure)
                 {
                     throw new PolicyValidationException(purchaseResult.Errors);
                 }
 
+                if (!purchaseResult.Success)
+                {
+                    return null;
+                }
                 await _paymentClient.MakeOrder(purchase);
 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
@@ -87,6 +91,11 @@ namespace BoomaEcommerce.Services.Purchases
                 await _purchaseUnitOfWork.SaveAsync();
 
                 return _mapper.Map<PurchaseDto>(purchase);
+            }
+            catch (PolicyValidationException)
+            {
+                _logger.LogError("Store policies for purchase failed.");
+                throw;
             }
             catch (Exception e)
             {

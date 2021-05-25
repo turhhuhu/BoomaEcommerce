@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Domain
@@ -39,7 +40,7 @@ namespace BoomaEcommerce.Domain
             var failedPolicyResults = StorePurchases
                 .Select(sp => (sp.Store.Guid, sp.CheckPolicyCompliance()))
                 .Where(result => !result.Item2.IsOk)
-                .Select(res => new StorePurchaseError(res.Item1, res.Item2.PolicyError))
+                .Select(res => new StorePolicyError(res.Item1, res.Item2.PolicyError))
                 .ToList();
 
             if (failedPolicyResults.Any())

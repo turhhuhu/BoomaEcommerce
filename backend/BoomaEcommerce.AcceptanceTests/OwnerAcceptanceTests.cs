@@ -178,7 +178,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // added 
             
             var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
-            if (!didPurchasedSucceeded.Success)
+            if (didPurchasedSucceeded == null)
             {
                 throw new Exception("This shouldn't happen");
             }

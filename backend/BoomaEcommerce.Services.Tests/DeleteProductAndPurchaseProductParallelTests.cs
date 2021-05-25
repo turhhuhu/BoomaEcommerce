@@ -85,7 +85,7 @@ namespace BoomaEcommerce.Services.Tests
             // Act
             var deleteResult = await taskDelete;
             var purchaseResult = await taskPurchase;
-            var results = new[] { deleteResult, purchaseResult.Success };
+            var results = new[] { deleteResult, purchaseResult != null };
 
             // Assert
             results.Should().Contain(true).And.Contain(false);

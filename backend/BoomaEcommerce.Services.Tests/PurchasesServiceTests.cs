@@ -87,7 +87,7 @@ namespace BoomaEcommerce.Services.Tests
             var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
 
             // Assert
-            res.Success.Should().BeTrue();
+            res.Should().NotBeNull();
             foreach (var productDictValue in productDict.Values)
             {
                 productDictValue.Amount.Should().Be(5);
@@ -141,7 +141,7 @@ namespace BoomaEcommerce.Services.Tests
             var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
 
             // Assert
-            res.Success.Should().BeFalse();
+            res.Should().BeNull();
             foreach (var productDictValue in productDict.Values)
             {
                 productDictValue.Amount.Should().Be(10);

@@ -9,6 +9,7 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -23,9 +24,10 @@ namespace BoomaEcommerce.Services.Tests
         private UsersService GetUserService(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
-            IDictionary<Guid, PurchaseProduct> purchaseProducts)
+            IDictionary<Guid, PurchaseProduct> purchaseProducts,
+            List<User> users = null)
         {
-            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts, purchaseProducts);
+            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts, purchaseProducts, users != null ? DalMockFactory.MockUserManager(users) : null);
             return new UsersService(_mapper, _logger.Object, userUnitOfWork.Object);
         }
 
@@ -89,14 +91,22 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var purchaseProductDict = new Dictionary<Guid, PurchaseProduct>();
             var shoppingBasketDict = new Dictionary<Guid, ShoppingBasket>();
+            var user = new User
+            {
+                Guid = Guid.NewGuid()
+            };
+            var users = new List<User>();
+            users.Add(user);
+
             var shoppingBasketGuid = Guid.NewGuid();
-            var shoppingBasket= new ShoppingBasket{Guid = shoppingBasketGuid};
+            var shoppingBasket= new ShoppingBasket{Guid = shoppingBasketGuid, Store = new Store()};
+
             shoppingBasketDict[shoppingBasketGuid] = shoppingBasket;
             var purchaseProductDto = new PurchaseProductDto();
-            var sut = GetUserService(shoppingBasketDict, null, purchaseProductDict);
+            var sut = GetUserService(shoppingBasketDict, null, purchaseProductDict, users);
             
             // Act
-            var result = await sut.AddPurchaseProductToShoppingBasketAsync(Guid.NewGuid(), shoppingBasketGuid, purchaseProductDto);
+            var result = await sut.AddPurchaseProductToShoppingBasketAsync(user.Guid, shoppingBasketGuid, purchaseProductDto);
 
             // Assert
             result.Should().NotBeNull();

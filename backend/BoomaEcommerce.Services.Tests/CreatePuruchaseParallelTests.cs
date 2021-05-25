@@ -70,7 +70,7 @@ namespace BoomaEcommerce.Services.Tests
             var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, storesDict);
             
             // Act
-            var taskList = new List<Task<PurchaseResult>>
+            var taskList = new List<Task<PurchaseDto>>
             {
                 sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid)),
                 sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid))
@@ -78,7 +78,7 @@ namespace BoomaEcommerce.Services.Tests
             var res = await Task.WhenAll(taskList);
             
             // Assert
-            res.Should().Contain(x => x.Success).And.Contain(x => !x.Success);
+            res.Should().Contain(x => x == null).And.Contain(x => x != null);
             productDict[productGuid].Amount.Should().Be(0);
 
         }
