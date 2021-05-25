@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using BoomaEcommerce.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace BoomaEcommerce.Api
 {
@@ -45,7 +46,7 @@ namespace BoomaEcommerce.Api
                 .AddNewtonsoftJson(x =>
                 {
                     x.SerializerSettings.Converters.Add(new NotificationCreationConverter());
-                    x.SerializerSettings.Converters.Add(new StringEnumConverter());
+                    x.SerializerSettings.Converters.Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy)));
                     x.SerializerSettings.Converters.Add(new PolicyCreationConverter());
 
                 })

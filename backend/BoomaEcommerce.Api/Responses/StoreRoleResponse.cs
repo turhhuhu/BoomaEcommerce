@@ -9,20 +9,26 @@ namespace BoomaEcommerce.Api.Responses
     public abstract class StoreRoleResponse
     {
         public Guid Guid { get; set; }
-        public abstract string Type { get;}
+        public abstract RoleType Type { get;}
         public StoreMetaData StoreMetaData { get; set; }
         public UserMetaData UserMetaData { get; set; }
     }
 
     public class OwnerShipRoleResponse : StoreRoleResponse
     {
-        public const string OwnershipType = "ownership";
-        public override string Type { get; } = OwnershipType;
+        public const RoleType OwnershipType = RoleType.Ownership;
+        public override RoleType Type { get; } = OwnershipType;
     }
     public class ManagementRoleResponse : StoreRoleResponse
     {
-        public const string ManagementType = "management";
-        public override string Type { get; } = ManagementType;
+        public const RoleType ManagementType = RoleType.Management;
+        public override RoleType Type { get; } = ManagementType;
         public StoreManagementPermissionsDto Permissions { get; set; }
+    }
+
+    public enum RoleType
+    {
+        Ownership,
+        Management
     }
 }
