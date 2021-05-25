@@ -25,9 +25,9 @@ namespace BoomaEcommerce.Domain
 
         public (List<StoreOwnership>, List<StoreManagement>) GetSubordinates(int? level = null)
         {
-            if (level > 0)
+            if (level > 0 || !level.HasValue)
             {
-                var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates()).ToList();
+                var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates(level - 1)).ToList();
                 var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships.Values).ToList();
                 var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements.Values).ToList();
                 return (owners, managers);
