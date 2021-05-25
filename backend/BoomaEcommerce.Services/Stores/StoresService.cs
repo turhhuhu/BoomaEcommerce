@@ -229,7 +229,7 @@ namespace BoomaEcommerce.Services.Stores
 
                 await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
                 storeOwnershipRemoveFrom.RemoveOwner(ownerGuid);
-
+                owners.Add(owner);
                 await NotifyDismissal(storeOwnershipRemoveFrom, owners);
                 await _storeUnitOfWork.SaveAsync();
                 return true; 

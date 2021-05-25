@@ -338,7 +338,7 @@ namespace BoomaEcommerce.Services.Stores
 
             if (userGuidInClaims == storeOwnershipRemoveFrom?.User.Guid)
             {
-                var subordinates = await _storeService.GetSubordinateSellersAsync(ownerGuidRemoveFrom);
+                var subordinates = await _storeService.GetSubordinateSellersAsync(ownerGuidRemoveFrom, 0);
                 if (subordinates.StoreOwners.Exists(o => o.Guid == ownerGuidToRemove))
                 {
                     return await _storeService.RemoveStoreOwnerAsync(ownerGuidRemoveFrom, ownerGuidToRemove);
