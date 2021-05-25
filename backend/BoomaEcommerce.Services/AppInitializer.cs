@@ -6,6 +6,7 @@ using AutoMapper.Configuration;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.Settings;
+using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,15 +18,18 @@ namespace BoomaEcommerce.Services
         private readonly ILogger<AppInitializer> _logger;
         private readonly UserManager<User> _userManager;
         private readonly IStoreUnitOfWork _storeUnitOfWork;
+        private readonly IEnumerable<IUseCase> _useCases;
         private readonly AppInitializationSettings _settings;
         public AppInitializer(ILogger<AppInitializer> logger,
             UserManager<User> userManager,
             IStoreUnitOfWork storeUnitOfWork,
-            IOptions<AppInitializationSettings> options)
+            IOptions<AppInitializationSettings> options,
+            IEnumerable<IUseCase> useCases)
         {
             _logger = logger;
             _userManager = userManager;
             _storeUnitOfWork = storeUnitOfWork;
+            _useCases = useCases;
             _settings = options.Value;
         }
         public async Task InitializeAsync()
@@ -35,6 +39,8 @@ namespace BoomaEcommerce.Services
             {
                 await SeedData(user);
             }
+
+            await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
         }
 
         private async Task SeedData(User user)
@@ -74,17 +80,15 @@ namespace BoomaEcommerce.Services
         private async Task<User> InitAdmin()
         {
             _logger.LogInformation("Checking if admin exists in the system.");
-            var admin = await _userManager.FindByNameAsync(UserRoles.AdminRole);
+            var admin = await _userManager.FindByNameAsync(_settings.AdminUserName);
             if (admin == null)
             {
                 _logger.LogWarning("Admin user was not found. making attempt to insert one.");
                 admin = new AdminUser
                 {
-                    UserName = UserRoles.AdminRole,
-                    Name = UserRoles.AdminRole,
-                    LastName = UserRoles.AdminRole
+                    UserName = _settings.AdminUserName
                 };
-                var creationResult = await _userManager.CreateAsync(admin, UserRoles.AdminRole);
+                var creationResult = await _userManager.CreateAsync(admin, _settings.AdminPassword);
                 if (!creationResult.Succeeded)
                 {
                     _logger.LogCritical("Admin user does not exist in the system and was not able to be inserted. Exiting program.");
