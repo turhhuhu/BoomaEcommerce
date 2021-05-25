@@ -48,16 +48,19 @@ namespace BoomaEcommerce.Domain.Tests
             {
                 new ()
                 {
+                    Store = new Store(),
                     PurchaseProducts = GetTestValidProductsPurchases(),
                     TotalPrice = 150
                 },
                 new ()
                 {
+                    Store = new Store(),
                     PurchaseProducts = GetTestValidProductsPurchases(),
                     TotalPrice = 150
                 },
                 new ()
                 {
+                    Store = new Store(),
                     PurchaseProducts = GetTestValidProductsPurchases(),
                     TotalPrice = 150
                 }

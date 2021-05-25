@@ -238,8 +238,8 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             var purchaseProductDto = new PurchaseProductDto { Guid = Guid.NewGuid() };
             _usersServiceMock.Setup(x =>
-                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
-                .ReturnsAsync((Guid _, PurchaseProductDto pp) => pp);
+                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
+                .ReturnsAsync((Guid _, Guid _, PurchaseProductDto pp) => pp);
 
             // Act
             var purchaseProductResult = await _usersController.CreatePurchaseProduct(Guid.Empty, purchaseProductDto);
@@ -256,8 +256,8 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             var purchaseProductDto = new PurchaseProductDto { Guid = Guid.NewGuid() };
             _usersServiceMock.Setup(x =>
-                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
-                .ReturnsAsync((Guid _, PurchaseProductDto _) => null);
+                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
+                .ReturnsAsync((Guid _, Guid _, PurchaseProductDto _) => null);
 
             // Act
             var purchaseProductResult = await _usersController.CreatePurchaseProduct(Guid.Empty, purchaseProductDto);

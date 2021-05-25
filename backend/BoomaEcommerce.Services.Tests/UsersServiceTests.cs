@@ -96,7 +96,7 @@ namespace BoomaEcommerce.Services.Tests
             var sut = GetUserService(shoppingBasketDict, null, purchaseProductDict);
             
             // Act
-            var result = await sut.AddPurchaseProductToShoppingBasketAsync(shoppingBasketGuid, purchaseProductDto);
+            var result = await sut.AddPurchaseProductToShoppingBasketAsync(Guid.NewGuid(), shoppingBasketGuid, purchaseProductDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -113,7 +113,7 @@ namespace BoomaEcommerce.Services.Tests
             var sut = GetUserService(shoppingBasketDict, null, purchaseProductDict);
             
             // Act
-            var result = await sut.AddPurchaseProductToShoppingBasketAsync(Guid.NewGuid(), purchaseProductDto);
+            var result = await sut.AddPurchaseProductToShoppingBasketAsync(Guid.NewGuid(), Guid.NewGuid(), purchaseProductDto);
 
             // Assert
             result.Should().BeNull();

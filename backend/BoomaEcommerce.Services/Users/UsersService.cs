@@ -68,14 +68,13 @@ namespace BoomaEcommerce.Services.Users
             }
         }
         
-        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid userGuid, Guid shoppingBasketGuid,
             PurchaseProductDto purchaseProductDto)
         {
             try
             {
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
-                var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
-                    .FindOneAsync(x => x.Guid == shoppingBasketGuid);
+                var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketGuid);
                 if (shoppingBasket == null || !shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
                     return null;

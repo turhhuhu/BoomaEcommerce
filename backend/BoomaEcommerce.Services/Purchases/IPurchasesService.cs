@@ -16,7 +16,7 @@ namespace BoomaEcommerce.Services.Purchases
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<bool> CreatePurchaseAsync(PurchaseDto purchase);
+        Task<PurchaseResult> CreatePurchaseAsync(PurchaseDto purchase);
 
         /// <summary>
         /// Gets all user purchase history.

@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Domain.Tests
 
             var result = await sut.MakePurchase();
 
-            result.Should().BeTrue();
+            result.Success.Should().BeTrue();
         }
         
         [Fact]
@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Domain.Tests
 
             var result = await sut.MakePurchase();
 
-            result.Should().BeFalse();
+            result.Success.Should().BeFalse();
         }
         
         [Fact]
