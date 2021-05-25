@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StoreDto, Store>()
                 .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}));
 
-            CreateMap<List<PurchaseProductDto>, ConcurrentDictionary<Guid, PurchaseProduct>>()
+            CreateMap<List<PurchaseProductDto>, IDictionary<Guid, PurchaseProduct>>()
                 .ConstructUsing((x, y) => new ConcurrentDictionary<Guid, PurchaseProduct>(
                     x.Select(ppDto => y.Mapper.Map<PurchaseProduct>(ppDto))
                         .ToDictionary(pp => pp.Guid)));

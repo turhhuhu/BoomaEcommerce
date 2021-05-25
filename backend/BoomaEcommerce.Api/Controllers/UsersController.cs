@@ -98,7 +98,7 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> CreatePurchaseProduct(Guid basketGuid, [FromBody] PurchaseProductDto purchaseProduct)
         {
             var res =
-                await _userService.AddPurchaseProductToShoppingBasketAsync(basketGuid, purchaseProduct);
+                await _userService.AddPurchaseProductToShoppingBasketAsync(User.GetUserGuid(), basketGuid, purchaseProduct);
             if (res == null)
             {
                 return NotFound();
