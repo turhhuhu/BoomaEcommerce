@@ -37,7 +37,7 @@ namespace BoomaEcommerce.Services.Tests
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
                 storeManagements, storeManagementPermissions, products);
             
-            return new StoresService(_storeLoggerMock.Object, _mapper, storeUnitOfWork.Object);
+            return new StoresService(_storeLoggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
 
         private PurchasesService GetPurchaseService(

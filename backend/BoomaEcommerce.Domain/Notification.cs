@@ -21,14 +21,29 @@ namespace BoomaEcommerce.Domain
 
     public class StorePurchaseNotification : Notification
     {
-        public StorePurchase Purchase { get; }
+        public User Buyer { get; set; }
+        public Store Store { get; set; }
+        public Guid StorePurchaseGuid { get; set; }
 
-        public StorePurchaseNotification(
-            StorePurchase purchase,
-            string message = "A store purchase has been made.") 
+        public StorePurchaseNotification(User buyer, Guid storePurchaseGuid, Store store, string message = "A store purchase has been made.") 
             : base(message)
         {
-            Purchase = purchase;
+            Buyer = buyer;
+            StorePurchaseGuid = storePurchaseGuid;
+            Store = store;
+        }
+    }
+    public class RoleDismissalNotification : Notification
+    {
+        public User DismissingUser { get; set; }
+        public Store Store { get; set; }
+
+
+        public RoleDismissalNotification(User dismissingUser, Store store,
+            string message = "You've been dismissed from an ownership store role.") : base(message)
+        {
+            DismissingUser = dismissingUser;
+            Store = store;
         }
     }
 }

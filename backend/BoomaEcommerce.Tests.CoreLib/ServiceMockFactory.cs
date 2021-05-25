@@ -45,7 +45,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             var storeUnitOfWorkMock = DalMockFactory.MockStoreUnitOfWork(_stores, _storeOwnerships, _storePurchases,
                 _storeManagements, _storeManagementPermissions, _products);
             var loggerMock = new Mock<ILogger<StoresService>>();
-            return new StoresService(loggerMock.Object, MapperFactory.GetMapper(), storeUnitOfWorkMock.Object);
+            return new StoresService(loggerMock.Object, MapperFactory.GetMapper(), storeUnitOfWorkMock.Object, new NotificationPublisherStub());
         }
         
         public IAuthenticationService MockAuthenticationService()

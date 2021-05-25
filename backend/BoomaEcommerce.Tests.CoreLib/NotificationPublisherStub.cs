@@ -21,7 +21,10 @@ namespace BoomaEcommerce.Tests.CoreLib
 
         public Task NotifyAsync(NotificationDto notification, Guid userToNotify)
         {
-            _notificationsMap[userToNotify].Add(notification);
+            if (_notificationsMap.ContainsKey(userToNotify))
+            {
+                _notificationsMap[userToNotify].Add(notification);
+            }
             return Task.CompletedTask;
         }
 
@@ -29,7 +32,10 @@ namespace BoomaEcommerce.Tests.CoreLib
         {
             foreach (var user in usersToNotify)
             {
-                _notificationsMap[user].Add(notification);
+                if (_notificationsMap.ContainsKey(user))
+                {
+                    _notificationsMap[user].Add(notification);
+                }
             }
 
             return Task.CompletedTask;
