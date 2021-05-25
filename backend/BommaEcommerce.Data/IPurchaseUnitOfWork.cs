@@ -15,6 +15,7 @@ namespace BoomaEcommerce.Data
         IRepository<Product> ProductRepository { get; set; }
         IRepository<ShoppingCart> ShoppingCartRepository { get; set; }
         IRepository<StoreOwnership> StoreOwnershipRepository { get; set; }
+        IRepository<Store> StoresRepository { get; set; }
         Task SaveAsync();
     }
 }

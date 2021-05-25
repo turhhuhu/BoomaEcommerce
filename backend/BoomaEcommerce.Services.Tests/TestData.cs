@@ -113,7 +113,7 @@ namespace BoomaEcommerce.Services.Tests
             return validProductsPurchasesDtos;
         }
         
-        public static PurchaseDto GetPurchaseWithSingleProductWithAmountOf1(Guid userGuid, Guid productGuid)
+        public static PurchaseDto GetPurchaseWithSingleProductWithAmountOf1(Guid userGuid, Guid productGuid, Guid storeGuid)
         {
             var productDto = new ProductDto
             {
@@ -127,6 +127,7 @@ namespace BoomaEcommerce.Services.Tests
                 {
                     new()
                     {
+                        StoreGuid = storeGuid,
                         PurchaseProducts = new List<PurchaseProductDto>
                         {
                             new()

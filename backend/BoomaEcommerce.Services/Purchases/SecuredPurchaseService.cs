@@ -9,6 +9,7 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
+using BoomaEcommerce.Domain;
 
 namespace BoomaEcommerce.Services.Purchases
 {
@@ -40,7 +41,7 @@ namespace BoomaEcommerce.Services.Purchases
             }
         }
 
-        public Task<bool> CreatePurchaseAsync(PurchaseDto purchase)
+        public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchase)
         {
             ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchase);
             

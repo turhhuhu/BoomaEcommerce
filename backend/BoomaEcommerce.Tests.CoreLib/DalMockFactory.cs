@@ -209,6 +209,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, ShoppingCart> shoppingCarts,
             IDictionary<Guid, StoreOwnership> ownerships,
             IDictionary<Guid, Notification> notifications,
+            IDictionary<Guid, Store> stores,
             IDictionary<Guid, StorePurchase> storePurchases = null,
             IDictionary<Guid, PurchaseProduct> purchaseProducts = null,
             Mock<UserManager<User>> userManagerMock = null)
@@ -231,6 +232,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                     }
                 });
 
+            var storesRepoMock = MockRepository(stores);
             var productRepoMock = MockRepository(products);
             var userRepoMock = userManagerMock ?? MockUserManager(users is null ? new List<User>() : users.Values.ToList());
             var shoppingCartMock = MockRepository(shoppingCarts);
@@ -242,6 +244,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             purchaseUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
+            purchaseUnitOfWork.SetupGet(x => x.StoresRepository).Returns(storesRepoMock?.Object);
             return purchaseUnitOfWork;
         }
         
