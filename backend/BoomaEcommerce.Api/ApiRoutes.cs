@@ -36,6 +36,9 @@ namespace BoomaEcommerce.Api
                 public const string OwnershipGuid = "{ownershipGuid}";
                 public const string Get = OwnershipsBase + "/" + OwnershipGuid;
                 public const string GetSubordinates = OwnershipsBase + "/" + OwnershipGuid + "/subordinates";
+
+                public const string DeleteSubordinate = OwnershipsBase + "/" + OwnershipGuid + "/" + "subordinates" + "/" +
+                                              "{roleToDeleteGuid}";
             }
         }
         public static class Products
