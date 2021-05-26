@@ -7,6 +7,7 @@ import {
   STORE_SUBORDINATES_URL,
   ADD_STORE_OWNER_URL,
   ADD_STORE_MANAGER_URL,
+  REMOVE_SUBORDINATE_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -175,6 +176,26 @@ export function addStoreManager(manager, storeGuid) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(manager),
+      },
+    },
+  };
+}
+
+export function removeStoreManager(ownershipGuid, managmentToDeleteGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: REMOVE_SUBORDINATE_URL.replace("{ownershipGuid}", ownershipGuid)
+        .replace("{roleToDeleteGuid}", managmentToDeleteGuid)
+        .replace("{roleType}", "management"),
+      authenticated: true,
+      types: [
+        StoreActionTypes.REMOVE_STORE_MANAGER_REQUEST,
+        StoreActionTypes.REMOVE_STORE_MANAGER_SUCCESS,
+        StoreActionTypes.REMOVE_STORE_MANAGER_FAILURE,
+      ],
+      config: {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
       },
     },
   };
