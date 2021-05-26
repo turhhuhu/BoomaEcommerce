@@ -60,7 +60,7 @@ namespace BoomaEcommerce.Api
                 hubOptions.AddFilter<ExceptionHandlingFilter>();
             }).AddNewtonsoftJsonProtocol(x => x.PayloadSerializerSettings.Converters
                 .Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy))));
-
+          
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {

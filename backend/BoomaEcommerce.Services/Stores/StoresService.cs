@@ -83,14 +83,6 @@ namespace BoomaEcommerce.Services.Stores
                                        " UserStore with guid {UserDto} does not exists", product.Store.Guid);
                     return null;
                 }
-                /*if (!product.ValidateStorePolicy() || !product.ValidateAmount())
-                {
-                    return null;
-                }*/
-                if (!product.ValidateAmount())
-                {
-                    return null;
-                }
                 await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
                 return _mapper.Map<ProductDto>(product);
             }
@@ -124,10 +116,13 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> UpdateProductAsync(ProductDto productDto)
         {
+
+            Product product = null;
             try
             {
                 _logger.LogInformation($"Updating product with guid {productDto.Guid}");
-                var product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productDto.Guid);
+                product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productDto.Guid);
+                await product.ProductLock.WaitAsync();
                 if (product.IsSoftDeleted) return false;
                 var storeProduct = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
                 if (storeProduct is null)
@@ -136,6 +131,7 @@ namespace BoomaEcommerce.Services.Stores
                                        " UserStore with guid {UserDto} does not exists", product.Store.Guid);
                     return false;
                 }
+
                 product.Name = productDto.Name ?? product.Name;
                 product.Amount = productDto.Amount ?? product.Amount;
                 product.Price = productDto.Price ?? product.Price;
@@ -149,6 +145,10 @@ namespace BoomaEcommerce.Services.Stores
             {
                 _logger.LogError($"Failed to update product with guid {productDto.Guid}", e);
                 return false;
+            }
+            finally
+            {
+                product?.ProductLock.Release();
             }
         }
 

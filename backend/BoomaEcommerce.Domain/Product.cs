@@ -10,18 +10,45 @@ namespace BoomaEcommerce.Domain
     public class Product : BaseEntity
     {
         public const int MaxRating = 10;
-        public const int MinRating = 1;
+        public const int MinRating = 0;
 
         public int Id { get; set; }
         public string Name { get; set; }
         public Store Store { get; set; }
         public string Category { get; set; }
-        public decimal Price { get; set; }
+        public decimal Price
+        {
+            get => _price;
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(Price));
+                }
+
+                _price = value;
+            }
+        }
         public int Amount { get; set; }
-        public decimal Rating { get; set; }
+        public decimal Rating
+        {
+            get => _rating;
+            set
+            {
+                if (value > MaxRating || value < MinRating)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(Rating));
+                }
+
+                _rating = value;
+            }
+        }
         public SemaphoreSlim ProductLock { get; set; } = new(1);
         public bool IsSoftDeleted { get; set; }
         public IPurchaseType PurchaseType { get; set; }
+
+        private decimal _price;
+        private decimal _rating;
         
         public decimal CalculatePrice(int amount)
         {
@@ -47,12 +74,6 @@ namespace BoomaEcommerce.Domain
         public bool ValidateAmount()
         {
             return Amount >= 0;
-        }
-
-        public bool ValidateStorePolicy()
-        {
-            //return Store.StorePolicy.CheckPolicy(PurchaseType);
-            return true;
         }
     }
 }
