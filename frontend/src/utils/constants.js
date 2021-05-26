@@ -33,6 +33,15 @@ export const STORE_PRODUCTS_URL = STORE_URL + "/products";
 export const STORE_PRODUCT_URL = STORE_PRODUCTS_URL + "/{productGuid}";
 export const STORE_ROLES_URL = STORE_URL + "/roles";
 export const STORE_SUBORDINATES_URL =
-  STORE_ROLES_URL + "/ownerships/{ownershipGuid}/subordinates";
+  STORE_ROLES_URL + "/ownerships/{ownershipGuid}/subordinates?level=0";
 export const ADD_STORE_OWNER_URL = STORE_ROLES_URL + "/ownerships";
 export const ADD_STORE_MANAGER_URL = STORE_ROLES_URL + "/managements";
+
+//roles
+export const ROLES_URL = BASE_URL + "/Roles";
+export const MANAGER_ROLE_URL = ROLES_URL + "/managements/{managementGuid}";
+export const OWNER_ROLE_URL = ROLES_URL + "/ownerships/{ownershipGuid}";
+export const SUBORDINATES_URL = OWNER_ROLE_URL + "/subordinates";
+export const EDIT_MANAGER_PERMISSIONS_URL = MANAGER_ROLE_URL + "/permissions";
+export const REMOVE_SUBORDINATE_URL =
+  SUBORDINATES_URL + "/{roleToDeleteGuid}?roleType={roleType}";
