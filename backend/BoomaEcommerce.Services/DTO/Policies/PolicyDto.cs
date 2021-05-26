@@ -66,6 +66,18 @@ namespace BoomaEcommerce.Services.DTO.Policies
         [JsonRequired]
         public int Amount { get; set; }
     }
+    public class TotalAmountPolicyDto : PolicyDto
+    {
+        [JsonRequired]
+        public override PolicyType Type { get; set; }
+
+        [JsonRequired]
+        public string Category { get; set; }
+
+        [JsonRequired]
+        public int Amount { get; set; }
+    }
+
     public enum OperatorType
     {
         And,
@@ -82,6 +94,8 @@ namespace BoomaEcommerce.Services.DTO.Policies
         MaxProductAmount,
         MinProductAmount,
         Composite,
-        Binary
+        Binary,
+        MaxTotalAmount,
+        MinTotalAmount
     }
 }

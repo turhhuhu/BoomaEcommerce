@@ -75,7 +75,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .Include<ProductAmountPolicyDto, Policy>()
                 .Include<CategoryAmountPolicyDto, Policy>()
                 .Include<CompositePolicyDto, CompositePolicy>()
-                .Include<BinaryPolicyDto, BinaryPolicy>();
+                .Include<BinaryPolicyDto, BinaryPolicy>()
+                .Include<TotalAmountPolicyDto, Policy>();
 
             CreateMap<ProductAmountPolicyDto, Policy>()
                 .ConstructUsing((policyDto, _) =>
@@ -92,6 +93,15 @@ namespace BoomaEcommerce.Services.MappingProfiles
                     {
                         PolicyType.MaxCategoryAmount => new MaxCategoryAmountPolicy(policyDto.Category, policyDto.Amount),
                         PolicyType.MinCategoryAmount => new MinCategoryAmountPolicy(policyDto.Category, policyDto.Amount),
+                        _ => throw new ArgumentOutOfRangeException()
+                    });
+
+            CreateMap<TotalAmountPolicyDto, Policy>()
+                .ConstructUsing((policyDto, _) =>
+                    policyDto.Type switch
+                    {
+                        PolicyType.MaxTotalAmount => new MaxTotalAmountPolicy(policyDto.Amount),
+                        PolicyType.MinTotalAmount => new MinTotalAmountPolicy(policyDto.Amount),
                         _ => throw new ArgumentOutOfRangeException()
                     });
 

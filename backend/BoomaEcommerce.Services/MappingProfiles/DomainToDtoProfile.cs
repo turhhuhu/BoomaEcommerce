@@ -74,7 +74,9 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .Include<MinProductAmountPolicy, ProductAmountPolicyDto>()
                 .Include<MaxCategoryAmountPolicy, CategoryAmountPolicyDto>()
                 .Include<MinCategoryAmountPolicy, CategoryAmountPolicyDto>()
-                .Include<CompositePolicy, CompositePolicyDto>();
+                .Include<CompositePolicy, CompositePolicyDto>()
+                .Include<MaxTotalAmountPolicy, TotalAmountPolicyDto>()
+                .Include<MinTotalAmountPolicy, TotalAmountPolicyDto>();
 
             CreateMap<AgeRestrictionPolicy, AgeRestrictionPolicyDto>()
                 .ForMember(policyDto => policyDto.ProductGuid, x => x.MapFrom(policy => policy.Product.Guid));
@@ -96,6 +98,15 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<MinCategoryAmountPolicy, CategoryAmountPolicyDto>()
                 .ForMember(policyDto => policyDto.Amount, x => x.MapFrom(policy => policy.MinAmount))
                 .ForMember(policyDto => policyDto.Type, x => x.MapFrom(_ => PolicyType.MinCategoryAmount));
+
+
+            CreateMap<MaxTotalAmountPolicy, TotalAmountPolicyDto>()
+                .ForMember(policyDto => policyDto.Amount, x => x.MapFrom(policy => policy.MaxAmount))
+                .ForMember(policyDto => policyDto.Type, x => x.MapFrom(_ => PolicyType.MaxTotalAmount));
+
+            CreateMap<MinTotalAmountPolicy, TotalAmountPolicyDto>()
+                .ForMember(policyDto => policyDto.Amount, x => x.MapFrom(policy => policy.MinAmount))
+                .ForMember(policyDto => policyDto.Type, x => x.MapFrom(_ => PolicyType.MinTotalAmount));
 
             CreateMap<CompositePolicy, CompositePolicyDto>()
                 .ConstructUsing((policy, context) => new CompositePolicyDto
