@@ -207,9 +207,9 @@ namespace BoomaEcommerce.Api.Controllers
 
         [Authorize]
         [HttpGet(ApiRoutes.Stores.Roles.Ownerships.SubordinatesGet)]
-        public async Task<IActionResult> GetSubordinates(Guid ownershipGuid)
+        public async Task<IActionResult> GetSubordinates(Guid ownershipGuid, [FromQuery] int? level = null)
         {
-            var subordinates = await _storesService.GetSubordinateSellersAsync(ownershipGuid);
+            var subordinates = await _storesService.GetSubordinateSellersAsync(ownershipGuid, level);
             if (subordinates == null)
             {
                 return NotFound();
