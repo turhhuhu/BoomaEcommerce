@@ -749,14 +749,10 @@ namespace BoomaEcommerce.AcceptanceTests
             var managerToRemove = System.Guid.NewGuid();
 
             // Act
-            var result = await _ownerStoreService.RemoveManagerAsync(_storeOwnership.Guid, managerToRemove);
+            var result =  _ownerStoreService.Awaiting(service => service.RemoveManagerAsync(_storeOwnership.Guid, managerToRemove));
 
             // Assert
-            result.Should().BeFalse();
-
-            var manager =
-                await _ownerStoreService.GetStoreManagementAsync(_storeOwnership.User.Guid, _storeOwnership.Store.Guid);
-            manager.Should().BeNull();
+            await result.Should().ThrowAsync<UnAuthorizedException>();
 
         }
         [Fact]
