@@ -686,14 +686,8 @@ namespace BoomaEcommerce.AcceptanceTests
                 _notOwnerUserMatan, _storeOwnership.Store.Guid);
 
             // Act
-            try
-            {
-                var result = await _ownerStoreService.RemoveStoreOwnerAsync(_storeOwnership.Guid, toRemove.Guid);
-            }
-            catch (UnAuthorizedException)
-            {
-
-            }
+            var result = _ownerStoreService.Awaiting(s => s.RemoveStoreOwnerAsync(_storeOwnership.Guid, toRemove.Guid));
+            await result.Should().ThrowAsync<UnAuthorizedException>();
 
 
             // Assert
@@ -821,6 +815,70 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             await result.Should().ThrowAsync<UnAuthorizedException>();
         }
-        
+
+
+
+        [Fact]
+        public async Task SpecialScenarioTest()
+        {
+            // Arrange
+            
+            // U2
+            var fixtureOwner2 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserOmer })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, fixtureOwner2);
+
+            // U3
+            var fixtureOwner3 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserMatan })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+            var nominatorOmer = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            await _notOwnerStoreServiceOmer.NominateNewStoreOwnerAsync(nominatorOmer.Guid, fixtureOwner3);
+
+            var toRemove = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserMatan, _storeOwnership.Store.Guid);
+
+            var omer = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            var matan = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserMatan, _storeOwnership.Store.Guid);
+
+            // Act
+            // U3 tries to remove U2 , expected failure 
+           
+            var result1 = _notOwnerStoreServiceMatan.Awaiting(service => service.RemoveStoreOwnerAsync(matan.Guid, omer.Guid));
+            await result1.Should().ThrowAsync<UnAuthorizedException>();
+          
+
+            // U1 removes U2 , expected success 
+
+            var result2 = await _ownerStoreService.RemoveStoreOwnerAsync(_storeOwnership.Guid, omer.Guid);
+          
+
+            // expected results : U3 is removed. 
+
+
+            // Assert
+            var ownerNominatedManagerList = (await _ownerStoreService.GetSubordinateSellersAsync(_storeOwnership.Guid));
+            ownerNominatedManagerList.StoreOwners.Count.Should().Be(0);
+            ownerNominatedManagerList.StoreManagers.Count.Should().Be(0);
+            ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == omer.Guid).Should().BeNull();
+            ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == matan.Guid).Should().BeNull();
+
+        }
+
     }
 }
