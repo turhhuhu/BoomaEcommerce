@@ -81,7 +81,7 @@ namespace BoomaEcommerce.Data.InMemory
             return Task.CompletedTask;
         }
 
-        public Task DeleteOneAsync(Expression<Func<T, bool>> predicate)
+        public virtual Task DeleteOneAsync(Expression<Func<T, bool>> predicate)
         {
             var entities = RepoContainer.AllEntities[typeof(T)];
             var pred = predicate.Compile();
@@ -96,7 +96,7 @@ namespace BoomaEcommerce.Data.InMemory
             return Task.CompletedTask;
         }
 
-        public Task DeleteByIdAsync(Guid guid)
+        public virtual Task DeleteByIdAsync(Guid guid)
         {
             var entity = RepoContainer.AllEntities[typeof(T)];
             entity.Remove(guid, out _);
