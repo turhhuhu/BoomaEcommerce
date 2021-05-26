@@ -202,8 +202,12 @@ namespace BoomaEcommerce.Services.Stores
             var owner = await _storeService.GetStoreOwnerShipAsync(userGuidInClaims, storeManagement.Store.Guid);
             if (owner != null)
             {
-                await _storeService.UpdateManagerPermissionAsync(smpDto);
-                return;
+                var (_, managers) = await _storeService.GetSubordinateSellersAsync(owner.Guid, 0);
+                if (managers.Exists(manager => manager.Guid == smpDto.Guid))
+                {
+                    await _storeService.UpdateManagerPermissionAsync(smpDto);
+                    return;
+                }
             }
 
             throw new UnAuthorizedException(nameof(UpdateManagerPermissionAsync), userGuidInClaims);
@@ -321,11 +325,14 @@ namespace BoomaEcommerce.Services.Stores
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
             var storeOwnership = await _storeService.GetStoreOwnershipAsync(ownershipToRemoveFrom);
-            if (userGuidInClaims == storeOwnership?.User.Guid)
+            if (storeOwnership != null && userGuidInClaims == storeOwnership?.User.Guid)
             {
-                return await _storeService.RemoveManagerAsync(ownershipToRemoveFrom, managerToRemove);
+                var (_, managers) = await _storeService.GetSubordinateSellersAsync(storeOwnership.Guid, 0);
+                if (managers.Exists(manager => manager.Guid == managerToRemove))
+                {
+                    return await _storeService.RemoveManagerAsync(ownershipToRemoveFrom, managerToRemove);
+                }
             }
-
             throw new UnAuthorizedException(nameof(RemoveManagerAsync), userGuidInClaims);
         }
 
@@ -336,7 +343,7 @@ namespace BoomaEcommerce.Services.Stores
 
             var storeOwnershipRemoveFrom = await _storeService.GetStoreOwnershipAsync(ownerGuidRemoveFrom);
 
-            if (userGuidInClaims == storeOwnershipRemoveFrom?.User.Guid)
+            if (storeOwnershipRemoveFrom != null && userGuidInClaims == storeOwnershipRemoveFrom?.User.Guid)
             {
                 var subordinates = await _storeService.GetSubordinateSellersAsync(ownerGuidRemoveFrom, 0);
                 if (subordinates.StoreOwners.Exists(o => o.Guid == ownerGuidToRemove))
