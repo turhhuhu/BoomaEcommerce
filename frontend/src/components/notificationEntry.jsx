@@ -11,13 +11,20 @@ class NotificationEntry extends Component {
     }
   };
 
+  getTypeMessage = (type) => {
+    if (this.props.type === "roleDismissalNotification") {
+      return "Role dismissal";
+    }
+    return "Regular";
+  };
+
   render() {
     return (
       <tr
         onMouseOut={this.handleMouseHoverNotification}
         className={this.props.wasSeen ? "table-info" : "table-warning"}
       >
-        <td>{this.props.type}</td>
+        <td>{this.getTypeMessage()}</td>
         <td>{this.props.message}</td>
       </tr>
     );

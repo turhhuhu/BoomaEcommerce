@@ -26,27 +26,40 @@ class Product extends Component {
     );
     if (basketToAddTo) {
       this.props.dispatch(
-        addProductToBasket({
-          basketGuid: basketToAddTo.guid,
-          purchaseProduct: {
-            productGuid: this.props.guid,
-            amount: this.state.quantity,
-            price: this.props.price,
-          },
-        })
-      );
-    } else {
-      this.props.dispatch(
-        createBasketWithProduct({
-          storeGuid: this.props.storeGuid,
-          purchaseProducts: [
-            {
+        addProductToBasket(
+          {
+            basketGuid: basketToAddTo.guid,
+            purchaseProduct: {
               productGuid: this.props.guid,
               amount: this.state.quantity,
               price: this.props.price,
             },
-          ],
-        })
+            product: {
+              name: this.props.name,
+              category: this.props.category,
+            },
+          },
+          { name: this.props.name, category: this.props.category }
+        )
+      );
+    } else {
+      this.props.dispatch(
+        createBasketWithProduct(
+          {
+            storeGuid: this.props.storeGuid,
+            purchaseProducts: [
+              {
+                productGuid: this.props.guid,
+                amount: this.state.quantity,
+                price: this.props.price,
+              },
+            ],
+            store: {
+              storeName: this.props.storeName,
+            },
+          },
+          { name: this.props.name, category: this.props.category }
+        )
       );
     }
   };

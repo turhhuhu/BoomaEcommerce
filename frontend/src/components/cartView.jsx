@@ -10,9 +10,9 @@ class CartView extends Component {
 
   getCartItems = () => {
     return this.props.cart.baskets?.map((basket) => {
-      return basket.purchaseProducts.map((purchaseProduct) => (
+      return basket.purchaseProducts.map((purchaseProduct, index) => (
         <CartItem
-          key={purchaseProduct.guid}
+          key={index}
           product={purchaseProduct.product}
           purchaseProductGuid={purchaseProduct.guid}
           price={purchaseProduct.price}
