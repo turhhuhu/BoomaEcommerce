@@ -581,10 +581,11 @@ namespace BoomaEcommerce.Services.Stores
                         store => store.StorePolicy))
                     .FirstOrDefault();
 
-                if (policy == null || policy is EmptyPolicy)
+                if (policy == null)
                 {
                     return null;
                 }
+
 
                 _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
                 return _mapper.Map<PolicyDto>(policy);

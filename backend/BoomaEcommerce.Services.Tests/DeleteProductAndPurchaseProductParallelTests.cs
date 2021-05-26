@@ -35,7 +35,7 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, Product> products)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products);
+                storeManagements, storeManagementPermissions, products, null);
             
             return new StoresService(_storeLoggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
