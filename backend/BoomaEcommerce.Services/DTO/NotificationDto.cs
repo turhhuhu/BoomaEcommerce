@@ -23,7 +23,7 @@ namespace BoomaEcommerce.Services.DTO
 
     public class RoleDismissalNotificationDto : NotificationDto
     {
-        public override NotificationType Type { get; set; } = NotificationType.StorePurchaseNotification;
+        public override NotificationType Type { get; set; } = NotificationType.RoleDismissalNotification;
         public UserMetaData DismissingUserMetaData { get; set; }
         public StoreMetaData StoreMetaData { get; set; }
     }
