@@ -13,21 +13,17 @@ class StoreManagementEntry extends Component {
   handleRemoveManager = () => {
     if (this.props.isAuthenticated) {
       this.props
-        .dispatch(
-          removeStoreManager(
-            this.props.myRole?.storeMetaData.storeGuid,
-            this.props.myRole?.guid,
-            this.props.guid
-          )
-        )
+        .dispatch(removeStoreManager(this.props.myRole?.guid, this.props.guid))
         .then((success) => {
           if (success) {
-            this.props.dispatch(fetchStoreRoles(this.props.storeGuid));
+            this.props.dispatch(
+              fetchStoreRoles(this.props.myRole?.storeMetaData.storeGuid)
+            );
             if (this.props.myRole?.type === "ownership") {
               this.props.dispatch(
                 fetchStoreSubordinates(
-                  this.props.storeGuid,
-                  this.props.myRole.guid
+                  this.props.myRole?.storeMetaData.storeGuid,
+                  this.props.myRole?.guid
                 )
               );
             }

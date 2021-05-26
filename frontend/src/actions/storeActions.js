@@ -200,3 +200,23 @@ export function removeStoreManager(ownershipGuid, managmentToDeleteGuid) {
     },
   };
 }
+
+export function removeStoreOwner(ownershipGuid, ownerdhipToDeleteGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: REMOVE_SUBORDINATE_URL.replace("{ownershipGuid}", ownershipGuid)
+        .replace("{roleToDeleteGuid}", ownerdhipToDeleteGuid)
+        .replace("{roleType}", "ownership"),
+      authenticated: true,
+      types: [
+        StoreActionTypes.REMOVE_STORE_OWNER_REQUEST,
+        StoreActionTypes.REMOVE_STORE_OWNER_SUCCESS,
+        StoreActionTypes.REMOVE_STORE_OWNER_FAILURE,
+      ],
+      config: {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      },
+    },
+  };
+}

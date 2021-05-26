@@ -211,12 +211,45 @@ export function store(
     case StoreActionTypes.ADD_STORE_MANAGER_SUCCESS: {
       return state;
     }
-    case StoreActionTypes.ADD_STORE_MANAGER_FAILURE:
+    case StoreActionTypes.ADD_STORE_MANAGER_FAILURE: {
       console.error(`error occured while adding store owner: ${action.error}`);
       return Object.assign({}, state, {
         error: action.error,
         isFetching: action.payload.isFetching,
       });
+    }
+    case StoreActionTypes.REMOVE_STORE_MANAGER_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.REMOVE_STORE_MANAGER_SUCCESS:
+      return state;
+    case StoreActionTypes.REMOVE_STORE_MANAGER_FAILURE: {
+      console.error(
+        `error occured while remvoving store manager: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        error: action.error,
+        isFetching: action.payload.isFetching,
+      });
+    }
+    case StoreActionTypes.REMOVE_STORE_OWNER_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.REMOVE_STORE_OWNER_SUCCESS:
+      return state;
+    case StoreActionTypes.REMOVE_STORE_OWNER_FAILURE: {
+      console.error(
+        `error occured while remvoving store owner: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        error: action.error,
+        isFetching: action.payload.isFetching,
+      });
+    }
     default:
       return state;
   }

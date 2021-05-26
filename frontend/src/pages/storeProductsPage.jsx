@@ -42,7 +42,7 @@ class StoreProductsPage extends Component {
             <div className="row">
               <StoreSideBar
                 isProducts="true"
-                guid={this.props.guid}
+                guid={this.props.match.params.guid}
                 colClass="col-2"
               />
               <ProductFilter
