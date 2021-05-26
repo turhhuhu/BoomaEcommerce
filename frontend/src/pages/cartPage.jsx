@@ -7,9 +7,9 @@ import Header from "../components/header";
 class CartPage extends Component {
   state = {};
 
-  componentDidMount(prevProps) {
-    if (this.props !== prevProps) {
-      this.props.dispatch(fetchUserCart(true));
+  componentDidMount() {
+    if (this.props.isAuthenticated) {
+      this.props.dispatch(fetchUserCart());
     }
   }
 
