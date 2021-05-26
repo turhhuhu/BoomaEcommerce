@@ -41,6 +41,11 @@ namespace BoomaEcommerce.Api.Middleware
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsJsonAsync(validationException.Errors.Select(x => x.ErrorMessage));
             }
+            catch (PolicyValidationException policyException)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsJsonAsync(policyException.PolicyErrors);
+            }
             catch (Exception exception)
             {
                 _logger.LogError(exception,

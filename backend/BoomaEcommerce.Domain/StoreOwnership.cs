@@ -25,9 +25,9 @@ namespace BoomaEcommerce.Domain
 
         public (List<StoreOwnership>, List<StoreManagement>) GetSubordinates(int? level = null)
         {
-            if (level > 0)
+            if (level > 0 || !level.HasValue)
             {
-                var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates()).ToList();
+                var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates(level - 1)).ToList();
                 var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships.Values).ToList();
                 var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements.Values).ToList();
                 return (owners, managers);
@@ -36,14 +36,32 @@ namespace BoomaEcommerce.Domain
             return (StoreOwnerships.Values.ToList(), StoreManagements.Values.ToList());
         }
 
-        public void RemoveOwner()
+        public void RemoveOwner(Guid ownershipGuid)
+        {
+            var owner = GetOwner(ownershipGuid);
+            if (owner == null)
+            {
+                return;
+            }
+            owner.RemoveSubordinatesRecursively();
+            StoreOwnerships.TryRemove(ownershipGuid, out _);
+        }
+
+        public void RemoveSubordinatesRecursively()
         {
             this.StoreManagements.Clear(); // Remove all managers 
             foreach (var (guid, ownership) in this.StoreOwnerships) // Call Recursively 
             { 
-                ownership.RemoveOwner();
+                ownership.RemoveSubordinatesRecursively();
             }
             this.StoreOwnerships.Clear(); // Remove all owners 
+        }
+
+        public StoreOwnership GetOwner(Guid ownerGuid)
+        {
+            return StoreOwnerships.TryGetValue(ownerGuid, out var ownership) 
+                ? ownership 
+                : null;
         }
     }
     

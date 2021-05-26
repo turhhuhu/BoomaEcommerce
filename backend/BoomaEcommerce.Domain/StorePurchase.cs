@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Domain
 {
@@ -38,7 +39,12 @@ namespace BoomaEcommerce.Domain
                 .OrderBy( x => x.Product.Id).ToList();
             return orderedProductsPurchases.All(x => x.ValidatePurchase());
         }
-        
+
+        internal PolicyResult CheckPolicyCompliance()
+        {
+            return Store.CheckPolicy(this);
+        }
+
         private static void ReleaseProducts(IEnumerable<PurchaseProduct> orderedProductsPurchases)
         {
             foreach (var productsPurchase in orderedProductsPurchases)

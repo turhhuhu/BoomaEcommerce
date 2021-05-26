@@ -61,15 +61,37 @@ namespace BoomaEcommerce.Api.Controllers
 
         [Authorize]
         [HttpGet(ApiRoutes.Roles.Ownerships.GetSubordinates)]
-        public async Task<IActionResult> GetSubordinates(Guid ownershipGuid)
+        public async Task<IActionResult> GetSubordinates(Guid ownershipGuid, [FromQuery] int? level = null)
         {
-            var subordinates = await _storesService.GetSubordinateSellersAsync(ownershipGuid);
+            var subordinates = await _storesService.GetSubordinateSellersAsync(ownershipGuid, level);
             if (subordinates == null)
             {
                 return NotFound();
             }
 
             return Ok(_mapper.Map<StoreSellersResponse>(subordinates));
+        }
+
+        [Authorize]
+        [HttpDelete(ApiRoutes.Roles.Ownerships.DeleteSubordinate)]
+        public async Task<IActionResult> DeleteRole(Guid ownershipGuid, Guid roleToDeleteGuid, [FromQuery] RoleType roleType)
+        {
+            bool isDeleted;
+            if (roleType == RoleType.Ownership)
+            { 
+                isDeleted = await _storesService.RemoveStoreOwnerAsync(ownershipGuid, roleToDeleteGuid);
+            }
+            else
+            {
+                isDeleted = await _storesService.RemoveManagerAsync(ownershipGuid, roleToDeleteGuid);
+            }
+
+            if (isDeleted)
+            {
+                return NoContent();
+            }
+
+            return NotFound();
         }
     }
 }

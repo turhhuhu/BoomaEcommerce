@@ -333,15 +333,15 @@ namespace BoomaEcommerce.Services.Stores
         {
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+
             var storeOwnershipRemoveFrom = await _storeService.GetStoreOwnershipAsync(ownerGuidRemoveFrom);
+
             if (userGuidInClaims == storeOwnershipRemoveFrom?.User.Guid)
             {
-                var subordinate = await _storeService.GetSubordinateSellersAsync(ownerGuidRemoveFrom);
-                var storeOwnershipToRemove = await _storeService.GetStoreOwnershipAsync(ownerGuidToRemove);
-                foreach (var soDto in subordinate.StoreOwners)
+                var subordinates = await _storeService.GetSubordinateSellersAsync(ownerGuidRemoveFrom, 0);
+                if (subordinates.StoreOwners.Exists(o => o.Guid == ownerGuidToRemove))
                 {
-                    if(soDto.Guid == storeOwnershipToRemove.Guid)
-                        return await _storeService.RemoveStoreOwnerAsync(ownerGuidRemoveFrom, ownerGuidToRemove);
+                    return await _storeService.RemoveStoreOwnerAsync(ownerGuidRemoveFrom, ownerGuidToRemove);
                 }
             }
             throw new UnAuthorizedException(nameof(RemoveStoreOwnerAsync), userGuidInClaims);

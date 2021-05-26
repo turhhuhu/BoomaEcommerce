@@ -178,7 +178,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // added 
             
             var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
-            if (!didPurchasedSucceeded)
+            if (didPurchasedSucceeded == null)
             {
                 throw new Exception("This shouldn't happen");
             }
@@ -565,7 +565,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
 
         /*
-         * The tree in the RemoveOwner tests is arranged as follows : 
+         * The tree in the RemoveSubordinatesRecursively tests is arranged as follows : 
          *                  ORI
          *                 /   \
          *              ARIK   OMER
@@ -632,9 +632,10 @@ namespace BoomaEcommerce.AcceptanceTests
             ownerNominatedManagerList.StoreManagers.Should().BeEmpty();
         }
 
+
         [Fact]
         public async Task
-            RemoveOwner_RemoveOwnerAndItsSubordinatesUnSuccessfully_WhenOwnerToRemoveWasNotNominatedByCurrentOwner()
+                    RemoveOwner_RemoveOwnerAndItsSubordinatesUnSuccessfully_WhenOwnerToRemoveWasNotNominatedByCurrentOwner()
         {
             // Arrange
             var fixtureOwner = _fixture
@@ -697,11 +698,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Assert
             var ownerNominatedManagerList = (await _ownerStoreService.GetSubordinateSellersAsync(_storeOwnership.Guid));
-            ownerNominatedManagerList.StoreOwners.Count.Should().Be(2);
+            ownerNominatedManagerList.StoreOwners.Count.Should().Be(3);
             ownerNominatedManagerList.StoreManagers.Count.Should().Be(0);
             ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == arik.Guid).Should().BeEquivalentTo(arik);
             ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == omer.Guid).Should().BeEquivalentTo(omer);
-            var omerSubOrdinates = (await 
+            var omerSubOrdinates = (await
                 _notOwnerStoreServiceOmer.GetSubordinateSellersAsync(omer.Guid));
             omerSubOrdinates.StoreOwners.Count.Should().Be(1);
             omerSubOrdinates.StoreManagers.Count.Should().Be(0);

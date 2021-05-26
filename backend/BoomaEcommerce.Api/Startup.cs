@@ -20,8 +20,10 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Microsoft.AspNetCore.Http.Connections;
 using BoomaEcommerce.Api.Hubs;
+using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace BoomaEcommerce.Api
 {
@@ -45,7 +47,7 @@ namespace BoomaEcommerce.Api
                 .AddNewtonsoftJson(x =>
                 {
                     x.SerializerSettings.Converters.Add(new NotificationCreationConverter());
-                    x.SerializerSettings.Converters.Add(new StringEnumConverter());
+                    x.SerializerSettings.Converters.Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy)));
                     x.SerializerSettings.Converters.Add(new PolicyCreationConverter());
 
                 })
@@ -123,6 +125,8 @@ namespace BoomaEcommerce.Api
 
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddSingleton<IConnectionContainer, ConnectionContainer>();
+
+            services.AddSingleton<IUseCase, StoreFounderActionsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

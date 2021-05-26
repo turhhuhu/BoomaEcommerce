@@ -25,6 +25,14 @@ namespace BoomaEcommerce.Domain
             this.StorePolicy = Policy.Empty;
         }
         
+        public PolicyResult CheckPolicy(StorePurchase purchase)
+        {
+            return StorePolicy.CheckPolicy(purchase);
+        }
+        public PolicyResult CheckPolicy(User user, ShoppingBasket basket)
+        {
+            return StorePolicy.CheckPolicy(user, basket);
+        }
     }
 
 }

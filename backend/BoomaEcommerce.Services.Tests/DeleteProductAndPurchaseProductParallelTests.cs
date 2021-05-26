@@ -37,7 +37,7 @@ namespace BoomaEcommerce.Services.Tests
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
                 storeManagements, storeManagementPermissions, products);
             
-            return new StoresService(_storeLoggerMock.Object, _mapper, storeUnitOfWork.Object);
+            return new StoresService(_storeLoggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
 
         private PurchasesService GetPurchaseService(
@@ -46,7 +46,8 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, User> users,
             IDictionary<Guid, ShoppingCart> shoppingCarts)
         {
-            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts, new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>());
+            var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts
+                , new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>(), new ConcurrentDictionary<Guid, Store>());
             return new PurchasesService(_mapper, _purchaseLoggerMock.Object, _paymentClientMock.Object,
                 purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
@@ -78,15 +79,16 @@ namespace BoomaEcommerce.Services.Tests
                 }
             };
             var purchaseService = GetPurchaseService(null, productsDict, null, null);
-            var taskList = new List<Task<bool>>
-            {
-                storeService.DeleteProductAsync(productGuid),
-                purchaseService.CreatePurchaseAsync(purchaseDto)
-            };
+            var taskDelete = storeService.DeleteProductAsync(productGuid);
+            var taskPurchase = purchaseService.CreatePurchaseAsync(purchaseDto);
+
             // Act
-            var result = await Task.WhenAll(taskList);
+            var deleteResult = await taskDelete;
+            var purchaseResult = await taskPurchase;
+            var results = new[] { deleteResult, purchaseResult != null };
+
             // Assert
-            result.Should().Contain(true).And.Contain(false);
+            results.Should().Contain(true).And.Contain(false);
         }
         
     }

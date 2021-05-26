@@ -203,7 +203,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var shoppingBasket = await _usersService.CreateShoppingBasketAsync(shoppingCart.Guid, fixtureShoppingBasket);
 
             // Act
-            var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(shoppingBasket.Guid, purchase_product1);
+            var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(UserGuid, shoppingBasket.Guid, purchase_product1);
             var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
             var basket = shoppingCart1.Baskets.First();
             basket.PurchaseProducts.First(x => x.ProductGuid == purchase_product1.ProductGuid).Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid));
@@ -224,7 +224,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Create();
 
             var shoppingBasket = await _usersService.CreateShoppingBasketAsync(shoppingCart.Guid, fixtureShoppingBasket);
-            var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(shoppingBasket.Guid, purchase_product1);
+            var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(UserGuid, shoppingBasket.Guid, purchase_product1);
 
             // Act
             var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
@@ -271,7 +271,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
 
             // Assert
-            purchaseWasSuccessful.Should().BeTrue();
+            purchaseWasSuccessful.Should().NotBeNull();
         }
 
         [Fact]
@@ -302,7 +302,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
 
             // Assert
-            purchaseWasSuccessful.Should().BeFalse();
+            purchaseWasSuccessful.Should().BeNull();
         }
 
         [Fact]

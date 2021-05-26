@@ -164,7 +164,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
 
             // Assert
-            purchaseWasSuccessful.Should().BeFalse(); // payment client should throw exception
+            purchaseWasSuccessful.Should().BeNull(); // payment client should throw exception
             // check product wasn't added
             List<int?> inventoryListAfterFailedPurchase = new List<int?>();
             inventoryListAfterFailedPurchase.Add(product1.Amount);
