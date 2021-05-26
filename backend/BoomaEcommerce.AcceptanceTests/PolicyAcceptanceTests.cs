@@ -80,7 +80,7 @@ namespace BoomaEcommerce.AcceptanceTests
                                           .With(pp => pp.ProductGuid, product2_withGuid.Guid)
                                           .Without(pp => pp.Guid)
                                           .With(pp => pp.Price, product2_withGuid.Price)
-                                          .With(pp => pp.Amount, 1)
+                                          .With(pp => pp.Amount, 4)
                                           .Create();
             var purchase_product_lst = new List<PurchaseProductDto>();
             purchase_product_lst.Add(purchase_product2);
@@ -148,15 +148,34 @@ namespace BoomaEcommerce.AcceptanceTests
             purchase_product1 = _fixture.Build<PurchaseProductDto>()
                                             .With(pp => pp.ProductGuid, product1_withGuid.Guid)
                                             .Without(pp => pp.Guid)
-                                            .With(pp => pp.Price, product1_withGuid.Price)
+                                            .With(pp => pp.Price, product1_withGuid.Price * 4)
                                             .With(pp => pp.Amount, 4)
                                             .Create();
 
 
+            var purchaseProductList = new List<PurchaseProductDto>();
+            purchaseProductList.Add(purchase_product1);
 
+            var storePurchase = _fixture.Build<StorePurchaseDto>()
+                .With(sp => sp.StoreGuid, _store_withGuid.Guid)
+                .With(sp => sp.BuyerGuid, UserGuid)
+                .With(sp => sp.PurchaseProducts, purchaseProductList)
+                .Without(sp => sp.Guid)
+                .With(sp => sp.TotalPrice, purchase_product1.Price)
+                .Create();
+
+            var store_purchase_lst = new List<StorePurchaseDto>();
+            store_purchase_lst.Add(storePurchase);
+
+            purchase = _fixture.Build<PurchaseDto>()
+                .With(p => p.BuyerGuid, UserGuid)
+                .With(p => p.StorePurchases, store_purchase_lst)
+                .Without(p => p.Guid)
+                .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Create();
 
             //Act 
-            var result = _usersService.Awaiting(service => service.AddPurchaseProductToShoppingBasketAsync(UserGuid, shopping_basket.Guid, purchase_product1));
+            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchase));
 
             // Assert
             await result.Should().ThrowAsync<PolicyValidationException>();

@@ -45,7 +45,7 @@ namespace BoomaEcommerce.Domain
 
             if (failedPolicyResults.Any())
             {
-                PurchaseResult.Fail(failedPolicyResults);
+                return PurchaseResult.Fail(failedPolicyResults);
             }
 
             if (!CanPurchase())
