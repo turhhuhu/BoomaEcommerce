@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { receiveRegularNotification } from "../actions/userActions";
+import {
+  receiveRegularNotification,
+  receiveRoleDismissalNotification,
+} from "../actions/userActions";
 import { setupSignalRConnection } from "../signalR";
 import { NOTIFICATION_HUB_URL } from "../utils/constants";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -24,6 +27,14 @@ class NotificationIcon extends Component {
             snackBarMessage: notification?.message,
           });
           return receiveRegularNotification(notification);
+        },
+        roleDismissalNotification: (notification) => {
+          const message = `owner ${notification?.dismissingUserMetaData?.userName} from ${notification?.storeMetaData.storeName} store, has dissmissed you from your role at the store`;
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: message,
+          });
+          return receiveRoleDismissalNotification(notification, message);
         },
       });
       this.props.dispatch(setupEventsHub);

@@ -17,6 +17,7 @@ import UserStoresPage from "./pages/userStoresPage";
 import StoreProductsPage from "./pages/storeProductsPage";
 import StoreManagementPage from "./pages/storeManagementPage";
 import NotificationsPage from "./pages/notificationsPage";
+import StorePolicyPage from "./pages/storePolicyPage";
 
 const { store, persistor } = configureStore();
 
@@ -46,6 +47,11 @@ ReactDOM.render(
             exact
             path="/store/:guid/management"
             component={StoreManagementPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/policy"
+            component={StorePolicyPage}
           ></Route>
           <Route
             exact

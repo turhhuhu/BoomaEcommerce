@@ -58,8 +58,9 @@ namespace BoomaEcommerce.Api
                 hubOptions.EnableDetailedErrors = true;
                 hubOptions.KeepAliveInterval = TimeSpan.FromMilliseconds(500);
                 hubOptions.AddFilter<ExceptionHandlingFilter>();
-            }).AddNewtonsoftJsonProtocol(x => x.PayloadSerializerSettings.Converters.Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy))));
-
+            }).AddNewtonsoftJsonProtocol(x => x.PayloadSerializerSettings.Converters
+                .Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy))));
+          
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {

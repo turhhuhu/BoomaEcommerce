@@ -72,6 +72,7 @@ export const setupSignalRConnection =
     dispatch(StartWebSocketConnection(connection));
 
     connection.on("ReceiveNotification", (notification) => {
+      console.log(notification);
       const eventHandler = actionEventMap[notification.type];
       eventHandler && dispatch(eventHandler(notification));
     });

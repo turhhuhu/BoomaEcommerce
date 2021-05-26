@@ -22,8 +22,12 @@ class UserProfile extends Component {
         .then((action) =>
           this.setState({
             username: action.payload.response.userName,
-            name: action.payload.response.name,
-            lastName: action.payload.response.lastName,
+            name: action.payload.response.name
+              ? action.payload.response.name
+              : "",
+            lastName: action.payload.response.lastName
+              ? action.payload.response.lastName
+              : "",
           })
         )
         .catch((error) => console.error(error));

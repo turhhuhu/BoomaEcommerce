@@ -55,6 +55,14 @@ export function user(
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
       });
+    case UserActionTypes.ADD_PRODUCT_WITH_BASKET_AS_GUEST:
+      console.log(action.payload.basket);
+      return Object.assign({}, state, {
+        cart: {
+          baskets: [...state.cart.baskets, action.payload.basket],
+        },
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.ADD_PRODUCT_TO_BASKET_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.ADD_PRODUCT_TO_BASKET_SUCCESS: {
@@ -84,6 +92,26 @@ export function user(
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
       });
+    case UserActionTypes.ADD_PRODUCT_TO_BASKET_AS_GUEST: {
+      const basketToAddToIndex = state.cart.baskets.findIndex(
+        (basket) => basket.guid === action.payload.basketGuid
+      );
+      const basketToAddTo = state.cart.baskets[basketToAddToIndex];
+      const newBasket = {
+        ...basketToAddTo,
+        purchaseProducts: [
+          ...basketToAddTo.purchaseProducts,
+          action.payload.purchaseProduct.purchaseProduct,
+        ],
+      };
+      return Object.assign({}, state, {
+        cart: {
+          baskets: Object.assign([], state.cart.baskets, {
+            [basketToAddToIndex]: newBasket,
+          }),
+        },
+      });
+    }
     case UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_SUCCESS: {
@@ -164,6 +192,10 @@ export function user(
         webSocketConnection: undefined,
       });
     case UserActionTypes.RECIEVE_REGULAR_NOTIFICATION:
+      return Object.assign({}, state, {
+        notifications: [...state.notifications, action.payload.notification],
+      });
+    case UserActionTypes.RECIEVE_ROLE_DISMISSAL_NOTIFICATION:
       return Object.assign({}, state, {
         notifications: [...state.notifications, action.payload.notification],
       });

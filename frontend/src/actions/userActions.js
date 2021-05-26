@@ -163,46 +163,71 @@ export function removeCartItem(basketGuid, purchaseProductGuid) {
   };
 }
 
-export function addProductToBasket(purchaseProduct) {
-  let endpoint = ADD_PRODUCT_TO_BASKET_URL.replace(
-    "{basketGuid}",
-    purchaseProduct.basketGuid
-  );
-  return {
-    [CALL_API]: {
-      endpoint: endpoint,
-      authenticated: true,
-      types: [
-        UserActionTypes.ADD_PRODUCT_TO_BASKET_REQUEST,
-        UserActionTypes.ADD_PRODUCT_TO_BASKET_SUCCESS,
-        UserActionTypes.ADD_PRODUCT_TO_BASKET_FAILURE,
-      ],
-      config: {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(purchaseProduct.purchaseProduct),
-      },
-      extraPayload: purchaseProduct.basketGuid,
-    },
+export function addProductToBasket(purchaseProduct, product) {
+  return (dispatch, getState) => {
+    if (getState().auth.isAuthenticated) {
+      let endpoint = ADD_PRODUCT_TO_BASKET_URL.replace(
+        "{basketGuid}",
+        purchaseProduct.basketGuid
+      );
+      return {
+        [CALL_API]: {
+          endpoint: endpoint,
+          authenticated: true,
+          types: [
+            UserActionTypes.ADD_PRODUCT_TO_BASKET_REQUEST,
+            UserActionTypes.ADD_PRODUCT_TO_BASKET_SUCCESS,
+            UserActionTypes.ADD_PRODUCT_TO_BASKET_FAILURE,
+          ],
+          config: {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(purchaseProduct.purchaseProduct),
+          },
+          extraPayload: purchaseProduct.basketGuid,
+        },
+      };
+    } else {
+      purchaseProduct.purchaseProduct["product"] = product;
+      dispatch({
+        type: UserActionTypes.ADD_PRODUCT_TO_BASKET_AS_GUEST,
+        payload: {
+          basketGuid: purchaseProduct.basketGuid,
+          purchaseProduct: purchaseProduct,
+        },
+      });
+    }
   };
 }
 
-export function createBasketWithProduct(basket) {
-  return {
-    [CALL_API]: {
-      endpoint: USER_CART_BASKETS_URL,
-      authenticated: true,
-      types: [
-        UserActionTypes.ADD_PRODUCT_WITH_BASKET_REQUEST,
-        UserActionTypes.ADD_PRODUCT_WITH_BASKET_SUCCESS,
-        UserActionTypes.ADD_PRODUCT_WITH_BASKET_FAILURE,
-      ],
-      config: {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(basket),
-      },
-    },
+export function createBasketWithProduct(basket, product) {
+  return (dispatch, getState) => {
+    if (getState().auth.isAuthenticated) {
+      return {
+        [CALL_API]: {
+          endpoint: USER_CART_BASKETS_URL,
+          authenticated: true,
+          types: [
+            UserActionTypes.ADD_PRODUCT_WITH_BASKET_REQUEST,
+            UserActionTypes.ADD_PRODUCT_WITH_BASKET_SUCCESS,
+            UserActionTypes.ADD_PRODUCT_WITH_BASKET_FAILURE,
+          ],
+          config: {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(basket),
+          },
+        },
+      };
+    } else {
+      basket.purchaseProducts[0]["product"] = product;
+      dispatch({
+        type: UserActionTypes.ADD_PRODUCT_WITH_BASKET_AS_GUEST,
+        payload: {
+          basket,
+        },
+      });
+    }
   };
 }
 
@@ -259,6 +284,16 @@ export function CloseWebSocketConnection() {
 export function receiveRegularNotification(notification) {
   return {
     type: UserActionTypes.RECIEVE_REGULAR_NOTIFICATION,
+    payload: {
+      notification,
+    },
+  };
+}
+
+export function receiveRoleDismissalNotification(notification, message) {
+  notification["message"] = message;
+  return {
+    type: UserActionTypes.RECIEVE_ROLE_DISMISSAL_NOTIFICATION,
     payload: {
       notification,
     },
