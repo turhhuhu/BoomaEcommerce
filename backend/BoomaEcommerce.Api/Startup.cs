@@ -115,7 +115,7 @@ namespace BoomaEcommerce.Api
             services.AddTokenAuthentication(Configuration);
 
             services.AddSingleton(typeof(IRepository<>), typeof(InMemoryRepository<>));
-            services.AddSingleton<IRepository<StoreOwnership>, InMemorySellerRepository>();
+            services.AddSingleton<IRepository<StoreOwnership>, InMemoryOwnershipRepository>();
             services.AddSingleton<IRepository<StoreManagement>, InMemoryManagementRepository>();
             services
                 .AddStoresService()

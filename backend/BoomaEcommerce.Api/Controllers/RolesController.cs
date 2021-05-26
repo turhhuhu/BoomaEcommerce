@@ -78,7 +78,7 @@ namespace BoomaEcommerce.Api.Controllers
         {
             bool isDeleted;
             if (roleType == RoleType.Ownership)
-            { 
+            {
                 isDeleted = await _storesService.RemoveStoreOwnerAsync(ownershipGuid, roleToDeleteGuid);
             }
             else
