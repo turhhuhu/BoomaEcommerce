@@ -74,7 +74,6 @@ class StoreManagementHeader extends Component {
 
 const mapStateToProps = (store) => {
   return {
-    error: store.store.error,
     myRole: store.user.storeRole,
   };
 };
