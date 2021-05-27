@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
 using Microsoft.AspNetCore.Identity;
 using Moq;
 
@@ -139,7 +140,8 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
-            IDictionary<Guid, Product> products
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid,Policy> policies
         )
         {
 
@@ -147,6 +149,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
             var storePurchasesRepoMock = MockRepository(storePurchases);
             var storeManagementRepoMock = MockRepository(storeManagements);
+            var storePolicyRepoMock = MockRepository(policies); 
 
 
             // Mock do to delete on cascade 
@@ -197,6 +200,8 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementRepo).Returns(storeManagementRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.ProductRepo).Returns(productsRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
+
 
             return storeUnitOfWorkMock;
         }
