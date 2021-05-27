@@ -37,46 +37,44 @@ namespace BoomaEcommerce.Services.Tests
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
 
-        [Fact]
-        public async Task RemoveStoreOwnerAsync_ReturnTrue_()
+        [Theory]
+        [Repeat(100)]
+        public async Task RemoveStoreOwnerAsync_ReturnTrue_(int iterationNumber)
         {
-            for (int i = 0; i < 15; i++)
+            // Arrange
+            var entitiesOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
+            var entitiesManagements = new ConcurrentDictionary<Guid, StoreManagement>();
+
+            var storeGuid = Guid.NewGuid();
+            var firstStoreOwner = new StoreOwnership
+                {Store = new Store(null) {Guid = storeGuid}, User = new User {Guid = Guid.NewGuid()}};
+            var secondStoreOwner = new StoreOwnership
+                {Store = new Store(null) {Guid = storeGuid}, User = new User {Guid = Guid.NewGuid()}};
+            entitiesOwnerships[firstStoreOwner.Guid] = firstStoreOwner;
+            entitiesOwnerships[secondStoreOwner.Guid] = secondStoreOwner;
+
+            var storeManagementDto = new StoreManagementDto
             {
-                // Arrange
-                var entitiesOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
-                var entitiesManagements = new ConcurrentDictionary<Guid, StoreManagement>();
+                Store = new StoreDto {Guid = storeGuid},
+                User = new UserDto {Guid = Guid.NewGuid()},
+                Permissions = new StoreManagementPermissionsDto()
+            };
 
-                var storeGuid = Guid.NewGuid();
-                var firstStoreOwner = new StoreOwnership
-                    {Store = new Store(null) {Guid = storeGuid}, User = new User {Guid = Guid.NewGuid()}};
-                var secondStoreOwner = new StoreOwnership
-                    {Store = new Store(null) {Guid = storeGuid}, User = new User {Guid = Guid.NewGuid()}};
-                entitiesOwnerships[firstStoreOwner.Guid] = firstStoreOwner;
-                entitiesOwnerships[secondStoreOwner.Guid] = secondStoreOwner;
+            var sut = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
 
-                var storeManagementDto = new StoreManagementDto
-                {
-                    Store = new StoreDto {Guid = storeGuid},
-                    User = new UserDto {Guid = Guid.NewGuid()},
-                    Permissions = new StoreManagementPermissionsDto()
-                };
+            await sut.NominateNewStoreOwnerAsync(secondStoreOwner.Guid,
+                _mapper.Map<StoreOwnershipDto>(secondStoreOwner));
 
-                var sut = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var taskList = new List<Task<bool>>
+            {
+                Task.Run((() => sut.NominateNewStoreManagerAsync(secondStoreOwner.Guid, storeManagementDto))),
+                Task.Run((() => sut.RemoveStoreOwnerAsync(firstStoreOwner.Guid, secondStoreOwner.Guid)))
+            };
 
-                await sut.NominateNewStoreOwnerAsync(secondStoreOwner.Guid,
-                    _mapper.Map<StoreOwnershipDto>(secondStoreOwner));
+            //Act
+            var result = await Task.WhenAll(taskList);
 
-                var taskList = new List<Task<bool>>
-                {
-                    Task.Run((() => sut.NominateNewStoreManagerAsync(secondStoreOwner.Guid, storeManagementDto))),
-                    Task.Run((() => sut.RemoveStoreOwnerAsync(firstStoreOwner.Guid, secondStoreOwner.Guid)))
-                };
-
-                //Act
-                var result = await Task.WhenAll(taskList);
-
-                result.Should().Contain(true);
-            }
+            result.Should().Contain(true);
         }
     }
 }
