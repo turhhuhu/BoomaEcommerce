@@ -170,7 +170,7 @@ export function addProductToBasket(purchaseProduct, product) {
         "{basketGuid}",
         purchaseProduct.basketGuid
       );
-      return {
+      dispatch({
         [CALL_API]: {
           endpoint: endpoint,
           authenticated: true,
@@ -186,7 +186,7 @@ export function addProductToBasket(purchaseProduct, product) {
           },
           extraPayload: purchaseProduct.basketGuid,
         },
-      };
+      });
     } else {
       purchaseProduct.purchaseProduct["product"] = product;
       dispatch({
@@ -203,7 +203,7 @@ export function addProductToBasket(purchaseProduct, product) {
 export function createBasketWithProduct(basket, product) {
   return (dispatch, getState) => {
     if (getState().auth.isAuthenticated) {
-      return {
+      dispatch({
         [CALL_API]: {
           endpoint: USER_CART_BASKETS_URL,
           authenticated: true,
@@ -218,7 +218,7 @@ export function createBasketWithProduct(basket, product) {
             body: JSON.stringify(basket),
           },
         },
-      };
+      });
     } else {
       basket.purchaseProducts[0]["product"] = product;
       dispatch({
