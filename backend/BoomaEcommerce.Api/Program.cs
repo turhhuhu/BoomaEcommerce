@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services;
 using Serilog;
-
+using Microsoft.Extensions.DependencyInjection;
 namespace BoomaEcommerce.Api
 {
     public class Program
@@ -33,13 +33,13 @@ namespace BoomaEcommerce.Api
             {
                 var host = CreateHostBuilder(args).Build();
                 var sp = host.Services;
-                var appInitializer = (AppInitializer) sp.GetService(typeof(AppInitializer));
+                var appInitializer = sp.GetService<AppInitializer>();
                 await appInitializer.InitializeAsync();
                 await host.RunAsync();
             }
             catch (Exception e)
             {
-                Log.Fatal(e, "Failed to start application. exiting.");
+                 Log.Fatal(e, "Failed to start application. exiting.");
             }
             finally
             {

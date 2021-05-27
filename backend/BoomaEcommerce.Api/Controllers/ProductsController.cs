@@ -67,7 +67,7 @@ namespace BoomaEcommerce.Api.Controllers
         {
             var productResult = await _storesService.CreateStoreProductAsync(product);
 
-            if (productResult == null)
+            if (productResult == null)  
             {
                 return BadRequest();
             }
@@ -90,9 +90,10 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpPut]
-        public async Task<IActionResult> UpdateProduct(ProductDto product)
+        [HttpPut(ApiRoutes.Products.Put)]
+        public async Task<IActionResult> UpdateProduct(Guid productGuid, ProductDto product)
         {
+            product.Guid = productGuid;
             var res = await _storesService.UpdateProductAsync(product);
             if (res)
             {

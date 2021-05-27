@@ -4,13 +4,13 @@ import ProductView from "../components/productView";
 import ProductFilter from "../components/productFilter";
 import Header from "../components/header";
 import "../css/productsPage.css";
-import { fetchAllProducts } from "../actions/productsActions";
+import { fetchAllProducts, filterProducts } from "../actions/productsActions";
 
 class ProductPage extends Component {
   state = {};
 
   componentDidMount(prevProps) {
-    if (this.props !== prevProps) {
+    if (this.props !== prevProps && this.props.history.action !== "PUSH") {
       this.props.dispatch(fetchAllProducts());
     }
   }
@@ -25,9 +25,14 @@ class ProductPage extends Component {
               <ProductFilter
                 categories={[
                   ...new Set(
-                    this.props.products?.map((product) => product.category)
+                    this.props.filteredProducts?.map(
+                      (product) => product.category
+                    )
                   ),
                 ]}
+                products={this.props.products}
+                filteredProducts={this.props.filteredProducts}
+                filterFunction={filterProducts}
               />
               <main className="col-md-9">
                 <ProductView />
@@ -43,6 +48,7 @@ class ProductPage extends Component {
 const mapStateToProps = (store) => {
   return {
     products: store.products.products,
+    filteredProducts: store.products.filteredProducts,
   };
 };
 

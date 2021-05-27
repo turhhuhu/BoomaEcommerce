@@ -40,7 +40,7 @@ namespace BoomaEcommerce.Domain.Tests
             // Arrange
             var purchaseProduct = new PurchaseProduct();
             var sut = new ShoppingBasket();
-            sut.PurchaseProducts.TryAdd(purchaseProduct.Guid, purchaseProduct);
+            sut.PurchaseProducts.Add(purchaseProduct.Guid, purchaseProduct);
             
             // Act
             var result = sut.RemovePurchaseProduct(purchaseProduct.Guid);

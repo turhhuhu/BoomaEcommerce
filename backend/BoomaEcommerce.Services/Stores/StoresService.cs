@@ -7,7 +7,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Data;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 using FluentValidation;
 
 namespace BoomaEcommerce.Services.Stores
@@ -17,14 +19,17 @@ namespace BoomaEcommerce.Services.Stores
         private readonly ILogger<StoresService> _logger;
         private readonly IMapper _mapper;
         private readonly IStoreUnitOfWork _storeUnitOfWork;
+        private readonly INotificationPublisher _notificationPublisher;
 
         public StoresService(ILogger<StoresService> logger,
             IMapper mapper,
-            IStoreUnitOfWork storeUnitOfWork)
+            IStoreUnitOfWork storeUnitOfWork,
+            INotificationPublisher notificationPublisher)
         {
             _logger = logger;
             _mapper = mapper;
             _storeUnitOfWork = storeUnitOfWork;
+            _notificationPublisher = notificationPublisher;
         }
 
         public async Task<StoreDto> CreateStoreAsync(StoreDto store)
@@ -78,14 +83,6 @@ namespace BoomaEcommerce.Services.Stores
                                        " UserStore with guid {UserDto} does not exists", product.Store.Guid);
                     return null;
                 }
-                /*if (!product.ValidateStorePolicy() || !product.ValidateAmount())
-                {
-                    return null;
-                }*/
-                if (!product.ValidateAmount())
-                {
-                    return null;
-                }
                 await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
                 return _mapper.Map<ProductDto>(product);
             }
@@ -119,10 +116,13 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<bool> UpdateProductAsync(ProductDto productDto)
         {
+
+            Product product = null;
             try
             {
                 _logger.LogInformation($"Updating product with guid {productDto.Guid}");
-                var product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productDto.Guid);
+                product = await _storeUnitOfWork.ProductRepo.FindByIdAsync(productDto.Guid);
+                await product.ProductLock.WaitAsync();
                 if (product.IsSoftDeleted) return false;
                 var storeProduct = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
                 if (storeProduct is null)
@@ -131,6 +131,7 @@ namespace BoomaEcommerce.Services.Stores
                                        " UserStore with guid {UserDto} does not exists", product.Store.Guid);
                     return false;
                 }
+
                 product.Name = productDto.Name ?? product.Name;
                 product.Amount = productDto.Amount ?? product.Amount;
                 product.Price = productDto.Price ?? product.Price;
@@ -145,7 +146,12 @@ namespace BoomaEcommerce.Services.Stores
                 _logger.LogError($"Failed to update product with guid {productDto.Guid}", e);
                 return false;
             }
+            finally
+            {
+                product?.ProductLock.Release();
+            }
         }
+
         public async Task<IReadOnlyCollection<StoreDto>> GetStoresAsync()
         {
             try
@@ -204,6 +210,45 @@ namespace BoomaEcommerce.Services.Stores
                 return null;
             }
         }
+
+
+
+        public async Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom ,Guid ownerGuid)
+        {
+            try
+            {
+                var storeOwnershipRemoveFrom = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuidRemoveFrom);
+
+                var owner = storeOwnershipRemoveFrom.GetOwner(ownerGuid);
+                if (owner == null)
+                {
+                    return false;
+                }
+
+                var (owners, _) = owner.GetSubordinates();
+
+                await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
+                storeOwnershipRemoveFrom.RemoveOwner(ownerGuid);
+                owners.Add(owner);
+                await NotifyDismissal(storeOwnershipRemoveFrom, owners);
+                await _storeUnitOfWork.SaveAsync();
+                return true; 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to delete StoreOwnerShip with guid {ownerGuid}");
+                return false;
+            }
+        }
+
+        private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
+        {
+            var notification = new RoleDismissalNotification(dismissingOwner.User, dismissingOwner.Store);
+            owners.ForEach(owner => owner.User.AddNotification(notification));
+            return _notificationPublisher.NotifyManyAsync(_mapper.Map<RoleDismissalNotificationDto>(notification), owners.Select(o => o.User.Guid));
+        }
+
+
         public async Task<bool> NominateNewStoreOwnerAsync(Guid ownerGuid, StoreOwnershipDto newOwnerDto)
         {
             try
@@ -290,11 +335,11 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto)
+        public async Task UpdateManagerPermissionAsync(StoreManagementPermissionsDto smpDto)
         {
             try
             {
-                var permission = _mapper.Map<StoreManagementPermission>(smpDto);
+                var permission = _mapper.Map<StoreManagementPermissions>(smpDto);
                 await _storeUnitOfWork.StoreManagementPermissionsRepo.ReplaceOneAsync(permission);
                 await _storeUnitOfWork.SaveAsync();
             }
@@ -332,7 +377,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreSellersResponse> GetAllSellersInformationAsync(Guid storeGuid)
+        public async Task<StoreSellersDto> GetAllSellersInformationAsync(Guid storeGuid)
         {
             try
             {
@@ -362,7 +407,7 @@ namespace BoomaEcommerce.Services.Stores
 
                 var storeManagementDtos = _mapper.Map<List<StoreManagementDto>>(managers);
                 var storeOwnerDtos = _mapper.Map<List<StoreOwnershipDto>>(owners);
-                return new StoreSellersResponse(storeOwnerDtos, storeManagementDtos);
+                return new StoreSellersDto(storeOwnerDtos, storeManagementDtos);
                 // Seller - A seller is either an Owner or a Manager.
             }
             catch (Exception e)
@@ -402,14 +447,18 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null)
+        public async Task<StoreSellersDto> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null)
         {
             try
             {
                 var storeOwner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnerGuid);
+                if (storeOwner == null)
+                {
+                    return null;
+                }
                 var (storeOwnerships, storeManagements) = storeOwner.GetSubordinates(level);
 
-                return new StoreSellersResponse(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),
+                return new StoreSellersDto(_mapper.Map<List<StoreOwnershipDto>>(storeOwnerships),
                     _mapper.Map<List<StoreManagementDto>>(storeManagements));
             }
             catch (Exception e)
@@ -466,7 +515,6 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-
 		public async Task<bool> RemoveManagerAsync(Guid ownershipToRemoveFrom, Guid managerToRemove)
         {
             try
@@ -491,6 +539,105 @@ namespace BoomaEcommerce.Services.Stores
             {
                 _logger.LogError(e, "Failed to remove ownerGuid with guid: {guid}", managerToRemove);
                 return false;
+            }
+        }
+
+        public async Task<PolicyDto> CreatePurchasePolicyAsync(Guid storeGuid, PolicyDto policyDto)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to set store {storeGuid} with new policyDto.", storeGuid);
+                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(storeGuid);
+                if (store == null)
+                {
+                    return null;
+                }
+                var policy = _mapper.Map<Policy>(policyDto);
+                store.StorePolicy = policy;
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.PolicyRepo.InsertOneAsync(policy);
+
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully set new policyDto for store with guid {storeGuid}", storeGuid);
+                return _mapper.Map<PolicyDto>(policy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to set a new policyDto for store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<PolicyDto> GetPolicyAsync(Guid storeGuid)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to get policy from store with guid {storeGuid}", storeGuid);
+
+                var policy =
+                    (await _storeUnitOfWork.StoreRepo.FilterByAsync(
+                        store => store.Guid == storeGuid,
+                        store => store.StorePolicy))
+                    .FirstOrDefault();
+
+                if (policy == null)
+                {
+                    return null;
+                }
+
+
+                _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
+                return _mapper.Map<PolicyDto>(policy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get store policy from store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<bool> DeletePolicyAsync(Guid storeGuid, Guid policyGuid)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to delete policy with guid {policyGuid} from store with guid {storeGuid}.", policyGuid, storeGuid);
+                await _storeUnitOfWork.PolicyRepo.DeleteByIdAsync(policyGuid);
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully deleted policy with guid {policyGuid} from store with guid {storeGuid}.", policyGuid, storeGuid);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to delete policy with guid {policyGuid} from store with guid {storeGuid}", policyGuid, storeGuid);
+                return false;
+            }
+        }
+
+        public async Task<PolicyDto> AddPolicyAsync(Guid storeGuid, Guid policyGuid, PolicyDto childPolicyDto)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt add new child policy to policy with guid {policyGuid}.", policyGuid);
+                var compositePolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<CompositePolicy>(policyGuid);
+                if (compositePolicy == null)
+                {
+                    return null;
+                }
+                var childPolicy = _mapper.Map<Policy>(childPolicyDto);
+                compositePolicy.AddPolicy(childPolicy);
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
+
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully added new child policy for policy with guid {policyGuid}", policyGuid);
+                return _mapper.Map<PolicyDto>(childPolicy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to add a new child policy for policy with guid {policyGuid}", policyGuid);
+                return null;
             }
         }
     }

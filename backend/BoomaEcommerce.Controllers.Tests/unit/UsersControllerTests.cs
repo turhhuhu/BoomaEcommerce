@@ -4,7 +4,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BoomaEcommerce.Api.Controllers;
+using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
@@ -26,7 +28,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
         {
             _storeServicesMock = new Mock<IStoresService>();
             _usersServiceMock = new Mock<IUsersService>();
-            _usersController = new UsersController(_usersServiceMock.Object, _storeServicesMock.Object);
+            _usersController = new UsersController(_usersServiceMock.Object, _storeServicesMock.Object, null, Mock.Of<INotificationPublisher>(), null);
             _userGuidInClaims = Guid.NewGuid();
             var fakeClaims = new List<Claim>
             {
@@ -52,6 +54,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             _usersServiceMock.Setup(x => x.GetUserInfoAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid guid) => new UserDto {Guid = guid});
+
             var expectedResult = new UserDto {Guid = _userGuidInClaims};
 
             // Act
@@ -116,8 +119,10 @@ namespace BoomaEcommerce.Controllers.Tests.unit
 
             // Arrange
             var storeGuid =  Guid.NewGuid();
-            _storeServicesMock.Setup(x => x.CreateStoreAsync(It.IsAny<StoreDto>()))
+
+            _storeServicesMock.Setup(storeService => storeService.CreateStoreAsync(It.IsAny<StoreDto>()))
                 .ReturnsAsync((StoreDto store) => store);
+
             var expectedResult = new StoreDto
             {
                 Guid = storeGuid
@@ -233,8 +238,8 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             var purchaseProductDto = new PurchaseProductDto { Guid = Guid.NewGuid() };
             _usersServiceMock.Setup(x =>
-                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
-                .ReturnsAsync((Guid _, PurchaseProductDto pp) => pp);
+                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
+                .ReturnsAsync((Guid _, Guid _, PurchaseProductDto pp) => pp);
 
             // Act
             var purchaseProductResult = await _usersController.CreatePurchaseProduct(Guid.Empty, purchaseProductDto);
@@ -251,8 +256,8 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             // Arrange
             var purchaseProductDto = new PurchaseProductDto { Guid = Guid.NewGuid() };
             _usersServiceMock.Setup(x =>
-                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
-                .ReturnsAsync((Guid _, PurchaseProductDto _) => null);
+                    x.AddPurchaseProductToShoppingBasketAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<PurchaseProductDto>()))
+                .ReturnsAsync((Guid _, Guid _, PurchaseProductDto _) => null);
 
             // Act
             var purchaseProductResult = await _usersController.CreatePurchaseProduct(Guid.Empty, purchaseProductDto);

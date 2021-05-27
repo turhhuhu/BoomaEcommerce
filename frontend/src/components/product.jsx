@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import "../css/product.css";
-import ProductRating from "./productRating";
+import Rating from "./rating";
 import {
   addProductToBasket,
   createBasketWithProduct,
@@ -26,27 +26,40 @@ class Product extends Component {
     );
     if (basketToAddTo) {
       this.props.dispatch(
-        addProductToBasket({
-          basketGuid: basketToAddTo.guid,
-          purchaseProduct: {
-            productGuid: this.props.guid,
-            amount: this.state.quantity,
-            price: this.props.price,
-          },
-        })
-      );
-    } else {
-      this.props.dispatch(
-        createBasketWithProduct({
-          storeGuid: this.props.storeGuid,
-          purchaseProducts: [
-            {
+        addProductToBasket(
+          {
+            basketGuid: basketToAddTo.guid,
+            purchaseProduct: {
               productGuid: this.props.guid,
               amount: this.state.quantity,
               price: this.props.price,
             },
-          ],
-        })
+            product: {
+              name: this.props.name,
+              category: this.props.category,
+            },
+          },
+          { name: this.props.name, category: this.props.category }
+        )
+      );
+    } else {
+      this.props.dispatch(
+        createBasketWithProduct(
+          {
+            storeGuid: this.props.storeGuid,
+            purchaseProducts: [
+              {
+                productGuid: this.props.guid,
+                amount: this.state.quantity,
+                price: this.props.price,
+              },
+            ],
+            store: {
+              storeName: this.props.storeName,
+            },
+          },
+          { name: this.props.name, category: this.props.category }
+        )
       );
     }
   };
@@ -58,13 +71,15 @@ class Product extends Component {
             <div className="fix-height">
               <h6 className="title product-card-item">{this.props.name}</h6>
               <p className="text-muted small product-card-item">
-                Store: Ori's store
+                Store: {this.props.storeName}
                 <br />
                 Amount in store: {this.props.amount}
                 <br />
                 Category: {this.props.category}
               </p>
-              <ProductRating rating={this.props.rating} />
+              <div className="product-card-item">
+                <Rating rating={this.props.rating} />
+              </div>
               <div className="price-wrap mt-2 product-card-item">
                 <label>Price:</label>
                 <span className="price"> {this.props.price}</span>
@@ -127,7 +142,7 @@ class Product extends Component {
             >
               {" "}
               Add to cart
-              <i className="fa fa-shopping-cart"></i>
+              <i className="ml-2 fa fa-shopping-cart"></i>
             </button>
           </figcaption>
         </figure>

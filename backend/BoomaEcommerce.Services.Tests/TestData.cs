@@ -21,7 +21,7 @@ namespace BoomaEcommerce.Services.Tests
                 ProductLock = new SemaphoreSlim(1),
                 Name = "Test",
                 Category = "TestCategory",
-                Store = new Store{Guid = storeGuid}
+                Store = new Store(null) { Guid = storeGuid}
             };
         }
         
@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             return new ()
             {
-                Store = new Store{Guid = storeGuid},
+                Store = new Store(null) { Guid = storeGuid},
                 Guid = productGuid,
                 Amount = 10,
                 ProductLock = new SemaphoreSlim(1),
@@ -113,7 +113,7 @@ namespace BoomaEcommerce.Services.Tests
             return validProductsPurchasesDtos;
         }
         
-        public static PurchaseDto GetPurchaseWithSingleProductWithAmountOf1(Guid userGuid, Guid productGuid)
+        public static PurchaseDto GetPurchaseWithSingleProductWithAmountOf1(Guid userGuid, Guid productGuid, Guid storeGuid)
         {
             var productDto = new ProductDto
             {
@@ -127,6 +127,7 @@ namespace BoomaEcommerce.Services.Tests
                 {
                     new()
                     {
+                        StoreGuid = storeGuid,
                         PurchaseProducts = new List<PurchaseProductDto>
                         {
                             new()
@@ -144,12 +145,12 @@ namespace BoomaEcommerce.Services.Tests
         
         public static Store CreateStoreObject(string storeName)
         {
-            return new() { StoreName = storeName };
+            return new(null) { StoreName = storeName };
         }
 
         public static Store CreateStoreObject(string storeName,Guid guid)
         {
-            return new() { StoreName = storeName , Guid = guid};
+            return new(null) { StoreName = storeName , Guid = guid};
         }
 
         public static User CreateUserObject(string name)
@@ -211,7 +212,7 @@ namespace BoomaEcommerce.Services.Tests
         
         public static StoreManagement CreateStoreManagementObject(Store store, User user)
         {
-            return new() { Store = store, User = user, Permissions = new StoreManagementPermission()};
+            return new() { Store = store, User = user, Permissions = new StoreManagementPermissions()};
 
         }
         
@@ -223,7 +224,7 @@ namespace BoomaEcommerce.Services.Tests
 
         public static Store GetStoreData(string name)
         {
-            return new() { StoreName = name };
+            return new(null) { StoreName = name };
         }
 
         public static StoreManagement GetStoreManagementData(User u, Store s)
@@ -236,7 +237,7 @@ namespace BoomaEcommerce.Services.Tests
             return new() { User = u, Store = s };
         }
 
-        public static StoreManagementPermission GetStoreManagementPermissionData(bool flag)
+        public static StoreManagementPermissions GetStoreManagementPermissionData(bool flag)
         {
             return new() { CanAddProduct = flag };
         }

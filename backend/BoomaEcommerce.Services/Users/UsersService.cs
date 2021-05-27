@@ -1,9 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Services.Users
@@ -68,15 +71,30 @@ namespace BoomaEcommerce.Services.Users
             }
         }
         
-        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid userGuid, Guid shoppingBasketGuid,
             PurchaseProductDto purchaseProductDto)
         {
             try
             {
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
-                var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo
-                    .FindOneAsync(x => x.Guid == shoppingBasketGuid);
-                if (shoppingBasket == null || !shoppingBasket.AddPurchaseProduct(purchaseProduct))
+                var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketGuid);
+
+                if (shoppingBasket == null)
+                {
+                    return null;
+                }
+
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+
+                var policyResult =
+                    shoppingBasket.CheckPolicyCompliance(user, purchaseProduct);
+
+                if (!policyResult.IsOk)
+                {
+                    throw new PolicyValidationException(new StorePolicyError(shoppingBasket.Store.Guid, policyResult.PolicyError));
+                }
+
+                if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
                     return null;
                 }
@@ -85,6 +103,11 @@ namespace BoomaEcommerce.Services.Users
                 await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
                 await _userUnitOfWork.SaveAsync();
                 return _mapper.Map<PurchaseProductDto>(purchaseProduct);
+            }
+            catch (PolicyValidationException)
+            {
+                _logger.LogError($"Store policy failed after adding the product {purchaseProductDto.ProductGuid}.");
+                throw;
             }
             catch (Exception e)
             {
@@ -158,6 +181,21 @@ namespace BoomaEcommerce.Services.Users
             {
                 _logger.LogError(e, "Failed to update info for userDto {userGuid}", userDto.Guid);
                 return false;
+            }
+        }
+
+        public async Task<BasicUserInfoDto> GetBasicUserInfoAsync(string userName)
+        {
+            try
+            {
+                _logger.LogInformation("Getting user by username {username}.", userName);
+                var user = await _userUnitOfWork.UserManager.FindByNameAsync(userName);
+                return _mapper.Map<BasicUserInfoDto>(user);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get user with username {userName}", userName);
+                return null;
             }
         }
     }

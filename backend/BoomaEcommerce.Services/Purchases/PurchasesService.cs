@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
@@ -18,47 +19,62 @@ namespace BoomaEcommerce.Services.Purchases
         private readonly IPaymentClient _paymentClient;
         private readonly ISupplyClient _supplyClient;
         private readonly IPurchaseUnitOfWork _purchaseUnitOfWork;
+        private readonly INotificationPublisher _notificationPublisher;
 
         public PurchasesService(
             IMapper mapper,
             ILogger<PurchasesService> logger,
             IPaymentClient paymentClient,
             IPurchaseUnitOfWork purchaseUnitOfWork,
-            ISupplyClient supplyClient)
+            ISupplyClient supplyClient,
+            INotificationPublisher notificationPublisher)
         {
             _mapper = mapper;
             _logger = logger;
             _paymentClient = paymentClient;
             _purchaseUnitOfWork = purchaseUnitOfWork;
             _supplyClient = supplyClient;
+            _notificationPublisher = notificationPublisher;
         }
 
-        public async Task<bool> CreatePurchaseAsync(PurchaseDto purchaseDto)
+        public async Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchaseDto)
         {
             try
             {
                 var purchase = _mapper.Map<Purchase>(purchaseDto);
-                
+
                 purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
-                
+
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>
                         storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
-                var taskList = purchaseProducts.Select(purchaseProduct => 
+
+                var productTasks = purchaseProducts.Select(purchaseProduct =>
                     Task.Run(async () =>
-                {
-                    var product = purchaseProduct.Product;
-                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                }));
+                    {
+                        var product = purchaseProduct.Product;
+                        purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+                    }));
 
-                await Task.WhenAll(taskList);
+                var storeTasks = purchase.StorePurchases.Select(storePurchase =>
+                    Task.Run(async () =>
+                    {
+                        storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                    }));
 
-                if (!await purchase.MakePurchase())
+                await Task.WhenAll(productTasks.Concat(storeTasks));
+
+                var purchaseResult = await purchase.MakePurchase();
+                if (purchaseResult.IsPolicyFailure)
                 {
-                    return false;
+                    throw new PolicyValidationException(purchaseResult.Errors);
                 }
 
+                if (!purchaseResult.Success)
+                {
+                    return null;
+                }
                 await _paymentClient.MakeOrder(purchase);
 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
@@ -71,17 +87,46 @@ namespace BoomaEcommerce.Services.Purchases
                 }
 
                 await _supplyClient.NotifyOrder(purchase);
-
+                await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
 
-                return true;
+                return _mapper.Map<PurchaseDto>(purchase);
+            }
+            catch (PolicyValidationException)
+            {
+                _logger.LogError("Store policies for purchase failed.");
+                throw;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to make purchase.");
-                return false;
+                return null;
             }
 
+        }
+
+        private Task NotifyOnPurchase(Purchase purchaseDto)
+        {
+            return Task.WhenAll(purchaseDto.StorePurchases.Select(NotifyStoreSellersOnPurchase));
+        }
+
+
+        private async Task NotifyStoreSellersOnPurchase(StorePurchase storePurchase)
+        {
+            var ownerships =
+                (await _purchaseUnitOfWork.StoreOwnershipRepository.FilterByAsync(ownership =>
+                    ownership.Store.Guid == storePurchase.Store.Guid)).ToList();
+
+            var notification = new StorePurchaseNotification(storePurchase.Buyer, storePurchase.Guid, storePurchase.Store);
+
+            foreach (var ownership in ownerships)
+            {
+                ownership.User.Notifications.Add(notification);
+            }
+            var notifyTask = _notificationPublisher.NotifyManyAsync(_mapper.Map<StorePurchaseNotificationDto>(notification),
+                ownerships.Select(ownership => ownership.User.Guid));
+
+            await Task.WhenAll(_purchaseUnitOfWork.SaveAsync(), notifyTask);
         }
 
         public async Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userGuid)
@@ -102,7 +147,6 @@ namespace BoomaEcommerce.Services.Purchases
             }
             
         }
-
 
         // function not supported yet.
         public Task DeletePurchaseAsync(Guid purchaseGuid)

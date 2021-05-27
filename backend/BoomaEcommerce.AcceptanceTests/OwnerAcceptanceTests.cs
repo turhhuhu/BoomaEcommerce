@@ -23,8 +23,17 @@ namespace BoomaEcommerce.AcceptanceTests
         private IStoresService _ownerStoreService;
         private StoreOwnershipDto _storeOwnership;
 
-        private Guid _notOwnerUser;
-        private IStoresService _notOwnerStoreService;
+        private NotificationPublisherStub _notificationPublisher;
+        
+        private Guid _notOwnerUserArik;
+        private IStoresService _notOwnerStoreServiceArik;
+
+        private Guid _notOwnerUserOmer;
+        private IStoresService _notOwnerStoreServiceOmer;
+
+        private Guid _notOwnerUserMatan;
+        private IStoresService _notOwnerStoreServiceMatan;
+
 
         private PurchaseDto _purchase;
         private IFixture _fixture;
@@ -40,8 +49,11 @@ namespace BoomaEcommerce.AcceptanceTests
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
             var purchaseService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
             await InitOwnerUser(storeService, authService);
-            await InitNotOwnerUser(storeService, authService);
+            await InitNotOwnerUserArik(storeService, authService);
+            await InitNotOwnerUserOmer(storeService, authService);
+            await InitNotOwnerUserMatan(storeService, authService);
             var product = await CreateStoreProduct(storeService);
             await PurchaseProduct(purchaseService, product, authService);
             
@@ -51,8 +63,8 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private async Task InitOwnerUser(IStoresService storeService, IAuthenticationService authService)
         {
-            var user = new UserDto {UserName = "Arik"};
-            const string password = "Arik1337";
+            var user = new UserDto {UserName = "Orik"};
+            const string password = "Orik1337";
 
             await authService.RegisterAsync(user, password);
             var loginResponse = await authService.LoginAsync(user.UserName, password);
@@ -73,25 +85,64 @@ namespace BoomaEcommerce.AcceptanceTests
             if (!result)
             {
                 throw new Exception("This shouldn't happen");
+
             }
+
+            await _notificationPublisher.addNotifiedUser(loginResponse.UserGuid, new List<NotificationDto>());
         }
 
-        private async Task InitNotOwnerUser(IStoresService storeService, IAuthenticationService authService)
+        private async Task InitNotOwnerUserArik(IStoresService storeService, IAuthenticationService authService)
         {
-            var notOwnerUser = new UserDto {UserName = "Ori"};
-            const string notOwnerPassword = "Ori1234";
+            var notOwnerUser = new UserDto {UserName = "Arik"};
+            const string notOwnerPassword = "Arik1234";
             await authService.RegisterAsync(notOwnerUser, notOwnerPassword);
             var notOwnerLoginResponse = await authService.LoginAsync(notOwnerUser.UserName, notOwnerPassword);
-            _notOwnerUser =notOwnerLoginResponse.UserGuid; 
+            _notOwnerUserArik =notOwnerLoginResponse.UserGuid; 
             var result = SecuredStoreService.CreateSecuredStoreService(notOwnerLoginResponse.Token,
-                ServiceMockFactory.Secret, storeService, out _notOwnerStoreService);
+                ServiceMockFactory.Secret, storeService, out _notOwnerStoreServiceArik);
+
+            if (!result)
+            {
+                throw new Exception("This shouldn't happen");
+            }
+
+            await _notificationPublisher.addNotifiedUser(notOwnerLoginResponse.UserGuid, new List<NotificationDto>());
+
+
+        }
+
+        private async Task InitNotOwnerUserOmer(IStoresService storeService, IAuthenticationService authService)
+        {
+            var notOwnerUser = new UserDto { UserName = "Omer" };
+            const string notOwnerPassword = "Omer1234";
+            await authService.RegisterAsync(notOwnerUser, notOwnerPassword);
+            var notOwnerLoginResponse = await authService.LoginAsync(notOwnerUser.UserName, notOwnerPassword);
+            _notOwnerUserOmer = notOwnerLoginResponse.UserGuid;
+            var result = SecuredStoreService.CreateSecuredStoreService(notOwnerLoginResponse.Token,
+                ServiceMockFactory.Secret, storeService, out _notOwnerStoreServiceOmer);
 
             if (!result)
             {
                 throw new Exception("This shouldn't happen");
             }
         }
-        
+
+        private async Task InitNotOwnerUserMatan(IStoresService storeService, IAuthenticationService authService)
+        {
+            var notOwnerUser = new UserDto { UserName = "Matan" };
+            const string notOwnerPassword = "Matan1234";
+            await authService.RegisterAsync(notOwnerUser, notOwnerPassword);
+            var notOwnerLoginResponse = await authService.LoginAsync(notOwnerUser.UserName, notOwnerPassword);
+            _notOwnerUserMatan = notOwnerLoginResponse.UserGuid;
+            var result = SecuredStoreService.CreateSecuredStoreService(notOwnerLoginResponse.Token,
+                ServiceMockFactory.Secret, storeService, out _notOwnerStoreServiceMatan);
+
+            if (!result)
+            {
+                throw new Exception("This shouldn't happen");
+            }
+        }
+
         private async Task PurchaseProduct(IPurchasesService purchasesService, ProductDto productDto,
             IAuthenticationService authenticationService)
         {
@@ -124,8 +175,10 @@ namespace BoomaEcommerce.AcceptanceTests
                 }
             };
             _purchase = purchaseDto;
+            // added 
+            
             var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
-            if (!didPurchasedSucceeded)
+            if (didPurchasedSucceeded == null)
             {
                 throw new Exception("This shouldn't happen");
             }
@@ -176,7 +229,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var productDto = _fixture.Create<ProductDto>();
 
             // Act
-            var act = _notOwnerStoreService.Awaiting(storeService => storeService.CreateStoreProductAsync(productDto));
+            var act = _notOwnerStoreServiceArik.Awaiting(storeService => storeService.CreateStoreProductAsync(productDto));
 
             // Assert
             await act.Should().ThrowAsync<UnAuthorizedException>();
@@ -192,9 +245,9 @@ namespace BoomaEcommerce.AcceptanceTests
             var resultProduct = await _ownerStoreService.CreateStoreProductAsync(productDto);
 
             // Act
-            var act = _notOwnerStoreService.Awaiting(x => x.DeleteProductAsync(resultProduct.Guid));
+            var act = _notOwnerStoreServiceArik.Awaiting(x => x.DeleteProductAsync(resultProduct.Guid));
             // Assert
-            var notActuallyRemovedProduct = await _notOwnerStoreService.GetStoreProductAsync(resultProduct.Guid);
+            var notActuallyRemovedProduct = await _notOwnerStoreServiceArik.GetStoreProductAsync(resultProduct.Guid);
             await act.Should().ThrowAsync<UnAuthorizedException>();
             notActuallyRemovedProduct.Should().BeEquivalentTo(resultProduct);
         }
@@ -262,7 +315,7 @@ namespace BoomaEcommerce.AcceptanceTests
             updateProduct.Guid = resultProduct.Guid;
 
             // Act
-            var result = _notOwnerStoreService.Awaiting(storeService => storeService.UpdateProductAsync(updateProduct));
+            var result = _notOwnerStoreServiceArik.Awaiting(storeService => storeService.UpdateProductAsync(updateProduct));
 
             // Assert
             await result.Should().ThrowAsync<UnAuthorizedException>();
@@ -282,7 +335,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newOwner = _fixture
                 .Build<StoreOwnershipDto>()
-                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUser })
+                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUserArik })
                 .With(ownership => ownership.Store, _storeOwnership.Store)
                 .Without(ownership => ownership.Guid)
                 .Create();
@@ -294,7 +347,9 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Assert
             result.Should().BeTrue();
-            addedOwner.Should().BeEquivalentTo(newOwner, options => options.Excluding(ownership => ownership.Guid));
+            addedOwner.Should().BeEquivalentTo(newOwner, options => options
+                .Excluding(ownership => ownership.Guid)
+                .Excluding(management => management.User.Notifications));
         }
 
         [Fact]
@@ -303,7 +358,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newOwner = _fixture
                 .Build<StoreOwnershipDto>()
-                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUser })
+                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUserArik })
                 .With(ownership => ownership.Store, _storeOwnership.Store)
                 .Without(ownership => ownership.Guid)
                 .Create();
@@ -314,7 +369,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, newOwner);
             newOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
             var sellers = await _ownerStoreService.GetSubordinateSellersAsync(newOwner.Guid);
-            sellers.Should().BeEquivalentTo(new StoreSellersResponse());
+            sellers.Should().BeEquivalentTo(new StoreSellersDto());
             result.Should().BeFalse();
         }
 
@@ -324,13 +379,13 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newOwner = _fixture
                 .Build<StoreOwnershipDto>()
-                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUser })
+                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUserArik })
                 .With(ownership => ownership.Store, _storeOwnership.Store)
                 .Without(ownership => ownership.Guid)
                 .Create();
 
-            var result = _notOwnerStoreService.Awaiting(storeService =>
-                storeService.NominateNewStoreOwnerAsync(_notOwnerUser, newOwner));
+            var result = _notOwnerStoreServiceArik.Awaiting(storeService =>
+                storeService.NominateNewStoreOwnerAsync(_notOwnerUserArik, newOwner));
 
             await result.Should().ThrowAsync<UnAuthorizedException>();
         }
@@ -363,7 +418,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newManager = _fixture
                 .Build<StoreManagementDto>()
-                .With(management => management.User, new UserDto {Guid = _notOwnerUser})
+                .With(management => management.User, new UserDto {Guid = _notOwnerUserArik})
                 .With(management => management.Store, _storeOwnership.Store)
                 .Without(management => management.Guid)
                 .Create();
@@ -375,7 +430,9 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             result.Should().BeTrue();
             addedManager.Should()
-                .BeEquivalentTo(newManager, options => options.Excluding(management => management.Guid));
+                .BeEquivalentTo(newManager, options => options
+                    .Excluding(management => management.Guid)
+                    .Excluding(management => management.User.Notifications));
         }
 
         [Fact]
@@ -384,7 +441,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newOwner = _fixture
                 .Build<StoreOwnershipDto>()
-                .With(ownership => ownership.User, new UserDto {Guid = _notOwnerUser})
+                .With(ownership => ownership.User, new UserDto {Guid = _notOwnerUserArik})
                 .With(ownership => ownership.Store, _storeOwnership.Store)
                 .Without(ownership => ownership.Guid)
                 .Create();
@@ -403,7 +460,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
             newOwner = await _ownerStoreService.GetStoreOwnerShipAsync(newOwner.User.Guid, newOwner.Store.Guid);
             var sellers = await _ownerStoreService.GetSubordinateSellersAsync(newOwner.Guid);
-            sellers.Should().BeEquivalentTo(new StoreSellersResponse());
+            sellers.Should().BeEquivalentTo(new StoreSellersDto());
             result.Should().BeFalse();
         }
 
@@ -413,13 +470,13 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newManager = _fixture
                 .Build<StoreManagementDto>()
-                .With(management => management.User, new UserDto { Guid = _notOwnerUser })
+                .With(management => management.User, new UserDto { Guid = _notOwnerUserArik })
                 .With(management => management.Store, _storeOwnership.Store)
                 .Without(management => management.Guid)
                 .Create();
 
-            var result = _notOwnerStoreService.Awaiting(storeService =>
-                storeService.NominateNewStoreManagerAsync(_notOwnerUser, newManager));
+            var result = _notOwnerStoreServiceArik.Awaiting(storeService =>
+                storeService.NominateNewStoreManagerAsync(_notOwnerUserArik, newManager));
 
             await result.Should().ThrowAsync<UnAuthorizedException>();
         }
@@ -458,7 +515,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
             newManager = await _ownerStoreService.GetStoreManagementAsync(newManager.User.Guid, newManager.Store.Guid);
-            var newPermissions = new StoreManagementPermissionDto
+            var newPermissions = new StoreManagementPermissionsDto
             {
                 Guid = newManager.Permissions.Guid,
                 CanGetSellersInfo = false,
@@ -485,7 +542,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Create();
 
             await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, newManager);
-            var newPermissions = new StoreManagementPermissionDto
+            var newPermissions = new StoreManagementPermissionsDto
             {
                 CanGetSellersInfo = false,
                 CanAddProduct = true,
@@ -506,13 +563,154 @@ namespace BoomaEcommerce.AcceptanceTests
             return Task.CompletedTask;
         }
 
+
+        /*
+         * The tree in the RemoveSubordinatesRecursively tests is arranged as follows : 
+         *                  ORI
+         *                 /   \
+         *              ARIK   OMER
+         *                        \
+         *                        MATAN
+         */
+
+
+
         [Fact]
-        public async Task RemoveManager_RemoveManagerSuccessfully_WhenUserIsStoreOwner()
+        public async Task RemoveOwner_RemoveOwnerAndItsSubordinatesSuccessfully_WhenUserIsStoreOwner()
         {
+            // Arrange
+            var fixtureOwner = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserArik })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, fixtureOwner);
+
+
+            var fixtureOwner2 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserOmer })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, fixtureOwner2);
+
+
+            var fixtureOwner3 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserMatan })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+            var nominatorOmer = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            await _notOwnerStoreServiceOmer.NominateNewStoreOwnerAsync(nominatorOmer.Guid, fixtureOwner3);
+
+
+            var toRemove = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            var arikUserShouldBeLeft = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserArik, _storeOwnership.Store.Guid);
+
+            // Act
+            var result = await _ownerStoreService.RemoveStoreOwnerAsync(_storeOwnership.Guid, toRemove.Guid);
+
+
+            // Assert
+            result.Should().Be(true);
+            var ownerNominatedManagerList = (await _ownerStoreService.GetSubordinateSellersAsync(_storeOwnership.Guid));
+            ownerNominatedManagerList.StoreOwners.Count.Should().Be(1);
+            ownerNominatedManagerList.StoreOwners[0].Should().BeEquivalentTo(arikUserShouldBeLeft);
+            ownerNominatedManagerList.StoreManagers.Should().BeEmpty();
+        }
+
+
+        [Fact]
+        public async Task
+                    RemoveOwner_RemoveOwnerAndItsSubordinatesUnSuccessfully_WhenOwnerToRemoveWasNotNominatedByCurrentOwner()
+        {
+            // Arrange
+            var fixtureOwner = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserArik })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, fixtureOwner);
+
+
+            var fixtureOwner2 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserOmer })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, fixtureOwner2);
+
+
+            var fixtureOwner3 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserMatan })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+            var nominatorOmer = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            await _notOwnerStoreServiceOmer.NominateNewStoreOwnerAsync(nominatorOmer.Guid, fixtureOwner3);
+
+
+            var toRemove = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserMatan, _storeOwnership.Store.Guid);
+
+            var arik = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserArik, _storeOwnership.Store.Guid);
+
+            var omer = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            var matan = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserMatan, _storeOwnership.Store.Guid);
+
+            // Act
+            var result = _ownerStoreService.Awaiting(s => s.RemoveStoreOwnerAsync(_storeOwnership.Guid, toRemove.Guid));
+            await result.Should().ThrowAsync<UnAuthorizedException>();
+
+
+            // Assert
+            var ownerNominatedManagerList = (await _ownerStoreService.GetSubordinateSellersAsync(_storeOwnership.Guid));
+            ownerNominatedManagerList.StoreOwners.Count.Should().Be(3);
+            ownerNominatedManagerList.StoreManagers.Count.Should().Be(0);
+            ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == arik.Guid).Should().BeEquivalentTo(arik);
+            ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == omer.Guid).Should().BeEquivalentTo(omer);
+            var omerSubOrdinates = (await
+                _notOwnerStoreServiceOmer.GetSubordinateSellersAsync(omer.Guid));
+            omerSubOrdinates.StoreOwners.Count.Should().Be(1);
+            omerSubOrdinates.StoreManagers.Count.Should().Be(0);
+            omerSubOrdinates.StoreOwners.Find(x => x.Guid == matan.Guid).Should().BeEquivalentTo(matan);
+            // The sellers tree have stayed EXACTLY the same 
+        }
+
+        [Fact]
+            public async Task RemoveManager_RemoveManagerSuccessfully_WhenUserIsStoreOwner()
+             {
             // Arrange
             var fixtureManager = _fixture
                 .Build<StoreManagementDto>()
-                .With(s => s.User, new UserDto {Guid = _notOwnerUser})
+                .With(s => s.User, new UserDto {Guid = _notOwnerUserArik})
                 .With(s => s.Store, _storeOwnership.Store)
                 .Without(s => s.Guid)
                 .Create();
@@ -520,7 +718,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await _ownerStoreService.NominateNewStoreManagerAsync(_storeOwnership.Guid, fixtureManager);
             var managerToRemove = await _ownerStoreService.GetStoreManagementAsync(
-                _notOwnerUser, _storeOwnership.Store.Guid);
+                _notOwnerUserArik, _storeOwnership.Store.Guid);
 
             // Act
             var result = await _ownerStoreService.RemoveManagerAsync(_storeOwnership.Guid, managerToRemove.Guid);
@@ -536,6 +734,7 @@ namespace BoomaEcommerce.AcceptanceTests
             managers.Should().BeEmpty();
         }
 
+
         [Fact]
         public async Task RemoveManager_RemoveManagerUnSuccessfully_WhenUserIsNotManager()
         {
@@ -544,14 +743,10 @@ namespace BoomaEcommerce.AcceptanceTests
             var managerToRemove = System.Guid.NewGuid();
 
             // Act
-            var result = await _ownerStoreService.RemoveManagerAsync(_storeOwnership.Guid, managerToRemove);
+            var result =  _ownerStoreService.Awaiting(service => service.RemoveManagerAsync(_storeOwnership.Guid, managerToRemove));
 
             // Assert
-            result.Should().BeFalse();
-
-            var manager =
-                await _ownerStoreService.GetStoreManagementAsync(_storeOwnership.User.Guid, _storeOwnership.Store.Guid);
-            manager.Should().BeNull();
+            await result.Should().ThrowAsync<UnAuthorizedException>();
 
         }
         [Fact]
@@ -582,7 +777,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var store = _storeOwnership.Store;
 
             // Act
-            var result =  _notOwnerStoreService.Awaiting(storeService => storeService.GetAllSellersInformationAsync(store.Guid));
+            var result =  _notOwnerStoreServiceArik.Awaiting(storeService => storeService.GetAllSellersInformationAsync(store.Guid));
 
             // Assert
              await result.Should().ThrowAsync<UnAuthorizedException>();
@@ -615,11 +810,75 @@ namespace BoomaEcommerce.AcceptanceTests
             var store = _storeOwnership.Store;
 
             // Act
-            var result =  _notOwnerStoreService.Awaiting(storeService => storeService.GetStorePurchaseHistoryAsync(store.Guid));
+            var result =  _notOwnerStoreServiceArik.Awaiting(storeService => storeService.GetStorePurchaseHistoryAsync(store.Guid));
 
             // Assert
             await result.Should().ThrowAsync<UnAuthorizedException>();
         }
-        
+
+
+
+        [Fact]
+        public async Task SpecialScenarioTest()
+        {
+            // Arrange
+            
+            // U2
+            var fixtureOwner2 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserOmer })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+
+            await _ownerStoreService.NominateNewStoreOwnerAsync(_storeOwnership.Guid, fixtureOwner2);
+
+            // U3
+            var fixtureOwner3 = _fixture
+                .Build<StoreOwnershipDto>()
+                .With(s => s.User, new UserDto { Guid = _notOwnerUserMatan })
+                .With(s => s.Store, _storeOwnership.Store)
+                .Without(s => s.Guid)
+                .Create();
+
+            var nominatorOmer = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            await _notOwnerStoreServiceOmer.NominateNewStoreOwnerAsync(nominatorOmer.Guid, fixtureOwner3);
+
+            var toRemove = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserMatan, _storeOwnership.Store.Guid);
+
+            var omer = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserOmer, _storeOwnership.Store.Guid);
+
+            var matan = await _ownerStoreService.GetStoreOwnerShipAsync(
+                _notOwnerUserMatan, _storeOwnership.Store.Guid);
+
+            // Act
+            // U3 tries to remove U2 , expected failure 
+           
+            var result1 = _notOwnerStoreServiceMatan.Awaiting(service => service.RemoveStoreOwnerAsync(matan.Guid, omer.Guid));
+            await result1.Should().ThrowAsync<UnAuthorizedException>();
+          
+
+            // U1 removes U2 , expected success 
+
+            var result2 = await _ownerStoreService.RemoveStoreOwnerAsync(_storeOwnership.Guid, omer.Guid);
+          
+
+            // expected results : U3 is removed. 
+
+
+            // Assert
+            var ownerNominatedManagerList = (await _ownerStoreService.GetSubordinateSellersAsync(_storeOwnership.Guid));
+            ownerNominatedManagerList.StoreOwners.Count.Should().Be(0);
+            ownerNominatedManagerList.StoreManagers.Count.Should().Be(0);
+            ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == omer.Guid).Should().BeNull();
+            ownerNominatedManagerList.StoreOwners.Find(x => x.Guid == matan.Guid).Should().BeNull();
+
+        }
+
     }
 }

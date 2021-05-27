@@ -55,7 +55,7 @@ class SignUpForm extends Component {
       <div
         className="row col-4 mx-auto card"
         style={{
-          marginTop: "200px",
+          marginTop: "75px",
         }}
       >
         <article className="card-body">
@@ -72,6 +72,7 @@ class SignUpForm extends Component {
                   onChange={this.handleChange}
                   className="form-control"
                   placeholder=""
+                  required
                 ></input>
               </div>
               <div className="col form-group">
@@ -82,6 +83,7 @@ class SignUpForm extends Component {
                   onChange={this.handleChange}
                   className="form-control"
                   placeholder=""
+                  required
                 ></input>
               </div>
             </div>
@@ -93,6 +95,7 @@ class SignUpForm extends Component {
                 onChange={this.handleChange}
                 className="form-control"
                 placeholder=""
+                required
               ></input>
             </div>
             <div className="form-group">
@@ -104,6 +107,7 @@ class SignUpForm extends Component {
                 type="password"
                 className="form-control"
                 placeholder=""
+                required
               ></input>
             </div>
             <div className="form-group mt-3">

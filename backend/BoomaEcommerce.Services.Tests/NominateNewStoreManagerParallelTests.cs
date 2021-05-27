@@ -24,25 +24,26 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StoreOwnership> storeOwnerships,
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
-            IDictionary<Guid, StoreManagementPermission> storeManagementPermissions,
+            IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products);
+                storeManagements, storeManagementPermissions, products , null);
             
-            return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object);
+            return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
         
-        [Fact]
-        public async Task NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities()
+        [Theory]
+        [Repeat(100)]
+        public async Task NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities(int iterationNumber)
         {
             // Arrange
             var entitiesOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
             var entitiesManagements = new ConcurrentDictionary<Guid, StoreManagement>();
 
             var storeGuid = Guid.NewGuid();
-            var firstStoreOwner = new StoreOwnership {Store = new Store {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
-            var secondStoreOwner = new StoreOwnership {Store = new Store {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
+            var firstStoreOwner = new StoreOwnership {Store = new Store(null) {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
+            var secondStoreOwner = new StoreOwnership {Store = new Store(null) { Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
             entitiesOwnerships[firstStoreOwner.Guid] = firstStoreOwner;
             entitiesOwnerships[secondStoreOwner.Guid] = secondStoreOwner;
 
@@ -50,7 +51,7 @@ namespace BoomaEcommerce.Services.Tests
             {
                 Store = new StoreDto { Guid = storeGuid },
                 User = new UserDto { Guid = Guid.NewGuid() },
-                Permissions = new StoreManagementPermissionDto()
+                Permissions = new StoreManagementPermissionsDto()
             };
 
             var sut = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);

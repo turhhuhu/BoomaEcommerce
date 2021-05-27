@@ -9,13 +9,14 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
+using BoomaEcommerce.Domain;
 
 namespace BoomaEcommerce.Services.Purchases
 {
     public class SecuredPurchaseService : SecuredServiceBase, IPurchasesService
     {
         private readonly IPurchasesService _purchaseService;
-        protected SecuredPurchaseService(ClaimsPrincipal claimsPrincipal, IPurchasesService purchasesService) : base(claimsPrincipal)
+        public SecuredPurchaseService(ClaimsPrincipal claimsPrincipal, IPurchasesService purchasesService) : base(claimsPrincipal)
         {
             _purchaseService = purchasesService;
         }
@@ -40,7 +41,7 @@ namespace BoomaEcommerce.Services.Purchases
             }
         }
 
-        public Task<bool> CreatePurchaseAsync(PurchaseDto purchase)
+        public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchase)
         {
             ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchase);
             

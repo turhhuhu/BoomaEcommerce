@@ -79,7 +79,7 @@ namespace BoomaEcommerce.Data
         /// Inserts a collection of T entities.
         /// </summary>
         /// <param name="entities"></param>
-        Task InsertManyAsync(ICollection<T> entities);
+        Task InsertManyAsync(IEnumerable<T> entities);
 
         /// <summary>
         /// Replaces existing T entity with new T entity.
@@ -116,5 +116,16 @@ namespace BoomaEcommerce.Data
         /// A task that represents the asynchronous operation
         /// </returns>
         Task DeleteManyAsync(Expression<Func<T, bool>> predicate);
+
+        /// <summary>
+        /// Finds entity of type TType with provided guid.
+        /// </summary>
+        /// <typeparam name="TType"></typeparam>
+        /// <param name="guid"></param>
+        /// <returns>
+        /// The found entity.
+        /// </returns>
+        Task<TType> FindByIdAsync<TType>(Guid guid)
+            where TType : BaseEntity;
     }
 }

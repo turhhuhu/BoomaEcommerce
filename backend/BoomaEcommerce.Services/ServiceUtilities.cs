@@ -11,8 +11,7 @@ namespace BoomaEcommerce.Services
 {
     public static class ServiceUtilities
     {
-        public static void ValidateDto<T, TValidator>(T dto) 
-            where T : BaseEntityDto 
+        public static void ValidateDto<T, TValidator>(T dto)  
             where TValidator : AbstractValidator<T>, new()
         {
             var validator = new TValidator();

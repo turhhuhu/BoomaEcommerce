@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Data
 {
@@ -13,8 +14,9 @@ namespace BoomaEcommerce.Data
         IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         IRepository<StorePurchase> StorePurchaseRepo { get; set; }
         IRepository<StoreManagement> StoreManagementRepo { get; set; }
-        IRepository<StoreManagementPermission> StoreManagementPermissionsRepo { get; set; }
+        IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         IRepository<Product> ProductRepo { get; set; }
+        IRepository<Policy> PolicyRepo { get; set; }
         Task SaveAsync();
     }
 }

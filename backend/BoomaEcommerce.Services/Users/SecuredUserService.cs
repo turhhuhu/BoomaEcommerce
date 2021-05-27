@@ -68,7 +68,7 @@ namespace BoomaEcommerce.Services.Users
             throw new UnAuthorizedException($"User {userGuidInToken} can not add a basket to {shoppingCartGuid} shopping cart.");
         }
 
-        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+        public async Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid userGuid, Guid shoppingBasketGuid,
             PurchaseProductDto purchaseProduct)
         {
             ServiceUtilities.ValidateDto<PurchaseProductDto, UserServiceValidators.AddPurchaseProductToShoppingBasketAsync>(purchaseProduct);
@@ -80,7 +80,7 @@ namespace BoomaEcommerce.Services.Users
 
             if (shoppingCart.Baskets.FirstOrDefault(basket => basket.Guid == shoppingBasketGuid) != null)
             {
-                return await _next.AddPurchaseProductToShoppingBasketAsync(shoppingBasketGuid, purchaseProduct);
+                return await _next.AddPurchaseProductToShoppingBasketAsync(userGuid, shoppingBasketGuid, purchaseProduct);
             }
             throw new UnAuthorizedException($"User {userGuidInToken} cannot add a purchase product to {shoppingBasketGuid} shopping basket.");
         }
@@ -143,5 +143,9 @@ namespace BoomaEcommerce.Services.Users
             throw new UnAuthorizedException($"User {userGuidInToken} can not update userDto information of userDto {userDto.Guid}");
         }
 
+        public Task<BasicUserInfoDto> GetBasicUserInfoAsync(string userName)
+        {
+            return _next.GetBasicUserInfoAsync(userName);
+        }
     }
 }

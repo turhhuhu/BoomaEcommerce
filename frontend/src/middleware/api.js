@@ -27,22 +27,34 @@ async function callApi(endpoint, authenticated, config) {
       throw new Error("no Token saved!");
     }
   }
-
-  return await fetch(endpoint, config)
-    .then(
-      async (response) =>
-        await response
-          .json()
-          .then((responsePayLoad) => ({ responsePayLoad, response }))
-    )
+  return fetch(endpoint, config)
+    .then((response) => {
+      if (response.status === 204) {
+        return { responsePayLoad: null, response };
+      }
+      return response
+        .text()
+        .then((text) => (text ? JSON.parse(text) : {}))
+        .then((responsePayLoad) => ({ responsePayLoad, response }));
+    })
     .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
-        return Promise.reject(responsePayLoad);
+        if (response.status === 400) {
+          return Promise.reject("Bad request");
+        }
+        if (response.status === 401) {
+          return Promise.reject("Unauthorized");
+        }
+        return responsePayLoad.errors
+          ? Promise.reject(responsePayLoad.errors[""][0])
+          : Promise.reject(responsePayLoad.join("\n"));
       }
 
       return responsePayLoad;
     })
-    .catch((err) => Promise.reject(err));
+    .catch((err) => {
+      return Promise.reject(err);
+    });
 }
 
 const middleware = (store) => (next) => (action) => {
@@ -60,6 +72,7 @@ const middleware = (store) => (next) => (action) => {
   // Passing the authenticated boolean back in our data will let us distinguish between normal and secret quotes
   next({
     type: requestType,
+    payload: { isFetching: true },
   });
 
   return callApi(endpoint, authenticated, config).then(
@@ -68,13 +81,18 @@ const middleware = (store) => (next) => (action) => {
         payload: {
           response,
           authenticated,
+          isFetching: false,
         },
         type: successType,
         extraPayload: extraPayload,
       }),
     (error) => {
+      console.log(error);
       next({
-        error: error.message || "There was an error.",
+        error: error || "There was an error.",
+        payload: {
+          isFetching: false,
+        },
         type: errorType,
       });
     }

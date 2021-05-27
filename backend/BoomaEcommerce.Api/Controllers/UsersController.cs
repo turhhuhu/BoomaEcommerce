@@ -4,13 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using BoomaEcommerce.Api.Hubs;
+using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using BoomaEcommerce.Services;
+using BoomaEcommerce.Services.Purchases;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BoomaEcommerce.Api.Controllers
 {
@@ -20,11 +27,31 @@ namespace BoomaEcommerce.Api.Controllers
     {
         private readonly IUsersService _userService;
         private readonly IStoresService _storesService;
+        private readonly IPurchasesService _purchaseService;
+        private readonly INotificationPublisher _notificationPublisher;
+        private readonly IMapper _mapper;
 
-        public UsersController(IUsersService userService, IStoresService storesService)
+
+        public UsersController(IUsersService userService,
+            IStoresService storesService,
+            IPurchasesService purchaseService,
+            INotificationPublisher notificationPublisher,
+            IMapper mapper)
         {
             _userService = userService;
             _storesService = storesService;
+            _purchaseService = purchaseService;
+            _notificationPublisher = notificationPublisher;
+            _mapper = mapper;
+        }
+
+        [HttpPost(ApiRoutes.Notifications.Post)]
+        public async Task<IActionResult> PostNotification(Guid userGuid, NotificationDto notf)
+        {
+            //Generate fake guid only for frontend 
+            notf.Guid = Guid.NewGuid();
+            await _notificationPublisher.NotifyAsync(notf, userGuid);
+            return Ok();
         }
 
         [Authorize]
@@ -73,7 +100,7 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> CreatePurchaseProduct(Guid basketGuid, [FromBody] PurchaseProductDto purchaseProduct)
         {
             var res =
-                await _userService.AddPurchaseProductToShoppingBasketAsync(basketGuid, purchaseProduct);
+                await _userService.AddPurchaseProductToShoppingBasketAsync(User.GetUserGuid(), basketGuid, purchaseProduct);
             if (res == null)
             {
                 return NotFound();
@@ -121,6 +148,74 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return Ok(cart);
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Stores.AllRolesGet)]
+        public async Task<IActionResult> GetStoreRoles()
+        {
+            var userGuid = User.GetUserGuid();
+            var ownershipsTask = _storesService.GetAllStoreOwnerShipsAsync(userGuid);
+            var managements = await _storesService.GetAllStoreManagementsAsync(userGuid);
+            var ownerships = await ownershipsTask;
+
+            if (ownerships == null || managements == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            var (founderRoles, ownershipRoles) =
+                ownerships.Split(ownership => ownership.Store.FounderUserGuid == userGuid);
+
+            var roles = new StoreRolesResponse
+            {
+                OwnerFounderRoles = _mapper.Map<IEnumerable<OwnerShipRoleResponse>>(founderRoles),
+                OwnerNotFounderRoles = _mapper.Map<IEnumerable<OwnerShipRoleResponse>>(ownershipRoles),
+                ManagerRoles = _mapper.Map<IEnumerable<ManagementRoleResponse>>(managements)
+            };
+            return Ok(roles);
+        }
+        
+        [Authorize]
+        [HttpGet(ApiRoutes.Stores.Roles.MeRoleGet)]
+        public async Task<IActionResult> GetRole(Guid storeGuid)
+        {
+            var userGuid = User.GetUserGuid();
+
+            var management = await _storesService.GetStoreManagementAsync(userGuid, storeGuid);
+            if (management != null)
+            {
+                return Ok(_mapper.Map<ManagementRoleResponse>(management));
+            }
+
+            try
+            {
+                var ownership = await _storesService.GetStoreOwnerShipAsync(userGuid, storeGuid);
+                if (ownership != null)
+                {
+                    return Ok(_mapper.Map<OwnerShipRoleResponse>(ownership));
+                }
+            }
+            catch (UnAuthorizedException)
+            {
+            }
+            return NotFound();
+
+        }
+
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Purchases.Get)]
+        public async Task<IActionResult> GetPurchaseHistory()
+        {
+            var userGuid = User.GetUserGuid();
+            var history = await _purchaseService.GetAllUserPurchaseHistoryAsync(userGuid);
+            if (history == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            return Ok(history);
         }
     }
 }

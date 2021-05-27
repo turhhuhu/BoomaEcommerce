@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -114,13 +115,13 @@ namespace BoomaEcommerce.Services.Stores
         /// A task that represents the asynchronous operation.
         /// returns a UserStore seller response containing all subordinates of the ownerGuid requested.
         /// </returns>
-        Task<StoreSellersResponse> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null);
+        Task<StoreSellersDto> GetSubordinateSellersAsync(Guid storeOwnerGuid, int? level = null);
         
         Task<StoreOwnershipDto> GetStoreOwnerShipAsync(Guid userGuid, Guid storeGuid);
         Task<StoreManagementDto> GetStoreManagementAsync(Guid userGuid, Guid storeGuid);
         Task<ProductDto> GetStoreProductAsync(Guid productGuid);
 
-        Task<StoreSellersResponse> GetAllSellersInformationAsync(Guid storeGuid);
+        Task<StoreSellersDto> GetAllSellersInformationAsync(Guid storeGuid);
 
         Task<IReadOnlyCollection<StoreOwnershipDto>> GetAllStoreOwnerShipsAsync(Guid userGuid);
         
@@ -128,8 +129,9 @@ namespace BoomaEcommerce.Services.Stores
       
         Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid);
 
+        Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom, Guid ownerGuidToRemove);
 
-        Task UpdateManagerPermissionAsync(StoreManagementPermissionDto smpDto);
+        Task UpdateManagerPermissionAsync(StoreManagementPermissionsDto smpDto);
 
         Task<StoreManagementDto> GetStoreManagementAsync(Guid storeManagementGuid);
 
@@ -144,6 +146,11 @@ namespace BoomaEcommerce.Services.Stores
         /// returns true if succeed else false
         /// </returns>
         Task<bool> RemoveManagerAsync(Guid ownershipToRemoveFrom, Guid managerToRemove);
+
+        Task<PolicyDto> AddPolicyAsync(Guid storeGuid, Guid policyGuid, PolicyDto childPolicyDto);
+        Task<bool> DeletePolicyAsync(Guid storeGuid, Guid policyGuid);
+        Task<PolicyDto> CreatePurchasePolicyAsync(Guid storeGuid, PolicyDto policyDto);
+        Task<PolicyDto> GetPolicyAsync(Guid storeGuid);
     }
 
 }

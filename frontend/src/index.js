@@ -11,6 +11,13 @@ import ProductsPage from "./pages/productsPage";
 import CartPage from "./pages/cartPage";
 import { PersistGate } from "redux-persist/integration/react";
 import configureStore from "./store";
+import StoreInformationPage from "./pages/storeInformationPage";
+import ProfilePage from "./pages/userProfilePage";
+import UserStoresPage from "./pages/userStoresPage";
+import StoreProductsPage from "./pages/storeProductsPage";
+import StoreManagementPage from "./pages/storeManagementPage";
+import NotificationsPage from "./pages/notificationsPage";
+import StorePolicyPage from "./pages/storePolicyPage";
 
 const { store, persistor } = configureStore();
 
@@ -19,21 +26,38 @@ ReactDOM.render(
     <PersistGate loading={null} persistor={persistor}>
       <BrowserRouter>
         <Switch>
-          <Route path="/register">
-            <RegisterPage />
-          </Route>
-          <Route path="/login">
-            <LoginPage />
-          </Route>
-          <Route path="/products">
-            <ProductsPage />
-          </Route>
-          <Route path="/home">
-            <ProductsPage />
-          </Route>
-          <Route path="/cart">
-            <CartPage />
-          </Route>
+          <Route path="/register" component={RegisterPage}></Route>
+          <Route path="/login" component={LoginPage}></Route>
+          <Route path="/products" component={ProductsPage}></Route>
+          <Route path="/home" component={ProductsPage}></Route>
+          <Route path="/cart" component={CartPage}></Route>
+          <Route exact path="/user/stores" component={UserStoresPage}></Route>
+          <Route
+            exact
+            path="/user/notifications"
+            component={NotificationsPage}
+          ></Route>
+          <Route exact path="/user" component={ProfilePage}></Route>
+          <Route
+            exact
+            path="/store/:guid/products"
+            component={StoreProductsPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/management"
+            component={StoreManagementPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/policy"
+            component={StorePolicyPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid"
+            component={StoreInformationPage}
+          ></Route>
           <Route path="/">
             <Redirect to="/home" />;
           </Route>

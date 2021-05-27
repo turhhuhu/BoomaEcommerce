@@ -6,7 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Policies;
 using FluentValidation;
+using FluentValidation.Validators;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -92,12 +94,94 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public class UpdateManagerPermission : AbstractValidator<StoreManagementPermissionDto>
+        public class UpdateManagerPermission : AbstractValidator<StoreManagementPermissionsDto>
         {
             public UpdateManagerPermission()
             {
                 RuleFor(permissions => permissions.Guid)
                     .Must(guid => guid != default);
+            }
+        }
+
+
+
+        public class CreatePolicyValidator : AbstractValidator<CreatePolicyDto>
+        {
+            public CreatePolicyValidator()
+            {
+                RuleFor(c => c.PolicyToCreate)
+                    .SetInheritanceValidator(v =>
+                    {
+                        v.Add(new ProductAmountPolicyValidator());
+                        v.Add(new CategoryAmountPolicy());
+                        v.Add(new CompositePolicyValidator());
+                        v.Add(new AgeRestrictionPolicyValidator());
+                        v.Add(new BinaryPolicyValidator());
+                    });
+            }
+        }
+        public class AgeRestrictionPolicyValidator : AbstractValidator<AgeRestrictionPolicyDto>
+        {
+            public AgeRestrictionPolicyValidator()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.MinAge)
+                    .GreaterThan(0);
+            }
+        }
+        public class ProductAmountPolicyValidator : AbstractValidator<ProductAmountPolicyDto>
+        {
+            public ProductAmountPolicyValidator()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Amount)
+                    .GreaterThan(0);
+
+                RuleFor(policy => policy.ProductGuid)
+                    .Must(guid => guid != default);
+
+            }
+        }
+        public class CategoryAmountPolicy : AbstractValidator<CategoryAmountPolicyDto>
+        {
+            public CategoryAmountPolicy()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Amount)
+                    .GreaterThan(0);
+
+                RuleFor(policy => policy.Category)
+                    .NotNull()
+                    .NotEmpty();
+            }
+        }
+        public class BinaryPolicyValidator : AbstractValidator<BinaryPolicyDto>
+        {
+            public BinaryPolicyValidator()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Operator)
+                    .NotNull();
+            }
+        }
+
+        public class CompositePolicyValidator : AbstractValidator<CompositePolicyDto>
+        {
+            public CompositePolicyValidator()
+            {
+                RuleFor(policy => policy.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(policy => policy.Operator)
+                    .NotNull();
             }
         }
     }

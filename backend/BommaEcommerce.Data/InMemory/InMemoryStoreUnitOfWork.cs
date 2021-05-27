@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Data.InMemory
 {
@@ -13,15 +14,18 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         public IRepository<StorePurchase> StorePurchaseRepo { get; set; }
         public IRepository<StoreManagement> StoreManagementRepo { get; set; }
-        public IRepository<StoreManagementPermission> StoreManagementPermissionsRepo { get; set; }
+        public IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         public IRepository<Product> ProductRepo { get; set; }
+        public IRepository<Policy> PolicyRepo { get; set; }
+
         public InMemoryStoreUnitOfWork(
             IRepository<Store> storeRepo,
             IRepository<StoreOwnership> ownershipRepo,
             IRepository<StorePurchase> purchaseRepo,
             IRepository<StoreManagement> storeManagementRepo,
-            IRepository<StoreManagementPermission> storeManagementPermissionsRepo,
-            IRepository<Product> productRepo)
+            IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
+            IRepository<Product> productRepo,
+            IRepository<Policy> policyRepo)
         {
             StoreRepo = storeRepo;
             StoreOwnershipRepo = ownershipRepo;
@@ -29,6 +33,7 @@ namespace BoomaEcommerce.Data.InMemory
             StoreManagementRepo = storeManagementRepo;
             StoreManagementPermissionsRepo = storeManagementPermissionsRepo;
             ProductRepo = productRepo;
+            PolicyRepo = policyRepo;
         }
 
         public Task SaveAsync()

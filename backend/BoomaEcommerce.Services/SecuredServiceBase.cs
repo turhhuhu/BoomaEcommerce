@@ -28,7 +28,7 @@ namespace BoomaEcommerce.Services
             ClaimsPrincipal = claimsPrincipal;
         }
 
-        protected static ClaimsPrincipal ValidateToken(string token, string secret)
+        public static ClaimsPrincipal ValidateToken(string token, string secret)
         {
             var tokenSecurityHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);

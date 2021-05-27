@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Services.DTO
 {
@@ -10,6 +5,6 @@ namespace BoomaEcommerce.Services.DTO
     {
         public StoreDto Store { get; set; }
         public UserDto User { get; set; }
-        public StoreManagementPermissionDto Permissions { get; set; }
+        public StoreManagementPermissionsDto Permissions { get; set; }
     }
 }

@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Services.Users
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid shoppingBasketGuid,
+        Task<PurchaseProductDto> AddPurchaseProductToShoppingBasketAsync(Guid userGuid, Guid shoppingBasketGuid,
             PurchaseProductDto purchaseProduct);
 
         /// <summary>
@@ -79,5 +79,6 @@ namespace BoomaEcommerce.Services.Users
         /// </returns>
         Task<bool> UpdateUserInfoAsync(UserDto userDto);
 
+        Task<BasicUserInfoDto> GetBasicUserInfoAsync(string userName);
     }
 }
