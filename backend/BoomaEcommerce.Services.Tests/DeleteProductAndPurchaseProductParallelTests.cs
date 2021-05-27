@@ -51,9 +51,12 @@ namespace BoomaEcommerce.Services.Tests
             return new PurchasesService(_mapper, _purchaseLoggerMock.Object, _paymentClientMock.Object,
                 purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
+        
 
-        [Fact]
-        public async Task DeleteProductAsyncAndCreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenProductIsPurchasedAndDeletedInParallel()
+
+        [Theory]
+        [Repeat(10)]
+        public async Task DeleteProductAsyncAndCreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenProductIsPurchasedAndDeletedInParallel(int iterationNumber)
         {
             // Arrange
             var productsDict = new ConcurrentDictionary<Guid, Product>();

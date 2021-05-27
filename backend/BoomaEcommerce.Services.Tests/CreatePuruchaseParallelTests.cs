@@ -38,8 +38,9 @@ namespace BoomaEcommerce.Services.Tests
                 purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
 
-        [Fact]
-        public async Task CreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenTwoCustomersBuyLastProductInParallel()
+        [Theory]
+        [Repeat(10)]
+        public async Task CreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenTwoCustomersBuyLastProductInParallel(int iterationNumber)
         {
             // Arrange
             var purchasesDict = new Dictionary<Guid, Purchase>();

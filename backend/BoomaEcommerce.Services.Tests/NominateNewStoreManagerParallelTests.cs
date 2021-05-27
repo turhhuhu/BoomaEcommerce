@@ -33,8 +33,9 @@ namespace BoomaEcommerce.Services.Tests
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
         
-        [Fact]
-        public async Task NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities()
+        [Theory]
+        [Repeat(10)]
+        public async Task NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities(int iterationNumber)
         {
             // Arrange
             var entitiesOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
