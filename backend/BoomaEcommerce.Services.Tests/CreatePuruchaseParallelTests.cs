@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Theory]
-        [Repeat(10)]
+        [Repeat(100)]
         public async Task CreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenTwoCustomersBuyLastProductInParallel(int iterationNumber)
         {
             // Arrange

@@ -55,7 +55,7 @@ namespace BoomaEcommerce.Services.Tests
 
 
         [Theory]
-        [Repeat(10)]
+        [Repeat(100)]
         public async Task DeleteProductAsyncAndCreatePurchaseAsync_ReturnsTrueForOneAndFalseForOther_WhenProductIsPurchasedAndDeletedInParallel(int iterationNumber)
         {
             // Arrange

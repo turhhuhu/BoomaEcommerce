@@ -34,7 +34,7 @@ namespace BoomaEcommerce.Services.Tests
         }
         
         [Theory]
-        [Repeat(10)]
+        [Repeat(100)]
         public async Task NominateNewStoreManager_ReturnTrue_NewManagerDoesNotHaveOtherResponsibilities(int iterationNumber)
         {
             // Arrange

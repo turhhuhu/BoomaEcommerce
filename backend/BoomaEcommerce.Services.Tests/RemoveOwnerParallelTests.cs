@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Services.Tests
         }
 
         [Theory]
-        [Repeat(10)]
+        [Repeat(100)]
         public async Task RemoveStoreOwnerAsync_ReturnTrue_(int iterationNumber)
         {
             // Arrange
