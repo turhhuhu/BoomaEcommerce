@@ -7,6 +7,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
 import Select from "react-select";
+import { addStoreRootPolicy, fetchStorePolicy } from "../actions/storeActions";
 
 const typeOptions = [
   { value: "composite", label: "Composite", name: "type" },
@@ -87,6 +88,7 @@ class AddStorePolicyDialog extends Component {
   };
 
   handleSubmit = (event) => {
+    event.preventDefault();
     if (!this.state.type) {
       this.setState({ error: "Policy type is required" });
       return;
@@ -97,6 +99,7 @@ class AddStorePolicyDialog extends Component {
       this.setState({
         error: "Operator is needed with composite or binary policy type",
       });
+      return;
     } else if (
       this.state.type &&
       this.state.type !== "composite" &&
@@ -104,22 +107,23 @@ class AddStorePolicyDialog extends Component {
       !this.state.value
     ) {
       this.setState({ error: "Value is needed with selected policy type" });
+      return;
     } else {
-      event.preventDefault();
       this.setState({ error: undefined });
-      //   this.props
-      //     .dispatch(
-      //       addStorePolicy({
-      //         type: this.state.name,
-      //         description: this.state.description,
-      //       })
-      //     )
-      //     .then((success) => {
-      //       if (success) {
-      //         this.props.closeDialog();
-      //         this.props.dispatch(fetchUserRoles());
-      //       }
-      //     });
+      this.props
+        .dispatch(
+          addStoreRootPolicy(this.props.storeGuid, {
+            type: this.state.type,
+            operator: this.state.operator ? this.state.operator : undefined,
+            value: this.state.value ? this.state.value : undefined,
+          })
+        )
+        .then((success) => {
+          if (success) {
+            this.props.closeDialog();
+            this.props.dispatch(fetchStorePolicy(this.props.storeGuid));
+          }
+        });
     }
   };
 

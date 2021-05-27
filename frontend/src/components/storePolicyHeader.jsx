@@ -36,6 +36,7 @@ class StorePolicyHeader extends Component {
               </button>
             ) : null}
             <AddStorePolicyDialog
+              storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isDialogOpen}
               closeDialog={this.closeDialog}
             />

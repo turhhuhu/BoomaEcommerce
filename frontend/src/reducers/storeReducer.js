@@ -7,6 +7,7 @@ export function store(
     storeInfo: {},
     storeRoles: {},
     subordinates: [],
+    storePolicy: {},
   },
   action
 ) {
@@ -250,6 +251,68 @@ export function store(
         isFetching: action.payload.isFetching,
       });
     }
+    case StoreActionTypes.GET_STORE_POLICY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.GET_STORE_POLICY_SUCCESS:
+      return Object.assign({}, state, {
+        storePolicy: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_POLICY_FAILURE:
+      console.error(
+        `error occured while getting store policy: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.REMOVE_STORE_SUB_POLICY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.REMOVE_STORE_SUB_POLICY_SUCCESS:
+      return state;
+    case StoreActionTypes.REMOVE_STORE_SUB_POLICY_FAILURE: {
+      console.error(
+        `error occured while remvoving store sub-policy: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        error: action.error,
+        isFetching: action.payload.isFetching,
+      });
+    }
+    case StoreActionTypes.ADD_STORE_POLICY_ROOT_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.ADD_STORE_POLICY_ROOT_SUCCESS:
+      return state;
+    case StoreActionTypes.ADD_STORE_POLICY_ROOT_FAILURE: {
+      console.error(`error occured while adding store policy: ${action.error}`);
+      return Object.assign({}, state, {
+        error: action.error,
+        isFetching: action.payload.isFetching,
+      });
+    }
+    case StoreActionTypes.ADD_STORE_SUB_POLICY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case StoreActionTypes.ADD_STORE_SUB_POLICY_SUCCESS:
+      return state;
+    case StoreActionTypes.ADD_STORE_SUB_POLICY_FAILURE: {
+      console.error(`error occured while adding store policy: ${action.error}`);
+      return Object.assign({}, state, {
+        error: action.error,
+        isFetching: action.payload.isFetching,
+      });
+    }
+
     default:
       return state;
   }
