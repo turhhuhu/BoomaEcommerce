@@ -268,14 +268,14 @@ export function store(
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
       });
-    case StoreActionTypes.REMOVE_STORE_SUB_POLICY_REQUEST:
+    case StoreActionTypes.REMOVE_STORE_POLICY_REQUEST:
       return Object.assign({}, state, {
         ...action.payload,
         error: undefined,
       });
-    case StoreActionTypes.REMOVE_STORE_SUB_POLICY_SUCCESS:
+    case StoreActionTypes.REMOVE_STORE_POLICY_SUCCESS:
       return state;
-    case StoreActionTypes.REMOVE_STORE_SUB_POLICY_FAILURE: {
+    case StoreActionTypes.REMOVE_STORE_POLICY_FAILURE: {
       console.error(
         `error occured while remvoving store sub-policy: ${action.error}`
       );

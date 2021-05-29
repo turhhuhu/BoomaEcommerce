@@ -7,7 +7,21 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
 import Select from "react-select";
-import { addStoreRootPolicy, fetchStorePolicy } from "../actions/storeActions";
+import {
+  addStoreRootPolicy,
+  addStoreSubPolicy,
+  fetchStorePolicy,
+} from "../actions/storeActions";
+
+const mapPolicyTypeToValueName = {
+  ageRestriction: "minAge",
+  maxCategoryAmount: "amount",
+  maxProductAmount: "amount",
+  maxTotalAmount: "amount",
+  minTotalAmount: "amount",
+  minCategoryAmount: "amount",
+  minProductAmount: "amount",
+};
 
 const typeOptions = [
   { value: "composite", label: "Composite", name: "type" },
@@ -37,6 +51,16 @@ const typeOptions = [
     label: "Min Product Amount",
     name: "type",
   },
+  {
+    value: "maxTotalAmount",
+    label: "Max Total Amount",
+    name: "type",
+  },
+  {
+    value: "minTotalAmount",
+    label: "Min Total Amount",
+    name: "type",
+  },
 ];
 const operatorOptions = [
   { value: "and", label: "And", name: "operator" },
@@ -55,7 +79,7 @@ class AddStorePolicyDialog extends Component {
   };
 
   handleChange = (event) => {
-    if (this.event?.target) {
+    if (event?.target) {
       this.setState({
         [event.target.name]: event.target.value,
       });
@@ -110,20 +134,53 @@ class AddStorePolicyDialog extends Component {
       return;
     } else {
       this.setState({ error: undefined });
-      this.props
-        .dispatch(
-          addStoreRootPolicy(this.props.storeGuid, {
-            type: this.state.type,
-            operator: this.state.operator ? this.state.operator : undefined,
-            value: this.state.value ? this.state.value : undefined,
-          })
-        )
-        .then((success) => {
-          if (success) {
-            this.props.closeDialog();
-            this.props.dispatch(fetchStorePolicy(this.props.storeGuid));
-          }
-        });
+      this.props.isRoot
+        ? this.props
+            .dispatch(
+              addStoreRootPolicy(this.props.storeGuid, {
+                type: this.state.type,
+                operator: this.state.operator ? this.state.operator : undefined,
+                [mapPolicyTypeToValueName[this.state.type]]: this.state.value
+                  ? this.state.value
+                  : undefined,
+              })
+            )
+            .then((success) => {
+              if (success) {
+                this.props.closeDialog();
+                this.props.dispatch(fetchStorePolicy(this.props.storeGuid));
+              }
+            })
+        : this.props
+            .dispatch(
+              addStoreSubPolicy(
+                this.props.storeGuid,
+                this.props.fatherPolicyGuid,
+                {
+                  type: this.state.type,
+                  operator: this.state.operator
+                    ? this.state.operator
+                    : undefined,
+                  [mapPolicyTypeToValueName[this.state.type]]: this.state.value
+                    ? this.state.value
+                    : undefined,
+                }
+              )
+            )
+            .then((success) => {
+              if (success) {
+                this.props.closeDialog();
+                this.setState({
+                  error: undefined,
+                  type: "",
+                  operator: "",
+                  value: "",
+                  isTypeMenuOpen: false,
+                  isTypeOperatorMenuOpen: false,
+                });
+                this.props.dispatch(fetchStorePolicy(this.props.storeGuid));
+              }
+            });
     }
   };
 
@@ -150,7 +207,14 @@ class AddStorePolicyDialog extends Component {
             <Select
               onMenuOpen={this.handleOpenTypeMenu}
               onMenuClose={this.handleCloseTypeMenu}
-              options={typeOptions}
+              options={
+                this.props.isRoot
+                  ? [
+                      { value: "composite", label: "Composite", name: "type" },
+                      { value: "binary", label: "Binary", name: "type" },
+                    ]
+                  : typeOptions
+              }
               onChange={this.handleChange}
             />
 
@@ -175,9 +239,9 @@ class AddStorePolicyDialog extends Component {
                 <input
                   type="text"
                   className="form-control mb-2"
-                  name="nominatedUserName"
+                  name="value"
                   required
-                  value={this.state.nominatedUserName}
+                  value={this.state.value}
                   onChange={this.handleChange}
                 ></input>
               </React.Fragment>

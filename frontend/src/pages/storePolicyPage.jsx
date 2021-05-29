@@ -4,6 +4,8 @@ import { fetchUserStoreRole } from "../actions/userActions";
 import { fetchStorePolicy } from "../actions/storeActions";
 import Header from "../components/header";
 import StorePolicyHeader from "../components/storePolicyHeader";
+import PolicyTree from "../components/policyTree";
+import StoreSideBar from "../components/storeSideBar";
 
 class StorePolicyPage extends Component {
   state = {};
@@ -18,12 +20,20 @@ class StorePolicyPage extends Component {
     return (
       <React.Fragment>
         <Header />
-        <div className="container" style={{ maxWidth: "1200px" }}>
+        <div className="container" style={{ maxWidth: "1000px" }}>
           <section className="section-conten padding-y">
             <StorePolicyHeader
               storeName={this.props.storeInfo?.storeName}
               storeGuid={this.props.match.params.guid}
             />
+            <div className="row mt-2">
+              <StoreSideBar
+                isPolicy="true"
+                guid={this.props.match.params.guid}
+                colClass="col-2"
+              />
+              <PolicyTree storeGuid={this.props.match.params.guid} />
+            </div>
           </section>
         </div>
       </React.Fragment>

@@ -10,6 +10,7 @@ import {
   REMOVE_SUBORDINATE_URL,
   STORE_SUB_POLICIES_URL,
   STORE_POLICIES_URL,
+  STORE_POLICY_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -279,18 +280,18 @@ export function fetchStorePolicy(storeGuid) {
   };
 }
 
-export function removeStoreSubPolicy(storeGuid, policyToDeleteGuid) {
+export function removeStorePolicy(storeGuid, policyToDeleteGuid) {
   return {
     [CALL_API]: {
-      endpoint: STORE_SUB_POLICIES_URL.replace(
-        "{storeGuid}",
-        storeGuid
-      ).replace("{policyGuid}", policyToDeleteGuid),
+      endpoint: STORE_POLICY_URL.replace("{storeGuid}", storeGuid).replace(
+        "{policyGuid}",
+        policyToDeleteGuid
+      ),
       authenticated: true,
       types: [
-        StoreActionTypes.ADD_STORE_SUB_POLICY_REQUEST,
-        StoreActionTypes.ADD_STORE_SUB_POLICY_SUCCESS,
-        StoreActionTypes.ADD_STORE_SUB_POLICY_FAILURE,
+        StoreActionTypes.REMOVE_STORE_POLICY_REQUEST,
+        StoreActionTypes.REMOVE_STORE_POLICY_SUCCESS,
+        StoreActionTypes.REMOVE_STORE_POLICY_FAILURE,
       ],
       config: {
         method: "DELETE",
