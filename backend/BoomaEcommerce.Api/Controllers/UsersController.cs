@@ -217,5 +217,18 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(history);
         }
+
+        [Authorize]
+        [HttpPut(ApiRoutes.Notifications.PutSeen)]
+        public async Task<IActionResult> PutSeenNotification(Guid notificationGuid)
+        {
+            var isUpdated = await _userService.SetNotificationAsSeen(User.GetUserGuid(), notificationGuid);
+            if (isUpdated)
+            {
+                return NoContent();
+            }
+
+            return NotFound();
+        }
     }
 }
