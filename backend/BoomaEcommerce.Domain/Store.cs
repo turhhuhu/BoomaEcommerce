@@ -33,6 +33,7 @@ namespace BoomaEcommerce.Domain
         {
             return StorePolicy.CheckPolicy(user, basket);
         }
+
     }
 
 }

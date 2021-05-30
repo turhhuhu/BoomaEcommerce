@@ -50,8 +50,8 @@ namespace BoomaEcommerce.AcceptanceTests
             var product = await CreateStoreProduct(storeService);
             await PurchaseProduct(mutualPurchaseService, product, authService, storeService);
 
-            //_fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).Without(pp => pp.Rating)
-                //.With(pp => pp.StoreGuid, _storeOwnership.Store.Guid));
+            //_fixture.Customize<ProductDto>(p => p.Without(pp => pp.Id).Without(pp => pp.Rating)
+                //.With(pp => pp.StoreGuid, _storeOwnership.Store.Id));
         }
 
         private async Task InitOwnerUser(IStoresService storeService, IAuthenticationService authService, 

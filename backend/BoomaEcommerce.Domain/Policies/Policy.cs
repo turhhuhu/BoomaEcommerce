@@ -9,7 +9,6 @@ namespace BoomaEcommerce.Domain.Policies
 {
     public abstract class Policy : BaseEntity
     {
-
         public static EmptyPolicy Empty => EmptyPolicy.EmptyPol;
         protected Policy()
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,14 +11,16 @@ namespace BoomaEcommerce.Core
     {
         public Guid Guid { get; set; }
 
-        public BaseEntity(Guid guid)
+        protected BaseEntity(Guid guid)
         {
             Guid = guid;
         }
 
-        public BaseEntity()
+        protected BaseEntity()
         {
             Guid = Guid.NewGuid();
         }
+
     }
+
 }
