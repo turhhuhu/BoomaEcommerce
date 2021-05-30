@@ -25,6 +25,8 @@ namespace BoomaEcommerce.Api
                 PolicyType.MinCategoryAmount => new CategoryAmountPolicyDto(),
                 PolicyType.MaxProductAmount => new ProductAmountPolicyDto(),
                 PolicyType.MinProductAmount => new ProductAmountPolicyDto(),
+                PolicyType.MaxTotalAmount => new TotalAmountPolicyDto(),
+                PolicyType.MinTotalAmount => new TotalAmountPolicyDto(),
                 PolicyType.Composite => new CompositePolicyDto(),
                 PolicyType.Binary => new BinaryPolicyDto(),
                 _ => throw new ArgumentOutOfRangeException()
