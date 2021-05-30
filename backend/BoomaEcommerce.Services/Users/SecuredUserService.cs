@@ -147,5 +147,17 @@ namespace BoomaEcommerce.Services.Users
         {
             return _next.GetBasicUserInfoAsync(userName);
         }
+
+        public Task<bool> SetNotificationAsSeen(Guid userGuid, Guid notificationGuid)
+        {
+            var userInClaims = ClaimsPrincipal.GetUserGuid();
+            if (userGuid == userInClaims)
+            {
+                return _next.SetNotificationAsSeen(userGuid, notificationGuid);
+            }
+
+            throw new UnAuthorizedException(
+                $"User with guid {userInClaims} is not authorized to set notifications of user with guid {userGuid}");
+        }
     }
 }

@@ -80,5 +80,6 @@ namespace BoomaEcommerce.Services.Users
         Task<bool> UpdateUserInfoAsync(UserDto userDto);
 
         Task<BasicUserInfoDto> GetBasicUserInfoAsync(string userName);
+        Task<bool> SetNotificationAsSeen(Guid userGuid, Guid notificationGuid);
     }
 }

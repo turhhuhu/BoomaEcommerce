@@ -55,6 +55,7 @@ namespace BoomaEcommerce.Api
         {
             public const string NotificationsBase = "notifications";
             public const string Post = "{userGuid}" + "/" + NotificationsBase + "/";
+            public const string PutSeen = Me + "/" + NotificationsBase + "/" + "{notificationGuid}" + "/" + "seen";
         }
 
         public static class Cart
