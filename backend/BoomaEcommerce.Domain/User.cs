@@ -22,6 +22,7 @@ namespace BoomaEcommerce.Domain
         public User()
         {
             Notifications = new List<Notification>();
+            Guid = Guid.NewGuid();
         }
         public void AddNotification(Notification notification)
         {

@@ -35,7 +35,6 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IRepository<Product>, ProductsRepository>();
             services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
 
-            services.AddTransient<AppPostRun>();
 
             return services;
         }
@@ -93,7 +92,6 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IRepository<Product>, ProductsRepository>();
             services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
 
-            services.AddTransient<AppPostRun>();
 
             return services;
         }

@@ -107,13 +107,6 @@ namespace BoomaEcommerce.Api
                 typeof(DtoToResponseMappingProfile),
                 typeof(RequestToDtoMappingProfile));
 
-            services.AddTokenAuthentication(Configuration);
-
-            services
-                .AddStoresService()
-                .AddUsersService()
-                .AddPurchasesService()
-                .AddProductsService();
 
             switch (DbMode)
             {
@@ -129,6 +122,15 @@ namespace BoomaEcommerce.Api
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            services.AddTokenAuthentication(Configuration);
+
+            services
+                .AddStoresService()
+                .AddUsersService()
+                .AddPurchasesService()
+                .AddProductsService();
+
 
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddSingleton<IConnectionContainer, ConnectionContainer>();
