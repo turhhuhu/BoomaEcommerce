@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Domain
 {
-    public class User : BaseEntity
+    public class User : IdentityUser<Guid>
     {
-        public string UserName { get; set; }
+        public Guid Guid
+        {
+            get => Id;
+            set => Id = value;
+        }
         public string Name { get; set; }
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
@@ -17,6 +22,7 @@ namespace BoomaEcommerce.Domain
         public User()
         {
             Notifications = new List<Notification>();
+            Guid = Guid.NewGuid();
         }
         public void AddNotification(Notification notification)
         {

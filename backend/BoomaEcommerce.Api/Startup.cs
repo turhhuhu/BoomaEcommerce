@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Data;
 using System.Text.Json.Serialization;
+using BoomaEcommerce.Api.Config;
 using BoomaEcommerce.Api.Middleware;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
@@ -20,6 +21,9 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Microsoft.AspNetCore.Http.Connections;
 using BoomaEcommerce.Api.Hubs;
+using BoomaEcommerce.Data.EfCore;
+using BoomaEcommerce.Data.EfCore.Repositories;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Converters;
@@ -29,9 +33,13 @@ namespace BoomaEcommerce.Api
 {
     public class Startup
     {
+        public string ConnectionString { get; set; }
+        public DbMode DbMode { get; set; }
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            ConnectionString = Configuration.GetConnectionString("DefaultConnectionString");
+            DbMode = Configuration.GetSection("DbMode").Get<DbMode>();
         }
 
         public IConfiguration Configuration { get; }
@@ -40,7 +48,6 @@ namespace BoomaEcommerce.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-
             services.AddControllers();
 
             services.AddMvc()
@@ -89,23 +96,10 @@ namespace BoomaEcommerce.Api
                 });
             });
 
-            services.AddSingleton<AppInitializer>();
+            services.AddTransient<AppInitializer>();
 
             services.Configure<AppInitializationSettings>(Configuration.GetSection(AppInitializationSettings.Section));
 
-            services.AddSingleton(_ => new UserManager<User>(
-                new InMemoryUserStore(), Options.Create
-                    (new IdentityOptions
-                    {
-                        Stores = new StoreOptions { ProtectPersonalData = false }
-                    }),
-                new PasswordHasher<User>(),
-                new IUserValidator<User>[0],
-                new IPasswordValidator<User>[0],
-                new UpperInvariantLookupNormalizer(),
-                new IdentityErrorDescriber(),
-                new DataColumn(),
-                new Logger<UserManager<User>>(new LoggerFactory())));
 
             services.AddAutoMapper(
                 typeof(DomainToDtoProfile),
@@ -113,21 +107,34 @@ namespace BoomaEcommerce.Api
                 typeof(DtoToResponseMappingProfile),
                 typeof(RequestToDtoMappingProfile));
 
+
+            switch (DbMode)
+            {
+                case DbMode.EfCore:
+                    services.AddEfCoreDb(ConnectionString);
+                    break;
+                case DbMode.InMemory:
+                    services.AddInMemoryDb();
+                    break;
+                case DbMode.Mixed:
+                    services.AddMixedDb(ConnectionString);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             services.AddTokenAuthentication(Configuration);
 
-            services.AddSingleton(typeof(IRepository<>), typeof(InMemoryRepository<>));
-            services.AddSingleton<IRepository<StoreOwnership>, InMemoryOwnershipRepository>();
-            services.AddSingleton<IRepository<StoreManagement>, InMemoryManagementRepository>();
             services
                 .AddStoresService()
                 .AddUsersService()
                 .AddPurchasesService()
                 .AddProductsService();
 
+
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddSingleton<IConnectionContainer, ConnectionContainer>();
 
-            services.AddSingleton<IUseCase, StoreFounderActionsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

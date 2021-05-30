@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Services;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,9 +34,11 @@ namespace BoomaEcommerce.Api
             {
                 var host = CreateHostBuilder(args).Build();
                 var sp = host.Services;
-                var appInitializer = sp.GetService<AppInitializer>();
+                var appInitializer = sp.GetRequiredService<AppInitializer>();
                 await appInitializer.InitializeAsync();
                 await host.RunAsync();
+                Log.Information("Loll");
+
             }
             catch (Exception e)
             {

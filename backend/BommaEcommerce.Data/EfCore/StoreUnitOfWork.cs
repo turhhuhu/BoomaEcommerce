@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Policies;
 
-namespace BoomaEcommerce.Data.InMemory
+namespace BoomaEcommerce.Data.EfCore
 {
-    public class InMemoryStoreUnitOfWork : IStoreUnitOfWork
+    public class StoreUnitOfWork : IStoreUnitOfWork
     {
+        private readonly ApplicationDbContext _dbContext;
         public IRepository<Store> StoreRepo { get; set; }
         public IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         public IRepository<StorePurchase> StorePurchaseRepo { get; set; }
@@ -18,7 +19,9 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<Product> ProductRepo { get; set; }
         public IRepository<Policy> PolicyRepo { get; set; }
 
-        public InMemoryStoreUnitOfWork(
+
+        public StoreUnitOfWork(
+            ApplicationDbContext dbContext,
             IRepository<Store> storeRepo,
             IRepository<StoreOwnership> ownershipRepo,
             IRepository<StorePurchase> purchaseRepo,
@@ -27,6 +30,7 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo)
         {
+            _dbContext = dbContext;
             StoreRepo = storeRepo;
             StoreOwnershipRepo = ownershipRepo;
             StorePurchaseRepo = purchaseRepo;
@@ -36,13 +40,25 @@ namespace BoomaEcommerce.Data.InMemory
             PolicyRepo = policyRepo;
         }
 
+
         public Task SaveAsync()
         {
-            return Task.CompletedTask;
+            return _dbContext.SaveChangesAsync();
         }
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _dbContext.Dispose();
+            }
         }
     }
+
 }

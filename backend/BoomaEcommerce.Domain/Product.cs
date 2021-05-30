@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,8 +15,11 @@ namespace BoomaEcommerce.Domain
 
         public int Id { get; set; }
         public string Name { get; set; }
+
         public Store Store { get; set; }
         public string Category { get; set; }
+
+
         public decimal Price
         {
             get => _price;
@@ -45,7 +49,6 @@ namespace BoomaEcommerce.Domain
         }
         public SemaphoreSlim ProductLock { get; set; } = new(1);
         public bool IsSoftDeleted { get; set; }
-        public IPurchaseType PurchaseType { get; set; }
 
         private decimal _price;
         private decimal _rating;
@@ -75,5 +78,6 @@ namespace BoomaEcommerce.Domain
         {
             return Amount >= 0;
         }
+
     }
 }

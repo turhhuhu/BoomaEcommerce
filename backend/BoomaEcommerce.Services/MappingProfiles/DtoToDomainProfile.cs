@@ -21,7 +21,9 @@ namespace BoomaEcommerce.Services.MappingProfiles
     {
         public DtoToDomainProfile()
         {
-            CreateMap<UserDto, User>();
+            CreateMap<UserDto, User>()
+                .IncludeAllDerived()
+                .ForMember(x => x.Guid, x => x.Condition(xx => xx.Guid != default));
 
             CreateMap<StoreDto, Store>()
                 .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}));
@@ -65,6 +67,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<BaseEntityDto, BaseEntity>()
                 .IncludeAllDerived()
                 .ForMember(x => x.Guid, x => x.Condition(xx => xx.Guid != default));
+
 
             CreateMap<AdminUserDto, AdminUser>();
             CreateMap<NotificationDto, Notification>();
