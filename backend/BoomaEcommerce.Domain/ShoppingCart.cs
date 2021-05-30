@@ -9,7 +9,7 @@ namespace BoomaEcommerce.Domain
 {
     public class ShoppingCart : BaseEntity
     {
-        public ShoppingCart(User user) : base(user.Guid)
+        public ShoppingCart(User user) : base(user.Id)
         {
             User = user;
         }

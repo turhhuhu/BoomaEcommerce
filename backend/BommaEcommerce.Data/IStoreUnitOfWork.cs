@@ -8,7 +8,7 @@ using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Data
 {
-    public interface IStoreUnitOfWork
+    public interface IStoreUnitOfWork : IDisposable
     {
         IRepository<Store> StoreRepo { get; set; }
         IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }

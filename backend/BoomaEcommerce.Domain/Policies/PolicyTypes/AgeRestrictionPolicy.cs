@@ -24,6 +24,9 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
                 ? PolicyResult.Ok() 
                 : PolicyResult.Fail(string.Format(ErrorMessage, user.UserName, MinAge, Product.Name));
         }
+        internal AgeRestrictionPolicy()
+        {
+        }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase)
         {

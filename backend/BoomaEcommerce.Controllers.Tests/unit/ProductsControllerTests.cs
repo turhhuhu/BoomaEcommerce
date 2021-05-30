@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             };
         }
 
-        // public async Task<IActionResult> GetProduct(Guid productGuid) 
+        // public async Task<IActionResult> GetProduct(Id productGuid) 
         [Fact]
         public async Task GetProduct_ShouldReturnOkResult_WhenProductExists()
         {
@@ -216,7 +216,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             createdStoreResult.Value.Should().BeEquivalentTo(expectedResult);
         }
 
-        // public async Task<IActionResult> DeleteProduct(Guid productGuid)
+        // public async Task<IActionResult> DeleteProduct(Id productGuid)
 
         [Fact]
         public async Task DeleteProduct_ShouldReturnNoContentResult_WhenProductExists()
@@ -248,7 +248,7 @@ namespace BoomaEcommerce.Controllers.Tests.unit
             productsRes.Should().BeOfType<NotFoundResult>();
         }
 
-        //   public async Task<IActionResult> UpdateProduct(Guid productGuid, ProductDto product)
+        //   public async Task<IActionResult> UpdateProduct(Id productGuid, ProductDto product)
 
         [Fact]
         public async Task UpdateProduct_ShouldReturnNoContentResult_WhenProductExists()
