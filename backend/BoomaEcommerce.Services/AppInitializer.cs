@@ -107,7 +107,7 @@ namespace BoomaEcommerce.Services
             var roles = await _userManager.GetRolesAsync(admin);
             if (!roles.Contains(UserRoles.AdminRole))
             {
-                if (_roleManager != null && await _roleManager.RoleExistsAsync(UserRoles.AdminRole))
+                if (_roleManager != null && !await _roleManager.RoleExistsAsync(UserRoles.AdminRole))
                 {
                     await _roleManager.CreateAsync(new IdentityRole<Guid>(UserRoles.AdminRole));
                 }

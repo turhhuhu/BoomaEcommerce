@@ -35,6 +35,7 @@ namespace BoomaEcommerce.Api
     {
         public string ConnectionString { get; set; }
         public DbMode DbMode { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -57,8 +58,7 @@ namespace BoomaEcommerce.Api
                     x.SerializerSettings.Converters.Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy)));
                     x.SerializerSettings.Converters.Add(new PolicyCreationConverter());
 
-                })
-                .AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
+                }).AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
             services.AddSignalR(hubOptions =>
             {

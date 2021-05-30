@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using Microsoft.EntityFrameworkCore;
+using BoomaEcommerce.Data.EfCore;
 
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
@@ -21,7 +22,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
         }
         public virtual async Task<IEnumerable<T>> FindAllAsync()
         {
-            return await DbContext.Set<T>().ToListAsync();
+            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).ToListAsync();
         }
 
         public virtual async Task<IEnumerable<T>> FilterByAsync(Expression<Func<T, bool>> predicateExp)
