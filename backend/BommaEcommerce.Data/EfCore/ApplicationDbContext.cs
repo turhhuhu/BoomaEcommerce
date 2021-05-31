@@ -31,10 +31,14 @@ namespace BoomaEcommerce.Data.EfCore
                     .HasOne(pp => pp.Store);
             });
 
-            modelBuilder.Entity<Store>()
-                .Ignore(s => s.StorePolicy)
-                .Ignore(s => s.StoreFounder)
-                .HasKey(s => s.Guid);
+            modelBuilder.Entity<Store>(s =>
+            {
+                s.Ignore(ss => ss.StorePolicy)
+                    .HasOne(ss => ss.StoreFounder)
+                    .WithMany();
+                s.HasKey(ss => ss.Guid);
+            });
+
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Notifications)

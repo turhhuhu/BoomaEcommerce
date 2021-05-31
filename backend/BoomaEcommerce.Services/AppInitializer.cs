@@ -42,10 +42,17 @@ namespace BoomaEcommerce.Services
             var user = await InitAdmin();
             if (_settings.SeedDummyData)
             {
-                await SeedData(user);
+                try
+                {
+                    await SeedData(user);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to seed some of the data. (Mixed db could be the cause).");
+                }
             }
 
-            //await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
+            await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
         }
 
         private async Task SeedData(User user)
@@ -79,7 +86,9 @@ namespace BoomaEcommerce.Services
                 User = user
             };
             await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
-            //await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
+
+            await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
+
             await _storeUnitOfWork.SaveAsync();
         }
 
@@ -107,7 +116,7 @@ namespace BoomaEcommerce.Services
             var roles = await _userManager.GetRolesAsync(admin);
             if (!roles.Contains(UserRoles.AdminRole))
             {
-                if (_roleManager != null && await _roleManager.RoleExistsAsync(UserRoles.AdminRole))
+                if (_roleManager != null && !await _roleManager.RoleExistsAsync(UserRoles.AdminRole))
                 {
                     await _roleManager.CreateAsync(new IdentityRole<Guid>(UserRoles.AdminRole));
                 }
