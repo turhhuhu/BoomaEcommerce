@@ -27,17 +27,17 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public virtual async Task<IEnumerable<T>> FilterByAsync(Expression<Func<T, bool>> predicateExp)
         {
-            return await DbContext.Set<T>().Where(predicateExp).ToListAsync();
+            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).Where(predicateExp).ToListAsync();
         }
 
         public virtual async Task<IEnumerable<TMapped>> FilterByAsync<TMapped>(Expression<Func<T, bool>> predicateExp, Expression<Func<T, TMapped>> mapExp)
         {
-            return await DbContext.Set<T>().Where(predicateExp).Select(mapExp).ToListAsync();
+            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).Where(predicateExp).Select(mapExp).ToListAsync();
         }
 
         public virtual Task<T> FindOneAsync(Expression<Func<T, bool>> predicateExp)
         {
-            return DbContext.Set<T>().FirstOrDefaultAsync(predicateExp);
+            return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).FirstOrDefaultAsync(predicateExp);
         }
 
         public virtual async Task<T> FindByIdAsync(Guid guid)
@@ -94,7 +94,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public Task<TType> FindByIdAsync<TType>(Guid guid) where TType : BaseEntity
         {
-            return DbContext.Set<T>().OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
+            return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
         }
     }
 }
