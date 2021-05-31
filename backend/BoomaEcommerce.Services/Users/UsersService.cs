@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Core.Exceptions;
@@ -7,6 +8,7 @@ using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Services.Users
@@ -196,6 +198,32 @@ namespace BoomaEcommerce.Services.Users
             {
                 _logger.LogError(e, "Failed to get user with username {userName}", userName);
                 return null;
+            }
+        }
+
+        public async Task<bool> SetNotificationAsSeen(Guid userGuid, Guid notificationGuid)
+        {
+            try
+            {
+                _logger.LogInformation($"Making attempt to set notification with guid {notificationGuid} to seen.");
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+
+                var notification = user?.Notifications.FirstOrDefault(n => n.Guid == notificationGuid);
+
+                if (notification == null)
+                {
+                    return false;
+                }
+
+                notification.WasSeen = true;
+                await _userUnitOfWork.SaveAsync();
+                _logger.LogInformation($"Notification with guid {notificationGuid} was set to seen successfully.");
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to set notification with guid {notificationGuid} to see.");
+                return false;
             }
         }
     }
