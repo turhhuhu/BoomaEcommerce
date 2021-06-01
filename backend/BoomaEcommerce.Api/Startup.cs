@@ -135,6 +135,7 @@ namespace BoomaEcommerce.Api
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddSingleton<IConnectionContainer, ConnectionContainer>();
 
+            services.AddTransient<IUseCase, StoreFounderActionsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
