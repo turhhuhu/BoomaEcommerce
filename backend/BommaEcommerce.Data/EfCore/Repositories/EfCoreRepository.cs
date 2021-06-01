@@ -96,6 +96,11 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
         {
             return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
         }
+
+        public void Attach(T entity)
+        { 
+            DbContext.Set<T>().Attach(entity);
+        }
     }
 }
 

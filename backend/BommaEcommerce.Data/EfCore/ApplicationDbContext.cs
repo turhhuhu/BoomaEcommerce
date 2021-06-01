@@ -28,7 +28,9 @@ namespace BoomaEcommerce.Data.EfCore
                 p.Property(pp => pp.Rating).HasPrecision(4, 2);
                 p.HasKey(pp => pp.Guid);
                 p.Ignore(pp => pp.ProductLock)
-                    .HasOne(pp => pp.Store);
+                    .HasOne(pp => pp.Store)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Store>(s =>
@@ -36,6 +38,7 @@ namespace BoomaEcommerce.Data.EfCore
                 s.Ignore(ss => ss.StorePolicy)
                     .HasOne(ss => ss.StoreFounder)
                     .WithMany();
+
                 s.HasKey(ss => ss.Guid);
             });
 

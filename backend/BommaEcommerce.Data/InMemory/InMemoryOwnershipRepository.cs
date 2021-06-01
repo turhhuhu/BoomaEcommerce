@@ -12,10 +12,22 @@ namespace BoomaEcommerce.Data.InMemory
     {
         public override Task InsertOneAsync(StoreOwnership entity)
         {
+            if (!RepoContainer.AllEntities.ContainsKey(typeof(Store)))
+            {
+                RepoContainer.AllEntities.TryAdd(typeof(Store), new Dictionary<Guid, Store>().ToDictionary(x => x.Key, x => (BaseEntity)x.Value));
+
+            }
+
+            if (InMemoryUserStore.Users != null)
+            {
+                InMemoryUserStore.Users = new Dictionary<string, User>();
+            }
             var stores = RepoContainer.AllEntities[typeof(Store)];
             var users = InMemoryUserStore.Users;
-            entity.Store = (Store)stores[entity.Store.Guid];
-            entity.User = users[entity.User.Guid.ToString()];
+            stores.TryGetValue(entity.Store.Guid, out var store);
+            entity.Store = (Store)store;
+            users.TryGetValue(entity.User.Guid.ToString(), out var user);
+            entity.User = user;
             return base.InsertOneAsync(entity);
         }
 
@@ -43,10 +55,21 @@ namespace BoomaEcommerce.Data.InMemory
 
         public override Task InsertOneAsync(StoreManagement entity)
         {
+            if (!RepoContainer.AllEntities.ContainsKey(typeof(Store)))
+            {
+                RepoContainer.AllEntities.TryAdd(typeof(Store), new Dictionary<Guid, Store>().ToDictionary(x => x.Key, x => (BaseEntity)x.Value));
+            }
+
+            if (InMemoryUserStore.Users != null)
+            {
+                InMemoryUserStore.Users = new Dictionary<string, User>();
+            }
             var stores = RepoContainer.AllEntities[typeof(Store)];
             var users = InMemoryUserStore.Users;
-            entity.Store = (Store)stores[entity.Store.Guid];
-            entity.User = users[entity.User.Guid.ToString()];
+            stores.TryGetValue(entity.Store.Guid, out var store);
+            entity.Store = (Store) store;
+            users.TryGetValue(entity.User.Guid.ToString(), out var user);
+            entity.User = user;
             return base.InsertOneAsync(entity);
         }
     }
