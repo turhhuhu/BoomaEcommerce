@@ -8,25 +8,30 @@ namespace BoomaEcommerce.Core.Exceptions
 {
     public class PolicyValidationException : Exception
     {
-        public IEnumerable<StorePolicyError> PolicyErrors { get; set; }
-        public PolicyValidationException(params StorePolicyError[] errors)
+        public IEnumerable<PolicyError> PolicyErrors { get; set; }
+        public PolicyValidationException(params PolicyError[] errors)
         {
             PolicyErrors = errors;
         }
 
-        public PolicyValidationException(IEnumerable<StorePolicyError> errors)
+        public PolicyValidationException(IEnumerable<PolicyError> errors)
         {
             PolicyErrors = errors;
         }
     }
-    public class StorePolicyError
+    public class PolicyError
     {
         public string Error { get; set; }
-        public Guid StoreGuid { get; set; }
-        public StorePolicyError(Guid storeGuid, string error)
+        public Guid? StoreGuid { get; set; }
+        public PolicyError(Guid storeGuid, string error)
         {
             Error = error;
             StoreGuid = storeGuid;
+        }
+
+        public PolicyError(string error)
+        {
+            Error = error;
         }
     }
 }
