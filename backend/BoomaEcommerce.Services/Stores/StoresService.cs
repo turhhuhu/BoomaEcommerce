@@ -37,12 +37,15 @@ namespace BoomaEcommerce.Services.Stores
             var newStore = _mapper.Map<Store>(store);
             try
             {
+                _storeUnitOfWork.AttachNoChange(newStore.StoreFounder);
+
                 await _storeUnitOfWork.StoreRepo.InsertOneAsync(newStore);
-                var user = _mapper.Map<User>(newStore.StoreFounder);
+
+
                 var storeOwnerShip = new StoreOwnership
                 {
                     Store = newStore,
-                    User = user
+                    User = newStore.StoreFounder
                 };
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(storeOwnerShip);
                 await _storeUnitOfWork.SaveAsync();

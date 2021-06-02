@@ -29,4 +29,8 @@
     <ProjectReference Include="..\BoomaEcommerce.Services\BoomaEcommerce.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Logs\" />
+  </ItemGroup>
+
 </Project>
