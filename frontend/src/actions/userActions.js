@@ -11,6 +11,7 @@ import {
   USER_ROLES_URL,
   ADD_STORE_URL,
   USER_STORE_ROLE,
+  SEE_NOTIFICATION_URL,
 } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
@@ -301,7 +302,7 @@ export function receiveRoleDismissalNotification(notification, message) {
 }
 
 export function seeNotification(notificationGuid) {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const seenNotificationIndex = getState().user.notifications.findIndex(
       (notification) => notification.guid === notificationGuid
     );
@@ -310,12 +311,36 @@ export function seeNotification(notificationGuid) {
     }
     let seenNotification = getState().user.notifications[seenNotificationIndex];
     seenNotification.wasSeen = true;
-    dispatch({
-      type: UserActionTypes.SEE_NOTIFICATION,
-      payload: {
-        seenNotificationIndex,
-        seenNotification,
-      },
+    let token = localStorage.getItem("access_token") || null;
+    let config = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    };
+    if (token) {
+      if (!isValidJWT(token)) {
+        throw new Error("unvalid Token!");
+      }
+      config["headers"] = {
+        authorization: `bearer ${token}`,
+      };
+    } else {
+      console.error("not token saved!");
+      return;
+    }
+
+    await fetch(
+      SEE_NOTIFICATION_URL.replace("{notificationGuid}", notificationGuid),
+      config
+    ).then(async (response) => {
+      if (response.status === 204) {
+        dispatch({
+          type: UserActionTypes.SEE_NOTIFICATION,
+          payload: {
+            seenNotificationIndex,
+            seenNotification,
+          },
+        });
+      }
     });
   };
 }

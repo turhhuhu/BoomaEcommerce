@@ -20,6 +20,8 @@ export const USER_STORES_URL = USER_INFO_URL + "/stores";
 export const USER_ROLES_URL = USER_STORES_URL + "/allRoles";
 export const ADD_STORE_URL = USER_STORES_URL;
 export const USER_STORE_ROLE = USER_STORES_URL + "/{storeGuid}/role";
+export const SEE_NOTIFICATION_URL =
+  USER_INFO_URL + "/notifications/{notificationGuid}/seen";
 
 //products
 export const PRODUCTS_URL = BASE_URL + "/Products";

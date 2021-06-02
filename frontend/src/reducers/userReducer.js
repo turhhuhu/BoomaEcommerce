@@ -202,8 +202,6 @@ export function user(
     case UserActionTypes.SEE_NOTIFICATION: {
       const seenNotificationIndex = action.payload.seenNotificationIndex;
       const seenNotification = action.payload.seenNotification;
-      console.log(seenNotificationIndex);
-      console.log(seenNotification);
       const newNotifcations = [
         ...state.notifications.slice(0, seenNotificationIndex),
         seenNotification,

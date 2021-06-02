@@ -45,7 +45,7 @@ namespace BoomaEcommerce.Services
                 await SeedData(user);
             }
 
-            //await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
+            await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
         }
 
         private async Task SeedData(User user)
@@ -79,7 +79,7 @@ namespace BoomaEcommerce.Services
                 User = user
             };
             await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
-            //await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
+            await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
             await _storeUnitOfWork.SaveAsync();
         }
 
