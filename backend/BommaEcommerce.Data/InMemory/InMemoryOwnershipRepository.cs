@@ -18,10 +18,7 @@ namespace BoomaEcommerce.Data.InMemory
 
             }
 
-            if (InMemoryUserStore.Users != null)
-            {
-                InMemoryUserStore.Users = new Dictionary<string, User>();
-            }
+            InMemoryUserStore.Users ??= new Dictionary<string, User>();
             var stores = RepoContainer.AllEntities[typeof(Store)];
             var users = InMemoryUserStore.Users;
             stores.TryGetValue(entity.Store.Guid, out var store);
@@ -60,10 +57,8 @@ namespace BoomaEcommerce.Data.InMemory
                 RepoContainer.AllEntities.TryAdd(typeof(Store), new Dictionary<Guid, Store>().ToDictionary(x => x.Key, x => (BaseEntity)x.Value));
             }
 
-            if (InMemoryUserStore.Users != null)
-            {
-                InMemoryUserStore.Users = new Dictionary<string, User>();
-            }
+            InMemoryUserStore.Users ??= new Dictionary<string, User>();
+
             var stores = RepoContainer.AllEntities[typeof(Store)];
             var users = InMemoryUserStore.Users;
             stores.TryGetValue(entity.Store.Guid, out var store);

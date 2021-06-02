@@ -40,7 +40,7 @@ namespace BoomaEcommerce.Domain
             var failedPolicyResults = StorePurchases
                 .Select(sp => (sp.Store.Guid, sp.CheckPolicyCompliance()))
                 .Where(result => !result.Item2.IsOk)
-                .Select(res => new StorePolicyError(res.Item1, res.Item2.PolicyError))
+                .Select(res => new PolicyError(res.Item1, res.Item2.PolicyError))
                 .ToList();
 
             if (failedPolicyResults.Any())
