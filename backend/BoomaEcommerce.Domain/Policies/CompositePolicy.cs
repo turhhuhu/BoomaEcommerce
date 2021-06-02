@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,8 +8,9 @@ using BoomaEcommerce.Domain.Policies.Operators;
 
 namespace BoomaEcommerce.Domain.Policies
 {
-    public class CompositePolicy : MultiPolicy
+    public class CompositePolicy : Policy
     {
+        public PolicyOperator Operator { get; set; }
         private readonly List<Policy> _subPolicies;
 
         public CompositePolicy(PolicyOperator op)
@@ -21,12 +21,12 @@ namespace BoomaEcommerce.Domain.Policies
             _subPolicies = new List<Policy>();
         }
 
-        public override void AddPolicy(Policy policy)
+        public void AddPolicy(Policy policy)
         {
             policy.SetPolicyNode(Level + 1, ErrorPrefix + "\t");
             _subPolicies.Add(policy);
         }
-        public override void RemovePolicy(Guid policyId)
+        public void RemovePolicy(Guid policyId)
         {
             var policy = _subPolicies.FirstOrDefault(p => p.Guid == policyId);
             if (policy != null)
@@ -50,16 +50,20 @@ namespace BoomaEcommerce.Domain.Policies
 
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
-            return _subPolicies.Any() 
-                ? Operator.CheckPolicy(user, basket, _subPolicies.ToArray()) 
-                : PolicyResult.Ok();
+            if (_subPolicies.Any())
+            {
+                return Operator.CheckPolicy(user, basket, _subPolicies.ToArray());
+            }
+            return PolicyResult.Ok();
         }
 
         public override PolicyResult CheckPolicy(StorePurchase purchase)
         {
-            return _subPolicies.Any() 
-                ? Operator.CheckPolicy(purchase, _subPolicies.ToArray()) 
-                : PolicyResult.Ok();
+            if (_subPolicies.Any())
+            {
+                return Operator.CheckPolicy(purchase, _subPolicies.ToArray());
+            }
+            return PolicyResult.Ok();
         }
     }
 }
