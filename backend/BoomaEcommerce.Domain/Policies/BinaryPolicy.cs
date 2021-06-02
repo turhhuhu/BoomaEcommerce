@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Domain.Policies.Operators;
 
 namespace BoomaEcommerce.Domain.Policies
 {
-    public class BinaryPolicy : Policy
+    public class BinaryPolicy : MultiPolicy
     {
-        public PolicyOperator Operator { get; set; }
 
         private Policy _firstPolicy;
         private Policy _secondPolicy;
@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Domain.Policies
             set
             {
                 _firstPolicy = value;
-                _firstPolicy.SetPolicyNode(Level, ErrorPrefix);
+                _firstPolicy?.SetPolicyNode(Level, ErrorPrefix);
             }
         }
 
@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Domain.Policies
             set
             {
                 _secondPolicy = value;
-                _secondPolicy.SetPolicyNode(Level, ErrorPrefix);
+                _secondPolicy?.SetPolicyNode(Level, ErrorPrefix);
             }
         }
 
@@ -48,6 +48,10 @@ namespace BoomaEcommerce.Domain.Policies
         }
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
+            if (FirstPolicy == null || SecondPolicy == null)
+            {
+                throw new PolicyValidationException(new PolicyError(basket.Guid, "One sub policy of the binary policy is not set."));
+            }
             return Operator.CheckPolicy(user, basket, FirstPolicy, SecondPolicy);
         }
 
@@ -55,13 +59,42 @@ namespace BoomaEcommerce.Domain.Policies
         {
             return Operator.CheckPolicy(purchase, FirstPolicy, SecondPolicy);
         }
+
+        public override void AddPolicy(Policy policy)
+        {
+            if (FirstPolicy == null)
+            {
+                FirstPolicy = policy;
+            }
+            else if (SecondPolicy == null)
+            {
+                SecondPolicy = policy;
+            }
+            else
+            {
+                throw new PolicyValidationException(new PolicyError("Binary policy can consist of only two policies"));
+            }
+        }
+
+        public override void RemovePolicy(Guid policyGuid)
+        {
+            if (FirstPolicy?.Guid == policyGuid)
+            {
+                FirstPolicy = null;
+            }
+            else if (SecondPolicy?.Guid == policyGuid)
+            {
+                SecondPolicy = null;
+            }
+        }
+
         protected internal override void SetPolicyNode(int level, string prefix)
         {
             base.SetPolicyNode(level, prefix);
             Operator.ErrorPrefix = prefix;
             Operator.Level = level;
-            FirstPolicy.SetPolicyNode(Level + 1, prefix + "\t");
-            SecondPolicy.SetPolicyNode(Level + 1, prefix + "\t");
+            FirstPolicy?.SetPolicyNode(Level + 1, prefix + "\t");
+            SecondPolicy?.SetPolicyNode(Level + 1, prefix + "\t");
         }
     }
 }
