@@ -150,7 +150,7 @@ namespace BoomaEcommerce.Services.Tests
 
             // Assert
             result.Should().BeTrue();
-            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContainKey(purchaseProductGuid);
+            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContain(x => x.Guid == purchaseProductGuid);
             purchaseProductDict.Should().NotContainKey(purchaseProductGuid);
         }
         
@@ -173,7 +173,7 @@ namespace BoomaEcommerce.Services.Tests
 
             // Assert
             result.Should().BeFalse();
-            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContainKey(purchaseProductGuid);
+            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContain(x => x.Guid == purchaseProductGuid);
             purchaseProductDict.Should().ContainKey(purchaseProductGuid);
         }
         
