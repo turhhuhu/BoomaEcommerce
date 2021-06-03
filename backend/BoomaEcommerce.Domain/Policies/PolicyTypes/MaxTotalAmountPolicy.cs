@@ -18,7 +18,6 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var totalAmount = basket.PurchaseProducts
-                .Values
                 .Sum(p => p.Amount);
 
             return totalAmount <= MaxAmount

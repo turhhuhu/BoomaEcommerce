@@ -18,7 +18,7 @@ namespace BoomaEcommerce.Domain.Tests
             
             // Assert
             result.Should().BeTrue();
-            sut.PurchaseProducts.ContainsKey(purchaseProduct.Guid).Should().BeTrue();
+            sut.Contains(purchaseProduct.Guid).Should().BeTrue();
         }
         
         [Fact]
@@ -40,14 +40,14 @@ namespace BoomaEcommerce.Domain.Tests
             // Arrange
             var purchaseProduct = new PurchaseProduct();
             var sut = new ShoppingBasket();
-            sut.PurchaseProducts.Add(purchaseProduct.Guid, purchaseProduct);
+            sut.AddPurchaseProduct(purchaseProduct);
             
             // Act
             var result = sut.RemovePurchaseProduct(purchaseProduct.Guid);
             
             // Assert
             result.Should().BeTrue();
-            sut.PurchaseProducts.ContainsKey(purchaseProduct.Guid).Should().BeFalse();
+            sut.Contains(purchaseProduct.Guid).Should().BeFalse();
         }
         
         [Fact]
@@ -62,7 +62,7 @@ namespace BoomaEcommerce.Domain.Tests
             
             // Assert
             result.Should().BeFalse();
-            sut.PurchaseProducts.ContainsKey(purchaseProduct.Guid).Should().BeFalse();
+            sut.Contains(purchaseProduct.Guid).Should().BeFalse();
         }
     }
 }
