@@ -72,12 +72,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x => 
-                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakePayment(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x => 
-                x.NotifyOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, _notificationPublisherStub);
@@ -98,12 +98,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x =>
-                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakePayment(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x =>
-                x.NotifyOrder(It.IsAny<Purchase>())).Throws(new Exception("Supply system collapsed"));
+                x.MakeOrder(It.IsAny<Purchase>())).Throws(new Exception("Supply system collapsed"));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());
@@ -119,12 +119,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x =>
-                x.MakeOrder(It.IsAny<Purchase>())).Throws(new Exception("External system collapsed"));
+                x.MakePayment(It.IsAny<Purchase>())).Throws(new Exception("External system collapsed"));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x =>
-                x.NotifyOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());
