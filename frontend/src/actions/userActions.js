@@ -291,8 +291,7 @@ export function receiveRegularNotification(notification) {
   };
 }
 
-export function receiveRoleDismissalNotification(notification, message) {
-  notification["message"] = message;
+export function receiveRoleDismissalNotification(notification) {
   return {
     type: UserActionTypes.RECIEVE_ROLE_DISMISSAL_NOTIFICATION,
     payload: {
