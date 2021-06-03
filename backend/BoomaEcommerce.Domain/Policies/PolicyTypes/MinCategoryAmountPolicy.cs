@@ -20,7 +20,6 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var totalAmount = basket.PurchaseProducts
-                .Values
                 .Where(p => p.Product.Category == Category)
                 .Sum(p => p.Amount);
 

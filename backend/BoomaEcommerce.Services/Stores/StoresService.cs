@@ -270,7 +270,7 @@ namespace BoomaEcommerce.Services.Stores
                 }
 
                 var newOwner = _mapper.Map<StoreOwnership>(newOwnerDto);
-                ownerStoreOwnership.StoreOwnerships.TryAdd(newOwner.Guid, newOwner);
+                ownerStoreOwnership.AddOwner(newOwner);
 
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(newOwner);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
@@ -304,7 +304,7 @@ namespace BoomaEcommerce.Services.Stores
 
 
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
-                ownerStoreOwnership.StoreManagements.TryAdd(newManager.Guid, newManager);
+                ownerStoreOwnership.AddManager(newManager);
 
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
