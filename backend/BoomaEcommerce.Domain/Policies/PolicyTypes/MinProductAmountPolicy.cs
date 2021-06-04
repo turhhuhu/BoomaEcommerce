@@ -18,6 +18,11 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
             ErrorMessage = "Product '{0}' must at-least have '{1}' amount but has '{2}' amount.";
         }
 
+        private MinProductAmountPolicy()
+        {
+            
+        }
+
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var purchaseProduct = basket.PurchaseProducts

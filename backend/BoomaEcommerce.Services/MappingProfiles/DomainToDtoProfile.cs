@@ -113,7 +113,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ConstructUsing((policy, context) => new CompositePolicyDto
                 {
                     Operator = context.Mapper.Map<OperatorType>(policy.Operator),
-                    SubPolicies = context.Mapper.Map<IEnumerable<PolicyDto>>(policy.GetSubPolicies())
+                    SubPolicies = context.Mapper.Map<IEnumerable<PolicyDto>>(policy.SubPolicies)
                 });
 
             CreateMap<BinaryPolicy, BinaryPolicyDto>()

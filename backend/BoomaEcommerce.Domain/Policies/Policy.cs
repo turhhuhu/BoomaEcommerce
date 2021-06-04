@@ -18,8 +18,8 @@ namespace BoomaEcommerce.Domain.Policies
         }
 
         protected internal string ErrorMessage { get; set; }
-        protected internal string ErrorPrefix { get; set; }
-        protected internal int Level { get; set; }
+        public string ErrorPrefix { get; set; }
+        public int Level { get; set; }
 
         protected internal virtual void SetPolicyNode(int level, string prefix)
         {

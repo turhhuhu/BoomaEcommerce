@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Data.EfCore.Repositories;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.SqlServer;
@@ -90,7 +91,7 @@ namespace BoomaEcommerce.Data.EfCore
                 }).AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IRepository<Store>, EfCoreRepository<Store, ApplicationDbContext>>();
-            services.AddTransient<IRepository<Product>, ProductsRepository>();
+            services.AddTransient<IRepository<Policy>, EfCoreRepository<Policy, ApplicationDbContext>>();
             services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
 
 

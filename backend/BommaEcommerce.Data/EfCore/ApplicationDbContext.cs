@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.Policies.Operators;
+using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +17,10 @@ namespace BoomaEcommerce.Data.EfCore
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Store> Stores { get; set; }
+
+        public DbSet<Notification> Notifications { get; set; }
+
+        public DbSet<Policy> Policies { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -35,21 +42,24 @@ namespace BoomaEcommerce.Data.EfCore
 
             modelBuilder.Entity<Store>(s =>
             {
-                s.Ignore(ss => ss.StorePolicy)
-                    .HasOne(ss => ss.StoreFounder)
+                s.HasOne(ss => ss.StoreFounder)
                     .WithMany();
+
+                s.HasOne(ss => ss.StorePolicy)
+                    .WithOne()
+                    .HasForeignKey<Policy>(p => p.Guid);
 
                 s.HasKey(ss => ss.Guid);
             });
 
-            modelBuilder.Entity<ShoppingCart>(sc =>
-            {
-                sc.HasKey(s => s.Guid);
-                sc.HasOne(s => s.User).WithOne().HasForeignKey<User>(x => x.Guid);
-                // sc.Ignore(s => s.User);
-                sc.Ignore(s => s.StoreGuidToBaskets);
+            //modelBuilder.Entity<ShoppingCart>(sc =>
+            //{
+            //    sc.HasKey(s => s.Guid);
+            //    sc.HasOne(s => s.User).WithOne().HasForeignKey<User>(x => x.Guid);
+            //    // sc.Ignore(s => s.User);
+            //    sc.Ignore(s => s.StoreGuidToBaskets);
 
-            });
+            //});
 
 
             modelBuilder.Entity<User>()
@@ -57,8 +67,73 @@ namespace BoomaEcommerce.Data.EfCore
                 .WithOne();
 
             modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
+
+            //modelBuilder.Ignore<EmptyPolicy>();
+            modelBuilder.Entity<Policy>(p =>
+            {
+                p.HasKey(pp => pp.Guid);
+                p.HasDiscriminator<string>("PolicyType")
+                    .HasValue<AgeRestrictionPolicy>(nameof(AgeRestrictionPolicy))
+                    .HasValue<MaxCategoryAmountPolicy>(nameof(MaxCategoryAmountPolicy))
+                    .HasValue<MinCategoryAmountPolicy>(nameof(MinCategoryAmountPolicy))
+                    .HasValue<MaxTotalAmountPolicy>(nameof(MaxTotalAmountPolicy))
+                    .HasValue<MinTotalAmountPolicy>(nameof(MinTotalAmountPolicy))
+                    .HasValue<MaxProductAmountPolicy>(nameof(MaxProductAmountPolicy))
+                    .HasValue<MinProductAmountPolicy>(nameof(MinProductAmountPolicy))
+                    .HasValue<CompositePolicy>(nameof(CompositePolicy))
+                    .HasValue<EmptyPolicy>(nameof(EmptyPolicy));
+                //.HasValue<BinaryPolicy>(nameof(BinaryPolicy));
+            });
+            modelBuilder.Entity<AgeRestrictionPolicy>()
+                .HasOne(p => p.Product);
+            modelBuilder.Entity<EmptyPolicy>();
+            modelBuilder.Entity<MaxCategoryAmountPolicy>();
+            modelBuilder.Entity<MinCategoryAmountPolicy>();
+            modelBuilder.Entity<MaxTotalAmountPolicy>();
+            modelBuilder.Entity<MinTotalAmountPolicy>();
+            modelBuilder.Entity<MaxProductAmountPolicy>()
+                .HasOne(p => p.Product);
+
+            modelBuilder.Entity<MinProductAmountPolicy>()
+                .HasOne(p => p.Product);
+
+            modelBuilder.Entity<CompositePolicy>(p =>
+            {
+                p.HasMany(pp => pp.SubPolicies)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                p.HasOne(pp => pp.Operator);
+            });
+
+            //modelBuilder.Entity<BinaryPolicy>(p =>
+            //{
+            //    p.HasOne(pp => pp.FirstPolicy)
+            //        .WithOne()
+            //        .HasForeignKey<Policy>(pp => pp.Guid);
+
+            //    p.HasOne(pp => pp.SecondPolicy)
+            //        .WithOne()
+            //        .HasForeignKey<Policy>(pp => pp.Guid);
+
+            //    p.HasOne(pp => pp.Operator);
+            //});
+
+            modelBuilder.Entity<PolicyOperator>(op =>
+            {
+                op.HasKey(opp => opp.Guid);
+                op.HasDiscriminator<string>("PolicyOperatorType")
+                    .HasValue<OrPolicyOperator>(nameof(OrPolicyOperator))
+                    .HasValue<AndPolicyOperator>(nameof(AndPolicyOperator))
+                    .HasValue<XorPolicyOperator>(nameof(XorPolicyOperator))
+                    .HasValue<ConditionPolicyOperator>(nameof(ConditionPolicyOperator));
+            });
+            modelBuilder.Entity<OrPolicyOperator>();
+            modelBuilder.Entity<AndPolicyOperator>();
+            modelBuilder.Entity<XorPolicyOperator>();
+            modelBuilder.Entity<ConditionPolicyOperator>();
+
             base.OnModelCreating(modelBuilder);
         }
-
     }
 }
