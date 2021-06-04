@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210601104135_store-managment")]
+    partial class storemanagment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,19 +82,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.ShoppingCart", b =>
-                {
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Guid");
-
-                    b.ToTable("ShoppingCarts");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.Store", b =>
                 {
                     b.Property<Guid>("Guid")
@@ -136,7 +125,7 @@ namespace BoomaEcommerce.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StoreManagements");
+                    b.ToTable("storeManagements");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.User", b =>
@@ -363,17 +352,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.ShoppingCart", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.User", "User")
-                        .WithOne()
-                        .HasForeignKey("BoomaEcommerce.Domain.ShoppingCart", "Guid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.Store", b =>
                 {
                     b.HasOne("BoomaEcommerce.Domain.User", "StoreFounder")
@@ -387,13 +365,11 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasOne("BoomaEcommerce.Domain.Store", "Store")
                         .WithMany()
-                        .HasForeignKey("StoreGuid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("StoreGuid");
 
                     b.HasOne("BoomaEcommerce.Domain.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Store");
 

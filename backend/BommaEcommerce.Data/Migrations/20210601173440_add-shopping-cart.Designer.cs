@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210601173440_add-shopping-cart")]
+    partial class addshoppingcart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -387,13 +389,11 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasOne("BoomaEcommerce.Domain.Store", "Store")
                         .WithMany()
-                        .HasForeignKey("StoreGuid")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("StoreGuid");
 
                     b.HasOne("BoomaEcommerce.Domain.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Store");
 

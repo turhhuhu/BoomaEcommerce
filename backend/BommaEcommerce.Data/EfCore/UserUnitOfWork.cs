@@ -6,34 +6,56 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
 
-namespace BoomaEcommerce.Data.InMemory
+namespace BoomaEcommerce.Data.EfCore
 {
-    public class InMemoryUserUnitOfWork : IUserUnitOfWork
+    public class UserUnitOfWork : IUserUnitOfWork
     {
+        private readonly ApplicationDbContext _dbContext;
         public IRepository<ShoppingBasket> ShoppingBasketRepo { get; set; }
         public IRepository<ShoppingCart> ShoppingCartRepo { get; set; }
         public IRepository<PurchaseProduct> PurchaseProductRepo { get; set; }
         public UserManager<User> UserManager { get; set; }
 
-        public InMemoryUserUnitOfWork(
+        public UserUnitOfWork(
+            ApplicationDbContext dbContext,
             IRepository<ShoppingBasket> shoppingBasketRepo,
             IRepository<ShoppingCart> shoppingCartRepo,
             IRepository<PurchaseProduct> purchaseProductRepo,
-            UserManager<User> userManager)
+            UserManager<User> userManager 
+            )
         {
+            _dbContext = dbContext;
             ShoppingBasketRepo = shoppingBasketRepo;
             ShoppingCartRepo = shoppingCartRepo;
             PurchaseProductRepo = purchaseProductRepo;
             UserManager = userManager;
+
         }
+
 
         public Task SaveAsync()
         {
-            return Task.CompletedTask;
+            return _dbContext.SaveChangesAsync();
         }
 
-        public void AttachNoChange<TEntity>(TEntity entity) where TEntity : class
-        { 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
+        public virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _dbContext.Dispose();
+            }
+        }
+        public void AttachNoChange<TEntity>(TEntity entity)
+            where TEntity : class
+        {
+            _dbContext.Set<TEntity>().Attach(entity);
+        }
+
     }
 }

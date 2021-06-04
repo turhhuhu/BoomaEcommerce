@@ -15,7 +15,11 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<Product> Products { get; set; }
         public DbSet<Store> Stores { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public DbSet<StoreManagement> StoreManagements {get; set;}
+
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
         }
@@ -46,6 +50,36 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Notifications)
                 .WithOne();
+                
+
+
+            
+            modelBuilder.Entity<StoreManagement>(sm =>
+            {
+                sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
+                sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
+                sm.Ignore(s => s.Permissions);
+                sm.HasKey(s => s.Guid);
+            });
+
+            /*
+            modelBuilder.Entity<StoreOwnership>(so =>
+            {
+                so.HasMany(s => s.StoreManagements.Values).WithOne();
+                so.HasMany(s => s.StoreOwnerships.Values).WithOne(); 
+                so.HasOne(s => s.Store).WithMany(); 
+                so.HasOne(s => s.User).WithMany();
+                so.HasKey(s=>s.Guid);
+            });*/
+
+            modelBuilder.Entity<ShoppingCart>(sc =>
+            {
+                sc.HasKey(s => s.Guid);
+                sc.HasOne(s => s.User).WithOne().HasForeignKey<ShoppingCart>(x => x.Guid);
+                // sc.Ignore(s => s.User);
+                sc.Ignore(s => s.StoreGuidToBaskets);
+
+            });
 
             modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
             base.OnModelCreating(modelBuilder);

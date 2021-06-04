@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using BoomaEcommerce.Data.EfCore;
 
 namespace BoomaEcommerce.Services
 {
@@ -40,7 +41,7 @@ namespace BoomaEcommerce.Services
             _userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             _roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
 
-            //await _storeUnitOfWork.StoreRepo.DeleteOneAsync(x => true);
+
 
             var user = await InitAdmin();
             if (_settings.SeedDummyData)

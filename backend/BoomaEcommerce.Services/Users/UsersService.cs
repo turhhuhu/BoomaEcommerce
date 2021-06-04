@@ -37,8 +37,12 @@ namespace BoomaEcommerce.Services.Users
                 
                 if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
 
-                shoppingCart = new ShoppingCart(new User {Guid = userGuid});
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+
+                shoppingCart = new ShoppingCart(user);
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
+                await _userUnitOfWork.SaveAsync();
+
                 return _mapper.Map<ShoppingCartDto>(shoppingCart);
             }
             catch (Exception e)

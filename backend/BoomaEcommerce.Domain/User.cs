@@ -9,6 +9,7 @@ namespace BoomaEcommerce.Domain
 {
     public class User : IdentityUser<Guid>
     {
+       
         public Guid Guid
         {
             get => Id;
