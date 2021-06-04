@@ -4,9 +4,9 @@ import TreeView from "@material-ui/lab/TreeView";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import TreeItem from "@material-ui/lab/TreeItem";
-import FunctionsIcon from "@material-ui/icons/Functions";
 import { fetchStorePolicy, removeStorePolicy } from "../actions/storeActions";
 import AddStorePolicyDialog from "./addStorePolicyDialog";
+import CallSplitIcon from "@material-ui/icons/CallSplit";
 
 const mapPolicyTypeToLabel = {
   ageRestriction: "Age Restriction",
@@ -16,6 +16,23 @@ const mapPolicyTypeToLabel = {
   minTotalAmount: "Max Total Amount",
   minCategoryAmount: "Min Category Amount",
   minProductAmount: "Min Product Amount",
+};
+
+const mapOperatorToLabel = {
+  or: "At least one of (Or operator):",
+  xor: "Exactly one of (Xor operator):",
+  condition: "Condition (Condition operator):",
+  and: "All of the following (And operator):",
+};
+
+const mapPolicyTypeToValueName = {
+  ageRestriction: "Min age",
+  maxCategoryAmount: "Max Amount",
+  maxProductAmount: "Max Amount",
+  maxTotalAmount: "Max Amount",
+  minTotalAmount: "Min Amount",
+  minCategoryAmount: "Min Amount",
+  minProductAmount: "Min Amount",
 };
 
 class PolicyTree extends Component {
@@ -39,7 +56,7 @@ class PolicyTree extends Component {
   };
 
   createPolicyTree = (policy) => {
-    if (policy.subPolicies) {
+    if (policy.type === "composite" || policy.type === "binary") {
       return (
         <TreeItem key={policy.guid} label={policy.type} nodeId={policy.guid}>
           <button
@@ -57,14 +74,18 @@ class PolicyTree extends Component {
             Remove policy
           </button>
           <TreeItem
-            icon={<FunctionsIcon />}
-            label={policy.operator}
+            icon={<CallSplitIcon />}
+            label={mapOperatorToLabel[policy.operator]}
             nodeId={policy.guid + "1"}
             key={policy.guid + "1"}
           />
-          {policy.subPolicies.map((subPolicy) =>
-            this.createPolicyTree(subPolicy)
-          )}
+          {policy.subPolicies
+            ? policy.subPolicies.map((subPolicy) =>
+                this.createPolicyTree(subPolicy)
+              )
+            : [policy.firstPolicy, policy.secondPolicy].map((subPolicy) =>
+                subPolicy ? this.createPolicyTree(subPolicy) : null
+              )}
         </TreeItem>
       );
     } else {
@@ -81,19 +102,41 @@ class PolicyTree extends Component {
             {" "}
             Remove policy
           </button>
+          {policy.type === "ageRestriction" ||
+          policy.type === "maxProductAmount" ||
+          policy.type === "minProductAmount" ? (
+            <TreeItem
+              label={`Product name: 
+                ${
+                  this.props.storeProducts.find(
+                    (product) => product.guid === policy.productGuid
+                  )?.name
+                }`}
+              nodeId={policy.guid + "1"}
+              key={policy.guid + "1"}
+            ></TreeItem>
+          ) : null}
+          {policy.type === "maxCategoryAmount" ||
+          policy.type === "minCategoryAmount" ? (
+            <TreeItem
+              label={`Category: 
+                ${policy.category}`}
+              nodeId={policy.guid + "1"}
+              key={policy.guid + "1"}
+            ></TreeItem>
+          ) : null}
           <TreeItem
-            label={
-              policy[
-                Object.keys(policy).find(
-                  (prop) =>
-                    prop === "minAge" ||
-                    prop === "maxAmount" ||
-                    prop === "minAmount"
-                )
-              ]
-            }
-            nodeId={policy.guid + "1"}
-            key={policy.guid + "1"}
+            label={`${mapPolicyTypeToValueName[policy.type]}: 
+              ${
+                policy[
+                  Object.keys(policy).find(
+                    (prop) => prop === "minAge" || prop === "amount"
+                  )
+                ]
+              }
+            `}
+            nodeId={policy.guid + "2"}
+            key={policy.guid + "2"}
           />
         </TreeItem>
       );
@@ -126,6 +169,7 @@ class PolicyTree extends Component {
 const mapStateToProps = (store) => {
   return {
     storePolicy: store.store.storePolicy,
+    storeProducts: store.store.products,
   };
 };
 export default connect(mapStateToProps)(PolicyTree);

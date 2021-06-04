@@ -1,7 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchUserStoreRole } from "../actions/userActions";
-import { fetchStorePolicy } from "../actions/storeActions";
+import {
+  fetchAllStoreProducts,
+  fetchStorePolicy,
+} from "../actions/storeActions";
 import Header from "../components/header";
 import StorePolicyHeader from "../components/storePolicyHeader";
 import PolicyTree from "../components/policyTree";
@@ -14,6 +17,7 @@ class StorePolicyPage extends Component {
     if (this.props.match.params.guid) {
       this.props.dispatch(fetchUserStoreRole(this.props.match.params.guid));
       this.props.dispatch(fetchStorePolicy(this.props.match.params.guid));
+      this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
     }
   }
   render() {
@@ -30,7 +34,7 @@ class StorePolicyPage extends Component {
               <StoreSideBar
                 isPolicy="true"
                 guid={this.props.match.params.guid}
-                colClass="col-2"
+                colClass="col-3"
               />
               <PolicyTree storeGuid={this.props.match.params.guid} />
             </div>

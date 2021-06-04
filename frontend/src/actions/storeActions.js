@@ -225,7 +225,6 @@ export function removeStoreOwner(ownershipGuid, ownerdhipToDeleteGuid) {
 }
 
 export function addStoreRootPolicy(storeGuid, rootPolicy) {
-  console.log(storeGuid);
   return {
     [CALL_API]: {
       endpoint: STORE_POLICIES_URL.replace("{storeGuid}", storeGuid),

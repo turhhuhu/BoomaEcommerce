@@ -74,8 +74,9 @@ class AddStorePolicyDialog extends Component {
     type: "",
     operator: "",
     value: "",
-    isTypeMenuOpen: false,
-    isTypeOperatorMenuOpen: false,
+    productGuid: "",
+    category: "",
+    isMenuOpen: false,
   };
 
   handleChange = (event) => {
@@ -95,20 +96,22 @@ class AddStorePolicyDialog extends Component {
     this.props.closeDialog();
   };
 
-  handleOpenTypeMenu = () => {
-    this.setState({ isTypeMenuOpen: true });
+  handleOpenMenu = () => {
+    this.setState({ isMenuOpen: true });
   };
 
-  handleCloseTypeMenu = () => {
-    this.setState({ isTypeMenuOpen: false });
+  handleCloseMenu = () => {
+    this.setState({ isMenuOpen: false });
   };
 
-  handleOpenOperatorMenu = () => {
-    this.setState({ isTypeOperatorMenuOpen: true });
-  };
-
-  handleCloseOperatorMenu = () => {
-    this.setState({ isTypeOperatorMenuOpen: false });
+  dynamicStyle = () => {
+    if (this.state.isMenuOpen) {
+      if (this.props.isRoot) {
+        return { height: "450px" };
+      }
+      return { height: "450px" };
+    }
+    return null;
   };
 
   handleSubmit = (event) => {
@@ -164,6 +167,12 @@ class AddStorePolicyDialog extends Component {
                   [mapPolicyTypeToValueName[this.state.type]]: this.state.value
                     ? this.state.value
                     : undefined,
+                  productGuid: this.state.productGuid
+                    ? this.state.productGuid
+                    : undefined,
+                  category: this.state.category
+                    ? this.state.category
+                    : undefined,
                 }
               )
             )
@@ -193,20 +202,14 @@ class AddStorePolicyDialog extends Component {
       >
         <DialogTitle id="form-dialog-title">Add product</DialogTitle>
         <form>
-          <DialogContent
-            style={
-              this.state.isTypeMenuOpen || this.state.isTypeOperatorMenuOpen
-                ? { height: "450px" }
-                : null
-            }
-          >
+          <DialogContent style={this.dynamicStyle()}>
             <DialogContentText>
               Please fill out the following policy details:
             </DialogContentText>
             <label>Type:</label>
             <Select
-              onMenuOpen={this.handleOpenTypeMenu}
-              onMenuClose={this.handleCloseTypeMenu}
+              onMenuOpen={this.handleOpenMenu}
+              onMenuClose={this.handleCloseMenu}
               options={
                 this.props.isRoot
                   ? [
@@ -217,14 +220,60 @@ class AddStorePolicyDialog extends Component {
               }
               onChange={this.handleChange}
             />
-
+            {(this.state.type && this.state.type === "ageRestriction") ||
+            this.state.type === "maxProductAmount" ||
+            this.state.type === "minProductAmount" ? (
+              <React.Fragment>
+                <br />
+                <label>Product:</label>
+                <Select
+                  maxMenuHeight={200}
+                  onMenuOpen={this.handleOpenMenu}
+                  onMenuClose={this.handleCloseMenu}
+                  options={this.props?.storeProducts.map((product) => {
+                    return {
+                      value: product.guid,
+                      label: product.name,
+                      name: "productGuid",
+                    };
+                  })}
+                  onChange={this.handleChange}
+                />{" "}
+              </React.Fragment>
+            ) : null}
+            {(this.state.type && this.state.type === "maxCategoryAmount") ||
+            this.state.type === "minCategoryAmount" ? (
+              <React.Fragment>
+                <br />
+                <label>Category:</label>
+                <Select
+                  maxMenuHeight={200}
+                  onMenuOpen={this.handleOpenMenu}
+                  onMenuClose={this.handleCloseMenu}
+                  options={[
+                    ...new Set(
+                      this.props.storeProducts?.map(
+                        (product) => product.category
+                      )
+                    ),
+                  ].map((category) => {
+                    return {
+                      value: category,
+                      label: category,
+                      name: "category",
+                    };
+                  })}
+                  onChange={this.handleChange}
+                />{" "}
+              </React.Fragment>
+            ) : null}
             {this.state.type === "composite" || this.state.type === "binary" ? (
               <React.Fragment>
                 <br />
                 <label>Operator:</label>
                 <Select
-                  onMenuOpen={this.handleOpenOperatorMenu}
-                  onMenuClose={this.handleCloseOperatorMenu}
+                  onMenuOpen={this.handleOpenMenu}
+                  onMenuClose={this.handleCloseMenu}
                   options={operatorOptions}
                   onChange={this.handleChange}
                 />{" "}
@@ -272,4 +321,10 @@ class AddStorePolicyDialog extends Component {
   }
 }
 
-export default connect()(AddStorePolicyDialog);
+const mapStateToProps = (store) => {
+  return {
+    storeProducts: store.store.products,
+  };
+};
+
+export default connect(mapStateToProps)(AddStorePolicyDialog);
