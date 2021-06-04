@@ -2,25 +2,23 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import CartItem from "./cartItem";
 class CartView extends Component {
-  state = {};
-
-  handlePurchase = () => {
-    console.log(this.props.cart);
-  };
+  state = { totalPrice: 0 };
 
   getCartItems = () => {
     return this.props.cart.baskets?.map((basket) => {
-      return basket.purchaseProducts.map((purchaseProduct, index) => (
-        <CartItem
-          key={index}
-          product={purchaseProduct.product}
-          purchaseProductGuid={purchaseProduct.guid}
-          price={purchaseProduct.price}
-          maxQuantity={purchaseProduct.amount}
-          storeName={basket.store?.storeName}
-          basketGuid={basket.guid}
-        />
-      ));
+      return basket.purchaseProducts
+        .sort((a, b) => a.guid - b.guid)
+        .map((purchaseProduct, index) => (
+          <CartItem
+            key={index}
+            product={purchaseProduct.product}
+            purchaseProductGuid={purchaseProduct.guid}
+            price={purchaseProduct.price}
+            maxQuantity={purchaseProduct.amount}
+            storeName={basket.store?.storeName}
+            basketGuid={basket.guid}
+          />
+        ));
     });
   };
 
@@ -33,19 +31,26 @@ class CartView extends Component {
         <aside className="col-md-3">
           <div className="card">
             <div className="card-body">
-              <dt>Total price:</dt>
-              <dd className="text-right text-dark b">
-                {this.state.totalPrice}
-              </dd>
+              <dl>
+                <dt>Total price:</dt>
+                <dd class="text-right">$69.97</dd>
+              </dl>
+              <dl>
+                <dt>Discount:</dt>
+                <dd class="text-right text-danger">- $10.00</dd>
+              </dl>
+              <dl>
+                <dt>Total:</dt>
+                <dd class="text-right text-dark b">
+                  <strong>$59.97</strong>
+                </dd>
+              </dl>
               <hr />
 
-              <button
-                onClick={this.handlePurchase}
-                className="btn btn-primary btn-block"
-              >
+              <a href="cart/payment" className="btn btn-primary btn-block">
                 {" "}
                 Make Purchase{" "}
-              </button>
+              </a>
               <a
                 href="/products"
                 className="btn btn-outline-secondary btn-block"

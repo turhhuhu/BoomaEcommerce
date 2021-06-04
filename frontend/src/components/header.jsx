@@ -4,7 +4,7 @@ import ecommerceLogo from "../images/ecommerce.png";
 import "../css/navbar.css";
 import CartIcon from "./cartIcon";
 import UserIcon from "./userIcon";
-import MessageIcon from "./messageIcon";
+// import MessageIcon from "./messageIcon";
 import NotificationIcon from "./notificationIcon";
 import { fetchAllProducts } from "../actions/productsActions";
 import { withRouter } from "react-router";
@@ -37,8 +37,8 @@ class Header extends Component {
       <header className="section-header">
         <section className="header-main border-bottom">
           <div className="container" style={{ maxWidth: "1300px" }}>
-            <div className="row align-items-center ml-5">
-              <div className="col-lg-1 ml-4 col-4">
+            <div className="row align-items-center ml-3">
+              <div className="col offset-5 ml-4">
                 <a href="/home" className="brand-wrap">
                   <img
                     className="Logo"
@@ -48,7 +48,7 @@ class Header extends Component {
                   ></img>
                 </a>
               </div>
-              <div className="col-lg-6 col-sm-12">
+              <div className="col-7">
                 <form action="#" className="search">
                   <div className="input-group w-100">
                     <input
@@ -84,7 +84,7 @@ class Header extends Component {
               </div>
               <div className="widgets-wrap ml-5 float-md-right">
                 <NotificationIcon />
-                <MessageIcon />
+                {/* <MessageIcon /> */}
                 <CartIcon />
                 <UserIcon />
               </div>
