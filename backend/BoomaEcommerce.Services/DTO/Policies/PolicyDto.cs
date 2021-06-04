@@ -72,9 +72,6 @@ namespace BoomaEcommerce.Services.DTO.Policies
         public override PolicyType Type { get; set; }
 
         [JsonRequired]
-        public string Category { get; set; }
-
-        [JsonRequired]
         public int Amount { get; set; }
     }
 
