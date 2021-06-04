@@ -66,17 +66,17 @@ namespace BoomaEcommerce.Services.Tests
             
             var storeOwnerShipBenny = new StoreOwnership { Guid = Guid.NewGuid(), User = bennyUser };
 
-            var storeOwnerShipOmerOwners = new ConcurrentDictionary<Guid, StoreOwnership>();
-            storeOwnerShipOmerOwners.TryAdd(storeOwnerShipBenny.Guid,storeOwnerShipBenny);
-            var storeManagmentOmerOwners = new ConcurrentDictionary<Guid, StoreManagement>();
-            storeManagmentOmerOwners.TryAdd(storeMangementMatan.Guid, storeMangementMatan);
+            var storeOwnerShipOmerOwners = new List<StoreOwnership>();
+            storeOwnerShipOmerOwners.Add(storeOwnerShipBenny);
+            var storeManagmentOmerOwners = new List<StoreManagement>();
+            storeManagmentOmerOwners.Add(storeMangementMatan);
             var storeOwnerShipOmer = new StoreOwnership { Guid = Guid.NewGuid(), User = omerUser, StoreOwnerships = storeOwnerShipOmerOwners,StoreManagements=storeManagmentOmerOwners };
 
             var storeOwnerShipArik = new StoreOwnership { Guid = Guid.NewGuid(), User = arikUser};
-            
-            var storeOwnerShipOriOwners = new ConcurrentDictionary<Guid, StoreOwnership>();
-            storeOwnerShipOriOwners.TryAdd(storeOwnerShipOmer.Guid, storeOwnerShipOmer);
-            storeOwnerShipOriOwners.TryAdd(storeOwnerShipArik.Guid, storeOwnerShipArik);
+
+            var storeOwnerShipOriOwners = new List<StoreOwnership>();
+            storeOwnerShipOriOwners.Add(storeOwnerShipOmer);
+            storeOwnerShipOriOwners.Add(storeOwnerShipArik);
            
 
             var storeOwnerShipOri = new StoreOwnership { Guid = Guid.NewGuid(), User = oriUser, StoreOwnerships = storeOwnerShipOriOwners };
@@ -100,7 +100,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships.ContainsKey(storeOwnerShipArik.Guid).Should().BeTrue();
             entitiesOwnerships.Count.Should().Be(2);
             entitiesOwnerships[storeOwnerShipOri.Guid].StoreOwnerships.Count.Should().Be(1);
-            entitiesOwnerships[storeOwnerShipOri.Guid].StoreOwnerships.ContainsKey(storeOwnerShipArik.Guid).Should().BeTrue();
+            entitiesOwnerships[storeOwnerShipOri.Guid].ContainsOwnership(storeOwnerShipArik.Guid).Should().BeTrue();
 
         }
 

@@ -97,7 +97,7 @@ namespace BoomaEcommerce.Services.Users
 
                 if (!policyResult.IsOk)
                 {
-                    throw new PolicyValidationException(new StorePolicyError(shoppingBasket.Store.Guid, policyResult.PolicyError));
+                    throw new PolicyValidationException(new PolicyError(shoppingBasket.Store.Guid, policyResult.PolicyError));
                 }
 
                 if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))

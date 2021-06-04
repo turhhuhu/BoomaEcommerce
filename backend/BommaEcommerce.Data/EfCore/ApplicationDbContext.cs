@@ -46,6 +46,15 @@ namespace BoomaEcommerce.Data.EfCore
                 s.HasKey(ss => ss.Guid);
             });
 
+            modelBuilder.Entity<ShoppingCart>(sc =>
+            {
+                sc.HasKey(s => s.Guid);
+                sc.HasOne(s => s.User).WithOne().HasForeignKey<User>(x => x.Guid);
+                // sc.Ignore(s => s.User);
+                sc.Ignore(s => s.StoreGuidToBaskets);
+
+            });
+
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Notifications)
