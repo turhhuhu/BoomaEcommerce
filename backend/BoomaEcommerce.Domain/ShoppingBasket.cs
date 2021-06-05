@@ -18,7 +18,14 @@ namespace BoomaEcommerce.Domain
         {
             var purchaseProducts = PurchaseProducts.ToDictionary(x => x.Key, x => x.Value);
             purchaseProducts.Add(purchaseProduct.Guid, purchaseProduct);
-            return Store.CheckPolicy(user, new ShoppingBasket { Store = Store, PurchaseProducts =  purchaseProducts});
+            return Store.CheckPolicy(user, new ShoppingBasket {Store = Store, PurchaseProducts = purchaseProducts});
+        }
+
+        public string ApplyDiscountCompliance(User user, PurchaseProduct purchaseProduct)
+        {
+            var purchaseProducts = PurchaseProducts.ToDictionary(x => x.Key, x => x.Value);
+            purchaseProducts.Add(purchaseProduct.Guid, purchaseProduct);
+            return Store.ApplyDiscount(user, new ShoppingBasket { Store = Store, PurchaseProducts = purchaseProducts });
         }
         public bool AddPurchaseProduct(PurchaseProduct purchaseProduct)
         {

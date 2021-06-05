@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.Authentication;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.Products;
 using BoomaEcommerce.Services.Purchases;
@@ -39,13 +41,14 @@ namespace BoomaEcommerce.Tests.CoreLib
         private IDictionary<Guid, User> _users = new Dictionary<Guid, User>();
         private IDictionary<Guid, Notification> _notifications = new ConcurrentDictionary<Guid, Notification>();
         private IDictionary<Guid, Policy> _policies = new ConcurrentDictionary<Guid, Policy>();
+        private IDictionary<Guid, Discount> _discounts = new ConcurrentDictionary<Guid, Discount>();
         private Mock<UserManager<User>>  _userManagerMock = DalMockFactory.MockUserManager(new List<User>());
         private INotificationPublisher _notificationPublisherStub = new NotificationPublisherStub();
 
         public IStoresService MockStoreService()
         {
             var storeUnitOfWorkMock = DalMockFactory.MockStoreUnitOfWork(_stores, _storeOwnerships, _storePurchases,
-                _storeManagements, _storeManagementPermissions, _products,_policies);
+                _storeManagements, _storeManagementPermissions, _products,_policies, _discounts);
             var loggerMock = new Mock<ILogger<StoresService>>();
             return new StoresService(loggerMock.Object, MapperFactory.GetMapper(), storeUnitOfWorkMock.Object, new NotificationPublisherStub());
         }

@@ -9,5 +9,6 @@ namespace BoomaEcommerce.Services.DTO
         public Guid BuyerGuid { get; set; }
         public Guid StoreGuid { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal DiscountedPrice { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Core.Exceptions;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
@@ -399,6 +400,51 @@ namespace BoomaEcommerce.Services.Stores
             }
 
             throw new UnAuthorizedException(nameof(GetPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<DiscountDto> AddDiscountAsync(Guid storeGuid, Guid discountGuid, DiscountDto discountDto)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.AddDiscountAsync(storeGuid, discountGuid, discountDto);
+            }
+
+            throw new UnAuthorizedException(nameof(AddDiscountAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<bool> DeleteDiscountAsync(Guid storeGuid, Guid discountGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanDeleteDiscount, storeGuid))
+            {
+                return await _storeService.DeleteDiscountAsync(storeGuid, discountGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(DeleteDiscountAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<DiscountDto> CreateDiscountAsync(Guid storeGuid, DiscountDto discountDto)
+        {
+            //ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = policyDto });
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.CreateDiscountAsync(storeGuid, discountDto);
+            }
+
+            throw new UnAuthorizedException(nameof(CreateDiscountAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<DiscountDto> GetDiscountAsync(Guid storeGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanGetDiscountInfo, storeGuid))
+            {
+                return await _storeService.GetDiscountAsync(storeGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetDiscountAsync), ClaimsPrincipal.GetUserGuid());
         }
     }
 }

@@ -8,20 +8,36 @@ namespace BoomaEcommerce.Domain.Discounts.Operators
 {
     public class MaxDiscountOperator : DiscountOperator
     {
-        public override string ApplyOperator(Purchase purchase, List<Discount> discounts)
+        public override string ApplyOperator(StorePurchase sp, List<Discount> discounts)
         {
             var bestDiscount = discounts[0];
-            var minTotalPrice = decimal.MaxValue;
+            var maximalDiscountValue = decimal.MinValue;
 
             foreach (var discount in discounts)
             {
-                var totalPrice = discount.CalculateTotalPriceWithoutApplying(purchase);
-                if (totalPrice >= minTotalPrice) continue;
-                minTotalPrice = totalPrice;
+                var calculatedDiscount = discount.CalculateTotalPriceWithoutApplying(sp);
+                if (calculatedDiscount < maximalDiscountValue) continue;
+                maximalDiscountValue = calculatedDiscount;
                 bestDiscount = discount;
             }
 
-            return "Applied most worthwhile discount:\n" + bestDiscount.ApplyDiscount(purchase);
+            return "Applied most worthwhile discount:\n" + bestDiscount.ApplyDiscount(sp);
+        }
+
+        public override string ApplyOperator(User user, ShoppingBasket basket, List<Discount> discounts)
+        {
+            var bestDiscount = discounts[0];
+            var maximalDiscountValue = decimal.MinValue;
+
+            foreach (var discount in discounts)
+            {
+                var calculatedDiscount = discount.CalculateTotalPriceWithoutApplying(user, basket);
+                if (calculatedDiscount < maximalDiscountValue) continue;
+                maximalDiscountValue = calculatedDiscount;
+                bestDiscount = discount;
+            }
+
+            return "Applied most worthwhile discount:\n" + bestDiscount.ApplyDiscount(user, basket);
         }
     }
 }

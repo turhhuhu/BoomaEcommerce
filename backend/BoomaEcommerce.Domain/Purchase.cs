@@ -43,6 +43,13 @@ namespace BoomaEcommerce.Domain
                 .Select(res => new StorePolicyError(res.Item1, res.Item2.PolicyError))
                 .ToList();
 
+            foreach (var sp in StorePurchases)
+            {
+                sp.Store.ApplyDiscount(sp);
+            }
+
+            this.TotalPrice = StorePurchases.Sum(sp => sp.DiscountedPrice);
+
             if (failedPolicyResults.Any())
             {
                 return PurchaseResult.Fail(failedPolicyResults);
@@ -52,6 +59,7 @@ namespace BoomaEcommerce.Domain
             {
                 return PurchaseResult.Fail();
             }
+
             var results = await Task.WhenAll(StorePurchases.Select(x => x.PurchaseAllProducts()));
             return results.All(x => x)
                 ? PurchaseResult.Ok() 

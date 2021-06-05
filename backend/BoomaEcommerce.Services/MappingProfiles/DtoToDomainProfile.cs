@@ -6,10 +6,13 @@ using System.Linq;
 using AutoMapper;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Discounts.Operators;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Domain.Policies.Operators;
 using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 
 namespace BoomaEcommerce.Services.MappingProfiles
@@ -125,6 +128,31 @@ namespace BoomaEcommerce.Services.MappingProfiles
                         OperatorType.Or => new OrPolicyOperator(),
                         OperatorType.Condition => new ConditionPolicyOperator(),
                         OperatorType.Xor => new XorPolicyOperator(),
+                        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                    });
+
+            CreateMap<DiscountDto, Discount>()
+                .Include<ProductDiscountDto, ProductDiscount>()
+                .Include<CategoryDiscountDto, CategoryDiscount>()
+                .Include<BasketDiscountDto, BasketDiscount>()
+                .Include<CompositeDiscountDto, CompositeDiscount>();
+
+            CreateMap<CategoryDiscountDto, CategoryDiscount>();
+
+            CreateMap<BasketDiscountDto, BasketDiscount>();
+
+            CreateMap<ProductDiscountDto, ProductDiscount>()
+                .ConstructUsing((discountDto, _) => new ProductDiscount(new Product { Guid = discountDto.ProductGuid }));
+
+            CreateMap<CompositeDiscountDto, CompositeDiscount>()
+                .ConstructUsing((discountDto, context) => new CompositeDiscount(context.Mapper.Map<DiscountOperator>(discountDto.Operator)));
+
+            CreateMap<OperatorTypeDiscount, DiscountOperator>()
+                .ConstructUsing((type, _) =>
+                    type switch
+                    {
+                        OperatorTypeDiscount.Max => new MaxDiscountOperator(),
+                        OperatorTypeDiscount.Sum => new SumDiscountOperator(),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
                     });
         }

@@ -9,83 +9,117 @@ namespace BoomaEcommerce.Domain.Discounts
 {
     public class BasketDiscount : Discount
     {
-        private Store _store;
-
-        public BasketDiscount(int percentage, DateTime startTime, DateTime endTime, string description, Policy policy, Store s) :
+        public BasketDiscount(int percentage, DateTime startTime, DateTime endTime, string description, Policy policy) :
             base(percentage, startTime, endTime, description, policy)
         {
-            _store = s;
-        } 
+        }
 
-        public override string ApplyDiscount(Purchase purchase)
+        public override string ApplyDiscount(StorePurchase sp)
         {
             var discountInfo = "";
-            decimal totalMoneySaved = 0;
+            decimal moneySaved = 0;
 
-            foreach (var sp in purchase.StorePurchases.Where(sp => !(ValidateDiscount(sp))))
+            if (!(ValidateDiscount(sp)))
             {
-                return "Could not apply discount!\n" + Policy.CheckPolicy(sp).PolicyError;
+                return "Could not apply discount!\n" + (Policy.CheckPolicy(sp).IsOk ? "Discount validity has expired\n" : Policy.CheckPolicy(sp).PolicyError);
             }
 
-            foreach (var sp in purchase.StorePurchases)
+            foreach (var pp in sp.PurchaseProducts)
             {
-                decimal storeMoneySaved = 0;
-                
-                if (sp.Store.Guid != _store.Guid) continue;
-                
-                var discountDecimal = (((decimal) 100 - (decimal) Percentage) / (decimal) 100);
-                
-                foreach (var pp in sp.PurchaseProducts)
-                {
-                    var productPriceBeforeDiscount = pp.Price;
-                    
-                    pp.Price *= discountDecimal;
-                    
-                    discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() + 
-                                    " product that belongs to " + _store.StoreName.ToString() + " store\n";
+                if (!(pp.Product.Store.Guid == sp.Store.Guid)) continue;
 
-                    storeMoneySaved += (productPriceBeforeDiscount - pp.Price);
-                }
+                var productPriceBeforeDiscount = pp.Price;
 
-                sp.TotalPrice -= storeMoneySaved;
-                totalMoneySaved += storeMoneySaved;
+                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+
+                pp.Price *= discountDecimal;
+
+                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() +
+                                " product that belongs to " + sp.Store.StoreName.ToString() + " store\n";
+
+                moneySaved += (productPriceBeforeDiscount - pp.Price);
             }
 
-            purchase.TotalPrice -= totalMoneySaved;
+            sp.DiscountedPrice = sp.DiscountedPrice - moneySaved;
 
             return discountInfo;
         }
 
-        public override decimal CalculateTotalPriceWithoutApplying(Purchase purchase)
+        public override string ApplyDiscount(User user, ShoppingBasket basket)
         {
-            decimal totalPrice = 0;
+            var discountInfo = "";
 
-            if (purchase.StorePurchases.Any(sp => !ValidateDiscount(sp)))
+            if (!(ValidateDiscount(user, basket)))
             {
-                return -1;
+                return "Could not apply discount!\n" + (Policy.CheckPolicy(user, basket).IsOk ?
+                    "Discount validity has expired\n" : Policy.CheckPolicy(user, basket).PolicyError);
             }
 
-            foreach (var sp in purchase.StorePurchases)
+            foreach (var pair in basket.PurchaseProducts)
             {
-                decimal spPrice = 0;
-                foreach (var pp in sp.PurchaseProducts)
-                {
-                    if (pp.Product.Store.Guid == _store.Guid)
-                    {
-                        var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
-                        spPrice += (pp.Price * discountDecimal);
-                    }
-                    else
-                    {
-                        spPrice += pp.Price;
-                    }
-                }
+                var pp = pair.Value;
 
-                totalPrice += spPrice;
+                if (!(pp.Product.Guid == basket.Store.Guid)) continue;
+
+                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+
+                pp.DiscountedPrice = pp.Price * discountDecimal;
+
+                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() +
+                                " product that belongs to " + basket.Store.StoreName.ToString() + " store\n";
             }
 
-            return totalPrice;
+            return discountInfo;
         }
 
+        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp)
+        {
+            decimal calculatedDiscount = 0;
+            decimal ppDiscount = 0;
+
+            if (!ValidateDiscount(sp))
+            {
+                return decimal.MaxValue;
+            }
+
+
+            foreach (var pp in sp.PurchaseProducts)
+            {
+                if (pp.Product.Guid == sp.Store.Guid)
+                {
+                    ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
+                }
+
+                calculatedDiscount += ppDiscount;
+            }
+
+            return calculatedDiscount;
+        }
+
+        public override decimal CalculateTotalPriceWithoutApplying(User user, ShoppingBasket basket)
+        {
+            decimal calculatedDiscount = 0;
+            decimal ppDiscount = 0;
+
+            if (!ValidateDiscount(user, basket))
+            {
+                return decimal.MaxValue;
+            }
+
+
+            foreach (var pair in basket.PurchaseProducts)
+            {
+                var pp = pair.Value;
+
+                if (pp.Product.Guid == basket.Store.Guid)
+                {
+                    ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
+                }
+
+                calculatedDiscount += ppDiscount;
+            }
+
+            return calculatedDiscount;
+        }
     }
 }

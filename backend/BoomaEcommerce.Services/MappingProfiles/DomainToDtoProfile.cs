@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Discounts.Operators;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Domain.Policies.Operators;
 using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
+using OperatorType = BoomaEcommerce.Services.DTO.Policies.OperatorType;
 
 namespace BoomaEcommerce.Services.MappingProfiles
 {
@@ -125,6 +129,38 @@ namespace BoomaEcommerce.Services.MappingProfiles
                         XorPolicyOperator => OperatorType.Xor,
                         _ => throw new ArgumentOutOfRangeException(nameof(@operator))
                     });
+
+            CreateMap<Discount, DiscountDto>()
+                .Include<ProductDiscount, ProductDiscountDto>()
+                .Include<CategoryDiscount, CategoryDiscountDto>()
+                .Include<BasketDiscount, BasketDiscountDto>()
+                .Include<CompositeDiscount, CompositeDiscountDto>();
+
+            CreateMap<ProductDiscount, ProductDiscountDto>()
+                .ForMember(discountDto => discountDto.ProductGuid, x => x.MapFrom(discount => discount.Product.Guid))
+                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.ProductDiscount));
+
+            CreateMap<CategoryDiscount, CategoryDiscountDto>()
+                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.CategoryDiscount));
+
+            CreateMap<BasketDiscount, BasketDiscountDto>()
+                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.BasketDiscount));
+
+            CreateMap<CompositeDiscount, CompositeDiscountDto>()
+                .ConstructUsing((discount, context) => new CompositeDiscountDto()
+                {
+                    Operator = context.Mapper.Map<OperatorTypeDiscount>(discount.Operator)
+                });
+
+            CreateMap<DiscountOperator, OperatorTypeDiscount>()
+                .ConstructUsing((@operator, _) =>
+                    @operator switch
+                    {
+                        MaxDiscountOperator => OperatorTypeDiscount.Max,
+                        SumDiscountOperator => OperatorTypeDiscount.Sum,
+                        _ => throw new ArgumentOutOfRangeException(nameof(@operator))
+                    });
         }
+
     }
 }

@@ -9,6 +9,7 @@ using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
@@ -265,6 +266,64 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> GetPolicy(Guid storeGuid)
         {
             var policy = await _storesService.GetPolicyAsync(storeGuid);
+
+            if (policy == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(policy);
+        }
+
+        //[Authorize]
+        [HttpPost("{storeGuid}/discount")]
+        public async Task<IActionResult> CreateDiscount(Guid storeGuid, [FromBody] DiscountDto discount)
+        {
+            var createdDiscount = await _storesService.CreateDiscountAsync(storeGuid, discount);
+
+            if (createdDiscount == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/discounts/{createdDiscount.Guid}";
+
+            return Created(locationUrl, createdDiscount);
+        }
+
+        [Authorize]
+        [HttpPost("{storeGuid}/discount/{discountGuid}/sub-discounts")]
+        public async Task<IActionResult> CreateSubDiscount(Guid storeGuid, Guid discountGuid, [FromBody] DiscountDto discount)
+        {
+            var createdDiscount = await _storesService.AddDiscountAsync(storeGuid, discountGuid, discount);
+
+            if (createdDiscount == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/discounts/{createdDiscount.Guid}";
+
+            return Created(locationUrl, createdDiscount);
+        }
+
+        [Authorize]
+        [HttpDelete("{storeGuid}/discount/{discountGuid}")]
+        public async Task<IActionResult> DeleteDiscount(Guid storeGuid, Guid discountGuid)
+        {
+            var deletionResult = await _storesService.DeleteDiscountAsync(storeGuid, discountGuid);
+
+            if (!deletionResult)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet("{storeGuid}/discount")]
+        public async Task<IActionResult> GetDiscount(Guid storeGuid)
+        {
+            var policy = await _storesService.GetDiscountAsync(storeGuid);
 
             if (policy == null)
             {

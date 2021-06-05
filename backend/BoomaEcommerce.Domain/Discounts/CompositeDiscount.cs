@@ -8,31 +8,49 @@ using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Domain.Discounts
 {
-    public class CompositeDiscount 
+    public class CompositeDiscount : Discount
     {
-        private DiscountOperator _operator { get; set; }
+        public DiscountOperator Operator { get; set; }
 
-        private readonly List<Discount> _discounts;
+        private readonly List<Discount> Discounts;
 
-        public CompositeDiscount(DiscountOperator discountOperator)
+        public void AddToDiscountList(Discount discount)
         {
-            _discounts = new List<Discount>();
-            _operator = discountOperator;
+            Discounts.Add(discount);
         }
 
-        public string ApplyDiscount(Purchase purchase)
+        public CompositeDiscount(int percentage, DateTime startTime, DateTime endTime, string description, Policy policy, DiscountOperator discountOperator) :
+            base(percentage, startTime, endTime, description, policy)
         {
-            return _operator.ApplyOperator(purchase, _discounts);
+            Discounts = new List<Discount>();
+            Operator = discountOperator;
         }
 
-        public decimal CalculateTotalPriceWithoutApplying(Purchase purchase)
+        public CompositeDiscount(DiscountOperator discountOperator) : base(0, DateTime.MinValue, DateTime.MaxValue, null, null)
+        {
+            Discounts = new List<Discount>();
+            Operator = discountOperator;
+        }
+
+        public override string ApplyDiscount(StorePurchase sp)
+        {
+            return Operator.ApplyOperator(sp, Discounts);
+        }
+
+        public override string ApplyDiscount(User user, ShoppingBasket basket)
+        {
+            return Operator.ApplyOperator(user, basket, Discounts);
+        }
+
+        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp)
         {
             throw new NotImplementedException();
         }
 
-        public void AddToDiscountList(Discount discount)
+        public override decimal CalculateTotalPriceWithoutApplying(User user, ShoppingBasket basket)
         {
-            _discounts.Add(discount);
+            throw new NotImplementedException();
         }
     }
+
 }

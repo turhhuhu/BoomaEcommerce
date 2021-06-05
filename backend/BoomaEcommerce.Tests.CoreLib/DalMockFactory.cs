@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using Microsoft.AspNetCore.Identity;
 using Moq;
@@ -141,7 +142,8 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products,
-            IDictionary<Guid,Policy> policies
+            IDictionary<Guid,Policy> policies,
+            IDictionary<Guid, Discount> discounts
         )
         {
 
@@ -149,7 +151,8 @@ namespace BoomaEcommerce.Tests.CoreLib
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
             var storePurchasesRepoMock = MockRepository(storePurchases);
             var storeManagementRepoMock = MockRepository(storeManagements);
-            var storePolicyRepoMock = MockRepository(policies); 
+            var storePolicyRepoMock = MockRepository(policies);
+            var storeDiscountRepoMock = MockRepository(discounts);
 
 
             // Mock do to delete on cascade 
@@ -201,7 +204,10 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.ProductRepo).Returns(productsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.DiscountRepo).Returns(storeDiscountRepoMock?.Object);
 
+            storeDiscountRepoMock.Setup(x => x.FindByIdAsync<CompositeDiscount>(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid guid) => (CompositeDiscount)discounts[guid]);
 
             return storeUnitOfWorkMock;
         }

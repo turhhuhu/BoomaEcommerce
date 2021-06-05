@@ -11,6 +11,7 @@ namespace BoomaEcommerce.Domain
         public Product Product { get; set; }
         public int Amount { get; set; }
         public decimal Price { get; set; }
+        public decimal DiscountedPrice { get; set; }
 
         public PurchaseProduct(Product product, int amount, decimal price)
         {

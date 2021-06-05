@@ -10,6 +10,7 @@ namespace BoomaEcommerce.Domain.Discounts.Operators
     public abstract class DiscountOperator
     {
         protected DiscountOperator() { }
-        public abstract string ApplyOperator(Purchase purchase, List<Discount> discounts);
+        public abstract string ApplyOperator(StorePurchase sp, List<Discount> discounts);
+        public abstract string ApplyOperator(User user, ShoppingBasket basket, List<Discount> discounts);
     }
 }

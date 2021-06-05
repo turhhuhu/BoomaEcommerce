@@ -47,20 +47,20 @@ namespace BoomaEcommerce.Domain.Tests
             
             ppList.Add(pp);
 
-            var sp = new StorePurchase {PurchaseProducts = ppList, Buyer = buyer};
+            var sp = new StorePurchase {PurchaseProducts = ppList, Buyer = buyer, TotalPrice = 80, DiscountedPrice = 80 };
 
             List<StorePurchase> spList = new List<StorePurchase> {sp};
 
 
             var purchase = new Purchase {StorePurchases = spList, TotalPrice = 80, Buyer = buyer};
 
-            purchase.TotalPrice.Should().Be(80);
+            sp.TotalPrice.Should().Be(80);
 
-            var result = twentyPercentOff.ApplyDiscount(purchase);
+            var result = twentyPercentOff.ApplyDiscount(sp);
 
             _testOutputHelper.WriteLine(result);
 
-            purchase.TotalPrice.Should().Be(64);
+            sp.DiscountedPrice.Should().Be(64);
         }
 
         [Fact]
@@ -86,20 +86,20 @@ namespace BoomaEcommerce.Domain.Tests
 
             ppList.Add(pp);
 
-            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer };
+            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer, TotalPrice =  80, DiscountedPrice = 80};
 
             List<StorePurchase> spList = new List<StorePurchase> {sp};
 
 
             var purchase = new Purchase { StorePurchases = spList, TotalPrice = 80, Buyer = buyer };
 
-            purchase.TotalPrice.Should().Be(80);
+            sp.TotalPrice.Should().Be(80);
 
-            var result = twentyPercentOff.ApplyDiscount(purchase);
+            var result = twentyPercentOff.ApplyDiscount(sp);
 
             _testOutputHelper.WriteLine(result);
 
-            purchase.TotalPrice.Should().Be(80);
+            sp.DiscountedPrice.Should().Be(80);
         }
 
         [Fact]
@@ -125,20 +125,20 @@ namespace BoomaEcommerce.Domain.Tests
 
             ppList.Add(pp);
 
-            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer };
+            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer, TotalPrice = 80, DiscountedPrice = 80};
 
             List<StorePurchase> spList = new List<StorePurchase> { sp };
 
 
             var purchase = new Purchase { StorePurchases = spList, TotalPrice = 80, Buyer = buyer };
 
-            purchase.TotalPrice.Should().Be(80);
+            sp.TotalPrice.Should().Be(80);
 
-            var result = twentyPercentOff.ApplyDiscount(purchase);
+            var result = twentyPercentOff.ApplyDiscount(sp);
 
             _testOutputHelper.WriteLine(result);
 
-            purchase.TotalPrice.Should().Be(80);
+            sp.TotalPrice.Should().Be(80);
         }
 
 
@@ -175,7 +175,7 @@ namespace BoomaEcommerce.Domain.Tests
 
             ppList.Add(pp);
 
-            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer };
+            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer, TotalPrice = 100, DiscountedPrice = 100};
 
             List<StorePurchase> spList = new List<StorePurchase>();
 
@@ -183,13 +183,13 @@ namespace BoomaEcommerce.Domain.Tests
 
             var purchase = new Purchase { StorePurchases = spList, TotalPrice = 100, Buyer = buyer };
 
-            purchase.TotalPrice.Should().Be(100);
+            sp.TotalPrice.Should().Be(100);
 
-            var result = compositeDiscount.ApplyDiscount(purchase);
+            var result = compositeDiscount.ApplyDiscount(sp);
 
             _testOutputHelper.WriteLine(result);
 
-            purchase.TotalPrice.Should().Be(80);
+            sp.DiscountedPrice.Should().Be(80);
         }
 
         [Fact]
@@ -215,7 +215,7 @@ namespace BoomaEcommerce.Domain.Tests
                 simplePolicy, "Alcohol");
             
             Discount fivePercentOff = new BasketDiscount(5, DateTime.Now.AddDays(-3), DateTime.Now.AddDays(3), "",
-                simplePolicy, s);
+                simplePolicy);
 
             var buyer = new User { DateOfBirth = DateTime.Now.AddYears(-25), UserName = "matureBenny" };
 
@@ -233,7 +233,7 @@ namespace BoomaEcommerce.Domain.Tests
 
             ppList.Add(pp);
 
-            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer, Store = s};
+            var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer, Store = s, TotalPrice = 100, DiscountedPrice = 100};
 
             List<StorePurchase> spList = new List<StorePurchase>();
 
@@ -241,13 +241,13 @@ namespace BoomaEcommerce.Domain.Tests
 
             var purchase = new Purchase { StorePurchases = spList, TotalPrice = 100, Buyer = buyer};
 
-            purchase.TotalPrice.Should().Be(100);
+            sp.TotalPrice.Should().Be(100);
 
-            var result = compositeDiscount.ApplyDiscount(purchase);
+            var result = compositeDiscount.ApplyDiscount(sp);
 
             _testOutputHelper.WriteLine(result);
 
-            purchase.TotalPrice.Should().Be((decimal)68.4);
+            sp.DiscountedPrice.Should().Be((decimal)68.4);
         }
     }
 
