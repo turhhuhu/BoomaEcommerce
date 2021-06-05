@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using BoomaEcommerce.Core.Exceptions;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.DTO.Policies;
@@ -236,6 +237,156 @@ namespace BoomaEcommerce.AcceptanceTests
             result.Should().NotBeNull();
             var product = await _storeService.GetStoreProductAsync(product1_withGuid.Guid);
             product.Amount.Should().Be(7);
+        }
+
+        [Fact]
+        private async Task CompositePolicyDtoTest_ShouldThrowException_WhenSubPoliciesAreNOTCompatibleToPurchaseDetails()
+        {
+            // Arange
+
+            
+            var policy1Guid = Guid.NewGuid();
+            var policy2Guid = Guid.NewGuid();
+
+            //get first store policy
+            var first_store_policy = await _storeService.GetPolicyAsync(_store_withGuid.Guid);
+
+            // create new policy 
+            _fixture.Customize<CategoryAmountPolicyDto>(p => p.With(pp => pp.Type, PolicyType.MinCategoryAmount)
+                                                              .With(pp => pp.Category, "Diary")
+                                                              .With(pp => pp.Amount, 3)
+                                                              .Without(pp => pp.Guid));
+            
+            var policy1 = _fixture.Create<CategoryAmountPolicyDto>();
+
+            var compositePolicy = _fixture.Build<CompositePolicyDto>().With(mp => mp.Operator, OperatorType.And)
+                .Without(mp => mp.Guid).
+                Without(p=> p.SubPolicies).
+                Create();
+
+            var policy2 = _fixture.Build<CategoryAmountPolicyDto>()
+                .With(tp => tp.Amount, 6)
+                .With(tp => tp.Type, PolicyType.MaxCategoryAmount)
+                .With(p => p.Category, "Diary")
+                .Without(tp => tp.Guid)
+                .Create();
+
+            var compPolicyGuid = (await _storeService.CreatePurchasePolicyAsync(_store_withGuid.Guid, compositePolicy))
+                .Guid;
+            await _storeService.AddPolicyAsync(_store_withGuid.Guid, compPolicyGuid, policy1);
+            await _storeService.AddPolicyAsync(_store_withGuid.Guid, compPolicyGuid, policy2);
+
+            //create purchase product 
+            purchase_product1 = _fixture.Build<PurchaseProductDto>()
+                                            .With(pp => pp.ProductGuid, product1_withGuid.Guid)
+                                            .Without(pp => pp.Guid)
+                                            .With(pp => pp.Price, product1_withGuid.Price * 7)
+                                            .With(pp => pp.Amount, 7)
+                                            .Create();
+
+
+            var purchaseProductList = new List<PurchaseProductDto>();
+            purchaseProductList.Add(purchase_product1);
+
+            var storePurchase = _fixture.Build<StorePurchaseDto>()
+                .With(sp => sp.StoreGuid, _store_withGuid.Guid)
+                .With(sp => sp.BuyerGuid, UserGuid)
+                .With(sp => sp.PurchaseProducts, purchaseProductList)
+                .Without(sp => sp.Guid)
+                .With(sp => sp.TotalPrice, purchase_product1.Price)
+                .Create();
+
+            var store_purchase_lst = new List<StorePurchaseDto>();
+            store_purchase_lst.Add(storePurchase);
+
+            purchase = _fixture.Build<PurchaseDto>()
+                .With(p => p.BuyerGuid, UserGuid)
+                .With(p => p.StorePurchases, store_purchase_lst)
+                .Without(p => p.Guid)
+                .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Create();
+
+            //Act 
+            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchase));
+
+            // Assert
+            await result.Should().ThrowAsync<PolicyValidationException>();
+        }
+
+        [Fact]
+        private async Task CompositePolicyDtoTest_ShouldMakePurchase_WhenSubPoliciesAreCompatibleToPurchaseDetails()
+        {
+            // Arange
+
+
+            var policy1Guid = Guid.NewGuid();
+            var policy2Guid = Guid.NewGuid();
+
+            //get first store policy
+            var first_store_policy = await _storeService.GetPolicyAsync(_store_withGuid.Guid);
+
+            // create new policy 
+            _fixture.Customize<CategoryAmountPolicyDto>(p => p.With(pp => pp.Type, PolicyType.MinCategoryAmount)
+                                                              .With(pp => pp.Category, "Diary")
+                                                              .With(pp => pp.Amount, 3)
+                                                              .Without(pp => pp.Guid));
+
+            var policy1 = _fixture.Create<CategoryAmountPolicyDto>();
+
+            var compositePolicy = _fixture.Build<CompositePolicyDto>().With(mp => mp.Operator, OperatorType.And)
+                .Without(mp => mp.Guid).
+                Without(p => p.SubPolicies).
+                Create();
+
+            var policy2 = _fixture.Build<CategoryAmountPolicyDto>()
+                .With(tp => tp.Amount, 10)
+                .With(tp => tp.Type, PolicyType.MaxCategoryAmount)
+                .With(p => p.Category, "Diary")
+                .Without(tp => tp.Guid)
+                .Create();
+
+            var compPolicyGuid = (await _storeService.CreatePurchasePolicyAsync(_store_withGuid.Guid, compositePolicy))
+                .Guid;
+            await _storeService.AddPolicyAsync(_store_withGuid.Guid, compPolicyGuid, policy1);
+            await _storeService.AddPolicyAsync(_store_withGuid.Guid, compPolicyGuid, policy2);
+
+            //create purchase product 
+            purchase_product1 = _fixture.Build<PurchaseProductDto>()
+                                            .With(pp => pp.ProductGuid, product1_withGuid.Guid)
+                                            .Without(pp => pp.Guid)
+                                            .With(pp => pp.Price, product1_withGuid.Price * 8)
+                                            .With(pp => pp.Amount, 8)
+                                            .Create();
+
+
+            var purchaseProductList = new List<PurchaseProductDto>();
+            purchaseProductList.Add(purchase_product1);
+
+            var storePurchase = _fixture.Build<StorePurchaseDto>()
+                .With(sp => sp.StoreGuid, _store_withGuid.Guid)
+                .With(sp => sp.BuyerGuid, UserGuid)
+                .With(sp => sp.PurchaseProducts, purchaseProductList)
+                .Without(sp => sp.Guid)
+                .With(sp => sp.TotalPrice, purchase_product1.Price)
+                .Create();
+
+            var store_purchase_lst = new List<StorePurchaseDto>();
+            store_purchase_lst.Add(storePurchase);
+
+            purchase = _fixture.Build<PurchaseDto>()
+                .With(p => p.BuyerGuid, UserGuid)
+                .With(p => p.StorePurchases, store_purchase_lst)
+                .Without(p => p.Guid)
+                .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Create();
+
+            //Act 
+            var result = await _purchaseService.CreatePurchaseAsync(purchase);
+
+            // Assert
+            result.Should().NotBeNull();
+            var product = await _storeService.GetStoreProductAsync(product1_withGuid.Guid);
+            product.Amount.Should().Be(2);
         }
 
 
