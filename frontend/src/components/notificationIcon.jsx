@@ -29,12 +29,11 @@ class NotificationIcon extends Component {
           return receiveRegularNotification(notification);
         },
         roleDismissalNotification: (notification) => {
-          const message = `owner ${notification?.dismissingUserMetaData?.userName} from ${notification?.storeMetaData.storeName} store, has dissmissed you from your role at the store`;
           this.setState({
             isSnackBarOpen: true,
-            snackBarMessage: message,
+            snackBarMessage: notification?.message,
           });
-          return receiveRoleDismissalNotification(notification, message);
+          return receiveRoleDismissalNotification(notification);
         },
       });
       this.props.dispatch(setupEventsHub);

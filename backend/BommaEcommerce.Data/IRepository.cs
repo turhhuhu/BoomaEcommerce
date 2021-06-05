@@ -127,5 +127,12 @@ namespace BoomaEcommerce.Data
         /// </returns>
         Task<TType> FindByIdAsync<TType>(Guid guid)
             where TType : BaseEntity;
+
+        /// <summary>
+        /// Attaches the given entity to the context underlying the repository.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        void Attach(T entity);
     }
 }

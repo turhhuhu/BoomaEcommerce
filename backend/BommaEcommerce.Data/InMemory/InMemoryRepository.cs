@@ -124,5 +124,10 @@ namespace BoomaEcommerce.Data.InMemory
                 ? Task.FromResult((TType)entity)
                 : Task.FromResult<TType>(null);
         }
+
+        public void Attach(T entity)
+        {
+            
+        }
     }
 }

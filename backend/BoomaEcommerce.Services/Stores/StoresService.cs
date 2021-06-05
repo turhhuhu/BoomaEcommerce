@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
@@ -39,12 +40,15 @@ namespace BoomaEcommerce.Services.Stores
             var newStore = _mapper.Map<Store>(store);
             try
             {
+                _storeUnitOfWork.AttachNoChange(newStore.StoreFounder);
+
                 await _storeUnitOfWork.StoreRepo.InsertOneAsync(newStore);
-                var user = _mapper.Map<User>(newStore.StoreFounder);
+
+
                 var storeOwnerShip = new StoreOwnership
                 {
                     Store = newStore,
-                    User = user
+                    User = newStore.StoreFounder
                 };
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(storeOwnerShip);
                 await _storeUnitOfWork.SaveAsync();
@@ -268,7 +272,7 @@ namespace BoomaEcommerce.Services.Stores
                 }
 
                 var newOwner = _mapper.Map<StoreOwnership>(newOwnerDto);
-                ownerStoreOwnership.StoreOwnerships.TryAdd(newOwner.Guid, newOwner);
+                ownerStoreOwnership.AddOwner(newOwner);
 
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(newOwner);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
@@ -302,7 +306,7 @@ namespace BoomaEcommerce.Services.Stores
 
 
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
-                ownerStoreOwnership.StoreManagements.TryAdd(newManager.Guid, newManager);
+                ownerStoreOwnership.AddManager(newManager);
 
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
@@ -729,21 +733,29 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                _logger.LogInformation("Making attempt add new child policy to policy with guid {policyGuid}.", policyGuid);
-                var compositePolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<CompositePolicy>(policyGuid);
-                if (compositePolicy == null)
+                _logger.LogInformation("Making attempt add new child policy to policy with guid {policyGuid}.",
+                    policyGuid);
+                var multiPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<MultiPolicy>(policyGuid);
+                if (multiPolicy == null)
                 {
                     return null;
                 }
+
                 var childPolicy = _mapper.Map<Policy>(childPolicyDto);
-                compositePolicy.AddPolicy(childPolicy);
+                multiPolicy.AddPolicy(childPolicy);
 
                 //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
 
                 await _storeUnitOfWork.SaveAsync();
-                _logger.LogInformation("Successfully added new child policy for policy with guid {policyGuid}", policyGuid);
+                _logger.LogInformation("Successfully added new child policy for policy with guid {policyGuid}",
+                    policyGuid);
                 return _mapper.Map<PolicyDto>(childPolicy);
+            }
+            catch (PolicyValidationException pe)
+            {
+                _logger.LogError(pe, "Failed to add policy.");
+                throw;
             }
             catch (Exception e)
             {

@@ -36,9 +36,12 @@ namespace BoomaEcommerce.Services
         public async Task InitializeAsync()
         {
             using var scope = _sp.CreateScope();
-            _storeUnitOfWork = scope.ServiceProvider.GetService<IStoreUnitOfWork>();
-            _userManager = scope.ServiceProvider.GetService<UserManager<User>>();
+            _storeUnitOfWork = scope.ServiceProvider.GetRequiredService<IStoreUnitOfWork>();
+            _userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             _roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
+
+            //await _storeUnitOfWork.StoreRepo.DeleteOneAsync(x => true);
+
             var user = await InitAdmin();
             if (_settings.SeedDummyData)
             {
@@ -52,7 +55,17 @@ namespace BoomaEcommerce.Services
                 }
             }
 
-            await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
+            await _storeUnitOfWork.SaveAsync();
+
+            try
+            {
+                if (_settings.UseCases.Any())
+                    await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed some use cases fully. (Mixed db could be the cause).");
+            }
         }
 
         private async Task SeedData(User user)
@@ -89,7 +102,6 @@ namespace BoomaEcommerce.Services
 
             await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
 
-            await _storeUnitOfWork.SaveAsync();
         }
 
         private async Task<User> InitAdmin()

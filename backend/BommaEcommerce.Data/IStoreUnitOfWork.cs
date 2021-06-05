@@ -20,5 +20,6 @@ namespace BoomaEcommerce.Data
         IRepository<Policy> PolicyRepo { get; set; }
         IRepository<Discount> DiscountRepo { get; set; }
         Task SaveAsync();
+        void AttachNoChange<TEntity>(TEntity entity) where TEntity : class;
     }
 }

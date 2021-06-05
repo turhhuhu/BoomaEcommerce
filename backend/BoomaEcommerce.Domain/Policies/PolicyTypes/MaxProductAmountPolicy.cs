@@ -21,7 +21,6 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var purchaseProduct = basket.PurchaseProducts
-                .Values
                 .FirstOrDefault(p => p.Product.Guid == Product.Guid);
 
             return (purchaseProduct?.Amount ?? 0) <= MaxAmount

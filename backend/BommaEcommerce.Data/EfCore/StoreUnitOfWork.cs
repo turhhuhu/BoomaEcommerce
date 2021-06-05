@@ -48,6 +48,12 @@ namespace BoomaEcommerce.Data.EfCore
             return _dbContext.SaveChangesAsync();
         }
 
+        public void AttachNoChange<TEntity>(TEntity entity)
+            where TEntity : class
+        {
+            _dbContext.Set<TEntity>().Attach(entity);
+        }
+
         public void Dispose()
         {
             Dispose(true);

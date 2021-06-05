@@ -34,7 +34,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(cartDto => cartDto.Baskets, x => x.MapFrom(shoppingCart => shoppingCart.StoreGuidToBaskets.Values));
 
             CreateMap<ShoppingBasket, ShoppingBasketDto>()
-                  .ForMember(basketDto =>basketDto.PurchaseProducts , x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts.Values))
+                  .ForMember(basketDto =>basketDto.PurchaseProducts , x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts))
                   .ForMember(basketDto => basketDto.StoreGuid, x => x.MapFrom(basket => basket.Store.Guid));
 
             CreateMap<StoreManagement, StoreManagementDto>();
@@ -80,7 +80,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .Include<MinCategoryAmountPolicy, CategoryAmountPolicyDto>()
                 .Include<CompositePolicy, CompositePolicyDto>()
                 .Include<MaxTotalAmountPolicy, TotalAmountPolicyDto>()
-                .Include<MinTotalAmountPolicy, TotalAmountPolicyDto>();
+                .Include<MinTotalAmountPolicy, TotalAmountPolicyDto>()
+                .Include<BinaryPolicy, BinaryPolicyDto>();
 
             CreateMap<AgeRestrictionPolicy, AgeRestrictionPolicyDto>()
                 .ForMember(policyDto => policyDto.ProductGuid, x => x.MapFrom(policy => policy.Product.Guid));
@@ -117,6 +118,18 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 {
                     Operator = context.Mapper.Map<OperatorType>(policy.Operator),
                     SubPolicies = context.Mapper.Map<IEnumerable<PolicyDto>>(policy.GetSubPolicies())
+                });
+
+            CreateMap<BinaryPolicy, BinaryPolicyDto>()
+                .ConstructUsing((policy, context) => new BinaryPolicyDto()
+                {
+                    Operator = context.Mapper.Map<OperatorType>(policy.Operator),
+                    FirstPolicy = policy.FirstPolicy != null 
+                        ? context.Mapper.Map<PolicyDto>(policy.FirstPolicy)
+                        : null,
+                    SecondPolicy = policy.SecondPolicy != null
+                        ? context.Mapper.Map<PolicyDto>(policy.SecondPolicy)
+                        : null
                 });
 
             CreateMap<PolicyOperator, OperatorType>()
