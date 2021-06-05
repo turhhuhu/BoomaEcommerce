@@ -63,9 +63,8 @@ namespace BoomaEcommerce.Domain.Discounts
                     "Discount validity has expired\n" : Policy.CheckPolicy(user, basket).PolicyError);
             }
 
-            foreach (var pair in basket.PurchaseProducts)
+            foreach (var pp in basket.PurchaseProducts)
             {
-                var pp = pair.Value;
 
                 if (!(pp.Product.Category.Equals(_category))) continue;
 
@@ -115,10 +114,8 @@ namespace BoomaEcommerce.Domain.Discounts
             }
 
 
-            foreach (var pair in basket.PurchaseProducts)
+            foreach (var pp in basket.PurchaseProducts)
             {
-                var pp = pair.Value;
-
                 if (pp.Product.Category.Equals(_category))
                 {
                     ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
