@@ -206,8 +206,11 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.DiscountRepo).Returns(storeDiscountRepoMock?.Object);
 
-            storeDiscountRepoMock.Setup(x => x.FindByIdAsync<CompositeDiscount>(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid guid) => (CompositeDiscount)discounts[guid]);
+            if (storeDiscountRepoMock != null)
+            {
+                storeDiscountRepoMock.Setup(x => x.FindByIdAsync<CompositeDiscount>(It.IsAny<Guid>()))
+                    .ReturnsAsync((Guid guid) => (CompositeDiscount) discounts[guid]);
+            }
 
             return storeUnitOfWorkMock;
         }

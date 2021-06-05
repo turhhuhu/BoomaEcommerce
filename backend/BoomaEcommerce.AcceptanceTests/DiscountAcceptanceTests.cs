@@ -130,7 +130,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
 
         [Fact]
-        private async Task test1()
+        private async Task ApplyDiscountSimpleDiscount_ShouldUpdatePurchasePrice_WhenDiscountPolicyIsFulfilled()
         {
             // Arange
 
@@ -196,7 +196,74 @@ namespace BoomaEcommerce.AcceptanceTests
         }
 
         [Fact]
-        private async Task test2()
+        private async Task ApplyDiscountSimpleDiscount_ShouldNOTUpdatePurchasePriceAndThrowException_WhenDiscountPolicyIsNOTFulfilled()
+        {
+            // Arange
+
+            //get first store policy
+            var first_store_policy = await _storeService.GetPolicyAsync(_store_withGuid.Guid);
+
+            // create new policy 
+            _fixture.Customize<CategoryAmountPolicyDto>(p => p.With(pp => pp.Type, PolicyType.MaxCategoryAmount)
+                                                              .With(pp => pp.Category, "Diary")
+                                                              .With(pp => pp.Amount, 3)
+                                                              .Without(pp => pp.Guid));
+            var policy1 = _fixture.Create<CategoryAmountPolicyDto>();
+
+            await _storeService.CreatePurchasePolicyAsync(_store_withGuid.Guid, policy1);
+
+            var discount = _fixture.Build<CategoryDiscountDto>()
+                .With(d => d.Category, "Diary")
+                .With(d => d.Percentage, 10)
+                .With(d => d.Policy, policy1)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            await _storeService.CreateDiscountAsync(_store_withGuid.Guid, discount);
+
+            //create purchase product 
+            purchase_product1 = _fixture.Build<PurchaseProductDto>()
+                                            .With(pp => pp.ProductGuid, product1_withGuid.Guid)
+                                            .Without(pp => pp.Guid)
+                                            .With(pp => pp.Price, product1_withGuid.Price * 6)
+                                            .With(pp => pp.Amount, 6)
+                                            .Create();
+
+
+            var purchaseProductList = new List<PurchaseProductDto>();
+            purchaseProductList.Add(purchase_product1);
+
+            var storePurchase = _fixture.Build<StorePurchaseDto>()
+                .With(sp => sp.StoreGuid, _store_withGuid.Guid)
+                .With(sp => sp.BuyerGuid, UserGuid)
+                .With(sp => sp.PurchaseProducts, purchaseProductList)
+                .Without(sp => sp.Guid)
+                .With(sp => sp.TotalPrice, purchase_product1.Price)
+                .With(sp => sp.DiscountedPrice, purchase_product1.Price)
+                .Create();
+
+            var store_purchase_lst = new List<StorePurchaseDto>();
+            store_purchase_lst.Add(storePurchase);
+
+            purchase = _fixture.Build<PurchaseDto>()
+                .With(p => p.BuyerGuid, UserGuid)
+                .With(p => p.StorePurchases, store_purchase_lst)
+                .Without(p => p.Guid)
+                .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Create();
+
+            //Act 
+            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchase));
+
+            // Assert
+            await result.Should().ThrowAsync<PolicyValidationException>();
+        }
+
+
+        [Fact]
+        private async Task ApplyDiscountCompositeDiscount_ShouldUpdatePurchasePrice_WhenDiscountPoliciesAreFulfilled()
         {
             // Arange
 

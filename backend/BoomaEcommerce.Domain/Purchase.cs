@@ -43,12 +43,22 @@ namespace BoomaEcommerce.Domain
                 .Select(res => new StorePolicyError(res.Item1, res.Item2.PolicyError))
                 .ToList();
 
+            decimal totalPrice = 0;
+
             foreach (var sp in StorePurchases)
             {
-                sp.Store.ApplyDiscount(sp);
+                if (sp.Store.StoreDiscount != null)
+                {
+                    sp.Store.ApplyDiscount(sp);
+                    totalPrice += sp.DiscountedPrice;
+                }
+                else
+                {
+                    totalPrice += sp.TotalPrice;
+                }
             }
 
-            this.TotalPrice = StorePurchases.Sum(sp => sp.DiscountedPrice);
+            this.TotalPrice = totalPrice;
 
             if (failedPolicyResults.Any())
             {
