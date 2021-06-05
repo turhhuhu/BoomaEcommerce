@@ -561,7 +561,6 @@ namespace BoomaEcommerce.Services.Stores
 
                 //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(policy);
-
                 await _storeUnitOfWork.SaveAsync();
                 _logger.LogInformation("Successfully set new policyDto for store with guid {storeGuid}", storeGuid);
                 return _mapper.Map<PolicyDto>(policy);
@@ -585,14 +584,15 @@ namespace BoomaEcommerce.Services.Stores
                         store => store.StorePolicy))
                     .FirstOrDefault();
 
-                if (policy == null)
+                if (policy == null || policy is EmptyPolicy)
                 {
                     return null;
                 }
 
+                var policyWithChildren = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
 
                 _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
-                return _mapper.Map<PolicyDto>(policy);
+                return _mapper.Map<PolicyDto>(policyWithChildren);
             }
             catch (Exception e)
             {

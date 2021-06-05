@@ -42,7 +42,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public virtual async Task<T> FindByIdAsync(Guid guid)
         {
-            return await DbContext.Set<T>().FindAsync(guid);
+            return await DbContext.Set<T>().SingleOrDefaultAsync(x => x.Guid == guid);
         }
 
         public virtual async Task InsertOneAsync(T entity)
@@ -92,12 +92,12 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             }
         }
 
-        public Task<TType> FindByIdAsync<TType>(Guid guid) where TType : BaseEntity
+        public virtual Task<TType> FindByIdAsync<TType>(Guid guid) where TType : BaseEntity
         {
             return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
         }
 
-        public void Attach(T entity)
+        public virtual void Attach(T entity)
         { 
             DbContext.Set<T>().Attach(entity);
         }

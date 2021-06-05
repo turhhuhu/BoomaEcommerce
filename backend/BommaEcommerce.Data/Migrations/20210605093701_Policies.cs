@@ -24,24 +24,16 @@ namespace BoomaEcommerce.Data.Migrations
                 table: "Notifications",
                 newName: "IX_Notifications_UserId");
 
+            migrationBuilder.AddColumn<Guid>(
+                name: "StorePolicyGuid",
+                table: "Stores",
+                type: "uniqueidentifier",
+                nullable: true);
+
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Notifications",
                 table: "Notifications",
                 column: "Guid");
-
-            migrationBuilder.CreateTable(
-                name: "PolicyOperator",
-                columns: table => new
-                {
-                    Guid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ErrorPrefix = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    PolicyOperatorType = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PolicyOperator", x => x.Guid);
-                });
 
             migrationBuilder.CreateTable(
                 name: "Policies",
@@ -52,7 +44,6 @@ namespace BoomaEcommerce.Data.Migrations
                     Level = table.Column<int>(type: "int", nullable: false),
                     CompositePolicyGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     PolicyType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OperatorGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ProductGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     MinAge = table.Column<int>(type: "int", nullable: true),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -75,12 +66,6 @@ namespace BoomaEcommerce.Data.Migrations
                         principalTable: "Policies",
                         principalColumn: "Guid");
                     table.ForeignKey(
-                        name: "FK_Policies_PolicyOperator_OperatorGuid",
-                        column: x => x.OperatorGuid,
-                        principalTable: "PolicyOperator",
-                        principalColumn: "Guid",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Policies_Products_MaxProductAmountPolicy_ProductGuid",
                         column: x => x.MaxProductAmountPolicy_ProductGuid,
                         principalTable: "Products",
@@ -98,13 +83,32 @@ namespace BoomaEcommerce.Data.Migrations
                         principalTable: "Products",
                         principalColumn: "Guid",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PolicyOperators",
+                columns: table => new
+                {
+                    Guid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ErrorPrefix = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    PolicyOperatorType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PolicyOperators", x => x.Guid);
                     table.ForeignKey(
-                        name: "FK_Policies_Stores_Guid",
+                        name: "FK_PolicyOperators_Policies_Guid",
                         column: x => x.Guid,
-                        principalTable: "Stores",
+                        principalTable: "Policies",
                         principalColumn: "Guid",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Stores_StorePolicyGuid",
+                table: "Stores",
+                column: "StorePolicyGuid");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Policies_CompositePolicyGuid",
@@ -122,11 +126,6 @@ namespace BoomaEcommerce.Data.Migrations
                 column: "MinProductAmountPolicy_ProductGuid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Policies_OperatorGuid",
-                table: "Policies",
-                column: "OperatorGuid");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Policies_ProductGuid",
                 table: "Policies",
                 column: "ProductGuid");
@@ -138,6 +137,14 @@ namespace BoomaEcommerce.Data.Migrations
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Stores_Policies_StorePolicyGuid",
+                table: "Stores",
+                column: "StorePolicyGuid",
+                principalTable: "Policies",
+                principalColumn: "Guid",
+                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -146,15 +153,27 @@ namespace BoomaEcommerce.Data.Migrations
                 name: "FK_Notifications_AspNetUsers_UserId",
                 table: "Notifications");
 
+            migrationBuilder.DropForeignKey(
+                name: "FK_Stores_Policies_StorePolicyGuid",
+                table: "Stores");
+
+            migrationBuilder.DropTable(
+                name: "PolicyOperators");
+
             migrationBuilder.DropTable(
                 name: "Policies");
 
-            migrationBuilder.DropTable(
-                name: "PolicyOperator");
+            migrationBuilder.DropIndex(
+                name: "IX_Stores_StorePolicyGuid",
+                table: "Stores");
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_Notifications",
                 table: "Notifications");
+
+            migrationBuilder.DropColumn(
+                name: "StorePolicyGuid",
+                table: "Stores");
 
             migrationBuilder.RenameTable(
                 name: "Notifications",

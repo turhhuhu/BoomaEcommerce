@@ -10,16 +10,13 @@ using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
 namespace BoomaEcommerce.Data.EfCore
 {
     public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Store> Stores { get; set; }
-
         public DbSet<Notification> Notifications { get; set; }
-
         public DbSet<Policy> Policies { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -45,9 +42,7 @@ namespace BoomaEcommerce.Data.EfCore
                 s.HasOne(ss => ss.StoreFounder)
                     .WithMany();
 
-                s.HasOne(ss => ss.StorePolicy)
-                    .WithOne()
-                    .HasForeignKey<Policy>(p => p.Guid);
+                s.HasOne(ss => ss.StorePolicy);
 
                 s.HasKey(ss => ss.Guid);
             });
@@ -80,44 +75,65 @@ namespace BoomaEcommerce.Data.EfCore
                     .HasValue<MinTotalAmountPolicy>(nameof(MinTotalAmountPolicy))
                     .HasValue<MaxProductAmountPolicy>(nameof(MaxProductAmountPolicy))
                     .HasValue<MinProductAmountPolicy>(nameof(MinProductAmountPolicy))
-                    .HasValue<CompositePolicy>(nameof(CompositePolicy))
-                    .HasValue<EmptyPolicy>(nameof(EmptyPolicy));
-                //.HasValue<BinaryPolicy>(nameof(BinaryPolicy));
+                    .HasValue<MultiPolicy>(nameof(MultiPolicy));
             });
+
+            modelBuilder.Entity<MultiPolicy>(p =>
+            {
+                p.HasDiscriminator<string>("PolicyType")
+                    .HasValue<CompositePolicy>(nameof(CompositePolicy))
+                    .HasValue<BinaryPolicy>(nameof(BinaryPolicy));
+
+                p.HasOne(pp => pp.Operator)
+                    .WithOne()
+                    .HasForeignKey<PolicyOperator>(op => op.Guid)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
             modelBuilder.Entity<AgeRestrictionPolicy>()
-                .HasOne(p => p.Product);
-            modelBuilder.Entity<EmptyPolicy>();
+                .HasOne(p => p.Product)
+                .WithMany()
+                .OnDelete(DeleteBehavior.NoAction);
+
             modelBuilder.Entity<MaxCategoryAmountPolicy>();
             modelBuilder.Entity<MinCategoryAmountPolicy>();
             modelBuilder.Entity<MaxTotalAmountPolicy>();
             modelBuilder.Entity<MinTotalAmountPolicy>();
+
             modelBuilder.Entity<MaxProductAmountPolicy>()
-                .HasOne(p => p.Product);
+                .HasOne(p => p.Product)
+                .WithMany()
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<MinProductAmountPolicy>()
-                .HasOne(p => p.Product);
+                .HasOne(p => p.Product)
+                .WithMany()
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<CompositePolicy>(p =>
             {
                 p.HasMany(pp => pp.SubPolicies)
                     .WithOne()
                     .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<BinaryPolicy>(p =>
+            {
+                p.HasOne(pp => pp.FirstPolicy);
+
+                p.HasOne(pp => pp.SecondPolicy);
+
+                var firstPolicyMetaData = p.Metadata.FindNavigation(nameof(BinaryPolicy.FirstPolicy));
+                firstPolicyMetaData.SetField("_firstPolicy");
+                firstPolicyMetaData.SetPropertyAccessMode(PropertyAccessMode.Field);
+
+                var secondPolicyMetaData = p.Metadata.FindNavigation(nameof(BinaryPolicy.SecondPolicy));
+                secondPolicyMetaData.SetField("_secondPolicy");
+                secondPolicyMetaData.SetPropertyAccessMode(PropertyAccessMode.Field);
 
                 p.HasOne(pp => pp.Operator);
             });
-
-            //modelBuilder.Entity<BinaryPolicy>(p =>
-            //{
-            //    p.HasOne(pp => pp.FirstPolicy)
-            //        .WithOne()
-            //        .HasForeignKey<Policy>(pp => pp.Guid);
-
-            //    p.HasOne(pp => pp.SecondPolicy)
-            //        .WithOne()
-            //        .HasForeignKey<Policy>(pp => pp.Guid);
-
-            //    p.HasOne(pp => pp.Operator);
-            //});
 
             modelBuilder.Entity<PolicyOperator>(op =>
             {
@@ -127,11 +143,14 @@ namespace BoomaEcommerce.Data.EfCore
                     .HasValue<AndPolicyOperator>(nameof(AndPolicyOperator))
                     .HasValue<XorPolicyOperator>(nameof(XorPolicyOperator))
                     .HasValue<ConditionPolicyOperator>(nameof(ConditionPolicyOperator));
+                op.ToTable("PolicyOperators");
             });
+
             modelBuilder.Entity<OrPolicyOperator>();
             modelBuilder.Entity<AndPolicyOperator>();
             modelBuilder.Entity<XorPolicyOperator>();
             modelBuilder.Entity<ConditionPolicyOperator>();
+
 
             base.OnModelCreating(modelBuilder);
         }

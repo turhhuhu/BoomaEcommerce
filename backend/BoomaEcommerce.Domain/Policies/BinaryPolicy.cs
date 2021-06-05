@@ -42,7 +42,6 @@ namespace BoomaEcommerce.Domain.Policies
 
         private BinaryPolicy()
         {
-            
         }
 
         public BinaryPolicy(PolicyOperator @operator)

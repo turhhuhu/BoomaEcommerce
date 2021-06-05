@@ -91,9 +91,8 @@ namespace BoomaEcommerce.Data.EfCore
                 }).AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IRepository<Store>, EfCoreRepository<Store, ApplicationDbContext>>();
-            services.AddTransient<IRepository<Policy>, EfCoreRepository<Policy, ApplicationDbContext>>();
+            services.AddTransient<IRepository<Policy>, EfCorePolicyRepository>();
             services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
-
 
             return services;
         }

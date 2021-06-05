@@ -43,6 +43,8 @@ namespace BoomaEcommerce.Data.EfCore
 
         public Task SaveAsync()
         {
+            var emptyPolicyStores = _dbContext.Set<Store>().Local.Where(s => s.StorePolicy is EmptyPolicy).ToList();
+            emptyPolicyStores.ForEach(s => s.StorePolicy = null);
             return _dbContext.SaveChangesAsync();
         }
 

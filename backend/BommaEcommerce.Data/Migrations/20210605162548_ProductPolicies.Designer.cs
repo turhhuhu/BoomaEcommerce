@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210603205741_Policies")]
-    partial class Policies
+    [Migration("20210605162548_ProductPolicies")]
+    partial class ProductPolicies
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -46,7 +46,6 @@ namespace BoomaEcommerce.Data.Migrations
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.Operators.PolicyOperator", b =>
                 {
                     b.Property<Guid>("Guid")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ErrorPrefix")
@@ -61,7 +60,7 @@ namespace BoomaEcommerce.Data.Migrations
 
                     b.HasKey("Guid");
 
-                    b.ToTable("PolicyOperator");
+                    b.ToTable("PolicyOperators");
 
                     b.HasDiscriminator<string>("PolicyOperatorType").HasValue("PolicyOperator");
                 });
@@ -69,6 +68,7 @@ namespace BoomaEcommerce.Data.Migrations
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.Policy", b =>
                 {
                     b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CompositePolicyGuid")
@@ -150,9 +150,14 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Property<string>("StoreName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("StorePolicyGuid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Guid");
 
                     b.HasIndex("StoreFounderId");
+
+                    b.HasIndex("StorePolicyGuid");
 
                     b.ToTable("Stores");
                 });
@@ -392,23 +397,11 @@ namespace BoomaEcommerce.Data.Migrations
                     b.HasDiscriminator().HasValue("XorPolicyOperator");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.CompositePolicy", b =>
+            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.MultiPolicy", b =>
                 {
                     b.HasBaseType("BoomaEcommerce.Domain.Policies.Policy");
 
-                    b.Property<Guid?>("OperatorGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("OperatorGuid");
-
-                    b.HasDiscriminator().HasValue("CompositePolicy");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.EmptyPolicy", b =>
-                {
-                    b.HasBaseType("BoomaEcommerce.Domain.Policies.Policy");
-
-                    b.HasDiscriminator().HasValue("EmptyPolicy");
+                    b.HasDiscriminator().HasValue("MultiPolicy");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.PolicyTypes.AgeRestrictionPolicy", b =>
@@ -509,11 +502,44 @@ namespace BoomaEcommerce.Data.Migrations
                     b.HasDiscriminator().HasValue("MinTotalAmountPolicy");
                 });
 
+            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.BinaryPolicy", b =>
+                {
+                    b.HasBaseType("BoomaEcommerce.Domain.Policies.MultiPolicy");
+
+                    b.Property<Guid?>("FirstPolicyGuid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SecondPolicyGuid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasIndex("FirstPolicyGuid");
+
+                    b.HasIndex("SecondPolicyGuid");
+
+                    b.HasDiscriminator().HasValue("BinaryPolicy");
+                });
+
+            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.CompositePolicy", b =>
+                {
+                    b.HasBaseType("BoomaEcommerce.Domain.Policies.MultiPolicy");
+
+                    b.HasDiscriminator().HasValue("CompositePolicy");
+                });
+
             modelBuilder.Entity("BoomaEcommerce.Domain.Notification", b =>
                 {
                     b.HasOne("BoomaEcommerce.Domain.User", null)
                         .WithMany("Notifications")
                         .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.Operators.PolicyOperator", b =>
+                {
+                    b.HasOne("BoomaEcommerce.Domain.Policies.MultiPolicy", null)
+                        .WithOne("Operator")
+                        .HasForeignKey("BoomaEcommerce.Domain.Policies.Operators.PolicyOperator", "Guid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.Policy", b =>
@@ -522,12 +548,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .WithMany("SubPolicies")
                         .HasForeignKey("CompositePolicyGuid")
                         .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("BoomaEcommerce.Domain.Store", null)
-                        .WithOne("StorePolicy")
-                        .HasForeignKey("BoomaEcommerce.Domain.Policies.Policy", "Guid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.Product", b =>
@@ -546,7 +566,13 @@ namespace BoomaEcommerce.Data.Migrations
                         .WithMany()
                         .HasForeignKey("StoreFounderId");
 
+                    b.HasOne("BoomaEcommerce.Domain.Policies.Policy", "StorePolicy")
+                        .WithMany()
+                        .HasForeignKey("StorePolicyGuid");
+
                     b.Navigation("StoreFounder");
+
+                    b.Navigation("StorePolicy");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -600,20 +626,12 @@ namespace BoomaEcommerce.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.CompositePolicy", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.Policies.Operators.PolicyOperator", "Operator")
-                        .WithMany()
-                        .HasForeignKey("OperatorGuid");
-
-                    b.Navigation("Operator");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.PolicyTypes.AgeRestrictionPolicy", b =>
                 {
                     b.HasOne("BoomaEcommerce.Domain.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductGuid");
+                        .HasForeignKey("ProductGuid")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Product");
                 });
@@ -622,7 +640,8 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasOne("BoomaEcommerce.Domain.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductGuid");
+                        .HasForeignKey("ProductGuid")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Product");
                 });
@@ -631,19 +650,35 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasOne("BoomaEcommerce.Domain.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductGuid");
+                        .HasForeignKey("ProductGuid")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.Store", b =>
+            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.BinaryPolicy", b =>
                 {
-                    b.Navigation("StorePolicy");
+                    b.HasOne("BoomaEcommerce.Domain.Policies.Policy", "FirstPolicy")
+                        .WithMany()
+                        .HasForeignKey("FirstPolicyGuid");
+
+                    b.HasOne("BoomaEcommerce.Domain.Policies.Policy", "SecondPolicy")
+                        .WithMany()
+                        .HasForeignKey("SecondPolicyGuid");
+
+                    b.Navigation("FirstPolicy");
+
+                    b.Navigation("SecondPolicy");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.User", b =>
                 {
                     b.Navigation("Notifications");
+                });
+
+            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.MultiPolicy", b =>
+                {
+                    b.Navigation("Operator");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.CompositePolicy", b =>

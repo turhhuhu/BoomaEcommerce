@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210605093701_Policies")]
+    partial class Policies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -500,23 +502,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.HasDiscriminator().HasValue("MinTotalAmountPolicy");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.BinaryPolicy", b =>
-                {
-                    b.HasBaseType("BoomaEcommerce.Domain.Policies.MultiPolicy");
-
-                    b.Property<Guid?>("FirstPolicyGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("SecondPolicyGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("FirstPolicyGuid");
-
-                    b.HasIndex("SecondPolicyGuid");
-
-                    b.HasDiscriminator().HasValue("BinaryPolicy");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.CompositePolicy", b =>
                 {
                     b.HasBaseType("BoomaEcommerce.Domain.Policies.MultiPolicy");
@@ -628,8 +613,7 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasOne("BoomaEcommerce.Domain.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductGuid")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("ProductGuid");
 
                     b.Navigation("Product");
                 });
@@ -638,8 +622,7 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasOne("BoomaEcommerce.Domain.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductGuid")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("ProductGuid");
 
                     b.Navigation("Product");
                 });
@@ -648,25 +631,9 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasOne("BoomaEcommerce.Domain.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductGuid")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("ProductGuid");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.Policies.BinaryPolicy", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.Policies.Policy", "FirstPolicy")
-                        .WithMany()
-                        .HasForeignKey("FirstPolicyGuid");
-
-                    b.HasOne("BoomaEcommerce.Domain.Policies.Policy", "SecondPolicy")
-                        .WithMany()
-                        .HasForeignKey("SecondPolicyGuid");
-
-                    b.Navigation("FirstPolicy");
-
-                    b.Navigation("SecondPolicy");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.User", b =>

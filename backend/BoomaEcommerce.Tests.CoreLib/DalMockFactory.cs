@@ -117,6 +117,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             repoMock.Setup(x => x.FindByIdAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid guid) => entities[guid]);
 
+
             repoMock.Setup(x => x.InsertManyAsync(It.IsAny<ICollection<TEntity>>()))
                 .Callback<IEnumerable<TEntity>>(entitiesToAdd =>
                     entitiesToAdd.ToList().ForEach(ent => entities.Add(ent.Guid, ent)));
@@ -134,6 +135,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 
             return repoMock;
         }
+
         public static Mock<IStoreUnitOfWork> MockStoreUnitOfWork(
             IDictionary<Guid, Store> stores,
             IDictionary<Guid, StoreOwnership> storeOwnerships,
@@ -149,7 +151,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
             var storePurchasesRepoMock = MockRepository(storePurchases);
             var storeManagementRepoMock = MockRepository(storeManagements);
-            var storePolicyRepoMock = MockRepository(policies); 
+            var storePolicyRepoMock = MockRepository(policies);
 
 
             // Mock do to delete on cascade 

@@ -26,9 +26,9 @@ namespace BoomaEcommerce.Domain.Policies
             op.ErrorPrefix = ErrorPrefix;
             SubPolicies = new List<Policy>();
         }
-        private CompositePolicy()
+        private CompositePolicy() : base()
         {
-            
+            _subPolicies = new List<Policy>();
         }
 
         public override void AddPolicy(Policy policy)

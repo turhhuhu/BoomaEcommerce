@@ -10,7 +10,7 @@ namespace BoomaEcommerce.Domain.Policies
     public abstract class Policy : BaseEntity
     {
         public static EmptyPolicy Empty => EmptyPolicy.EmptyPol;
-        protected Policy()
+        protected Policy() : base()
         {
             Level = 0;
             ErrorMessage = "";
@@ -20,6 +20,7 @@ namespace BoomaEcommerce.Domain.Policies
         protected internal string ErrorMessage { get; set; }
         public string ErrorPrefix { get; set; }
         public int Level { get; set; }
+
 
         protected internal virtual void SetPolicyNode(int level, string prefix)
         {
