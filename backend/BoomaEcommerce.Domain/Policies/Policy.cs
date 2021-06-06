@@ -16,7 +16,6 @@ namespace BoomaEcommerce.Domain.Policies
             ErrorMessage = "";
             ErrorPrefix = "";
         }
-
         protected internal string ErrorMessage { get; set; }
         public string ErrorPrefix { get; set; }
         public int Level { get; set; }
@@ -39,9 +38,8 @@ namespace BoomaEcommerce.Domain.Policies
     }
     public class EmptyPolicy : Policy
     {
-        public static EmptyPolicy EmptyPol => _emptyPolicy ??= new EmptyPolicy();
+        public static EmptyPolicy EmptyPol => new();
 
-        private static EmptyPolicy _emptyPolicy;
         private EmptyPolicy()
         {
 

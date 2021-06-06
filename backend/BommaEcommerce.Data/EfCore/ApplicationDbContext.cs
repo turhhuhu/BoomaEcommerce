@@ -63,7 +63,7 @@ namespace BoomaEcommerce.Data.EfCore
 
             modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
 
-            //modelBuilder.Ignore<EmptyPolicy>();
+            modelBuilder.Entity<EmptyPolicy>();
             modelBuilder.Entity<Policy>(p =>
             {
                 p.HasKey(pp => pp.Guid);
@@ -73,7 +73,8 @@ namespace BoomaEcommerce.Data.EfCore
                     .HasValue<MaxTotalAmountPolicy>(nameof(MaxTotalAmountPolicy))
                     .HasValue<MinTotalAmountPolicy>(nameof(MinTotalAmountPolicy))
                     .HasValue<ProductPolicy>(nameof(ProductPolicy))
-                    .HasValue<MultiPolicy>(nameof(MultiPolicy));
+                    .HasValue<MultiPolicy>(nameof(MultiPolicy))
+                    .HasValue<EmptyPolicy>(nameof(EmptyPolicy));
             });
 
             modelBuilder.Entity<ProductPolicy>(p =>
@@ -120,9 +121,13 @@ namespace BoomaEcommerce.Data.EfCore
 
             modelBuilder.Entity<BinaryPolicy>(p =>
             {
-                p.HasOne(pp => pp.FirstPolicy);
+                p.HasOne(pp => pp.FirstPolicy)
+                    .WithOne()
+                    .HasForeignKey<Policy>("FirstPolicyGuid");
 
-                p.HasOne(pp => pp.SecondPolicy);
+                p.HasOne(pp => pp.SecondPolicy)
+                    .WithOne()
+                    .HasForeignKey<Policy>("SecondPolicyGuid");
 
                 var firstPolicyMetaData = p.Metadata.FindNavigation(nameof(BinaryPolicy.FirstPolicy));
                 firstPolicyMetaData.SetField("_firstPolicy");

@@ -63,8 +63,15 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
             if (policy is BinaryPolicy binaryPolicy)
             {
-                await GetRecursively(binaryPolicy.FirstPolicy.Guid);
-                await GetRecursively(binaryPolicy.FirstPolicy.Guid);
+                if (binaryPolicy.FirstPolicy != null)
+                {
+                    await GetRecursively(binaryPolicy.FirstPolicy.Guid);
+                }
+
+                if (binaryPolicy.SecondPolicy != null)
+                {
+                    await GetRecursively(binaryPolicy.SecondPolicy.Guid);
+                }
             }
 
             return policy;
@@ -76,7 +83,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
                 .Set<Store>()
                 .FirstOrDefaultAsync(s => s.StorePolicy.Guid == guid);
 
-            store.StorePolicy = Policy.Empty;
+            //store.StorePolicy = Policy.Empty;
 
             await DeleteRecursively(guid);
         }
@@ -84,6 +91,8 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
         {
             var policy = await DbContext.Set<Policy>()
                 .Include(p => (p as CompositePolicy).SubPolicies)
+                .Include(p => (p as BinaryPolicy).FirstPolicy)
+                .Include(p => (p as BinaryPolicy).SecondPolicy)
                 .FirstOrDefaultAsync(p => p.Guid == guid);
 
             if (policy == null)
@@ -102,11 +111,16 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             }
             else if (policy is BinaryPolicy binaryPolicy)
             {
-                await DeleteRecursively(binaryPolicy.FirstPolicy.Guid);
-                await DeleteRecursively(binaryPolicy.SecondPolicy.Guid);
+                if (binaryPolicy.FirstPolicy != null)
+                {
+                    await DeleteRecursively(binaryPolicy.FirstPolicy.Guid);
+                }
+
+                if (binaryPolicy.SecondPolicy != null)
+                {
+                    await DeleteRecursively(binaryPolicy.SecondPolicy.Guid);
+                }
             }
-
-
             DbContext.Set<Policy>().Remove(policy);
         }
     }
