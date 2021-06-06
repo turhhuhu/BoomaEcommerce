@@ -6,6 +6,8 @@ async function callApi(endpoint, authenticated, config) {
   let token = localStorage.getItem("access_token") || null;
   if (!config) {
     config = {};
+  } else {
+    console.log(config);
   }
 
   if (authenticated) {

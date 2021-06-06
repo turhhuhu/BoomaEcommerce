@@ -26,7 +26,8 @@ class StorePolicyHeader extends Component {
         <section className="text-center border-bottom">
           <h1 className="jumbotron-heading">{`${this.props.storeName} Policy`}</h1>
           <p>
-            {this.props.myRole?.type === "ownership" ? (
+            {this.props.myRole?.type === "ownership" &&
+            !this.props.storePolicy?.type ? (
               <button
                 onClick={this.handleAddPolicy}
                 className="btn btn-outline-primary my-2"
@@ -36,6 +37,8 @@ class StorePolicyHeader extends Component {
               </button>
             ) : null}
             <AddStorePolicyDialog
+              isRoot="true"
+              storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isDialogOpen}
               closeDialog={this.closeDialog}
             />
@@ -49,6 +52,7 @@ class StorePolicyHeader extends Component {
 const mapStateToProps = (store) => {
   return {
     myRole: store.user.storeRole,
+    storePolicy: store.store.storePolicy,
   };
 };
 
