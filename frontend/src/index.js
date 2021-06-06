@@ -18,7 +18,8 @@ import StoreProductsPage from "./pages/storeProductsPage";
 import StoreManagementPage from "./pages/storeManagementPage";
 import NotificationsPage from "./pages/notificationsPage";
 import StorePolicyPage from "./pages/storePolicyPage";
-import paymentPage from "./pages/paymentPage";
+import PaymentPage from "./pages/paymentPage";
+import DeliveryPage from "./pages/deliveryPage";
 
 const { store, persistor } = configureStore();
 
@@ -31,7 +32,8 @@ ReactDOM.render(
           <Route path="/login" component={LoginPage}></Route>
           <Route path="/products" component={ProductsPage}></Route>
           <Route path="/home" component={ProductsPage}></Route>
-          <Route path="/cart/payment" component={paymentPage}></Route>
+          <Route path="/cart/payment" component={PaymentPage}></Route>
+          <Route path="/cart/delivery" component={DeliveryPage}></Route>
           <Route path="/cart" component={CartPage}></Route>
           <Route exact path="/user/stores" component={UserStoresPage}></Route>
           <Route

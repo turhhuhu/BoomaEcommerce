@@ -112,9 +112,9 @@ export function user(
         },
       });
     }
-    case UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_REQUEST:
+    case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_REQUEST:
       return Object.assign({}, state, action.payload);
-    case UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_SUCCESS: {
+    case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_SUCCESS: {
       const basketToAddToIndex = state.cart.baskets.findIndex(
         (basket) => basket.guid === action.extraPayload.basketGuid
       );
@@ -144,12 +144,70 @@ export function user(
         },
       });
     }
-    case UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_FAILURE:
+
+    case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_FAILURE:
       console.error(
         `error occured while removing product from basket: ${action.error}`
       );
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_AS_GUEST:
+      const basketToAddToIndex = state.cart.baskets.findIndex(
+        (basket) => basket.guid === action.payload.basketGuid
+      );
+      const basketToRemoveFrom = state.cart.baskets[basketToAddToIndex];
+      const purchaseProductToRemoveIndex =
+        basketToRemoveFrom.purchaseProducts.findIndex(
+          (purchaseProduct) =>
+            purchaseProduct.guid === action.payload.purchaseProductGuid
+        );
+      const newBasket = {
+        ...basketToRemoveFrom,
+        purchaseProducts: [
+          ...basketToRemoveFrom.purchaseProducts.slice(
+            0,
+            purchaseProductToRemoveIndex
+          ),
+          ...basketToRemoveFrom.purchaseProducts.slice(
+            purchaseProductToRemoveIndex + 1
+          ),
+        ],
+      };
+      return Object.assign({}, state, {
+        cart: {
+          baskets: Object.assign([], state.cart.baskets, {
+            [basketToAddToIndex]: newBasket,
+          }),
+        },
+      });
+    case UserActionTypes.CHANGE_PRODUCT_AMOUNT_IN_BASKET:
+      const basketToChangeIndex = state.cart.baskets.findIndex(
+        (basket) => basket.guid === action.payload.basketGuid
+      );
+      const basketToChange = state.cart.baskets[basketToChangeIndex];
+      const purchaseProductToChangeIndex =
+        basketToChange.purchaseProducts.findIndex(
+          (purchaseProduct) =>
+            purchaseProduct.guid === action.payload.purchaseProductGuid
+        );
+      const purchaseProductToChange =
+        basketToChange.purchaseProducts[purchaseProductToChangeIndex];
+      const { amount, ...changedPurhcaseProduct } = purchaseProductToChange;
+      changedPurhcaseProduct["amount"] = parseInt(action.payload.newAmount, 10);
+      const newPurchaseProducts = basketToChange.purchaseProducts.slice(0);
+      newPurchaseProducts[purchaseProductToChangeIndex] =
+        changedPurhcaseProduct;
+      const newBasketAfterChange = {
+        ...basketToChange,
+        purchaseProducts: newPurchaseProducts,
+      };
+      return Object.assign({}, state, {
+        cart: {
+          baskets: Object.assign([], state.cart.baskets, {
+            [basketToChangeIndex]: newBasketAfterChange,
+          }),
+        },
       });
 
     case UserActionTypes.USER_ROLES_REQUEST:

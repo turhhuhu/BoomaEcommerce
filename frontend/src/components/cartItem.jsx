@@ -1,12 +1,30 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { removeCartItem } from "../actions/userActions";
+import {
+  changeCartProductAmount,
+  removeCartItem,
+} from "../actions/userActions";
 
 class CartItem extends Component {
   state = {
-    quantity: this.props.maxQuantity,
-    currentPrice: this.props.price * this.props.maxQuantity,
+    quantity: 0,
+    maxQuantity: 0,
+    currentPrice: 0,
   };
+
+  componentDidMount() {
+    this.setState({
+      quantity: this.props.maxQuantity,
+      maxQuantity: this.props.maxQuantity,
+      currentPrice: this.props.price * this.props.maxQuantity,
+    });
+  }
+
+  componentDidUpdate() {
+    if (this.props.maxQuantity > this.state.maxQuantity) {
+      this.setState({ maxQuantity: this.props.maxQuantity });
+    }
+  }
 
   handleInputDisable = (event) => {
     event.preventDefault();
@@ -17,6 +35,13 @@ class CartItem extends Component {
       [event.target.name]: event.target.value,
     });
     this.setState({ currentPrice: this.props.price * event.target.value });
+    this.props.dispatch(
+      changeCartProductAmount(
+        this.props.basketGuid,
+        this.props.purchaseProductGuid,
+        event.target.value
+      )
+    );
   };
 
   removeCartItem = () => {
@@ -29,7 +54,7 @@ class CartItem extends Component {
     return (
       <article className="card card-body mb-3">
         <div className="row align-items-center">
-          <div className="col-md-6">
+          <div className="col">
             <figcaption className="info">
               <h6 className="title text-dark">{this.props.product?.name}</h6>
               <span className="text-muted small">
@@ -41,7 +66,7 @@ class CartItem extends Component {
               </span>
             </figcaption>
           </div>
-          <div className="col-md-3">
+          <div>
             <form className="form-inline">
               <div className="form-group">
                 <div className="mr-3">
@@ -49,7 +74,7 @@ class CartItem extends Component {
                     quantity:{" "}
                   </label>
                   <label htmlFor="quantity" className="small text-muted">
-                    max quantity: {this.props.maxQuantity}
+                    max quantity: {this.state.maxQuantity}
                   </label>
                 </div>
                 <input
@@ -57,7 +82,7 @@ class CartItem extends Component {
                   className="form-control w-60"
                   onKeyDown={this.handleInputDisable}
                   min={1}
-                  max={this.props.maxQuantity}
+                  max={this.state.maxQuantity}
                   placeholder={this.state.minPrice}
                   value={this.state.quantity}
                   onChange={this.handleQuantityChange}
@@ -68,7 +93,7 @@ class CartItem extends Component {
             </form>
           </div>
 
-          <div className="col price-wrap">
+          <div className="col-2 price-wrap">
             <var className="price">{this.state.currentPrice}$</var>
             <br />
             <small className="text-muted"> {this.props.price}$ each </small>

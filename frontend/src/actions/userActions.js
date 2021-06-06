@@ -7,7 +7,7 @@ import {
   USER_CART_BASKETS_URL,
   PRODUCT_URL,
   STORE_URL,
-  DELETE_PURCHASE_PRODUCT_FROM_BASKET_URL,
+  DELETE_PRODUCT_FROM_BASKET_URL,
   USER_ROLES_URL,
   ADD_STORE_URL,
   USER_STORE_ROLE,
@@ -143,23 +143,50 @@ function cartError(error) {
 }
 
 export function removeCartItem(basketGuid, purchaseProductGuid) {
+  return (dispatch, getState) => {
+    if (getState().auth.isAuthenticated) {
+      dispatch({
+        [CALL_API]: {
+          endpoint: DELETE_PRODUCT_FROM_BASKET_URL.replace(
+            "{basketGuid}",
+            basketGuid
+          ).replace("{purchaseProductGuid}", purchaseProductGuid),
+          authenticated: true,
+          types: [
+            UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_REQUEST,
+            UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_SUCCESS,
+            UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_FAILURE,
+          ],
+          config: {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          },
+          extraPayload: { basketGuid, purchaseProductGuid },
+        },
+      });
+    } else {
+      dispatch({
+        type: UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_AS_GUEST,
+        payload: {
+          basketGuid,
+          purchaseProductGuid,
+        },
+      });
+    }
+  };
+}
+
+export function changeCartProductAmount(
+  basketGuid,
+  purchaseProductGuid,
+  newAmount
+) {
   return {
-    [CALL_API]: {
-      endpoint: DELETE_PURCHASE_PRODUCT_FROM_BASKET_URL.replace(
-        "{basketGuid}",
-        basketGuid
-      ).replace("{purchaseProductGuid}", purchaseProductGuid),
-      authenticated: true,
-      types: [
-        UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_REQUEST,
-        UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_SUCCESS,
-        UserActionTypes.REMOVE_PURCHASE_PRODUCT_FROM_BASKET_FAILURE,
-      ],
-      config: {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      },
-      extraPayload: { basketGuid, purchaseProductGuid },
+    type: UserActionTypes.CHANGE_PRODUCT_AMOUNT_IN_BASKET,
+    payload: {
+      basketGuid,
+      purchaseProductGuid,
+      newAmount,
     },
   };
 }
@@ -167,13 +194,12 @@ export function removeCartItem(basketGuid, purchaseProductGuid) {
 export function addProductToBasket(purchaseProduct, product) {
   return (dispatch, getState) => {
     if (getState().auth.isAuthenticated) {
-      let endpoint = ADD_PRODUCT_TO_BASKET_URL.replace(
-        "{basketGuid}",
-        purchaseProduct.basketGuid
-      );
       dispatch({
         [CALL_API]: {
-          endpoint: endpoint,
+          endpoint: ADD_PRODUCT_TO_BASKET_URL.replace(
+            "{basketGuid}",
+            purchaseProduct.basketGuid
+          ),
           authenticated: true,
           types: [
             UserActionTypes.ADD_PRODUCT_TO_BASKET_REQUEST,

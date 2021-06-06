@@ -3,7 +3,7 @@ import Header from "../components/header";
 import { connect } from "react-redux";
 import PaymentForm from "../components/paymentForm";
 
-class LoginPage extends Component {
+class PaymentPage extends Component {
   state = {};
   render() {
     return (
@@ -17,4 +17,4 @@ class LoginPage extends Component {
   }
 }
 
-export default connect()(LoginPage);
+export default connect()(PaymentPage);

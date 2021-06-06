@@ -24,32 +24,16 @@ class CartView extends Component {
 
   render() {
     return (
-      <div className="row mx-auto" style={{ maxWidth: "1200px" }}>
+      <div className="row mx-auto" style={{ maxWidth: "1000px" }}>
         <main className="col-md-9">
           {this.props.cart ? this.getCartItems() : null}
         </main>
         <aside className="col-md-3">
           <div className="card">
             <div className="card-body">
-              <dl>
-                <dt>Total price:</dt>
-                <dd class="text-right">$69.97</dd>
-              </dl>
-              <dl>
-                <dt>Discount:</dt>
-                <dd class="text-right text-danger">- $10.00</dd>
-              </dl>
-              <dl>
-                <dt>Total:</dt>
-                <dd class="text-right text-dark b">
-                  <strong>$59.97</strong>
-                </dd>
-              </dl>
-              <hr />
-
               <a href="cart/payment" className="btn btn-primary btn-block">
                 {" "}
-                Make Purchase{" "}
+                Review Purchase{" "}
               </a>
               <a
                 href="/products"

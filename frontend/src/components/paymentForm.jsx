@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 const monthsArray = [
-  "MM",
   "January",
   "February",
   "March",
@@ -18,7 +17,6 @@ const monthsArray = [
 ];
 
 const yearsArray = [
-  "YY",
   "2021",
   "2022",
   "2023",
@@ -116,11 +114,17 @@ class PaymentForm extends Component {
                       name="month"
                       style={{ width: "120px" }}
                     >
-                      {monthsArray.map((month, index) => (
-                        <option value={index} key={index}>
-                          {month}
-                        </option>
-                      ))}
+                      {monthsArray.map((month, index) =>
+                        index === 0 ? (
+                          <option hidden key={index}>
+                            MM
+                          </option>
+                        ) : (
+                          <option value={index} key={index}>
+                            {month}
+                          </option>
+                        )
+                      )}
                     </select>
                     <span style={{ width: "20px", textAlign: "center" }}>
                       {" "}
@@ -132,11 +136,17 @@ class PaymentForm extends Component {
                       className="form-control"
                       style={{ width: "100px" }}
                     >
-                      {yearsArray.map((year, index) => (
-                        <option value={year} key={index}>
-                          {year}
-                        </option>
-                      ))}
+                      {yearsArray.map((year, index) =>
+                        index === 0 ? (
+                          <option hidden key={index}>
+                            YY
+                          </option>
+                        ) : (
+                          <option value={year} key={index}>
+                            {year}
+                          </option>
+                        )
+                      )}
                     </select>
                   </div>
                 </div>
