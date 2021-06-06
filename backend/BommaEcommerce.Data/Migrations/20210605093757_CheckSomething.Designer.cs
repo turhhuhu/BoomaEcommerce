@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210605093757_CheckSomething")]
+    partial class CheckSomething
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,42 +129,16 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Property<Guid?>("StoreGuid")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("StoreOwnershipGuid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Guid");
 
                     b.HasIndex("StoreGuid");
-
-                    b.HasIndex("StoreOwnershipGuid");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("StoreManagements");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.StoreOwnership", b =>
-                {
-                    b.Property<Guid>("Guid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoreGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Guid");
-
-                    b.HasIndex("StoreGuid");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("StoreOwnerships");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.User", b =>
@@ -416,29 +392,10 @@ namespace BoomaEcommerce.Data.Migrations
                         .HasForeignKey("StoreGuid")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("BoomaEcommerce.Domain.StoreOwnership", null)
-                        .WithMany("StoreManagements")
-                        .HasForeignKey("StoreOwnershipGuid");
-
                     b.HasOne("BoomaEcommerce.Domain.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Store");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.StoreOwnership", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.Store", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreGuid");
-
-                    b.HasOne("BoomaEcommerce.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
 
                     b.Navigation("Store");
 
@@ -494,11 +451,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.StoreOwnership", b =>
-                {
-                    b.Navigation("StoreManagements");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.User", b =>

@@ -53,8 +53,11 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var shoppingCartsDict = new Dictionary<Guid, ShoppingCart>();
+            var users = new List<User>();
             var userGuid = Guid.NewGuid();
-            var sut = GetUserService(null, shoppingCartsDict, null);
+            users.Add(new User { Guid = userGuid });
+
+            var sut = GetUserService(null, shoppingCartsDict, null, users);
             
             // Act
             var result = await sut.GetShoppingCartAsync(userGuid);

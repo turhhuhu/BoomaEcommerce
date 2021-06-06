@@ -19,6 +19,8 @@ namespace BoomaEcommerce.Data.EfCore
 
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
+        public DbSet<StoreOwnership> StoreOwnerships { get; set; }
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
@@ -46,15 +48,16 @@ namespace BoomaEcommerce.Data.EfCore
                 s.HasKey(ss => ss.Guid);
             });
 
-            modelBuilder.Entity<ShoppingCart>(sc =>
-            {
-                sc.HasKey(s => s.Guid);
-                sc.HasOne(s => s.User).WithOne().HasForeignKey<User>(x => x.Guid);
-                // sc.Ignore(s => s.User);
-                sc.Ignore(s => s.StoreGuidToBaskets);
+             modelBuilder.Entity<ShoppingCart>(sc =>
+             {
+                 sc.HasKey(s => s.Guid);
+                 sc.HasOne(s => s.User).WithOne().HasForeignKey<ShoppingCart>(x => x.Guid) ;
+                 // sc.Ignore(s => s.User);
+                 sc.Ignore(s => s.StoreGuidToBaskets);
 
-            });
+             });
 
+       
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Notifications)
@@ -71,24 +74,21 @@ namespace BoomaEcommerce.Data.EfCore
                 sm.HasKey(s => s.Guid);
             });
 
-            /*
+            
             modelBuilder.Entity<StoreOwnership>(so =>
             {
-                so.HasMany(s => s.StoreManagements.Values).WithOne();
-                so.HasMany(s => s.StoreOwnerships.Values).WithOne(); 
-                so.HasOne(s => s.Store).WithMany(); 
-                so.HasOne(s => s.User).WithMany();
+                so.HasMany(s => s.StoreManagements).WithOne();
+                //so.Ignore(s => s.StoreManagements);
+                //so.HasMany(s => s.StoreOwnerships).WithOne(); 
+                so.Ignore(s => s.StoreOwnerships);
+                so.HasOne(s => s.Store).WithMany();
+                //so.Ignore(s => s.Store);
+                so.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade);
+                //so.Ignore(s => s.User);
                 so.HasKey(s=>s.Guid);
-            });*/
+            }); 
 
-            modelBuilder.Entity<ShoppingCart>(sc =>
-            {
-                sc.HasKey(s => s.Guid);
-                sc.HasOne(s => s.User).WithOne().HasForeignKey<ShoppingCart>(x => x.Guid);
-                // sc.Ignore(s => s.User);
-                sc.Ignore(s => s.StoreGuidToBaskets);
-
-            });
+       
 
             modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
             base.OnModelCreating(modelBuilder);
