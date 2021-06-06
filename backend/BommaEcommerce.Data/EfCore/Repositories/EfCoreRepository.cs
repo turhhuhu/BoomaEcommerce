@@ -42,7 +42,8 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public virtual async Task<T> FindByIdAsync(Guid guid)
         {
-            return await DbContext.Set<T>().SingleOrDefaultAsync(x => x.Guid == guid);
+            return await FindOneAsync((x) => x.Guid == guid);
+            //return await DbContext.Set<T>().FindAsync(guid);
         }
 
         public virtual async Task InsertOneAsync(T entity)

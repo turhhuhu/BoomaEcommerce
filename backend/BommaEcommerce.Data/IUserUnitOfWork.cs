@@ -11,5 +11,7 @@ namespace BoomaEcommerce.Data
         IRepository<PurchaseProduct> PurchaseProductRepo { get; set; }
         UserManager<User> UserManager { get; set; }
         Task SaveAsync();
+        void AttachNoChange<TEntity>(TEntity entity)
+            where TEntity : class;
     }
 }

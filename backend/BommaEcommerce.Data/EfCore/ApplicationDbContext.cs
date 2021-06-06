@@ -19,7 +19,13 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Policy> Policies { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public DbSet<StoreManagement> StoreManagements {get; set;}
+
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+
+        public DbSet<StoreOwnership> StoreOwnerships { get; set; }
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
         }
@@ -47,19 +53,47 @@ namespace BoomaEcommerce.Data.EfCore
                 s.HasKey(ss => ss.Guid);
             });
 
-            //modelBuilder.Entity<ShoppingCart>(sc =>
-            //{
-            //    sc.HasKey(s => s.Guid);
-            //    sc.HasOne(s => s.User).WithOne().HasForeignKey<User>(x => x.Guid);
-            //    // sc.Ignore(s => s.User);
-            //    sc.Ignore(s => s.StoreGuidToBaskets);
+             modelBuilder.Entity<ShoppingCart>(sc =>
+             {
+                 sc.HasKey(s => s.Guid);
+                 sc.HasOne(s => s.User).WithOne().HasForeignKey<ShoppingCart>(x => x.Guid) ;
+                 // sc.Ignore(s => s.User);
+                 sc.Ignore(s => s.StoreGuidToBaskets);
 
-            //});
+             });
 
+       
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Notifications)
                 .WithOne();
+                
+
+
+            
+            modelBuilder.Entity<StoreManagement>(sm =>
+            {
+                sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
+                sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
+                sm.Ignore(s => s.Permissions);
+                sm.HasKey(s => s.Guid);
+            });
+
+            
+            modelBuilder.Entity<StoreOwnership>(so =>
+            {
+                so.HasMany(s => s.StoreManagements).WithOne();
+                //so.Ignore(s => s.StoreManagements);
+                //so.HasMany(s => s.StoreOwnerships).WithOne(); 
+                so.Ignore(s => s.StoreOwnerships);
+                so.HasOne(s => s.Store).WithMany();
+                //so.Ignore(s => s.Store);
+                so.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade);
+                //so.Ignore(s => s.User);
+                so.HasKey(s=>s.Guid);
+            }); 
+
+       
 
             modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
 
