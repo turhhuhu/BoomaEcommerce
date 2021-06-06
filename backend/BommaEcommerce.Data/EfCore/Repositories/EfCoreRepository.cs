@@ -22,28 +22,27 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
         }
         public virtual async Task<IEnumerable<T>> FindAllAsync()
         {
-            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).ToListAsync();
+            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OrderByDescending(x => x.Guid).AsSplitQuery().ToListAsync();
         }
 
         public virtual async Task<IEnumerable<T>> FilterByAsync(Expression<Func<T, bool>> predicateExp)
         {
-            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).Where(predicateExp).ToListAsync();
+            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OrderByDescending(x => x.Guid).AsSplitQuery().Where(predicateExp).ToListAsync();
         }
 
         public virtual async Task<IEnumerable<TMapped>> FilterByAsync<TMapped>(Expression<Func<T, bool>> predicateExp, Expression<Func<T, TMapped>> mapExp)
         {
-            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).Where(predicateExp).Select(mapExp).ToListAsync();
+            return await DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OrderByDescending(x => x.Guid).AsSplitQuery().Where(predicateExp).Select(mapExp).ToListAsync();
         }
 
         public virtual Task<T> FindOneAsync(Expression<Func<T, bool>> predicateExp)
         {
-            return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).FirstOrDefaultAsync(predicateExp);
+            return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OrderByDescending(x => x.Guid).AsSplitQuery().FirstOrDefaultAsync(predicateExp);
         }
 
         public virtual async Task<T> FindByIdAsync(Guid guid)
         {
             return await FindOneAsync((x) => x.Guid == guid);
-            //return await DbContext.Set<T>().FindAsync(guid);
         }
 
         public virtual async Task InsertOneAsync(T entity)
@@ -95,7 +94,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public virtual Task<TType> FindByIdAsync<TType>(Guid guid) where TType : BaseEntity
         {
-            return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
+            return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).AsSplitQuery().OrderByDescending(x => x.Guid).OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
         }
 
         public virtual void Attach(T entity)

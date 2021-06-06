@@ -331,7 +331,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
 
             // Assert
-            list.Find(p => p.Guid == guidToDelete).Should().BeNull();
+            list.FirstOrDefault(p => p.Guid == guidToDelete).Should().BeNull();
             success.Should().BeTrue();
 
         }

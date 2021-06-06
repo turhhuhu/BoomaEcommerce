@@ -307,7 +307,7 @@ namespace BoomaEcommerce.Services.Stores
                 var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(newManager.Store.Guid);
                 newManager.Store = store;
                 ownerStoreOwnership.AddManager(newManager);
-                _storeUnitOfWork.AttachNoChange<User>(newManager.User);
+                _storeUnitOfWork.AttachNoChange(newManager.User);
                 //_storeUnitOfWork.AttachNoChange<Store>(newManager.Store);
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
                 await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);

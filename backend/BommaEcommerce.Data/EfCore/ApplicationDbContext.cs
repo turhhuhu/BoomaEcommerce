@@ -18,11 +18,9 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<Store> Stores { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Policy> Policies { get; set; }
-
+        public DbSet<ShoppingBasket> ShoppingBaskets { get; set; }
         public DbSet<StoreManagement> StoreManagements {get; set;}
-
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
-
         public DbSet<StoreOwnership> StoreOwnerships { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -53,24 +51,11 @@ namespace BoomaEcommerce.Data.EfCore
                 s.HasKey(ss => ss.Guid);
             });
 
-             modelBuilder.Entity<ShoppingCart>(sc =>
-             {
-                 sc.HasKey(s => s.Guid);
-                 sc.HasOne(s => s.User).WithOne().HasForeignKey<ShoppingCart>(x => x.Guid) ;
-                 // sc.Ignore(s => s.User);
-                 sc.Ignore(s => s.StoreGuidToBaskets);
-
-             });
-
-       
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Notifications)
                 .WithOne();
-                
 
-
-            
             modelBuilder.Entity<StoreManagement>(sm =>
             {
                 sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
@@ -96,6 +81,43 @@ namespace BoomaEcommerce.Data.EfCore
        
 
             modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
+
+            AddPolicyModels(modelBuilder);
+            AddCartModels(modelBuilder);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
+        private void AddCartModels(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ShoppingCart>(sc =>
+            {
+                sc.HasKey(s => s.Guid);
+                sc.HasOne(s => s.User)
+                    .WithOne()
+                    .HasForeignKey<ShoppingCart>(x => x.Guid);
+
+                sc.HasMany(s => s.ShoppingBaskets)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ShoppingBasket>(sb =>
+            {
+                sb.HasKey(b => b.Guid);
+                sb.OwnsMany(b => b.PurchaseProducts)
+                    .ToTable("ShoppingBasketPurchaseProducts")
+                    .HasOne(x => x.Product)
+                    .WithMany();
+
+
+                sb.HasOne(b => b.Store)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+        }
+        private void AddPolicyModels(ModelBuilder modelBuilder)
+        {
 
             modelBuilder.Entity<EmptyPolicy>();
             modelBuilder.Entity<Policy>(p =>
@@ -145,7 +167,7 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<MaxProductAmountPolicy>();
 
             modelBuilder.Entity<MinProductAmountPolicy>();
-                
+
             modelBuilder.Entity<CompositePolicy>(p =>
             {
                 p.HasMany(pp => pp.SubPolicies)
@@ -190,8 +212,6 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<XorPolicyOperator>();
             modelBuilder.Entity<ConditionPolicyOperator>();
 
-
-            base.OnModelCreating(modelBuilder);
         }
     }
 }

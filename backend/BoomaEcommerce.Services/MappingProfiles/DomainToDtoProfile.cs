@@ -27,11 +27,11 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<User, UserDto>();
 
             CreateMap<ShoppingCart, ShoppingCartDto>()
-                .ForMember(cartDto => cartDto.Baskets, x => x.MapFrom(shoppingCart => shoppingCart.StoreGuidToBaskets.Values));
+                .ForMember(cartDto => cartDto.Baskets, x => x.MapFrom(shoppingCart => shoppingCart.ShoppingBaskets));
 
             CreateMap<ShoppingBasket, ShoppingBasketDto>()
-                  .ForMember(basketDto =>basketDto.PurchaseProducts , x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts))
-                  .ForMember(basketDto => basketDto.StoreGuid, x => x.MapFrom(basket => basket.Store.Guid));
+                .ForMember(basketDto => basketDto.PurchaseProducts,
+                    x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts));
 
             CreateMap<StoreManagement, StoreManagementDto>();
 

@@ -8,7 +8,6 @@ namespace BoomaEcommerce.Data
     {
         IRepository<ShoppingBasket> ShoppingBasketRepo { get; set; }
         IRepository<ShoppingCart> ShoppingCartRepo { get; set; }
-        IRepository<PurchaseProduct> PurchaseProductRepo { get; set; }
         UserManager<User> UserManager { get; set; }
         Task SaveAsync();
         void AttachNoChange<TEntity>(TEntity entity)
