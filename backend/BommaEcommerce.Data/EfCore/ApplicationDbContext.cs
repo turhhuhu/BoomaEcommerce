@@ -68,14 +68,24 @@ namespace BoomaEcommerce.Data.EfCore
             {
                 p.HasKey(pp => pp.Guid);
                 p.HasDiscriminator<string>("PolicyType")
-                    .HasValue<AgeRestrictionPolicy>(nameof(AgeRestrictionPolicy))
                     .HasValue<MaxCategoryAmountPolicy>(nameof(MaxCategoryAmountPolicy))
                     .HasValue<MinCategoryAmountPolicy>(nameof(MinCategoryAmountPolicy))
                     .HasValue<MaxTotalAmountPolicy>(nameof(MaxTotalAmountPolicy))
                     .HasValue<MinTotalAmountPolicy>(nameof(MinTotalAmountPolicy))
-                    .HasValue<MaxProductAmountPolicy>(nameof(MaxProductAmountPolicy))
-                    .HasValue<MinProductAmountPolicy>(nameof(MinProductAmountPolicy))
+                    .HasValue<ProductPolicy>(nameof(ProductPolicy))
                     .HasValue<MultiPolicy>(nameof(MultiPolicy));
+            });
+
+            modelBuilder.Entity<ProductPolicy>(p =>
+            {
+                p.HasDiscriminator<string>("PolicyType")
+                    .HasValue<AgeRestrictionPolicy>(nameof(AgeRestrictionPolicy))
+                    .HasValue<MaxProductAmountPolicy>(nameof(MaxProductAmountPolicy))
+                    .HasValue<MinProductAmountPolicy>(nameof(MinProductAmountPolicy));
+
+                p.HasOne(pp => pp.Product)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<MultiPolicy>(p =>
@@ -91,26 +101,16 @@ namespace BoomaEcommerce.Data.EfCore
             });
 
 
-            modelBuilder.Entity<AgeRestrictionPolicy>()
-                .HasOne(p => p.Product)
-                .WithMany()
-                .OnDelete(DeleteBehavior.NoAction);
-
+            modelBuilder.Entity<AgeRestrictionPolicy>();
             modelBuilder.Entity<MaxCategoryAmountPolicy>();
             modelBuilder.Entity<MinCategoryAmountPolicy>();
             modelBuilder.Entity<MaxTotalAmountPolicy>();
             modelBuilder.Entity<MinTotalAmountPolicy>();
 
-            modelBuilder.Entity<MaxProductAmountPolicy>()
-                .HasOne(p => p.Product)
-                .WithMany()
-                .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<MaxProductAmountPolicy>();
 
-            modelBuilder.Entity<MinProductAmountPolicy>()
-                .HasOne(p => p.Product)
-                .WithMany()
-                .OnDelete(DeleteBehavior.NoAction);
-
+            modelBuilder.Entity<MinProductAmountPolicy>();
+                
             modelBuilder.Entity<CompositePolicy>(p =>
             {
                 p.HasMany(pp => pp.SubPolicies)

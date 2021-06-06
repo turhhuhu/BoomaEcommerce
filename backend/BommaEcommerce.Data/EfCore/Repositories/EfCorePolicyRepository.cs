@@ -25,7 +25,17 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             return DbContext.Set<Policy>()
                 .Include(p => (p as MultiPolicy).Operator)
                 .Include(p => (p as CompositePolicy).SubPolicies)
+                .Include(p => (p as ProductPolicy).Product)
                 .OfType<TType>().FirstOrDefaultAsync(p => p.Guid == guid);
+        }
+
+        public override Task InsertOneAsync(Policy policy)
+        {
+            if (policy is ProductPolicy productPolicy)
+            {
+                DbContext.Products.Attach(productPolicy.Product);
+            }
+            return base.InsertOneAsync(policy);
         }
 
         public override Task<Policy> FindByIdAsync(Guid guid)
@@ -40,11 +50,12 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
                 .Include(p => (p as CompositePolicy).SubPolicies)
                 .Include(p => (p as BinaryPolicy).FirstPolicy)
                 .Include(p => (p as BinaryPolicy).SecondPolicy)
+                .Include(p => (p as ProductPolicy).Product)
                 .FirstAsync(p => p.Guid == guid);
 
             if (policy is CompositePolicy compositePolicy)
             {
-                foreach (var multiPolicy in compositePolicy.SubPolicies.Where(p => p is MultiPolicy))
+                foreach (var multiPolicy in compositePolicy.SubPolicies)
                 {
                     await GetRecursively(multiPolicy.Guid);
                 }
@@ -52,14 +63,8 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
             if (policy is BinaryPolicy binaryPolicy)
             {
-                if (binaryPolicy.FirstPolicy is MultiPolicy)
-                {
-                    await GetRecursively(binaryPolicy.FirstPolicy.Guid);
-                }
-                if (binaryPolicy.FirstPolicy is MultiPolicy)
-                {
-                    await GetRecursively(binaryPolicy.FirstPolicy.Guid);
-                }
+                await GetRecursively(binaryPolicy.FirstPolicy.Guid);
+                await GetRecursively(binaryPolicy.FirstPolicy.Guid);
             }
 
             return policy;

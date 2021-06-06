@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class MaxProductAmountPolicy : Policy
+    public class MaxProductAmountPolicy : ProductPolicy
     {
-        public Product Product { get; set; }
         public int MaxAmount { get; set; }
 
-        public MaxProductAmountPolicy(Product product, int maxAmount)
+        public MaxProductAmountPolicy(Product product, int maxAmount) : base(product)
         {
             Product = product;
             MaxAmount = maxAmount;

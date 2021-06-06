@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class MinProductAmountPolicy : Policy
+    public class MinProductAmountPolicy : ProductPolicy
     {
-        public Product Product { get; set; }
         public int MinAmount { get; set; }
 
-        public MinProductAmountPolicy(Product product, int minAmount)
+        public MinProductAmountPolicy(Product product, int minAmount) : base(product)
         {
             Product = product;
             MinAmount = minAmount;
