@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Policies;
 

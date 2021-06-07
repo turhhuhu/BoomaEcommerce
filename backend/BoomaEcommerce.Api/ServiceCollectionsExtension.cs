@@ -28,13 +28,13 @@ namespace BoomaEcommerce.Api
     {
         public static IServiceCollection AddStoresService(this IServiceCollection services)
         {
-            services.AddTransient<IStoresService, StoresService>();
-            //services.AddTransient<IStoresService, SecuredStoreService>(sp =>
-            //{
-            //    var storeService = sp.GetService<StoresService>();
-            //    var claims = sp.GetService<ClaimsPrincipal>();
-            //    return new SecuredStoreService(claims, storeService);
-            //});
+            services.AddTransient<StoresService>();
+            services.AddTransient<IStoresService, SecuredStoreService>(sp =>
+            {
+                var storeService = sp.GetService<StoresService>();
+                var claims = sp.GetService<ClaimsPrincipal>();
+                return new SecuredStoreService(claims, storeService);
+            });
             return services;
         }
 

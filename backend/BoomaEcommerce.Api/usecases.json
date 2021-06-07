@@ -1,0 +1,20 @@
+{
+  "UseCases": [
+    {
+      "Actions": [
+        {
+          "Type": "LoginAction",
+          "UserName": "Admin",
+          "Password": "Admin"
+        },
+        {
+          "Type": "CreateStoreAction",
+          "StoreToCreate": {
+            "StoreName": "ArikStore",
+            "Description": "Literally the best store ever.."
+          }
+        }
+      ]
+    }
+  ]
+}
