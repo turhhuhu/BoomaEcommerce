@@ -71,7 +71,7 @@ namespace BoomaEcommerce.Data.EfCore
                 sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
                 sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
                 sm.Ignore(s => s.Permissions);
-                sm.HasKey(s => s.Guid);
+                sm.HasKey(s => s.Guid);          
             });
 
             

@@ -17,6 +17,18 @@ namespace BoomaEcommerce.Domain
         private ConcurrentDictionary<Guid, StoreOwnership> _storeOwnerships;
         private ConcurrentDictionary<Guid, StoreManagement> _storeManagements;
 
+        public List<StoreOwnership> StoreOwnerships
+        {
+            get => _storeOwnerships.Values.ToList();
+            set => _storeOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>(value.ToDictionary(o => o.Guid));
+        }
+        public List<StoreManagement> StoreManagements
+        {
+            get => _storeManagements.Values.ToList();
+            set => _storeManagements = new ConcurrentDictionary<Guid, StoreManagement>(value.ToDictionary(o => o.Guid));
+        }
+
+        /*
         public ICollection<StoreOwnership> StoreOwnerships
         {
             get => _storeOwnerships.Values;
@@ -27,7 +39,7 @@ namespace BoomaEcommerce.Domain
             get => _storeManagements.Values;
             set => _storeManagements = new ConcurrentDictionary<Guid, StoreManagement>(value.ToDictionary(o => o.Guid));
         }
-
+        */
         public StoreOwnership()
         {
             _storeManagements = new ConcurrentDictionary<Guid, StoreManagement>();
