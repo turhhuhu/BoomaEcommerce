@@ -369,3 +369,21 @@ export function seeNotification(notificationGuid) {
     });
   };
 }
+
+export function submitPaymentInfo(paymentInfo) {
+  return {
+    type: UserActionTypes.SUBMIT_PAYMENT_INFO,
+    payload: {
+      paymentInfo,
+    },
+  };
+}
+
+export function submitDeliveryInfo(deliveryInfo) {
+  return {
+    type: UserActionTypes.SUBMIT_DELIVERY_INFO,
+    payload: {
+      deliveryInfo,
+    },
+  };
+}

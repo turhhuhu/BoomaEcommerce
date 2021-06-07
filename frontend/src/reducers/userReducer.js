@@ -9,6 +9,8 @@ export function user(
     },
     webSocketConnection: undefined,
     notifications: [],
+    paymentInfo: {},
+    deliveryInfo: {},
   },
   action
 ) {
@@ -268,6 +270,12 @@ export function user(
       return Object.assign({}, state, {
         notifications: newNotifcations,
       });
+    }
+    case UserActionTypes.SUBMIT_PAYMENT_INFO: {
+      return Object.assign({}, state, action.payload);
+    }
+    case UserActionTypes.SUBMIT_DELIVERY_INFO: {
+      return Object.assign({}, state, action.payload);
     }
 
     default:

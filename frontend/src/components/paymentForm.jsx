@@ -1,33 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
+import { submitPaymentInfo } from "../actions/userActions";
+import { yearsArray, monthsArray } from "../utils/constants";
 
-const monthsArray = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const yearsArray = [
-  "2021",
-  "2022",
-  "2023",
-  "2024",
-  "2025",
-  "2026",
-  "2027",
-  "2028",
-  "2029",
-  "2030",
-];
 class PaymentForm extends Component {
   state = {
     fullName: "",
@@ -44,8 +20,13 @@ class PaymentForm extends Component {
     });
   };
 
-  handlePayment = () => {
-    console.log(this.state);
+  handlePayment = (isWithDelivery) => {
+    this.props.dispatch(submitPaymentInfo(this.state));
+    if (isWithDelivery) {
+      this.props.history.push("/cart/delivery");
+    } else {
+      this.props.history.push("/cart/purchase");
+    }
   };
 
   render() {
@@ -114,17 +95,12 @@ class PaymentForm extends Component {
                       name="month"
                       style={{ width: "120px" }}
                     >
-                      {monthsArray.map((month, index) =>
-                        index === 0 ? (
-                          <option hidden key={index}>
-                            MM
-                          </option>
-                        ) : (
-                          <option value={index} key={index}>
-                            {month}
-                          </option>
-                        )
-                      )}
+                      <option hidden>MM</option>
+                      {monthsArray.map((month, index) => (
+                        <option value={index} key={index}>
+                          {month}
+                        </option>
+                      ))}
                     </select>
                     <span style={{ width: "20px", textAlign: "center" }}>
                       {" "}
@@ -136,17 +112,12 @@ class PaymentForm extends Component {
                       className="form-control"
                       style={{ width: "100px" }}
                     >
-                      {yearsArray.map((year, index) =>
-                        index === 0 ? (
-                          <option hidden key={index}>
-                            YY
-                          </option>
-                        ) : (
-                          <option value={year} key={index}>
-                            {year}
-                          </option>
-                        )
-                      )}
+                      <option hidden>YY</option>
+                      {yearsArray.map((year, index) => (
+                        <option value={year} key={index}>
+                          {year}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -166,12 +137,20 @@ class PaymentForm extends Component {
               </div>
             </div>
             <button
-              onClick={this.handlePayment}
-              className="btn btn-outline-primary btn-block"
-              type="button"
+              onClick={() => this.handlePayment(false)}
+              className="btn btn-primary btn-block"
+              type="submit"
             >
               {" "}
-              Confirm{" "}
+              Continue to review purchase{" "}
+            </button>
+            <button
+              onClick={() => this.handlePayment(true)}
+              className="btn btn-outline-primary btn-block"
+              type="submit"
+            >
+              {" "}
+              Continue and order delivery{" "}
             </button>
           </form>
         </div>
@@ -180,4 +159,4 @@ class PaymentForm extends Component {
   }
 }
 
-export default connect()(PaymentForm);
+export default withRouter(connect()(PaymentForm));

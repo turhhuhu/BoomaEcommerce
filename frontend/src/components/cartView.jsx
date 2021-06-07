@@ -31,7 +31,7 @@ class CartView extends Component {
         <aside className="col-md-3">
           <div className="card">
             <div className="card-body">
-              <a href="cart/payment" className="btn btn-primary btn-block">
+              <a href="cart/review" className="btn btn-primary btn-block">
                 {" "}
                 Review Purchase{" "}
               </a>
