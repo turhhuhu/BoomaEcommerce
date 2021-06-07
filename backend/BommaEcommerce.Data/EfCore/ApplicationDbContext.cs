@@ -85,6 +85,41 @@ namespace BoomaEcommerce.Data.EfCore
             AddPolicyModels(modelBuilder);
             AddCartModels(modelBuilder);
 
+            modelBuilder.Entity<Purchase>(p =>
+            {
+                p.HasKey(pp => pp.Guid);
+                p.HasMany(pp => pp.StorePurchases)
+                    .WithOne();
+
+                // TODO: Change to be a new object which is information of user\guest
+                p.HasOne(pp => pp.Buyer)
+                    .WithMany();
+            });
+
+            modelBuilder.Entity<StorePurchase>(sp =>
+            {
+                sp.HasKey(s => s.Guid);
+                sp.OwnsMany(s => s.PurchaseProducts, p =>
+                {
+                    p.HasKey(pp => pp.Guid);
+                    p.HasOne(x => x.Product)
+                        .WithMany();
+                    p.WithOwner();
+                    p.ToTable("StorePurchasePurchaseProducts");
+
+                    p.Property(pp => pp.Price).HasPrecision(10, 5);
+                });
+                sp.HasOne(s => s.Store)
+                    .WithMany();
+
+                // TODO: Change to be a new object which is information of user\guest
+                sp.HasOne(s => s.Buyer)
+                    .WithMany();
+
+                sp.Property(s => s.TotalPrice).HasPrecision(10, 5);
+            });
+
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -110,10 +145,15 @@ namespace BoomaEcommerce.Data.EfCore
                     .HasOne(x => x.Product)
                     .WithMany();
 
-
-                sb.HasOne(b => b.Store)
-                    .WithMany()
-                    .OnDelete(DeleteBehavior.Cascade);
+                sb.OwnsMany(b => b.PurchaseProducts, p =>
+                {
+                    p.HasKey(pp => pp.Guid);
+                    p.HasOne(x => x.Product)
+                        .WithMany();
+                    p.WithOwner();
+                    p.Property(pp => pp.Price).HasPrecision(10, 5);
+                    p.ToTable("ShoppingBasketPurchaseProducts");
+                });
             });
         }
         private void AddPolicyModels(ModelBuilder modelBuilder)
