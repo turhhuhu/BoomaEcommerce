@@ -302,15 +302,12 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
                 }
 
-
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
-                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(newManager.Store.Guid);
-                newManager.Store = store;
+                newManager.Store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(newManager.Store.Guid);
                 ownerStoreOwnership.AddManager(newManager);
                 _storeUnitOfWork.AttachNoChange(newManager.User);
                 //_storeUnitOfWork.AttachNoChange<Store>(newManager.Store);
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
-                await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
                 await _storeUnitOfWork.SaveAsync();
                 return true;
 
