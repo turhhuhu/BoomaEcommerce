@@ -273,6 +273,7 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesStores = new Dictionary<Guid, Store>();
 
             var nikeStore = TestData.CreateStoreObject("nike");
             
@@ -282,12 +283,12 @@ namespace BoomaEcommerce.Services.Tests
            
 
             var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
-           
 
+            entitiesStores[nikeStore.Guid] = nikeStore;
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
 
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+           var us = GetStoreService(entitiesStores, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
             //SUCCESS
