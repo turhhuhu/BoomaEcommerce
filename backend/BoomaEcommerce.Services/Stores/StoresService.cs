@@ -235,7 +235,7 @@ namespace BoomaEcommerce.Services.Stores
                 storeOwnershipRemoveFrom.RemoveOwner(ownerGuid);
 
                 owners.Add(owner);
-               // await NotifyDismissal(storeOwnershipRemoveFrom, owners);
+                // await NotifyDismissal(storeOwnershipRemoveFrom, owners);
                 _storeUnitOfWork.StoreOwnershipRepo.DeleteRange(owners);
                 _storeUnitOfWork.StoreManagementRepo.DeleteRange(managers);
                 await _storeUnitOfWork.SaveAsync();
