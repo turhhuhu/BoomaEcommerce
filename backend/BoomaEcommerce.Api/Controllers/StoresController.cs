@@ -299,14 +299,14 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpGet("{storeGuid}/discount")]
         public async Task<IActionResult> GetDiscount(Guid storeGuid)
         {
-            var policy = await _storesService.GetDiscountAsync(storeGuid);
+            var discount = await _storesService.GetDiscountAsync(storeGuid);
 
-            if (policy == null)
+            if (discount == null)
             {
                 return NotFound();
             }
 
-            return Ok(policy);
+            return Ok(discount);
         }
 
         // Post sub discount in Store discount

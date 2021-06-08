@@ -790,7 +790,7 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 _logger.LogInformation("Making attempt add new child policy to policy of discount with guid {discountGuid}.", discountGuid);
-                var cPolicy = await _storeUnitOfWork.DiscountRepo.FindByIdAsync<CompositePolicy>(policyGuid);
+                var cPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<CompositePolicy>(policyGuid);
                 if (cPolicy == null)
                 {
                     return null;
