@@ -30,12 +30,12 @@ namespace BoomaEcommerce.Domain.Discounts
 
                 var productPriceBeforeDiscount = pp.Price;
 
-                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+                var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
                 pp.Price *= discountDecimal;
 
-                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() +
-                                " product that belongs to " + sp.Store.StoreName.ToString() + " store\n";
+                discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
+                                " product that belongs to " + sp.Store.StoreName + " store\n";
 
                 moneySaved += (productPriceBeforeDiscount - pp.Price);
             }
@@ -60,12 +60,12 @@ namespace BoomaEcommerce.Domain.Discounts
 
                 if (!(pp.Product.Guid == basket.Store.Guid)) continue;
 
-                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+                var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
                 pp.DiscountedPrice = pp.Price * discountDecimal;
 
-                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() +
-                                " product that belongs to " + basket.Store.StoreName.ToString() + " store\n";
+                discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
+                                " product that belongs to " + basket.Store.StoreName + " store\n";
             }
 
             return discountInfo;
@@ -86,7 +86,7 @@ namespace BoomaEcommerce.Domain.Discounts
             {
                 if (pp.Product.Guid == sp.Store.Guid)
                 {
-                    ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
+                    ppDiscount = pp.Price - (pp.Price * ((100 - (decimal)Percentage) / 100));
                 }
 
                 calculatedDiscount += ppDiscount;
@@ -111,7 +111,7 @@ namespace BoomaEcommerce.Domain.Discounts
 
                 if (pp.Product.Guid == basket.Store.Guid)
                 {
-                    ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
+                    ppDiscount = pp.Price - (pp.Price * ((100 - (decimal)Percentage) / 100));
                 }
 
                 calculatedDiscount += ppDiscount;

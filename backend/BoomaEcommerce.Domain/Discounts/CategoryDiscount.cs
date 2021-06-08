@@ -16,11 +16,7 @@ namespace BoomaEcommerce.Domain.Discounts
         {
             _category = category;
         }
-
-
-        /* discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() +
-                                    " of the " + _category + " category\n";
-        */
+        
         
         public override string ApplyDiscount(StorePurchase sp)
         {
@@ -38,11 +34,11 @@ namespace BoomaEcommerce.Domain.Discounts
 
                 var productPriceBeforeDiscount = pp.Price;
 
-                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+                var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
                 pp.Price *= discountDecimal;
 
-                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() +
+                discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
                                  " of the " + _category + " category\n";
 
                 moneySaved += (productPriceBeforeDiscount - pp.Price);
@@ -68,11 +64,11 @@ namespace BoomaEcommerce.Domain.Discounts
 
                 if (!(pp.Product.Category.Equals(_category))) continue;
 
-                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+                var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
                 pp.DiscountedPrice = pp.Price * discountDecimal;
 
-                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() +
+                discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
                                 " of the " + _category + " category\n";
             }
 
@@ -94,7 +90,7 @@ namespace BoomaEcommerce.Domain.Discounts
             {
                 if (pp.Product.Category.Equals(_category))
                 {
-                    ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
+                    ppDiscount = pp.Price - (pp.Price * ((100 - (decimal)Percentage) / 100));
                 }
 
                 calculatedDiscount += ppDiscount;
@@ -118,7 +114,7 @@ namespace BoomaEcommerce.Domain.Discounts
             {
                 if (pp.Product.Category.Equals(_category))
                 {
-                    ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
+                    ppDiscount = pp.Price - (pp.Price * ((100 - (decimal)Percentage) / 100));
                 }
 
                 calculatedDiscount += ppDiscount;

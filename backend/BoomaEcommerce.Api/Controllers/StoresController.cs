@@ -275,14 +275,7 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(policy);
         }
-
-
-
-
-
-
-
-
+        
         // Post store Discount 
 
         [Authorize]

@@ -39,11 +39,11 @@ namespace BoomaEcommerce.Domain.Discounts
 
                 var productPriceBeforeDiscount = pp.Price;
 
-                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+                var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
                 pp.Price *= discountDecimal;
 
-                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + pp.Product.Name.ToString() + " product \n";
+                discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name + " product \n";
 
                 moneySaved += (productPriceBeforeDiscount - pp.Price);
             }
@@ -67,11 +67,11 @@ namespace BoomaEcommerce.Domain.Discounts
             {
                 if (!(pp.Product.Guid == Product.Guid)) continue;
 
-                var discountDecimal = (((decimal)100 - (decimal)Percentage) / (decimal)100);
+                var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
                 pp.DiscountedPrice = pp.Price * discountDecimal;
 
-                discountInfo += "Applied " + Percentage.ToString() + "% discount to " + Product.Name.ToString() + " product \n";
+                discountInfo += "Applied " + Percentage + "% discount to " + Product.Name + " product \n";
             }
 
             return discountInfo;
@@ -92,7 +92,7 @@ namespace BoomaEcommerce.Domain.Discounts
             {
                 if (pp.Product.Guid == Product.Guid)
                 {
-                    ppDiscount = pp.Price - (pp.Price * (((decimal) 100 - (decimal) Percentage) / (decimal) 100));
+                    ppDiscount = pp.Price - (pp.Price * ((100 - (decimal) Percentage) / 100));
                 }
 
                 calculatedDiscount += ppDiscount;
@@ -117,7 +117,7 @@ namespace BoomaEcommerce.Domain.Discounts
 
                 if (pp.Product.Guid == Product.Guid)
                 {
-                    ppDiscount = pp.Price - (pp.Price * (((decimal)100 - (decimal)Percentage) / (decimal)100));
+                    ppDiscount = pp.Price - (pp.Price * ((100 - (decimal)Percentage) / 100));
                 }
 
                 calculatedDiscount += ppDiscount;
