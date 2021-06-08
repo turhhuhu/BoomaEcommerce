@@ -10,5 +10,7 @@ namespace BoomaEcommerce.Services.External
         public Task<long> MakePayment(Purchase purchase);
 
         public Task<int> CancelPayment(Guid purchaseGuid);
+
+        public Task<string> HandShake();
     }
 }

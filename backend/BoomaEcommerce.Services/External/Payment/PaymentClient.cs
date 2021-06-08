@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Services.ClientRequests;
 using BoomaEcommerce.Services.ClientRequests.paymentRequests;
 
 namespace BoomaEcommerce.Services.External
@@ -40,6 +41,15 @@ namespace BoomaEcommerce.Services.External
             var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
             var responseString = await response.Content.ReadAsStringAsync();
             return 1;
+        }
+        
+        public async Task<string> HandShake()
+        {
+            var handshakeItem = new HandshakeItem("handshake");
+            var content = handshakeItem.ToFormData();
+            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var responseString = await response.Content.ReadAsStringAsync();
+            return responseString;
         }
     }
 }
