@@ -47,6 +47,11 @@ namespace BoomaEcommerce.Data.InMemory
             
         }
 
+        public Task AttachUser(User user)
+        {
+            return Task.CompletedTask;
+        }
+
         public void Dispose()
         {
         }

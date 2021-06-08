@@ -10,9 +10,16 @@
         {
           "Type": "CreateStoreAction",
           "StoreToCreate": {
-            "StoreName": "ArikStore",
-            "Description": "Literally the best store ever.."
+            "StoreName": "Store",
+            "Description": "Blah"
           }
+        },
+        {
+          "Type": "GetOwnershipAction"
+        },
+        {
+          "Type": "NominateOwnerAction",
+          "NewOwnerUserName": "Arik"
         }
       ]
     }

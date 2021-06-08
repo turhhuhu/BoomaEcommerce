@@ -14,11 +14,15 @@ namespace BoomaEcommerce.Services.UseCases
 {
     public class CreateStoreUseCaseAction : UseCaseAction
     {
-        public IHttpContextAccessor Accessor { get; set; }
         public StoreDto StoreToCreate { get; set; }
 
-        public CreateStoreUseCaseAction(IUseCaseAction next, IServiceProvider sp) : base(next, sp)
+        public CreateStoreUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
+        }
+
+        public CreateStoreUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        {
+            
         }
 
         public CreateStoreUseCaseAction()
@@ -26,25 +30,19 @@ namespace BoomaEcommerce.Services.UseCases
 
         }
 
-        public override async Task NextAction(ClaimsPrincipal claims = null)
+        public override async Task NextAction(object obj = null, ClaimsPrincipal claims = null)
         {
-
-            Accessor.HttpContext = claims != null
-                ? new DefaultHttpContext {User = claims} 
-                : null;
-
             using var scope = Sp.CreateScope();
+
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
             claims.TryGetUserGuid(out var userGuid);
 
             StoreToCreate.FounderUserGuid = userGuid ?? default;
 
-            await storeService.CreateStoreAsync(StoreToCreate);
+            var store =  await storeService.CreateStoreAsync(StoreToCreate);
 
-            await Next(claims);
-
-            Accessor.HttpContext = null;
+            await Next(store, claims);
         }
     }
 }

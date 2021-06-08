@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Api
 {
     public interface IUseCaseRunner
     {
-        public Task RunAsync();
+        public void RunAsync();
     }
     public class UseCasesSettings
     {
@@ -48,7 +48,7 @@ namespace BoomaEcommerce.Api
             _useCasesSettings = useCaseSettings.Value;
         }
 
-        public async Task RunAsync()
+        public void RunAsync()
         {
             var useCases = ReadUseCases();
             useCases.Value.ToList().ForEach(useCase =>

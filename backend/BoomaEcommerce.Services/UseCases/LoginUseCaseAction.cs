@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.Settings;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
@@ -23,16 +24,21 @@ namespace BoomaEcommerce.Services.UseCases
         [JsonIgnore]
         public JwtSettings JwtSettings { get; set; }
 
-        public LoginUseCaseAction(IUseCaseAction next, IServiceProvider sp) : base(next, sp)
+        public LoginUseCaseAction(IUseCaseAction next, JwtSettings jwtSettings, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
+            JwtSettings = jwtSettings;
         }
 
+        public LoginUseCaseAction(JwtSettings jwtSettings, IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        {
+            JwtSettings = jwtSettings;
+        }
         public LoginUseCaseAction()
         {
             
         }
 
-        public override async Task NextAction(ClaimsPrincipal claims = null)
+        public override async Task NextAction(object obj = null, ClaimsPrincipal claims = null)
         {
 
             using var scope = Sp.CreateScope();
@@ -42,7 +48,7 @@ namespace BoomaEcommerce.Services.UseCases
 
             var claimsPrincipal = SecuredServiceBase.ValidateToken(loginRes.Token, JwtSettings.Secret);
 
-            await Next(claimsPrincipal);
+            await Next(obj, claimsPrincipal);
         }
     }
 }

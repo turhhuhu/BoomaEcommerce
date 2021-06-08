@@ -4,6 +4,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
@@ -11,7 +13,7 @@ namespace BoomaEcommerce.Services.UseCases
     public interface IUseCaseAction
     {
         public IUseCaseAction NextUseCaseAction { get; set; }
-        public Task NextAction(ClaimsPrincipal claims = null);
+        public Task NextAction(object obj = null, ClaimsPrincipal claims = null);
     }
 
     public abstract class UseCaseAction : IUseCaseAction
@@ -22,27 +24,41 @@ namespace BoomaEcommerce.Services.UseCases
         [JsonIgnore]
         public IServiceProvider Sp { get; set; }
 
-        protected UseCaseAction(IUseCaseAction next, IServiceProvider serviceProvider)
+
+        private readonly IHttpContextAccessor _accessor;
+
+        protected UseCaseAction(IUseCaseAction next, IServiceProvider serviceProvider, IHttpContextAccessor accessor)
         {
-            NextUseCaseAction = next;
             Sp = serviceProvider;
+            _accessor = accessor;
+            NextUseCaseAction = next;
+        }
+
+        protected UseCaseAction(IServiceProvider serviceProvider, IHttpContextAccessor accessor)
+        {
+            Sp = serviceProvider;
+            _accessor = accessor;
         }
 
         protected UseCaseAction()
         {
-            
         }
 
-        protected Task Next(ClaimsPrincipal claims = null)
+        protected async Task Next(object obj = null, ClaimsPrincipal claims = null)
         {
-            return NextUseCaseAction != null 
-                ? NextUseCaseAction.NextAction(claims) 
-                : Task.CompletedTask;
+            if (NextUseCaseAction != null)
+            {
+
+                _accessor.HttpContext = claims != null
+                    ? new DefaultHttpContext { User = claims }
+                    : null;
+
+                await NextUseCaseAction.NextAction(obj, claims);
+
+                _accessor.HttpContext = null;
+            }
         }
 
-        public virtual Task NextAction(ClaimsPrincipal claims = null)
-        {
-            return Task.CompletedTask;
-        }
+        public abstract Task NextAction(object obj = null, ClaimsPrincipal claims = null);
     }
 }

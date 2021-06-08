@@ -28,8 +28,10 @@ namespace BoomaEcommerce.Api
             var type = jObject["Type"].ToObject<string>();
             return type switch
             {
-                "LoginAction" => new LoginUseCaseAction {JwtSettings = _jwtSettings, Sp = _serviceProvider},
-                "CreateStoreAction" => new CreateStoreUseCaseAction {Sp = _serviceProvider, Accessor = _httpContextAccessor},
+                "LoginAction" => new LoginUseCaseAction(_jwtSettings, _serviceProvider, _httpContextAccessor),
+                "CreateStoreAction" => new CreateStoreUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetOwnershipAction" => new GetOwnershipUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "NominateOwnerAction" => new NominateOwnerUseCaseAction(_serviceProvider, _httpContextAccessor),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
