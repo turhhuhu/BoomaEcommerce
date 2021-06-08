@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
 
@@ -32,7 +33,7 @@ namespace BoomaEcommerce.Data.InMemory
             return Task.CompletedTask;
         }
 
-        public void AttachNoChange<TEntity>(TEntity entity) where TEntity : class
+        public void AttachNoChange<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
         { 
         }
     }

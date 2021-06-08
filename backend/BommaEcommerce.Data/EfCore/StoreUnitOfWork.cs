@@ -20,6 +20,7 @@ namespace BoomaEcommerce.Data.EfCore
         public IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         public IRepository<Product> ProductRepo { get; set; }
         public IRepository<Policy> PolicyRepo { get; set; }
+        public IRepository<User> UserRepo { get; set; }
 
 
         public StoreUnitOfWork(
@@ -30,7 +31,8 @@ namespace BoomaEcommerce.Data.EfCore
             IRepository<StoreManagement> storeManagementRepo,
             IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
-            IRepository<Policy> policyRepo)
+            IRepository<Policy> policyRepo,
+            IRepository<User> userRepo)
         {
             _dbContext = dbContext;
             StoreRepo = storeRepo;
@@ -40,6 +42,7 @@ namespace BoomaEcommerce.Data.EfCore
             StoreManagementPermissionsRepo = storeManagementPermissionsRepo;
             ProductRepo = productRepo;
             PolicyRepo = policyRepo;
+            UserRepo = userRepo;
         }
 
 
@@ -49,7 +52,7 @@ namespace BoomaEcommerce.Data.EfCore
         }
 
         public void AttachNoChange<TEntity>(TEntity entity)
-            where TEntity : class
+            where TEntity : class, IBaseEntity
         {
             _dbContext.Set<TEntity>().Attach(entity);
         }

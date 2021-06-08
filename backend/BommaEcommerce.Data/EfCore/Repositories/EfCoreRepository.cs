@@ -11,7 +11,7 @@ using BoomaEcommerce.Data.EfCore;
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
     public class EfCoreRepository<T, TDbContext> : IRepository<T> 
-        where T : BaseEntity
+        where T : class, IBaseEntity
         where TDbContext : DbContext
     {
         protected readonly TDbContext DbContext;
@@ -92,7 +92,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             }
         }
 
-        public virtual Task<TType> FindByIdAsync<TType>(Guid guid) where TType : BaseEntity
+        public virtual Task<TType> FindByIdAsync<TType>(Guid guid) where TType : class, IBaseEntity
         {
             return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).AsSplitQuery().OrderByDescending(x => x.Guid).OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
         }

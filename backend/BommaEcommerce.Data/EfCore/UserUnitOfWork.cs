@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
 
@@ -50,7 +51,7 @@ namespace BoomaEcommerce.Data.EfCore
             }
         }
         public void AttachNoChange<TEntity>(TEntity entity)
-            where TEntity : class
+            where TEntity : class, IBaseEntity
         {
             _dbContext.Set<TEntity>().Attach(entity);
         }

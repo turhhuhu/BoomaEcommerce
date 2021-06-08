@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
 
@@ -10,7 +11,8 @@ namespace BoomaEcommerce.Data
         IRepository<ShoppingCart> ShoppingCartRepo { get; set; }
         UserManager<User> UserManager { get; set; }
         Task SaveAsync();
+
         void AttachNoChange<TEntity>(TEntity entity)
-            where TEntity : class;
+            where TEntity : class, IBaseEntity;
     }
 }

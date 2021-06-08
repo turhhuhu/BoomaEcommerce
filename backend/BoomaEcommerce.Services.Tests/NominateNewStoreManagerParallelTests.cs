@@ -26,10 +26,11 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
-            IDictionary<Guid, Product> products)
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products , null);
+                storeManagements, storeManagementPermissions, products , null, users);
             
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }

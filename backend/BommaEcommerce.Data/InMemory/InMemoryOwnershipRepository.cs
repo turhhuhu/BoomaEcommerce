@@ -14,7 +14,7 @@ namespace BoomaEcommerce.Data.InMemory
         {
             if (!RepoContainer.AllEntities.ContainsKey(typeof(Store)))
             {
-                RepoContainer.AllEntities.TryAdd(typeof(Store), new Dictionary<Guid, Store>().ToDictionary(x => x.Key, x => (BaseEntity)x.Value));
+                RepoContainer.AllEntities.TryAdd(typeof(Store), new Dictionary<Guid, Store>().ToDictionary(x => x.Key, x => (IBaseEntity)x.Value));
 
             }
 
@@ -54,7 +54,7 @@ namespace BoomaEcommerce.Data.InMemory
         {
             if (!RepoContainer.AllEntities.ContainsKey(typeof(Store)))
             {
-                RepoContainer.AllEntities.TryAdd(typeof(Store), new Dictionary<Guid, Store>().ToDictionary(x => x.Key, x => (BaseEntity)x.Value));
+                RepoContainer.AllEntities.TryAdd(typeof(Store), new Dictionary<Guid, Store>().ToDictionary(x => x.Key, x => (IBaseEntity)x.Value));
             }
 
             InMemoryUserStore.Users ??= new Dictionary<string, User>();

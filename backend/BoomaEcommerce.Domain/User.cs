@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Domain
 {
-    public class User : IdentityUser<Guid>
+    public class User : IdentityUser<Guid>, IBaseEntity
     {
        
         public Guid Guid

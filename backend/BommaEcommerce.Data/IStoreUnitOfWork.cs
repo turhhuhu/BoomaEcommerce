@@ -18,8 +18,9 @@ namespace BoomaEcommerce.Data
         IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         IRepository<Product> ProductRepo { get; set; }
         IRepository<Policy> PolicyRepo { get; set; }
+        IRepository<User> UserRepo { get; set; }
         Task SaveAsync();
-        void AttachNoChange<TEntity>(TEntity entity) where TEntity : class;
+        void AttachNoChange<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
         Task AttachUser(User user);
     }
 }

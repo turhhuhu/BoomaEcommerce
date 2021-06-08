@@ -71,7 +71,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         }
 
         public static Mock<IRepository<TEntity>> MockRepository<TEntity>(IDictionary<Guid, TEntity> entities)
-            where TEntity : BaseEntity
+            where TEntity : class, IBaseEntity
         {
             if (entities == null)
             {
@@ -143,10 +143,11 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products,
-            IDictionary<Guid,Policy> policies
+            IDictionary<Guid,Policy> policies,
+            IDictionary<Guid, User> users
         )
         {
-
+            var userRepoMock = MockRepository(users);
             var storeRepoMock = MockRepository(stores);
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
             var storePurchasesRepoMock = MockRepository(storePurchases);
