@@ -22,23 +22,23 @@ namespace BoomaEcommerce.Services.DTO.Discounts
     }
     public class ProductDiscountDto : DiscountDto
     {
-        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.ProductDiscount;
+        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.Product;
 
         public Guid ProductGuid { get; set; }
     }
     public class CategoryDiscountDto : DiscountDto
     {
-        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.CategoryDiscount;
+        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.Category;
 
         public string Category { get; set; }
     }
     public class BasketDiscountDto : DiscountDto
     {
-        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.BasketDiscount;
+        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.Basket;
     }
     public class CompositeDiscountDto : DiscountDto
     {
-        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.CompositeDiscount;
+        [JsonRequired] public override DiscountType Type { get; set; } = DiscountType.Composite;
 
         [JsonRequired]
         public OperatorTypeDiscount Operator { get; set; }
@@ -53,9 +53,9 @@ namespace BoomaEcommerce.Services.DTO.Discounts
 
     public enum DiscountType
     {
-        CompositeDiscount,
-        BasketDiscount,
-        CategoryDiscount,
-        ProductDiscount
+        Composite,
+        Basket,
+        Category,
+        Product
     }
 }

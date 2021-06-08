@@ -21,10 +21,10 @@ namespace BoomaEcommerce.Api
             var type = jObject["type"].ToObject<DiscountType>();
             return type switch
             {
-                DiscountType.CategoryDiscount => new CategoryDiscountDto(),
-                DiscountType.ProductDiscount => new ProductDiscountDto(),
-                DiscountType.BasketDiscount => new BasketDiscountDto(),
-                DiscountType.CompositeDiscount => new CompositeDiscountDto(),
+                DiscountType.Category => new CategoryDiscountDto(),
+                DiscountType.Product => new ProductDiscountDto(),
+                DiscountType.Basket => new BasketDiscountDto(),
+                DiscountType.Composite => new CompositeDiscountDto(),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

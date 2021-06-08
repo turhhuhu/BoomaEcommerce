@@ -151,13 +151,13 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<ProductDiscount, ProductDiscountDto>()
                 .ForMember(discountDto => discountDto.ProductGuid, x => x.MapFrom(discount => discount.Product.Guid))
-                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.ProductDiscount));
+                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.Product));
 
             CreateMap<CategoryDiscount, CategoryDiscountDto>()
-                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.CategoryDiscount));
+                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.Category));
 
             CreateMap<BasketDiscount, BasketDiscountDto>()
-                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.BasketDiscount));
+                .ForMember(discountDto => discountDto.Type, x => x.MapFrom(_ => DiscountType.Basket));
 
             CreateMap<CompositeDiscount, CompositeDiscountDto>()
                 .ConstructUsing((discount, context) => new CompositeDiscountDto()
