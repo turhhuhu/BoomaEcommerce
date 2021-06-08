@@ -29,7 +29,12 @@ namespace BoomaEcommerce.Services.External
             var content = payItem.ToFormData();
             var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
             var responseString = await response.Content.ReadAsStringAsync();
-            return 1;
+            
+            var successAction =  long.TryParse(responseString,out long retVal);
+            if (successAction)
+                return retVal;
+            return -123;
+
         }
 
         public async Task<int> CancelPayment(Guid purchaseGuid)
@@ -40,7 +45,11 @@ namespace BoomaEcommerce.Services.External
             var content = cancelPayItem.ToFormData();
             var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
             var responseString = await response.Content.ReadAsStringAsync();
-            return 1;
+            
+            var successAction =  Int32.TryParse(responseString,out int retVal);
+            if (successAction)
+                return retVal;
+            return -123;
         }
         
         public async Task<string> HandShake()
