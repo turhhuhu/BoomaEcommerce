@@ -6,22 +6,25 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class MinProductAmountPolicy : Policy
+    public class MinProductAmountPolicy : ProductPolicy
     {
-        public Product Product { get; set; }
         public int MinAmount { get; set; }
 
-        public MinProductAmountPolicy(Product product, int minAmount)
+        public MinProductAmountPolicy(Product product, int minAmount) : base(product)
         {
             Product = product;
             MinAmount = minAmount;
             ErrorMessage = "Product '{0}' must at-least have '{1}' amount but has '{2}' amount.";
         }
 
+        private MinProductAmountPolicy()
+        {
+            
+        }
+
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var purchaseProduct = basket.PurchaseProducts
-                .Values
                 .FirstOrDefault(p => p.Product.Guid == Product.Guid);
 
             return purchaseProduct?.Amount >= MinAmount

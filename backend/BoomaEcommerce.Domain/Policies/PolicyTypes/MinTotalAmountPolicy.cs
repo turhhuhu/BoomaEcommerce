@@ -15,10 +15,10 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
             MinAmount = minAmount;
             ErrorMessage = "Purchase\\Basket must at-least have '{1}' amount but has '{2}' amount.";
         }
+
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var totalAmount = basket.PurchaseProducts
-                .Values
                 .Sum(p => p.Amount);
 
             return totalAmount >= MinAmount
@@ -34,6 +34,11 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
             return totalAmount >= MinAmount
                 ? PolicyResult.Ok()
                 : PolicyResult.Fail(string.Format(ErrorMessage, MinAmount, totalAmount));
+        }
+
+        private MinTotalAmountPolicy()
+        {
+            
         }
     }
 }

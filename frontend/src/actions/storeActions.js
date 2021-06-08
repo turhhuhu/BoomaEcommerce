@@ -8,6 +8,9 @@ import {
   ADD_STORE_OWNER_URL,
   ADD_STORE_MANAGER_URL,
   REMOVE_SUBORDINATE_URL,
+  STORE_SUB_POLICIES_URL,
+  STORE_POLICIES_URL,
+  STORE_POLICY_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -212,6 +215,82 @@ export function removeStoreOwner(ownershipGuid, ownerdhipToDeleteGuid) {
         StoreActionTypes.REMOVE_STORE_OWNER_REQUEST,
         StoreActionTypes.REMOVE_STORE_OWNER_SUCCESS,
         StoreActionTypes.REMOVE_STORE_OWNER_FAILURE,
+      ],
+      config: {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      },
+    },
+  };
+}
+
+export function addStoreRootPolicy(storeGuid, rootPolicy) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_POLICIES_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_POLICY_ROOT_REQUEST,
+        StoreActionTypes.ADD_STORE_POLICY_ROOT_SUCCESS,
+        StoreActionTypes.ADD_STORE_POLICY_ROOT_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(rootPolicy),
+      },
+    },
+  };
+}
+
+export function addStoreSubPolicy(storeGuid, fatherPolicyGuid, subPolicy) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_SUB_POLICIES_URL.replace(
+        "{storeGuid}",
+        storeGuid
+      ).replace("{policyGuid}", fatherPolicyGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_SUB_POLICY_REQUEST,
+        StoreActionTypes.ADD_STORE_SUB_POLICY_SUCCESS,
+        StoreActionTypes.ADD_STORE_SUB_POLICY_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subPolicy),
+      },
+    },
+  };
+}
+
+export function fetchStorePolicy(storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_POLICIES_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_POLICY_REQUEST,
+        StoreActionTypes.GET_STORE_POLICY_SUCCESS,
+        StoreActionTypes.GET_STORE_POLICY_FAILURE,
+      ],
+    },
+  };
+}
+
+export function removeStorePolicy(storeGuid, policyToDeleteGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_POLICY_URL.replace("{storeGuid}", storeGuid).replace(
+        "{policyGuid}",
+        policyToDeleteGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.REMOVE_STORE_POLICY_REQUEST,
+        StoreActionTypes.REMOVE_STORE_POLICY_SUCCESS,
+        StoreActionTypes.REMOVE_STORE_POLICY_FAILURE,
       ],
       config: {
         method: "DELETE",

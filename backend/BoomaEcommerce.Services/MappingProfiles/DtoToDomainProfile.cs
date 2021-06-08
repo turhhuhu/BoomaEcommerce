@@ -28,14 +28,14 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StoreDto, Store>()
                 .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}));
 
-            CreateMap<List<PurchaseProductDto>, IDictionary<Guid, PurchaseProduct>>()
-                .ConstructUsing((x, y) => new ConcurrentDictionary<Guid, PurchaseProduct>(
-                    x.Select(ppDto => y.Mapper.Map<PurchaseProduct>(ppDto))
-                        .ToDictionary(pp => pp.Guid)));
+            CreateMap<List<PurchaseProductDto>, ISet<PurchaseProduct>>()
+                .ConstructUsing((x, y) => x.Select(pp => y.Mapper.Map<PurchaseProduct>(pp)).ToHashSet(new EqualityComparers.SameGuid<PurchaseProduct>()));
 
             CreateMap<ShoppingBasketDto, ShoppingBasket>()
                 .ForMember(basket => basket.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}))
                 .ForMember(basket => basket.PurchaseProducts, x => x.MapFrom(dto => dto.PurchaseProducts));
+
+
 
             CreateMap<ShoppingCartDto, ShoppingCart>();
 

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Policies;
+using Microsoft.EntityFrameworkCore;
 
 namespace BoomaEcommerce.Data.EfCore
 {
@@ -50,6 +52,17 @@ namespace BoomaEcommerce.Data.EfCore
             where TEntity : class
         {
             _dbContext.Set<TEntity>().Attach(entity);
+        }
+
+        public async Task AttachUser(User user)
+        {
+            if (!string.IsNullOrEmpty(user.UserName))
+            {
+                await _dbContext.Set<User>().FirstOrDefaultAsync(u => u.UserName == user.UserName);
+                return;
+            }
+
+            _dbContext.Set<User>().Attach(user);
         }
 
         public void Dispose()

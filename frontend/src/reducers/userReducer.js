@@ -18,9 +18,9 @@ export function user(
     case UserActionTypes.USER_INFO_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.USER_INFO_SUCCESS:
-      //TODO: add notifications to state when the backend is ready
       const { notifications, ...userInfo } = action.payload.response;
       return Object.assign({}, state, {
+        notifications: notifications,
         userInfo: userInfo,
         isFetching: action.payload.isFetching,
       });
@@ -202,8 +202,6 @@ export function user(
     case UserActionTypes.SEE_NOTIFICATION: {
       const seenNotificationIndex = action.payload.seenNotificationIndex;
       const seenNotification = action.payload.seenNotification;
-      console.log(seenNotificationIndex);
-      console.log(seenNotification);
       const newNotifcations = [
         ...state.notifications.slice(0, seenNotificationIndex),
         seenNotification,

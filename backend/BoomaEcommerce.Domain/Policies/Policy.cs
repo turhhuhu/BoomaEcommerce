@@ -10,16 +10,16 @@ namespace BoomaEcommerce.Domain.Policies
     public abstract class Policy : BaseEntity
     {
         public static EmptyPolicy Empty => EmptyPolicy.EmptyPol;
-        protected Policy()
+        protected Policy() : base()
         {
             Level = 0;
             ErrorMessage = "";
             ErrorPrefix = "";
         }
-
         protected internal string ErrorMessage { get; set; }
-        protected internal string ErrorPrefix { get; set; }
-        protected internal int Level { get; set; }
+        public string ErrorPrefix { get; set; }
+        public int Level { get; set; }
+
 
         protected internal virtual void SetPolicyNode(int level, string prefix)
         {
@@ -38,9 +38,8 @@ namespace BoomaEcommerce.Domain.Policies
     }
     public class EmptyPolicy : Policy
     {
-        public static EmptyPolicy EmptyPol => _emptyPolicy ??= new EmptyPolicy();
+        public static EmptyPolicy EmptyPol => new();
 
-        private static EmptyPolicy _emptyPolicy;
         private EmptyPolicy()
         {
 

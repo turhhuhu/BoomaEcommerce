@@ -262,6 +262,7 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
                 }
 
+
                 var ownerStoreOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
 
                 if (ownerStoreOwnership == null)
@@ -270,10 +271,11 @@ namespace BoomaEcommerce.Services.Stores
                 }
 
                 var newOwner = _mapper.Map<StoreOwnership>(newOwnerDto);
-                ownerStoreOwnership.StoreOwnerships.TryAdd(newOwner.Guid, newOwner);
+                await _storeUnitOfWork.AttachUser(newOwner.User);
+                newOwner.Store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(newOwner.Store.Guid);
+                ownerStoreOwnership.AddOwner(newOwner);
 
                 await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(newOwner);
-                await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
                 await _storeUnitOfWork.SaveAsync();
                 return true;
 
@@ -302,12 +304,11 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
                 }
 
-
                 var newManager = _mapper.Map<StoreManagement>(newManagementDto);
-                ownerStoreOwnership.StoreManagements.TryAdd(newManager.Guid, newManager);
-
+                newManager.Store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(newManager.Store.Guid);
+                ownerStoreOwnership.AddManager(newManager);
+                await _storeUnitOfWork.AttachUser(newManager.User);
                 await _storeUnitOfWork.StoreManagementRepo.InsertOneAsync(newManager);
-                await _storeUnitOfWork.StoreOwnershipRepo.ReplaceOneAsync(ownerStoreOwnership);
                 await _storeUnitOfWork.SaveAsync();
                 return true;
 
@@ -561,7 +562,6 @@ namespace BoomaEcommerce.Services.Stores
 
                 //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(policy);
-
                 await _storeUnitOfWork.SaveAsync();
                 _logger.LogInformation("Successfully set new policyDto for store with guid {storeGuid}", storeGuid);
                 return _mapper.Map<PolicyDto>(policy);
@@ -585,14 +585,15 @@ namespace BoomaEcommerce.Services.Stores
                         store => store.StorePolicy))
                     .FirstOrDefault();
 
-                if (policy == null)
+                if (policy == null || policy is EmptyPolicy)
                 {
                     return null;
                 }
 
+                var policyWithChildren = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
 
                 _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
-                return _mapper.Map<PolicyDto>(policy);
+                return _mapper.Map<PolicyDto>(policyWithChildren);
             }
             catch (Exception e)
             {

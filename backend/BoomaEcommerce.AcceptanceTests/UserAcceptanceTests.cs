@@ -31,14 +31,14 @@ namespace BoomaEcommerce.AcceptanceTests
         private PurchaseProductDto purchase_product1;
         private PurchaseProductDto purchase_product2;
         private NotificationPublisherStub _notificationPublisher;
-
+        private Guid _founderGuid;
 
         public async Task InitializeAsync()
         {
             _fixture = new Fixture();
-            
 
-           
+            _founderGuid = Guid.NewGuid();
+
             var serviceMockFactory = new ServiceMockFactory();
 
             var storeService = serviceMockFactory.MockStoreService();
@@ -51,7 +51,7 @@ namespace BoomaEcommerce.AcceptanceTests
             _fixture.Customize<StoreDto>(s => s
                 .Without(ss => ss.Guid)
                 .Without(ss => ss.Rating)
-                .Without(ss => ss.FounderUserGuid));
+                .With(ss => ss.FounderUserGuid, _founderGuid));
 
             await InitPurchase(storeService);
         }
@@ -171,9 +171,11 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task CreateStore_ShouldAddStore_WhenStoreDetailsAreValid()
         {
             //Arrange
+            var newFounderGuid = Guid.NewGuid();
+
             var fixtureStore = _fixture
                 .Build<StoreDto>()
-                .Without(s => s.FounderUserGuid)
+                .With(s => s.FounderUserGuid, newFounderGuid)
                 .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();
@@ -331,7 +333,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
 
             // Assert
-            list.Find(p => p.Guid == guidToDelete).Should().BeNull();
+            list.FirstOrDefault(p => p.Guid == guidToDelete).Should().BeNull();
             success.Should().BeTrue();
 
         }
