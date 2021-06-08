@@ -1,0 +1,30 @@
+{
+  "UseCases": [
+    {
+      "Actions": [
+        {
+          "Type": "LoginAction",
+          "UserName": "Admin",
+          "Password": "Admin"
+        },
+        {
+          "Type": "CreateStoreAction",
+          "StoreToCreate": {
+            "StoreName": "Store",
+            "Description": "Blah"
+          }
+        },
+        {
+          "Type": "GetOwnershipAction"
+        },
+        {
+          "Type": "NominateOwnerAction",
+          "NewOwnerUserName": "Arik"
+        },
+        {
+          "Type": "GetStoresAction"
+        }
+      ]
+    }
+  ]
+}

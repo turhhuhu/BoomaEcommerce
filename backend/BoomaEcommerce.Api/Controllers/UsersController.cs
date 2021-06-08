@@ -155,9 +155,8 @@ namespace BoomaEcommerce.Api.Controllers
         public async Task<IActionResult> GetStoreRoles()
         {
             var userGuid = User.GetUserGuid();
-            var ownershipsTask = _storesService.GetAllStoreOwnerShipsAsync(userGuid);
+            var ownerships = await _storesService.GetAllStoreOwnerShipsAsync(userGuid);
             var managements = await _storesService.GetAllStoreManagementsAsync(userGuid);
-            var ownerships = await ownershipsTask;
 
             if (ownerships == null || managements == null)
             {

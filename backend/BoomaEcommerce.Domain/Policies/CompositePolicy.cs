@@ -11,13 +11,23 @@ namespace BoomaEcommerce.Domain.Policies
 {
     public class CompositePolicy : MultiPolicy
     {
-        private readonly List<Policy> _subPolicies;
+        public List<Policy> SubPolicies
+        {
+            get => _subPolicies.ToList();
+            set => _subPolicies = value;
+        }
+
+        private List<Policy> _subPolicies;
 
         public CompositePolicy(PolicyOperator op)
         {
             Operator = op;
             op.Level = Level;
             op.ErrorPrefix = ErrorPrefix;
+            SubPolicies = new List<Policy>();
+        }
+        private CompositePolicy() : base()
+        {
             _subPolicies = new List<Policy>();
         }
 
@@ -28,17 +38,13 @@ namespace BoomaEcommerce.Domain.Policies
         }
         public override void RemovePolicy(Guid policyId)
         {
-            var policy = _subPolicies.FirstOrDefault(p => p.Guid == policyId);
+            var policy = SubPolicies.FirstOrDefault(p => p.Guid == policyId);
             if (policy != null)
             {
                 _subPolicies.Remove(policy);
             }
         }
 
-        public IEnumerable<Policy> GetSubPolicies()
-        {
-            return _subPolicies.ToList();
-        }
 
         protected internal override void SetPolicyNode(int level, string prefix)
         {

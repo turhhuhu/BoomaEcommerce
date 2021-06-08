@@ -50,6 +50,7 @@ namespace BoomaEcommerce.Api.Middleware
             {
                 _logger.LogError(exception,
                     $"Request {context.Request?.Method}: {context.Request?.Path.Value} failed");
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             }
         }
     }

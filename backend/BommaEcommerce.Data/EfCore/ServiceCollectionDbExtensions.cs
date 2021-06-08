@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Data.EfCore.Repositories;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.SqlServer;
@@ -90,9 +91,17 @@ namespace BoomaEcommerce.Data.EfCore
                 }).AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IRepository<Store>, EfCoreRepository<Store, ApplicationDbContext>>();
-            services.AddTransient<IRepository<Product>, ProductsRepository>();
+            services.AddTransient<IRepository<Product>, EfCoreRepository<Product, ApplicationDbContext>>();
+            services.AddTransient<IRepository<Policy>, EfCorePolicyRepository>();
             services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
 
+            services.AddTransient<IRepository<StoreManagement>, EfCoreRepository<StoreManagement, ApplicationDbContext>>();
+            services.AddTransient<IRepository<StoreOwnership>, EfCoreRepository<StoreOwnership, ApplicationDbContext>>();
+            services.AddTransient<IRepository<ShoppingBasket>, EfCoreRepository<ShoppingBasket, ApplicationDbContext>>();
+
+            //Purchase Unit Of Work 
+            services.AddTransient<IRepository<ShoppingCart>, EfCoreRepository<ShoppingCart, ApplicationDbContext>>();
+            services.AddTransient<IUserUnitOfWork, UserUnitOfWork>();
 
             return services;
         }

@@ -17,6 +17,11 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
             MinAmount = minAmount;
             ErrorMessage = "Category '{0}' must at-least have '{1}' amount of products but has '{2}' amount.";
         }
+        private MinCategoryAmountPolicy()
+        {
+            
+        }
+
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var totalAmount = basket.PurchaseProducts

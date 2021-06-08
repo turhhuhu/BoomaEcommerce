@@ -1,10 +1,11 @@
 ﻿
 
 using System.Collections.Generic;
+using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Domain.Policies.Operators
 {
-    public abstract class PolicyOperator
+    public abstract class PolicyOperator : BaseEntity
     {
         protected PolicyOperator()
         {
@@ -12,9 +13,9 @@ namespace BoomaEcommerce.Domain.Policies.Operators
             ErrorPrefix = "";
         }
 
-        protected internal string ErrorPrefix { get; set; }
+        public string ErrorPrefix { get; set; }
 
-        protected internal int Level { get; set; }
+        public int Level { get; set; }
         public abstract PolicyResult CheckPolicy(User user, ShoppingBasket basket, params Policy[] policies);
         public abstract PolicyResult CheckPolicy(StorePurchase purchase, params Policy[] policies);
     }

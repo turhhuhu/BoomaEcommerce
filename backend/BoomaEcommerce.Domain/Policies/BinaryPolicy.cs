@@ -40,6 +40,10 @@ namespace BoomaEcommerce.Domain.Policies
             SecondPolicy = secondPolicy;
         }
 
+        private BinaryPolicy()
+        {
+        }
+
         public BinaryPolicy(PolicyOperator @operator)
         {
             Operator = @operator;
