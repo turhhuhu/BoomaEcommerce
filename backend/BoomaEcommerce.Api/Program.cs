@@ -37,7 +37,7 @@ namespace BoomaEcommerce.Api
                 var appInitializer = sp.GetRequiredService<AppInitializer>();
                 var useCaseRunner = sp.GetRequiredService<IUseCaseRunner>();
                 await appInitializer.InitializeAsync();
-                await useCaseRunner.RunAsync();
+               // await useCaseRunner.RunAsync();
                 await host.RunAsync();
             }
             catch (Exception e)
