@@ -20,6 +20,9 @@
         {
           "Type": "NominateOwnerAction",
           "NewOwnerUserName": "Arik"
+        },
+        {
+          "Type": "GetStoresAction"
         }
       ]
     }
