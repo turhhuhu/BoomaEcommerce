@@ -229,14 +229,17 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
                 }
 
-                var (owners, _) = owner.GetSubordinates();
+                var (owners, managers) = owner.GetSubordinates();
 
                 await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
                 storeOwnershipRemoveFrom.RemoveOwner(ownerGuid);
+
                 owners.Add(owner);
                // await NotifyDismissal(storeOwnershipRemoveFrom, owners);
+                _storeUnitOfWork.StoreOwnershipRepo.DeleteRange(owners);
+                _storeUnitOfWork.StoreManagementRepo.DeleteRange(managers);
                 await _storeUnitOfWork.SaveAsync();
-                return true; 
+                return true;
             }
             catch (Exception e)
             {
@@ -271,8 +274,8 @@ namespace BoomaEcommerce.Services.Stores
                 }
 
                 var newOwner = _mapper.Map<StoreOwnership>(newOwnerDto);
-                newOwner.User = await _storeUnitOfWork.UserRepo.FindByIdAsync(newOwner.User.Guid);
-                newOwner.Store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(newOwner.Store.Guid);
+                newOwner.User = await _storeUnitOfWork.UserRepo.FindByIdAsync(newOwnerDto.User.Guid);
+                newOwner.Store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(newOwnerDto.Store.Guid);
                 ownerStoreOwnership.AddOwner(newOwner);
                 _storeUnitOfWork.AttachNoChange(newOwner.User);
 

@@ -116,6 +116,11 @@ namespace BoomaEcommerce.Data.InMemory
             return Task.CompletedTask;
         }
 
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<TType> FindByIdAsync<TType>(Guid guid)
             where TType : class, IBaseEntity
         {

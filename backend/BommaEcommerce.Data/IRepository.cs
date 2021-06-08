@@ -117,6 +117,8 @@ namespace BoomaEcommerce.Data
         /// </returns>
         Task DeleteManyAsync(Expression<Func<T, bool>> predicate);
 
+        void DeleteRange(IEnumerable<T> entities);
+
         /// <summary>
         /// Finds entity of type TType with provided guid.
         /// </summary>

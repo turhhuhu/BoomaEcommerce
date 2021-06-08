@@ -92,6 +92,11 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             }
         }
 
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            DbContext.Set<T>().RemoveRange(entities);
+        }
+
         public virtual Task<TType> FindByIdAsync<TType>(Guid guid) where TType : class, IBaseEntity
         {
             return DbContext.Set<T>().Include(DbContext.GetIncludePaths(typeof(T))).AsSplitQuery().OrderByDescending(x => x.Guid).OfType<TType>().FirstOrDefaultAsync(e => e.Guid == guid);
