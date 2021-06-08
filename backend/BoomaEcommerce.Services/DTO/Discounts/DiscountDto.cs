@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Services.DTO.Discounts
         [JsonRequired]
         public OperatorTypeDiscount Operator { get; set; }
 
-        //public IEnumerable<DiscountDto> Discounts { get; set; }
+        public IEnumerable<DiscountDto> Discounts { get; set; }
     }
     public enum OperatorTypeDiscount
     {
