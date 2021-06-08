@@ -119,18 +119,18 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
-
+            var entitiesStores = new Dictionary<Guid, Store>();
             var nikeStore = TestData.CreateStoreObject("nike");
 
             var matanUser = TestData.CreateUserObject("Matan");
             var bennyUser = TestData.CreateUserObject("Benny");
             
             var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
-            
 
+            entitiesStores[storeOwnershipMatanNike.Store.Guid] = storeOwnershipMatanNike.Store;
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
             
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var us = GetStoreService(entitiesStores, entitiesOwnerships, null, entitiesManagements, null, null);
             
             var storeOwnershipBennyNike = TestData.CreateStoreOwnershipObject(nikeStore, bennyUser);
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipBennyNike);
