@@ -12,7 +12,7 @@ namespace BoomaEcommerce.Domain.Discounts
     {
         public DiscountOperator Operator { get; set; }
 
-        private readonly List<Discount> Discounts;
+        public List<Discount> Discounts;
 
         public void AddToDiscountList(Discount discount)
         {

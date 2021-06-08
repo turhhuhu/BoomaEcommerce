@@ -13,6 +13,7 @@ namespace BoomaEcommerce.Domain
         public List<StorePurchase> StorePurchases { get; set; }
         public User Buyer { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal DiscountedPrice { get; set; }
 
         public Task<PurchaseResult> MakePurchase()
         {
@@ -43,22 +44,22 @@ namespace BoomaEcommerce.Domain
                 .Select(res => new PolicyError(res.Item1, res.Item2.PolicyError))
                 .ToList();
 
-            decimal totalPrice = 0;
+            decimal discounted = 0;
 
             foreach (var sp in StorePurchases)
             {
                 if (sp.Store.StoreDiscount != null)
                 {
                     sp.Store.ApplyDiscount(sp);
-                    totalPrice += sp.DiscountedPrice;
+                    discounted += sp.DiscountedPrice;
                 }
                 else
                 {
-                    totalPrice += sp.TotalPrice;
+                    discounted += sp.TotalPrice;
                 }
             }
 
-            this.TotalPrice = totalPrice;
+            this.DiscountedPrice = discounted;
 
             if (failedPolicyResults.Any())
             {

@@ -157,6 +157,11 @@ namespace BoomaEcommerce.Services.Stores
         Task<bool> DeleteDiscountAsync(Guid storeGuid, Guid discountGuid);
         Task<DiscountDto> CreateDiscountAsync(Guid storeGuid, DiscountDto discountDto);
         Task<DiscountDto> GetDiscountAsync(Guid storeGuid);
+
+        Task<PolicyDto> GetDiscountPolicyAsync(Guid storeGuid, Guid discountGuid);
+        Task<PolicyDto> CreateDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, PolicyDto policyDto);
+        Task<bool> DeleteDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, Guid policyGuid);
+        Task<PolicyDto> CreateDiscountSubPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid, PolicyDto policyDto);
     }
 
 }

@@ -27,7 +27,8 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<StoreManagement> storeManagementRepo,
             IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
-            IRepository<Policy> policyRepo)
+            IRepository<Policy> policyRepo,
+            IRepository<Discount> discountRepo)
         {
             StoreRepo = storeRepo;
             StoreOwnershipRepo = ownershipRepo;
@@ -36,6 +37,7 @@ namespace BoomaEcommerce.Data.InMemory
             StoreManagementPermissionsRepo = storeManagementPermissionsRepo;
             ProductRepo = productRepo;
             PolicyRepo = policyRepo;
+            DiscountRepo = discountRepo;
         }
 
         public Task SaveAsync()

@@ -446,5 +446,49 @@ namespace BoomaEcommerce.Services.Stores
 
             throw new UnAuthorizedException(nameof(GetDiscountAsync), ClaimsPrincipal.GetUserGuid());
         }
+
+        public async Task<PolicyDto> GetDiscountPolicyAsync(Guid storeGuid, Guid discountGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanGetDiscountInfo, storeGuid))
+            {
+                return await _storeService.GetDiscountPolicyAsync(storeGuid, discountGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetDiscountPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<PolicyDto> CreateDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, PolicyDto policyDto)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.CreateDiscountPolicyAsync(storeGuid, discountGuid, policyDto);
+            }
+
+            throw new UnAuthorizedException(nameof(CreateDiscountPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<bool> DeleteDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, Guid policyGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanDeleteDiscount, storeGuid))
+            {
+                return await _storeService.DeleteDiscountPolicyAsync(storeGuid, discountGuid, policyGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(DeleteDiscountPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<PolicyDto> CreateDiscountSubPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid, PolicyDto policyDto)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.CreateDiscountSubPolicy(storeGuid, discountGuid, policyGuid, policyDto);
+            }
+
+            throw new UnAuthorizedException(nameof(CreateDiscountSubPolicy), ClaimsPrincipal.GetUserGuid());
+        }
     }
 }

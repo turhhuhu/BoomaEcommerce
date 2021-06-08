@@ -57,6 +57,7 @@ namespace BoomaEcommerce.Api
                     x.SerializerSettings.Converters.Add(new NotificationCreationConverter());
                     x.SerializerSettings.Converters.Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy)));
                     x.SerializerSettings.Converters.Add(new PolicyCreationConverter());
+                    x.SerializerSettings.Converters.Add(new DiscountCreationConverter());
 
                 }).AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
