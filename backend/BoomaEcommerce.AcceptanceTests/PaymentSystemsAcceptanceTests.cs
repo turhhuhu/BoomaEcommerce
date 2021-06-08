@@ -32,11 +32,12 @@ namespace BoomaEcommerce.AcceptanceTests
         private ProductDto product2;
         private PurchaseProductDto purchase_product1;
         private PurchaseProductDto purchase_product2;
+        private Guid _founderGuid;
 
         public async Task InitializeAsync()
         {
             _fixture = new Fixture();
-
+            _founderGuid = Guid.NewGuid();
             var serviceMockFactory = new ServiceMockFactory();
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
@@ -45,7 +46,7 @@ namespace BoomaEcommerce.AcceptanceTests
             _fixture.Customize<StoreDto>(s => s
                 .Without(ss => ss.Guid)
                 .Without(ss => ss.Rating)
-                .Without(ss => ss.FounderUserGuid));
+                .With(ss => ss.FounderUserGuid, _founderGuid));
             await InitPurchase(storeService);
         }
 
@@ -54,7 +55,8 @@ namespace BoomaEcommerce.AcceptanceTests
         {
 
             var store = _fixture.Create<StoreDto>();
-            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, UserGuid));
+            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).
+                With(pp => pp.BuyerGuid, UserGuid));
 
             _store_withGuid = await _storeService.CreateStoreAsync(store);
             _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.StoreGuid, _store_withGuid.Guid).Without(pp => pp.Rating).With(pp => pp.Price, 2).With(pp => pp.Amount, 12));
