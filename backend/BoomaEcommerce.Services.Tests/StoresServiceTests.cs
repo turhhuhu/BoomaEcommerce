@@ -138,7 +138,10 @@ namespace BoomaEcommerce.Services.Tests
 
             var matanUser = TestData.CreateUserObject("Matan");
             var bennyUser = TestData.CreateUserObject("Benny");
-            
+
+            entitiesUsers[matanUser.Guid] = matanUser;
+            entitiesUsers[bennyUser.Guid] = bennyUser;
+
             var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
 
             entitiesStores[storeOwnershipMatanNike.Store.Guid] = storeOwnershipMatanNike.Store;
@@ -440,6 +443,7 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var adidasStore = TestData.CreateStoreObject("adidas");
 
@@ -492,7 +496,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStoreOwnerships[soArye.Guid] = soArye;
 
             var s = GetStoreService(null, entitiesStoreOwnerships, null,
-                entitiesStoreManagements, null, null);
+                entitiesStoreManagements, null, null, null);
 
             var lsm = new List<StoreManagementDto>
             {
@@ -526,7 +530,7 @@ namespace BoomaEcommerce.Services.Tests
             var entitiesStoreOwnerships = new Dictionary<Guid, StoreOwnership>();
 
             var s = GetStoreService(null, entitiesStoreOwnerships, null,
-                entitiesStoreManagements, null, null);
+                entitiesStoreManagements, null, null, null);
 
             // Act 
             var response = await s.GetAllSellersInformationAsync(Guid.NewGuid());
@@ -544,7 +548,7 @@ namespace BoomaEcommerce.Services.Tests
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = TestData.GetTestProduct(productGuid);
 
-            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            var sut = GetStoreService(null, null, null, null, null, productsDict, null);
             
             //Act
             var result = await sut.DeleteProductAsync(productGuid);
@@ -559,7 +563,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             //Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            var sut = GetStoreService(null, null, null, null, null, productsDict, null);
 
             //Act
             var result = await sut.DeleteProductAsync(Guid.NewGuid());
@@ -575,7 +579,7 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            var sut = GetStoreService(null, null, null, null, null, productsDict, null);
 
             //Act
             var result = await sut.DeleteProductAsync(productGuid);
@@ -596,7 +600,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var productToReplaceGuid = Guid.NewGuid();
             productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid, storeGuid);
-            var sut = GetStoreService(storesDict, null, null, null, null, productsDict);
+            var sut = GetStoreService(storesDict, null, null, null, null, productsDict, null);
 
             var replacementProductDto =
                 new ProductDto
@@ -628,7 +632,7 @@ namespace BoomaEcommerce.Services.Tests
             //Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var sut = GetStoreService(null, null, null, null, 
-                null, productsDict);
+                null, productsDict, null);
             var productDto = new ProductDto
             {
                 Guid = Guid.NewGuid(),
@@ -650,7 +654,7 @@ namespace BoomaEcommerce.Services.Tests
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
             var sut = GetStoreService(null, null, null,
-                null, null, productsDict);
+                null, null, productsDict, null);
             var productDto = new ProductDto
             {
                 Guid = Guid.NewGuid(),
@@ -684,7 +688,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(storeAdidas.Guid, storeAdidas);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null);
 
             //Act
             var res = await storesService.GetStoresAsync();
@@ -709,7 +713,7 @@ namespace BoomaEcommerce.Services.Tests
             var storeTopShop = TestData.CreateStoreObject("TopShop", storeTopShopGuid);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null);
 
             //Act
             var res = await storesService.GetStoreAsync(storeTopShop.Guid);
@@ -731,7 +735,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(storeBenny.Guid, storeBenny);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null);
             //Act
             var res = await storesService.GetStoreAsync(storeBenny.Guid);
             
@@ -780,7 +784,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(store_Nike.Guid, store_Nike);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, 
-                null, null, null);
+                null, null, null, null);
 
             //Act
             var res = await storesService.GetStorePurchaseHistoryAsync(store_Adidas.Guid);
@@ -802,7 +806,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var store_Ikea = TestData.CreateStoreObject("Ikea");
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null);
 
             //Act
             var res = await storesService.GetStorePurchaseHistoryAsync(store_Ikea.Guid);

@@ -204,7 +204,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.ProductRepo).Returns(productsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
-
+            storeUnitOfWorkMock.SetupGet(x => x.UserRepo).Returns(userRepoMock?.Object);
 
             return storeUnitOfWorkMock;
         }
@@ -219,8 +219,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, Notification> notifications,
             IDictionary<Guid, Store> stores,
             IDictionary<Guid, StorePurchase> storePurchases = null,
-            IDictionary<Guid, PurchaseProduct> purchaseProducts = null,
-            Mock<UserManager<User>> userManagerMock = null)
+            IDictionary<Guid, PurchaseProduct> purchaseProducts = null)
         {
             var purchaseRepoMock = MockRepository(purchases);
             purchaseRepoMock?.Setup(x => x.InsertOneAsync(It.IsAny<Purchase>()))
@@ -242,7 +241,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 
             var storesRepoMock = MockRepository(stores);
             var productRepoMock = MockRepository(products);
-            var userRepoMock = userManagerMock ?? MockUserManager(users is null ? new List<User>() : users.Values.ToList());
+            var userRepoMock = MockRepository(users);
             var shoppingCartMock = MockRepository(shoppingCarts);
             var ownershipsMock = MockRepository(ownerships);
             var notificationsMock = MockRepository(notifications);
@@ -258,16 +257,17 @@ namespace BoomaEcommerce.Tests.CoreLib
         
         public static Mock<IUserUnitOfWork> MockUserUnitOfWork(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
-            IDictionary<Guid, ShoppingCart> shoppingCarts, 
-            Mock<UserManager<User>> userManagerMock = null)
+            IDictionary<Guid, ShoppingCart> shoppingCarts,
+            IDictionary<Guid, User> users = null)
         {
             var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
             var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
+            var usersRepoMock = DalMockFactory.MockRepository(users);
 
             var userUnitOfWork = new Mock<IUserUnitOfWork>();
             userUnitOfWork.SetupGet(x => x.ShoppingBasketRepo).Returns(shoppingBasketRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.ShoppingCartRepo).Returns(shoppingCartRepoMock?.Object);
-            userUnitOfWork.SetupGet(x => x.UserManager).Returns(userManagerMock?.Object);
+            userUnitOfWork.SetupGet(x => x.UserRepository).Returns(usersRepoMock?.Object);
             return userUnitOfWork;
         }
     }

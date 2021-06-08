@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Services.Purchases
             {
                 var purchase = _mapper.Map<Purchase>(purchaseDto);
 
-                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid);
 
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>

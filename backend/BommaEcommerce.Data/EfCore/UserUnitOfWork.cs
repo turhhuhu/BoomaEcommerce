@@ -14,20 +14,20 @@ namespace BoomaEcommerce.Data.EfCore
         private readonly ApplicationDbContext _dbContext;
         public IRepository<ShoppingBasket> ShoppingBasketRepo { get; set; }
         public IRepository<ShoppingCart> ShoppingCartRepo { get; set; }
-        public UserManager<User> UserManager { get; set; }
+        public IRepository<User> UserRepository { get; set; }
 
         public UserUnitOfWork(
             ApplicationDbContext dbContext,
             IRepository<ShoppingBasket> shoppingBasketRepo,
             IRepository<ShoppingCart> shoppingCartRepo,
             IRepository<PurchaseProduct> purchaseProductRepo,
-            UserManager<User> userManager 
+            IRepository<User> userRepo 
             )
         {
             _dbContext = dbContext;
             ShoppingBasketRepo = shoppingBasketRepo;
             ShoppingCartRepo = shoppingCartRepo;
-            UserManager = userManager;
+            UserRepository = userRepo;
 
         }
 
