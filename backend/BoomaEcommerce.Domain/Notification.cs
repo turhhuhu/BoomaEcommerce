@@ -17,6 +17,12 @@ namespace BoomaEcommerce.Domain
             Message = message;
             WasSeen = false;
         }
+
+        protected Notification()
+        {
+            Message = "";
+            WasSeen = false;
+        }
     }
 
     public class StorePurchaseNotification : Notification
@@ -25,13 +31,16 @@ namespace BoomaEcommerce.Domain
         public Store Store { get; set; }
         public Guid StorePurchaseGuid { get; set; }
 
-        public StorePurchaseNotification(User buyer, Guid storePurchaseGuid, Store store, string message = "A store purchase has been made.") 
+        public StorePurchaseNotification(User buyer, Guid storePurchaseGuid, Store store, string message = "A store purchase has been made.")
             : base(message)
         {
             Buyer = buyer;
             StorePurchaseGuid = storePurchaseGuid;
             Store = store;
         }
+
+        private StorePurchaseNotification() : base()
+        {}
     }
     public class RoleDismissalNotification : Notification
     {
@@ -45,5 +54,8 @@ namespace BoomaEcommerce.Domain
             DismissingUser = dismissingUser;
             Store = store;
         }
+
+        private RoleDismissalNotification() : base()
+        { }
     }
 }

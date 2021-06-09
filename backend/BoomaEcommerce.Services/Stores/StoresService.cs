@@ -231,12 +231,14 @@ namespace BoomaEcommerce.Services.Stores
 
                 var (owners, managers) = owner.GetSubordinates();
 
-                await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
+                //await _storeUnitOfWork.StoreOwnershipRepo.DeleteByIdAsync(ownerGuid); // This will be implemented as on delete cascade
                 storeOwnershipRemoveFrom.RemoveOwner(ownerGuid);
 
                 owners.Add(owner);
-                // await NotifyDismissal(storeOwnershipRemoveFrom, owners);
-                _storeUnitOfWork.StoreOwnershipRepo.DeleteRange(owners);
+                await NotifyDismissal(storeOwnershipRemoveFrom, owners);
+                if(owners.Any())
+                    _storeUnitOfWork.StoreOwnershipRepo.DeleteRange(owners);
+               if(managers.Any())
                 _storeUnitOfWork.StoreManagementRepo.DeleteRange(managers);
                 await _storeUnitOfWork.SaveAsync();
                 return true;
@@ -248,10 +250,18 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+        /*  private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
+          {
+              var notification = new RoleDismissalNotification(dismissingOwner.User, dismissingOwner.Store);
+              owners.ForEach(owner => owner.User.AddNotification(notification));
+              return _notificationPublisher.NotifyManyAsync(_mapper.Map<RoleDismissalNotificationDto>(notification), owners.Select(o => o.User.Guid));
+          }*/
+
         private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
         {
             var notification = new RoleDismissalNotification(dismissingOwner.User, dismissingOwner.Store);
             owners.ForEach(owner => owner.User.AddNotification(notification));
+            owners.ForEach(owner => _storeUnitOfWork.UserRepo.ReplaceOneAsync(owner.User));
             return _notificationPublisher.NotifyManyAsync(_mapper.Map<RoleDismissalNotificationDto>(notification), owners.Select(o => o.User.Guid));
         }
 
