@@ -12,11 +12,11 @@ namespace BoomaEcommerce.Services.Purchases
         /// <summary>
         /// Creates a product.
         /// </summary>
-        /// <param name="purchase"></param>
+        /// <param name="purchaseDetailsDto"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchase);
+        Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto);
 
         /// <summary>
         /// Gets all user purchase history.

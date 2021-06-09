@@ -1,6 +1,6 @@
-﻿namespace BoomaEcommerce.Services.ClientRequests.paymentRequests
+﻿namespace BoomaEcommerce.Services.External.Payment.Requests
 {
-    public class PayItem : TodoItem
+    public class PayRequest : BaseRequest
     {
         private string card_number{ get; set; }
         private string month{ get; set; }
@@ -9,7 +9,7 @@
         private string ccv{ get; set; }
         private string id{ get; set; }
 
-        public PayItem(string actionType, string cardNumber, string month, string year, string holder, string ccv, string id) : base(actionType)
+        public PayRequest(string actionType, string cardNumber, string month, string year, string holder, string ccv, string id) : base(actionType)
         {
             card_number = cardNumber;
             this.month = month;

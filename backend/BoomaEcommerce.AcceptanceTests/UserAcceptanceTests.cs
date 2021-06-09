@@ -152,8 +152,11 @@ namespace BoomaEcommerce.AcceptanceTests
         [Fact]
         public async Task ViewPurchasesHistory_ShouldReturnPurchases_WhenPurchasesHistoryExists()
         {
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchase)
+                .Create();
             //Arrange 
-            await _purchaseService.CreatePurchaseAsync(purchase);
+            await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
         
             //Act
             var res = await _purchaseService.GetAllUserPurchaseHistoryAsync(UserGuid);
@@ -269,10 +272,14 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(p => p.BuyerGuid)
                 .Without(p => p.Guid)
                 .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, myPurchase)
+                .Create();
 
             // Act 
 
-            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
+            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseWasSuccessful.Should().NotBeNull();
@@ -299,11 +306,14 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(p => p.BuyerGuid)
                 .Without(p => p.Guid)
                 .Create();
-
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, myPurchase)
+                .Create();
            
 
             // Act 
-            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
+            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseWasSuccessful.Should().BeNull();

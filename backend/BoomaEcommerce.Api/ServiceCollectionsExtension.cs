@@ -9,6 +9,8 @@ using BoomaEcommerce.Data;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Products;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Services.Settings;

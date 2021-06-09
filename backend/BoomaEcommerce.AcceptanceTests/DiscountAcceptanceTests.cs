@@ -182,9 +182,13 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .With(p => p.DiscountedPrice, (decimal)5.4)
                 .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
 
             //Act 
-            var purchaseDto = await _purchaseService.CreatePurchaseAsync(_purchase);
+            var purchaseDto = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseDto.TotalPrice.Should().Be((decimal)6);
@@ -243,10 +247,14 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.StorePurchases, storePurchaseLst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
+               .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
                 .Create();
 
             //Act 
-            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(_purchase));
+            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchaseProductDetails));
 
             // Assert
             await result.Should().ThrowAsync<PolicyValidationException>();
@@ -330,9 +338,13 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.DiscountedPrice, (decimal)8.1)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
 
             //Act 
-            var purchaseDto = await _purchaseService.CreatePurchaseAsync(_purchase);
+            var purchaseDto = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseDto.TotalPrice.Should().Be(10);
@@ -424,8 +436,12 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.DiscountedPrice, (decimal)15.2)
                 .Create();
 
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
+
             //Act 
-            var purchaseDto = await _purchaseService.CreatePurchaseAsync(_purchase);
+            var purchaseDto = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseDto.TotalPrice.Should().Be(20);

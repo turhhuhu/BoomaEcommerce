@@ -1,6 +1,6 @@
-﻿namespace BoomaEcommerce.Services.ClientRequests.orderRequests
+﻿namespace BoomaEcommerce.Services.External.Supply.Requests
 {
-    public class SupplyItem : TodoItem
+    public class SupplyRequest : BaseRequest
     {
         private string name{ get; set; }
         private string address{ get; set; }
@@ -8,7 +8,7 @@
         private string country{ get; set; }
         private string zip{ get; set; }
 
-        public SupplyItem(string actionType, string name, string address, string city, string country, string zip) : base(actionType)
+        public SupplyRequest(string actionType, string name, string address, string city, string country, string zip) : base(actionType)
         {
             this.name = name;
             this.address = address;

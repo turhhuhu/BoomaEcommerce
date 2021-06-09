@@ -3,60 +3,64 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
-using BoomaEcommerce.Services.ClientRequests;
-using BoomaEcommerce.Services.ClientRequests.orderRequests;
-using BoomaEcommerce.Services.ClientRequests.paymentRequests;
+using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.External.Supply.Requests;
 
-namespace BoomaEcommerce.Services.External
+namespace BoomaEcommerce.Services.External.Supply
 {
     public class SupplyClient : ISupplyClient
     {
         private HttpClient _httpClient;
 
-        public SupplyClient()
+        public SupplyClient(HttpClient httpClient)
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
         }
-        public async Task<long> MakeOrder(Purchase purchase)
+        public async Task<int> MakeOrder(SupplyDetailsDto supplyDetails)
         {
-            var supplyItem = new SupplyItem(
+            var supplyItem = new SupplyRequest(
                 "supply",
-                "matan",
-                "irus",
-                "irus",
-                "israel",
-                "112");
+                supplyDetails.Name,
+                supplyDetails.Address,
+                supplyDetails.City,
+                supplyDetails.Country,
+                supplyDetails.Zip);
             var content = supplyItem.ToFormData();
             var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
             var responseString = await response.Content.ReadAsStringAsync();
             
-            var successAction =  long.TryParse(responseString,out long retVal);
-            if (successAction)
-                return retVal;
-            return -123;
+            var successAction =  int.TryParse(responseString,out var transactionId);
+            if (!successAction || !IsValidTransactionId(transactionId))
+                return -1;
+            return transactionId;
         }
-        public async Task<int> CancelOrder(Guid purchaseGuid)
+        public async Task<int> CancelOrder(int transactionId)
         {
-            var cancelSupplyItem = new CancelSupplyItem(
+            var cancelSupplyItem = new CancelSupplyRequest(
                 "cancel_supply",
-                "1234567");
+                transactionId.ToString());
             var content = cancelSupplyItem.ToFormData();
             var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
             var responseString = await response.Content.ReadAsStringAsync();
             
-            var successAction =  Int32.TryParse(responseString,out int retVal);
-            if (successAction)
-                return retVal;
-            return -123;
+            var successAction =  int.TryParse(responseString, out var responseAsInt);
+            if (!successAction || responseAsInt == -1)
+                return -1;
+            return 1;
         }
         
-        public async Task<string> HandShake()
+        private async Task<bool> HandShake()
         {
-            var handshakeItem = new HandshakeItem("handshake");
-            var content = handshakeItem.ToFormData();
+            var handshakeRequest = new HandshakeRequest("handshake");
+            var content = handshakeRequest.ToFormData();
             var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
             var responseString = await response.Content.ReadAsStringAsync();
-            return responseString;
+            return responseString.Equals("OK");
+        }
+        
+        private static bool IsValidTransactionId(int transactionId)
+        {
+            return transactionId is >= 10000 and <= 100000;
         }
     }
 }

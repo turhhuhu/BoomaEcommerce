@@ -7,6 +7,8 @@ using AutoMapper;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
@@ -83,7 +85,7 @@ namespace BoomaEcommerce.Services.Tests
             };
             var purchaseService = GetPurchaseService(null, productsDict, null, null);
             var taskDelete = storeService.DeleteProductAsync(productGuid);
-            var taskPurchase = purchaseService.CreatePurchaseAsync(purchaseDto);
+            var taskPurchase = purchaseService.CreatePurchaseAsync(new PurchaseDetailsDto{Purchase = purchaseDto});
 
             // Act
             var deleteResult = await taskDelete;

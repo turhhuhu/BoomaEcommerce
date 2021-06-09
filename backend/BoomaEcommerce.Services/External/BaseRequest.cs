@@ -1,10 +1,10 @@
-﻿namespace BoomaEcommerce.Services
+﻿namespace BoomaEcommerce.Services.External
 {
-    public class TodoItem
+    public class BaseRequest
     {
         protected string action_type { get; set; }
 
-        public TodoItem(string actionType)
+        public BaseRequest(string actionType)
         {
             action_type = actionType;
         }

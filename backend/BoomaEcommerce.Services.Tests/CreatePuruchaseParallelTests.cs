@@ -8,6 +8,8 @@ using AutoMapper;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
@@ -73,8 +75,8 @@ namespace BoomaEcommerce.Services.Tests
             // Act
             var taskList = new List<Task<PurchaseDto>>
             {
-                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid)),
-                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid))
+                sut.CreatePurchaseAsync(TestData.GetPurchaseDetailsWithPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid)),
+                sut.CreatePurchaseAsync(TestData.GetPurchaseDetailsWithPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid))
             };
             var res = await Task.WhenAll(taskList);
             

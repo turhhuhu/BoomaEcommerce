@@ -8,6 +8,8 @@ using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Services.Purchases
@@ -37,11 +39,11 @@ namespace BoomaEcommerce.Services.Purchases
             _notificationPublisher = notificationPublisher;
         }
 
-        public async Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchaseDto)
+        public async Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto)
         {
             try
             {
-                var purchase = _mapper.Map<Purchase>(purchaseDto);
+                var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 
                 purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
 
@@ -75,7 +77,7 @@ namespace BoomaEcommerce.Services.Purchases
                 {
                     return null;
                 }
-                await _paymentClient.MakePayment(purchase);
+                await _paymentClient.MakePayment(purchaseDetailsDto.PaymentDetails);
 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
@@ -86,7 +88,7 @@ namespace BoomaEcommerce.Services.Purchases
                             cart.User.Guid == purchase.Buyer.Guid);
                 }
 
-                await _supplyClient.MakeOrder(purchase);
+                await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
 

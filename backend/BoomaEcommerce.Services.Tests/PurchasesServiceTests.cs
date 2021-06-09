@@ -9,6 +9,8 @@ using AutoMapper;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
@@ -60,6 +62,10 @@ namespace BoomaEcommerce.Services.Tests
             var storesDict = new Dictionary<Guid, Store>();
 
             var purchaseDtoFixture = _fixture.Create<PurchaseDto>();
+            
+            var purchaseDetailsFixture = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchaseDtoFixture)
+                .Create();
 
             var userFixture = _fixture.Build<User>()
                 .With(x => x.Guid, purchaseDtoFixture.BuyerGuid)
@@ -85,7 +91,7 @@ namespace BoomaEcommerce.Services.Tests
             var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, storesDict);
             
             // Act
-            var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
+            var res = await sut.CreatePurchaseAsync(purchaseDetailsFixture);
 
             // Assert
             res.Should().NotBeNull();
@@ -116,7 +122,11 @@ namespace BoomaEcommerce.Services.Tests
                 .With(x => x.TotalPrice, 450)
                 .Without(x => x.Guid)
                 .Create();
-            
+
+            var purchaseDetailsFixture = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchaseDtoFixture)
+                .Create();
+
             var userFixture = _fixture.Build<User>()
                 .With(x => x.Guid, purchaseDtoFixture.BuyerGuid)
                 .Create();
@@ -139,7 +149,7 @@ namespace BoomaEcommerce.Services.Tests
             var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, null);
             
             // Act
-            var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
+            var res = await sut.CreatePurchaseAsync(purchaseDetailsFixture);
 
             // Assert
             res.Should().BeNull();
