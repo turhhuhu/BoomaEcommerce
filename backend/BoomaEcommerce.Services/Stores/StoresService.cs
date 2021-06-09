@@ -249,6 +249,13 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+        /*  private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
+          {
+              var notification = new RoleDismissalNotification(dismissingOwner.User, dismissingOwner.Store);
+              owners.ForEach(owner => owner.User.AddNotification(notification));
+              return _notificationPublisher.NotifyManyAsync(_mapper.Map<RoleDismissalNotificationDto>(notification), owners.Select(o => o.User.Guid));
+          }*/
+
         private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
         {
             var notifications = new List<(Guid, NotificationDto)>();

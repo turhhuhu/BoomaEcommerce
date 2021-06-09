@@ -60,7 +60,8 @@ namespace BoomaEcommerce.Data.EfCore
             {
                 sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
                 sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
-                sm.Ignore(s => s.Permissions);
+                //sm.Ignore(s => s.Permissions);
+                sm.OwnsOne(s => s.Permissions).ToTable("Permissions"); 
                 sm.HasKey(s => s.Guid);          
             });
 
@@ -72,6 +73,29 @@ namespace BoomaEcommerce.Data.EfCore
                 so.HasOne(s => s.Store).WithMany();
                 so.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade);
                 so.HasKey(s=>s.Guid);
+            });
+
+       
+
+            modelBuilder.Entity<Notification>(n =>
+            {
+                n.HasKey(n => n.Guid);
+                n.HasDiscriminator<string>("Notification_type")
+                    .HasValue<Notification>("Notification")
+                    .HasValue<StorePurchaseNotification>("StorePurchaseNotification")
+                    .HasValue<RoleDismissalNotification>("RoleDismissalNotification");
+            });
+
+            
+            modelBuilder.Entity<StorePurchaseNotification>(n =>
+            {
+                n.HasOne(sn => sn.Store);
+                n.HasOne(sn => sn.Buyer);
+            });
+
+            modelBuilder.Entity<RoleDismissalNotification>(n =>
+            {
+                n.HasOne(sn => sn.Store);
             });
 
             AddPolicyModels(modelBuilder);
