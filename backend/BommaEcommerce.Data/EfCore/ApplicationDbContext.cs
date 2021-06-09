@@ -84,10 +84,19 @@ namespace BoomaEcommerce.Data.EfCore
                     .HasValue<Notification>("Notification")
                     .HasValue<StorePurchaseNotification>("StorePurchaseNotification")
                     .HasValue<RoleDismissalNotification>("RoleDismissalNotification");
-                });
+            });
 
+            
+            modelBuilder.Entity<StorePurchaseNotification>(n =>
+            {
+                n.HasOne(sn => sn.Store);
+                n.HasOne(sn => sn.Buyer);
+            });
 
-
+            modelBuilder.Entity<RoleDismissalNotification>(n =>
+            {
+                n.HasOne(sn => sn.Store);
+            });
 
             AddPolicyModels(modelBuilder);
             AddCartModels(modelBuilder);
