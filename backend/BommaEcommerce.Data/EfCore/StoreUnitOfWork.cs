@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ namespace BoomaEcommerce.Data.EfCore
         public IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         public IRepository<Product> ProductRepo { get; set; }
         public IRepository<Policy> PolicyRepo { get; set; }
+        public IRepository<Discount> DiscountRepo { get; set; }
 
 
         public StoreUnitOfWork(

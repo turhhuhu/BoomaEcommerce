@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.Authentication;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.Products;
 using BoomaEcommerce.Services.Purchases;
@@ -39,13 +41,14 @@ namespace BoomaEcommerce.Tests.CoreLib
         private IDictionary<Guid, User> _users = new Dictionary<Guid, User>();
         private IDictionary<Guid, Notification> _notifications = new ConcurrentDictionary<Guid, Notification>();
         private IDictionary<Guid, Policy> _policies = new ConcurrentDictionary<Guid, Policy>();
+        private IDictionary<Guid, Discount> _discounts = new ConcurrentDictionary<Guid, Discount>();
         private Mock<UserManager<User>>  _userManagerMock = DalMockFactory.MockUserManager(new List<User>());
         private INotificationPublisher _notificationPublisherStub = new NotificationPublisherStub();
 
         public IStoresService MockStoreService()
         {
             var storeUnitOfWorkMock = DalMockFactory.MockStoreUnitOfWork(_stores, _storeOwnerships, _storePurchases,
-                _storeManagements, _storeManagementPermissions, _products,_policies);
+                _storeManagements, _storeManagementPermissions, _products,_policies, _discounts);
             var loggerMock = new Mock<ILogger<StoresService>>();
             return new StoresService(loggerMock.Object, MapperFactory.GetMapper(), storeUnitOfWorkMock.Object, new NotificationPublisherStub());
         }
@@ -72,12 +75,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x => 
-                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakePayment(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x => 
-                x.NotifyOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, _notificationPublisherStub);
@@ -98,12 +101,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x =>
-                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakePayment(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x =>
-                x.NotifyOrder(It.IsAny<Purchase>())).Throws(new Exception("Supply system collapsed"));
+                x.MakeOrder(It.IsAny<Purchase>())).Throws(new Exception("Supply system collapsed"));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());
@@ -119,12 +122,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x =>
-                x.MakeOrder(It.IsAny<Purchase>())).Throws(new Exception("External system collapsed"));
+                x.MakePayment(It.IsAny<Purchase>())).Throws(new Exception("External system collapsed"));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x =>
-                x.NotifyOrder(It.IsAny<Purchase>())).Returns(Task.CompletedTask);
+                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());

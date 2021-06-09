@@ -6,10 +6,13 @@ using System.Linq;
 using AutoMapper;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Discounts.Operators;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Domain.Policies.Operators;
 using BoomaEcommerce.Domain.Policies.PolicyTypes;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 
 namespace BoomaEcommerce.Services.MappingProfiles
@@ -35,8 +38,6 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(basket => basket.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}))
                 .ForMember(basket => basket.PurchaseProducts, x => x.MapFrom(dto => dto.PurchaseProducts));
 
-
-
             CreateMap<ShoppingCartDto, ShoppingCart>();
 
             CreateMap<ProductDto, Product>()
@@ -44,19 +45,17 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<PurchaseProductDto, PurchaseProduct>()
                 .ForMember(purchaseProduct => purchaseProduct.Product,
-                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}));
-
+                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}))
+                .ForMember(purchaseProduct => purchaseProduct.DiscountedPrice, x => x.MapFrom(dto => dto.Price));
+            
             CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }))
-                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }));
-
+                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}))
+                .ForMember(store => store.DiscountedPrice, x => x.MapFrom(dto => dto.TotalPrice))
+                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}));
+            
             CreateMap<PurchaseDto, Purchase>()
                 .ForMember(purchase => purchase.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}));
-
-            CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(storePurchase => storePurchase.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }))
-                .ForMember(storePurchase => storePurchase.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }));
-
+            
             CreateMap<StoreManagementDto, StoreManagement>()
                 .ForMember(x => x.Permissions, x => x.Condition(xx => xx.Permissions != null));
 
@@ -125,6 +124,32 @@ namespace BoomaEcommerce.Services.MappingProfiles
                         OperatorType.Or => new OrPolicyOperator(),
                         OperatorType.Condition => new ConditionPolicyOperator(),
                         OperatorType.Xor => new XorPolicyOperator(),
+                        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                    });
+
+            CreateMap<DiscountDto, Discount>()
+                .Include<ProductDiscountDto, ProductDiscount>()
+                .Include<CategoryDiscountDto, CategoryDiscount>()
+                .Include<BasketDiscountDto, BasketDiscount>()
+                .Include<CompositeDiscountDto, CompositeDiscount>();
+
+            CreateMap<CategoryDiscountDto, CategoryDiscount>();
+
+            CreateMap<BasketDiscountDto, BasketDiscount>();
+                
+
+            CreateMap<ProductDiscountDto, ProductDiscount>()
+                .ConstructUsing((discountDto, _) => new ProductDiscount(new Product { Guid = discountDto.ProductGuid }));
+
+            CreateMap<CompositeDiscountDto, CompositeDiscount>()
+                .ConstructUsing((discountDto, context) => new CompositeDiscount(context.Mapper.Map<DiscountOperator>(discountDto.Operator)));
+
+            CreateMap<OperatorTypeDiscount, DiscountOperator>()
+                .ConstructUsing((type, _) =>
+                    type switch
+                    {
+                        OperatorTypeDiscount.Max => new MaxDiscountOperator(),
+                        OperatorTypeDiscount.Sum => new SumDiscountOperator(),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
                     });
         }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Data
@@ -18,6 +19,7 @@ namespace BoomaEcommerce.Data
         IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         IRepository<Product> ProductRepo { get; set; }
         IRepository<Policy> PolicyRepo { get; set; }
+        IRepository<Discount> DiscountRepo { get; set; }
         Task SaveAsync();
         void AttachNoChange<TEntity>(TEntity entity) where TEntity : class;
         Task AttachUser(User user);

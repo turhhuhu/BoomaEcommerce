@@ -124,6 +124,7 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 BuyerGuid = notOwnerLoginResponse.UserGuid,
                 TotalPrice = 10,
+                DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
                 {
                     new()
@@ -150,6 +151,7 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 BuyerGuid = notOwnerLoginResponse.UserGuid,
                 TotalPrice = 10,
+                DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
                 {
                     new()
