@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Core
 {
-    public class BaseEntity
+    public class BaseEntity : IBaseEntity
     {
         public Guid Guid { get; set; }
 
@@ -23,4 +23,8 @@ namespace BoomaEcommerce.Core
 
     }
 
+    public interface IBaseEntity
+    {
+        public Guid Guid { get; set; }
+    }
 }

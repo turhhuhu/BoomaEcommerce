@@ -69,8 +69,11 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(dto => dto.StoreMetaData, x => x.MapFrom(n => n.Store));
 
             CreateMap<User, BasicUserInfoDto>();
-            CreateMap<User, UserMetaData>();
-            CreateMap<Store, StoreMetaData>();
+            CreateMap<User, UserMetaData>()
+                .ForMember(dto => dto.UserGuid, x => x.MapFrom(u => u.Guid));
+
+            CreateMap<Store, StoreMetaData>()
+                .ForMember(dto => dto.StoreGuid, x => x.MapFrom(s => s.Guid));
 
             CreateMap<Policy, PolicyDto>()
                 .Include<AgeRestrictionPolicy, AgeRestrictionPolicyDto>()

@@ -14,7 +14,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 {
     public static class DalMockFactory
     {
-        public static Mock<UserManager<User>> MockUserManager(List<User> ls)
+        public static Mock<UserManager<User>> MockUserManager(IDictionary<Guid, User> ls)
         {
             if (ls == null)
             {
@@ -30,7 +30,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             mgr.Object.PasswordValidators.Add(new PasswordValidator<User>());
             
             mgr.Setup(userManger => userManger.FindByIdAsync(It.IsAny<string>()))
-                .ReturnsAsync((string guid) => ls.FirstOrDefault(x => x.Guid.ToString().Equals(guid)));
+                .ReturnsAsync((string guid) => ls.Values.FirstOrDefault(x => x.Guid.ToString().Equals(guid)));
 
             mgr.Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync(IdentityResult.Success)
                 .Callback<User, string>((x, y) =>
                 {
-                    ls.Add(x);
+                    ls.Add(x.Guid, x);
                     passwordStore.Add(x.Guid, y);
                 });
 
@@ -50,7 +50,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync((User user, string password) => passwordStore[user.Guid].Equals(password));
 
             mgr.Setup(userManager => userManager.FindByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((string username) => ls.FirstOrDefault(usr => usr.UserName == username));
+                .ReturnsAsync((string username) => ls.Values.FirstOrDefault(usr => usr.UserName == username));
 
             mgr.Setup(userManager => userManager.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success)
@@ -72,7 +72,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         }
 
         public static Mock<IRepository<TEntity>> MockRepository<TEntity>(IDictionary<Guid, TEntity> entities)
-            where TEntity : BaseEntity
+            where TEntity : class, IBaseEntity
         {
             if (entities == null)
             {
@@ -91,6 +91,15 @@ namespace BoomaEcommerce.Tests.CoreLib
                     foreach (var key in keysToRemove)
                     {
                         entities.Remove(key, out _);
+                    }
+                });
+
+            repoMock.Setup(x => x.DeleteRange(It.IsAny<IEnumerable<TEntity>>()))
+                .Callback<IEnumerable<TEntity>>(entitiesToRemove =>
+                {
+                    foreach (var entity in entitiesToRemove)
+                    {
+                        entities.Remove(entity.Guid);
                     }
                 });
 
@@ -143,10 +152,11 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products,
             IDictionary<Guid,Policy> policies,
-            IDictionary<Guid, Discount> discounts
+            IDictionary<Guid, Discount> discounts,
+            IDictionary<Guid, User> users
         )
         {
-
+            var userRepoMock = MockRepository(users);
             var storeRepoMock = MockRepository(stores);
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
             var storePurchasesRepoMock = MockRepository(storePurchases);
@@ -205,6 +215,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.ProductRepo).Returns(productsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.DiscountRepo).Returns(storeDiscountRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.UserRepo).Returns(userRepoMock?.Object);
 
             if (storeDiscountRepoMock != null)
             {
@@ -225,8 +236,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, Notification> notifications,
             IDictionary<Guid, Store> stores,
             IDictionary<Guid, StorePurchase> storePurchases = null,
-            IDictionary<Guid, PurchaseProduct> purchaseProducts = null,
-            Mock<UserManager<User>> userManagerMock = null)
+            IDictionary<Guid, PurchaseProduct> purchaseProducts = null)
         {
             var purchaseRepoMock = MockRepository(purchases);
             purchaseRepoMock?.Setup(x => x.InsertOneAsync(It.IsAny<Purchase>()))
@@ -248,7 +258,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 
             var storesRepoMock = MockRepository(stores);
             var productRepoMock = MockRepository(products);
-            var userRepoMock = userManagerMock ?? MockUserManager(users is null ? new List<User>() : users.Values.ToList());
+            var userRepoMock = MockRepository(users);
             var shoppingCartMock = MockRepository(shoppingCarts);
             var ownershipsMock = MockRepository(ownerships);
             var notificationsMock = MockRepository(notifications);
@@ -265,15 +275,16 @@ namespace BoomaEcommerce.Tests.CoreLib
         public static Mock<IUserUnitOfWork> MockUserUnitOfWork(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
-            Mock<UserManager<User>> userManagerMock = null)
+            IDictionary<Guid, User> users = null)
         {
             var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
             var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
+            var usersRepoMock = DalMockFactory.MockRepository(users);
 
             var userUnitOfWork = new Mock<IUserUnitOfWork>();
             userUnitOfWork.SetupGet(x => x.ShoppingBasketRepo).Returns(shoppingBasketRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.ShoppingCartRepo).Returns(shoppingCartRepoMock?.Object);
-            userUnitOfWork.SetupGet(x => x.UserManager).Returns(userManagerMock?.Object);
+            userUnitOfWork.SetupGet(x => x.UserRepository).Returns(usersRepoMock?.Object);
             return userUnitOfWork;
         }
     }

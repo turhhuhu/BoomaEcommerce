@@ -60,7 +60,8 @@ namespace BoomaEcommerce.Data.EfCore
             {
                 sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
                 sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
-                sm.Ignore(s => s.Permissions);
+                //sm.Ignore(s => s.Permissions);
+                sm.OwnsOne(s => s.Permissions).ToTable("Permissions"); 
                 sm.HasKey(s => s.Guid);          
             });
 
@@ -68,19 +69,41 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<StoreOwnership>(so =>
             {
                 so.HasMany(s => s.StoreManagements).WithOne();
-                //so.Ignore(s => s.StoreManagements);
-                //so.HasMany(s => s.StoreOwnerships).WithOne(); 
-                so.Ignore(s => s.StoreOwnerships);
+                so.HasMany(s => s.StoreOwnerships).WithOne().IsRequired(false); 
                 so.HasOne(s => s.Store).WithMany();
-                //so.Ignore(s => s.Store);
                 so.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade);
-                //so.Ignore(s => s.User);
                 so.HasKey(s=>s.Guid);
-            }); 
+            });
 
        
 
-            modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
+            modelBuilder.Entity<Notification>(n =>
+            {
+                n.HasKey(n => n.Guid);
+                n.HasDiscriminator<string>("Notification_type")
+                    .HasValue<Notification>("Notification")
+                    .HasValue<StorePurchaseNotification>("StorePurchaseNotification")
+                    .HasValue<RoleDismissalNotification>("RoleDismissalNotification");
+            });
+
+            
+            modelBuilder.Entity<StorePurchaseNotification>(n =>
+            {
+                n.HasOne(sn => sn.Store)
+                    .WithMany();
+
+                n.HasOne(sn => sn.Buyer)
+                    .WithMany();
+            });
+
+            modelBuilder.Entity<RoleDismissalNotification>(n =>
+            {
+                n.HasOne(sn => sn.Store)
+                    .WithMany();
+
+                n.HasOne(sn => sn.DismissingUser)
+                    .WithMany();
+            });
 
             AddPolicyModels(modelBuilder);
             AddCartModels(modelBuilder);
@@ -118,6 +141,7 @@ namespace BoomaEcommerce.Data.EfCore
 
                 sp.Property(s => s.TotalPrice).HasPrecision(10, 5);
             });
+
 
 
             base.OnModelCreating(modelBuilder);

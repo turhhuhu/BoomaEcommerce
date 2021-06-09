@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210609092102_AddNotifications")]
+    partial class AddNotifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,15 +30,15 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Notification_type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("WasSeen")
                         .HasColumnType("bit");
+
+                    b.Property<string>("notification_type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Guid");
 
@@ -44,7 +46,7 @@ namespace BoomaEcommerce.Data.Migrations
 
                     b.ToTable("Notifications");
 
-                    b.HasDiscriminator<string>("Notification_type").HasValue("Notification");
+                    b.HasDiscriminator<string>("notification_type").HasValue("Notification");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.Operators.PolicyOperator", b =>
