@@ -14,39 +14,29 @@ namespace BoomaEcommerce.Domain
         public Store Store { get; set; }
         public User User { get; set; }
 
-        private ConcurrentDictionary<Guid, StoreOwnership> _storeOwnerships;
-        private ConcurrentDictionary<Guid, StoreManagement> _storeManagements;
 
-        public ICollection<StoreOwnership> StoreOwnerships
-        {
-            get => _storeOwnerships.Values;
-            set => _storeOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>(value.ToDictionary(o => o.Guid));
-        }
-        public ICollection<StoreManagement> StoreManagements
-        {
-            get => _storeManagements.Values;
-            set => _storeManagements = new ConcurrentDictionary<Guid, StoreManagement>(value.ToDictionary(o => o.Guid));
-        }
+        public ISet<StoreOwnership> StoreOwnerships { get; set; }
+        public ISet<StoreManagement> StoreManagements { get; set; }
 
         public StoreOwnership()
         {
-            _storeManagements = new ConcurrentDictionary<Guid, StoreManagement>();
-            _storeOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
+            StoreOwnerships = new HashSet<StoreOwnership>(new EqualityComparers.SameGuid<StoreOwnership>());
+            StoreManagements = new HashSet<StoreManagement>(new EqualityComparers.SameGuid<StoreManagement>());
         }
 
         public void AddOwner(StoreOwnership owner)
         {
-            _storeOwnerships.TryAdd(owner.Guid, owner);
+            StoreOwnerships.Add(owner);
         }
         public void AddManager(StoreManagement manager)
         {
-            _storeManagements.TryAdd(manager.Guid, manager);
+            StoreManagements.Add(manager);
         }
 
 
         public bool RemoveManager(Guid managerToRemove)
         {
-            return _storeManagements.TryRemove(managerToRemove, out _);
+            return StoreManagements.Remove(new StoreManagement {Guid = managerToRemove});
         }
 
 
@@ -54,13 +44,13 @@ namespace BoomaEcommerce.Domain
         {
             if (level > 0 || !level.HasValue)
             {
-                var sellers = _storeOwnerships.Values.Select(owner => owner.GetSubordinates(level - 1)).ToList();
-                var owners = sellers.SelectMany(pair => pair.Item1).Concat(_storeOwnerships.Values).ToList();
-                var managers = sellers.SelectMany(pair => pair.Item2).Concat(_storeManagements.Values).ToList();
+                var sellers = StoreOwnerships.Select(owner => owner.GetSubordinates(level - 1)).ToList();
+                var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships).ToList();
+                var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements).ToList();
                 return (owners, managers);
             }
 
-            return (_storeOwnerships.Values.ToList(), _storeManagements.Values.ToList());
+            return (StoreOwnerships.ToList(), StoreManagements.ToList());
         }
 
         public void RemoveOwner(Guid ownershipGuid)
@@ -71,38 +61,33 @@ namespace BoomaEcommerce.Domain
                 return;
             }
             owner.RemoveSubordinatesRecursively();
-            _storeOwnerships.TryRemove(ownershipGuid, out _);
+            StoreOwnerships.Remove(new StoreOwnership {Guid = ownershipGuid});
         }
 
         public void RemoveSubordinatesRecursively()
         {
-            this._storeManagements.Clear(); // Remove all managers 
-            foreach (var (guid, ownership) in this._storeOwnerships) // Call Recursively 
+            this.StoreManagements.Clear(); // Remove all managers 
+            foreach (var ownership in StoreOwnerships) // Call Recursively 
             { 
                 ownership.RemoveSubordinatesRecursively();
             }
-            this._storeOwnerships.Clear(); // Remove all owners 
+            this.StoreOwnerships.Clear(); // Remove all owners 
         }
 
         public StoreOwnership GetOwner(Guid ownerGuid)
         {
-            return _storeOwnerships.TryGetValue(ownerGuid, out var ownership) 
-                ? ownership 
-                : null;
+            return StoreOwnerships.FirstOrDefault(o => o.Guid == ownerGuid);
         }
 
         public bool ContainsManagement(Guid managementGuid)
         {
-            return _storeManagements.ContainsKey(managementGuid);
+            return StoreManagements.Contains(new StoreManagement {Guid = managementGuid});
         }
         public bool ContainsOwnership(Guid ownershipGuid)
         {
-            return _storeOwnerships.ContainsKey(ownershipGuid);
+            return StoreOwnerships.Contains(new StoreOwnership { Guid = ownershipGuid });
         }
 
     }
-    
-    
-    
-    
+
 }

@@ -6,18 +6,21 @@ using System.Threading.Tasks;
 
 namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 {
-    public class MaxProductAmountPolicy : Policy
+    public class MaxProductAmountPolicy : ProductPolicy
     {
-        public Product Product { get; set; }
         public int MaxAmount { get; set; }
 
-        public MaxProductAmountPolicy(Product product, int maxAmount)
+        public MaxProductAmountPolicy(Product product, int maxAmount) : base(product)
         {
             Product = product;
             MaxAmount = maxAmount;
             ErrorMessage = "Product '{0}' must at-most have '{1}' amount but has '{2}' amount.";
         }
 
+        private MaxProductAmountPolicy()
+        {
+            
+        }
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var purchaseProduct = basket.PurchaseProducts

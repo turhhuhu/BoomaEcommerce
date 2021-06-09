@@ -8,6 +8,7 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -40,21 +41,23 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
             var entitiesManagements = new ConcurrentDictionary<Guid, StoreManagement>();
+            var entitiesStores = new ConcurrentDictionary<Guid, Store>();
 
-            var storeGuid = Guid.NewGuid();
-            var firstStoreOwner = new StoreOwnership {Store = new Store(null) {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
-            var secondStoreOwner = new StoreOwnership {Store = new Store(null) { Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
+            var store = new Store {Guid = Guid.NewGuid()};
+            var firstStoreOwner = new StoreOwnership {Store = store, User = new User{Guid = Guid.NewGuid()}};
+            var secondStoreOwner = new StoreOwnership {Store = store, User = new User{Guid = Guid.NewGuid()}};
             entitiesOwnerships[firstStoreOwner.Guid] = firstStoreOwner;
             entitiesOwnerships[secondStoreOwner.Guid] = secondStoreOwner;
+            entitiesStores[store.Guid] = store;
 
             var storeManagementDto = new StoreManagementDto
             {
-                Store = new StoreDto { Guid = storeGuid },
+                Store = new StoreDto { Guid = store.Guid },
                 User = new UserDto { Guid = Guid.NewGuid() },
                 Permissions = new StoreManagementPermissionsDto()
             };
 
-            var sut = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var sut = GetStoreService(entitiesStores, entitiesOwnerships, null, entitiesManagements, null, null);
 
             var taskList = new List<Task<bool>>
             {

@@ -31,5 +31,9 @@ namespace BoomaEcommerce.Data.InMemory
         {
             return Task.CompletedTask;
         }
+
+        public void AttachNoChange<TEntity>(TEntity entity) where TEntity : class
+        { 
+        }
     }
 }

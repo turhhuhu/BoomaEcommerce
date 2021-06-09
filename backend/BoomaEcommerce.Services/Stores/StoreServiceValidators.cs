@@ -64,7 +64,7 @@ namespace BoomaEcommerce.Services.Stores
                 RuleFor(store => store.Rating)
                     .Null();
                 RuleFor(store => store.FounderUserGuid)
-                    .Must(founder => founder == default);
+                    .Must(founder => founder != default);
             }
         }
 
@@ -76,9 +76,10 @@ namespace BoomaEcommerce.Services.Stores
                     .Must(guid => guid == default);
 
                 RuleFor(sm => sm.Store)
-                    .Must(store => store != default);
+                    .Must(store => store != default && store.Guid != default);
+
                 RuleFor(sm => sm.User)
-                    .Must(user => user != default);
+                    .Must(user => user != default && (user.Guid != default || !string.IsNullOrEmpty(user.UserName)));
             }
         }
         public class NominateNewStoreOwner : AbstractValidator<StoreOwnershipDto>
@@ -87,10 +88,12 @@ namespace BoomaEcommerce.Services.Stores
             {
                 RuleFor(sm => sm.Guid)
                     .Must(guid => guid == default);
+
                 RuleFor(sm => sm.Store)
-                    .Must(store => store != default);
+                    .Must(store => store != default && store.Guid != default);
+
                 RuleFor(sm => sm.User)
-                    .Must(user => user != default);
+                    .Must(user => user != default && (user.Guid != default || !string.IsNullOrEmpty(user.UserName)));
             }
         }
 

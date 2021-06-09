@@ -23,4 +23,8 @@
     <ProjectReference Include="..\BoomaEcommerce.Domain\BoomaEcommerce.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

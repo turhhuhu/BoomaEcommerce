@@ -31,11 +31,11 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<User, UserDto>();
 
             CreateMap<ShoppingCart, ShoppingCartDto>()
-                .ForMember(cartDto => cartDto.Baskets, x => x.MapFrom(shoppingCart => shoppingCart.StoreGuidToBaskets.Values));
+                .ForMember(cartDto => cartDto.Baskets, x => x.MapFrom(shoppingCart => shoppingCart.ShoppingBaskets));
 
             CreateMap<ShoppingBasket, ShoppingBasketDto>()
-                  .ForMember(basketDto =>basketDto.PurchaseProducts , x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts))
-                  .ForMember(basketDto => basketDto.StoreGuid, x => x.MapFrom(basket => basket.Store.Guid));
+                .ForMember(basketDto => basketDto.PurchaseProducts,
+                    x => x.MapFrom(shoppingBasket => shoppingBasket.PurchaseProducts));
 
             CreateMap<StoreManagement, StoreManagementDto>();
 
@@ -117,7 +117,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ConstructUsing((policy, context) => new CompositePolicyDto
                 {
                     Operator = context.Mapper.Map<OperatorType>(policy.Operator),
-                    SubPolicies = context.Mapper.Map<IEnumerable<PolicyDto>>(policy.GetSubPolicies())
+                    SubPolicies = context.Mapper.Map<IEnumerable<PolicyDto>>(policy.SubPolicies)
                 });
 
             CreateMap<BinaryPolicy, BinaryPolicyDto>()

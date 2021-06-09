@@ -31,12 +31,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StoreDto, Store>()
                 .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}));
 
-            CreateMap<List<PurchaseProductDto>, IDictionary<Guid, PurchaseProduct>>()
-                .ConstructUsing((x, y) => new ConcurrentDictionary<Guid, PurchaseProduct>(
-                    x.Select(ppDto => y.Mapper.Map<PurchaseProduct>(ppDto))
-                        .ToDictionary(pp => pp.Guid)));
-            
-                        
+            CreateMap<List<PurchaseProductDto>, ISet<PurchaseProduct>>()
+                .ConstructUsing((x, y) => x.Select(pp => y.Mapper.Map<PurchaseProduct>(pp)).ToHashSet(new EqualityComparers.SameGuid<PurchaseProduct>()));
 
             CreateMap<ShoppingBasketDto, ShoppingBasket>()
                 .ForMember(basket => basket.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}))
@@ -49,18 +45,19 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<PurchaseProductDto, PurchaseProduct>()
                 .ForMember(purchaseProduct => purchaseProduct.Product,
-                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}))
-                .ForMember(purchaseProduct => purchaseProduct.DiscountedPrice, x => x.MapFrom(dto => dto.Price));
+                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}));
 
             CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}))
-                .ForMember(store => store.DiscountedPrice, x => x.MapFrom(dto => dto.TotalPrice))
-                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}));
-                
+                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }))
+                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }));
 
             CreateMap<PurchaseDto, Purchase>()
                 .ForMember(purchase => purchase.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}));
-            
+
+            CreateMap<StorePurchaseDto, StorePurchase>()
+                .ForMember(storePurchase => storePurchase.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }))
+                .ForMember(storePurchase => storePurchase.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }));
+
             CreateMap<StoreManagementDto, StoreManagement>()
                 .ForMember(x => x.Permissions, x => x.Condition(xx => xx.Permissions != null));
 

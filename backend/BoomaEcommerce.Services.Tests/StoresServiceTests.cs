@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
@@ -66,15 +67,23 @@ namespace BoomaEcommerce.Services.Tests
             
             var storeOwnerShipBenny = new StoreOwnership { Guid = Guid.NewGuid(), User = bennyUser };
 
-            var storeOwnerShipOmerOwners = new List<StoreOwnership>();
+            var storeOwnerShipOmerOwners = new HashSet<StoreOwnership>(new EqualityComparers.SameGuid<StoreOwnership>());
             storeOwnerShipOmerOwners.Add(storeOwnerShipBenny);
-            var storeManagmentOmerOwners = new List<StoreManagement>();
+            var storeManagmentOmerOwners =
+                new HashSet<StoreManagement>(new EqualityComparers.SameGuid<StoreManagement>());
             storeManagmentOmerOwners.Add(storeMangementMatan);
-            var storeOwnerShipOmer = new StoreOwnership { Guid = Guid.NewGuid(), User = omerUser, StoreOwnerships = storeOwnerShipOmerOwners,StoreManagements=storeManagmentOmerOwners };
+            var storeOwnerShipOmer = new StoreOwnership 
+            { 
+                Guid = Guid.NewGuid(),
+                User = omerUser,
+                StoreOwnerships = 
+                    storeOwnerShipOmerOwners.ToHashSet(),
+                StoreManagements=storeManagmentOmerOwners
+            };
 
             var storeOwnerShipArik = new StoreOwnership { Guid = Guid.NewGuid(), User = arikUser};
 
-            var storeOwnerShipOriOwners = new List<StoreOwnership>();
+            var storeOwnerShipOriOwners = new HashSet<StoreOwnership>(new EqualityComparers.SameGuid<StoreOwnership>());
             storeOwnerShipOriOwners.Add(storeOwnerShipOmer);
             storeOwnerShipOriOwners.Add(storeOwnerShipArik);
            
@@ -110,18 +119,18 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
-
+            var entitiesStores = new Dictionary<Guid, Store>();
             var nikeStore = TestData.CreateStoreObject("nike");
 
             var matanUser = TestData.CreateUserObject("Matan");
             var bennyUser = TestData.CreateUserObject("Benny");
             
             var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
-            
 
+            entitiesStores[storeOwnershipMatanNike.Store.Guid] = storeOwnershipMatanNike.Store;
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
             
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var us = GetStoreService(entitiesStores, entitiesOwnerships, null, entitiesManagements, null, null);
             
             var storeOwnershipBennyNike = TestData.CreateStoreOwnershipObject(nikeStore, bennyUser);
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipBennyNike);
@@ -264,6 +273,7 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesStores = new Dictionary<Guid, Store>();
 
             var nikeStore = TestData.CreateStoreObject("nike");
             
@@ -273,12 +283,12 @@ namespace BoomaEcommerce.Services.Tests
            
 
             var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
-           
 
+            entitiesStores[nikeStore.Guid] = nikeStore;
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
 
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+           var us = GetStoreService(entitiesStores, entitiesOwnerships, null, entitiesManagements, null, null);
 
 
             //SUCCESS

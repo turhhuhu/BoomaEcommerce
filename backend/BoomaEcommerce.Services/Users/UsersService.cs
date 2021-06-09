@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.Internal;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
@@ -37,8 +38,12 @@ namespace BoomaEcommerce.Services.Users
                 
                 if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
 
-                shoppingCart = new ShoppingCart(new User {Guid = userGuid});
+                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+
+                shoppingCart = new ShoppingCart(user);
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
+                await _userUnitOfWork.SaveAsync();
+
                 return _mapper.Map<ShoppingCartDto>(shoppingCart);
             }
             catch (Exception e)
@@ -53,16 +58,21 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 var shoppingBasket = _mapper.Map<ShoppingBasket>(shoppingBasketDto);
+
                 var shoppingCart = await _userUnitOfWork.ShoppingCartRepo
                     .FindOneAsync(x => x.Guid == shoppingCartGuid) 
-                                   ?? new ShoppingCart(new User {Guid = shoppingCartGuid});
+                                   ?? new ShoppingCart(await _userUnitOfWork
+                                       .UserManager.
+                                       FindByIdAsync(shoppingCartGuid.ToString()));
+
+                shoppingBasket.PurchaseProducts.ForAll(pp => _userUnitOfWork.AttachNoChange(pp.Product));
+                _userUnitOfWork.AttachNoChange(shoppingBasket.Store);
 
                 if (!shoppingCart.AddShoppingBasket(shoppingBasket))
                 {
                     return null;
                 }
                 await _userUnitOfWork.ShoppingBasketRepo.InsertOneAsync(shoppingBasket);
-                await _userUnitOfWork.ShoppingCartRepo.ReplaceOneAsync(shoppingCart);
                 await _userUnitOfWork.SaveAsync();
                 return _mapper.Map<ShoppingBasketDto>(shoppingBasket);
             }
@@ -79,6 +89,9 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
+
+                _userUnitOfWork.AttachNoChange(purchaseProduct.Product);
+
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketGuid);
 
                 if (shoppingBasket == null)
@@ -86,23 +99,10 @@ namespace BoomaEcommerce.Services.Users
                     return null;
                 }
 
-                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
-
-                var policyResult =
-                    shoppingBasket.CheckPolicyCompliance(user, purchaseProduct);
-
-                if (!policyResult.IsOk)
-                {
-                    throw new PolicyValidationException(new PolicyError(shoppingBasket.Store.Guid, policyResult.PolicyError));
-                }
-
                 if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
                     return null;
                 }
-
-                await _userUnitOfWork.PurchaseProductRepo.InsertOneAsync(purchaseProduct);
-                await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
                 await _userUnitOfWork.SaveAsync();
                 return _mapper.Map<PurchaseProductDto>(purchaseProduct);
             }
@@ -128,7 +128,6 @@ namespace BoomaEcommerce.Services.Users
                 {
                     return false;
                 }
-                await _userUnitOfWork.PurchaseProductRepo.DeleteOneAsync(x => x.Guid == purchaseProductGuid);
                 await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
                 await _userUnitOfWork.SaveAsync();
                 return true;
