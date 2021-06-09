@@ -97,6 +97,11 @@ namespace BoomaEcommerce.Services.Purchases
 
                 return _mapper.Map<PurchaseDto>(purchase);
             }
+            catch (PolicyValidationException)
+            {
+                _logger.LogError("Store policies for purchase failed.");
+                throw;
+            }
             catch (Exception e)
             {
                 RollbackTransactions(paymentTransactionId, supplyTransactionId);
