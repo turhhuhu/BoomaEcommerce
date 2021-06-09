@@ -227,6 +227,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.StorePurchases, store_purchase_lst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .With(p => p.DiscountedPrice, storePurchase.TotalPrice)
                 .Create();
 
             //Act 

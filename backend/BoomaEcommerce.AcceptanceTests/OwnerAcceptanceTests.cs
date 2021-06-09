@@ -155,6 +155,7 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 BuyerGuid = buyerToken.UserGuid,
                 TotalPrice = 10,
+                DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
                 {
                     new()

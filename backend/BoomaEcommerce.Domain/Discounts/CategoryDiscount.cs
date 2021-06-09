@@ -28,23 +28,21 @@ namespace BoomaEcommerce.Domain.Discounts
                 return "Could not apply discount!\n" + (Policy.CheckPolicy(sp).IsOk ? "Discount validity has expired\n" : Policy.CheckPolicy(sp).PolicyError);
             }
 
-            foreach (var pp in sp.PurchaseProducts)
+            foreach (var pp in sp.PurchaseProducts.Where(pp => pp.Product.Category.Equals(_category)))
             {
-                if (!(pp.Product.Category.Equals(_category))) continue;
-
-                var productPriceBeforeDiscount = pp.Price;
+                var productPriceBeforeDiscount = pp.DiscountedPrice;
 
                 var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
-                pp.Price *= discountDecimal;
+                pp.DiscountedPrice *= discountDecimal;
 
                 discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
-                                 " of the " + _category + " category\n";
+                                " of the " + _category + " category\n";
 
-                moneySaved += (productPriceBeforeDiscount - pp.Price);
+                moneySaved += (productPriceBeforeDiscount - pp.DiscountedPrice);
             }
 
-            sp.DiscountedPrice = sp.DiscountedPrice - moneySaved;
+            sp.DiscountedPrice -= moneySaved;
 
             return discountInfo;
         }
