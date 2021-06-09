@@ -14,6 +14,7 @@ namespace BoomaEcommerce.Domain
         public User Buyer { get; set; }
         public Store Store { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal DiscountedPrice { get; set; }
 
         public async Task<bool> PurchaseAllProducts()
         {

@@ -53,7 +53,7 @@ namespace BoomaEcommerce.AcceptanceTests
             await InitPurchase(storeService);
         }
 
-        public async Task InitPurchase(IStoresService storesService)
+        private async Task InitPurchase(IStoresService storesService)
         {
             // create store
             _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, UserGuid));
@@ -94,7 +94,7 @@ namespace BoomaEcommerce.AcceptanceTests
             shopping_basket =  await _usersService.CreateShoppingBasketAsync(shopping_cart.Guid, shopping_basket_dto);
         }
 
-        public async Task InitUser(IStoresService storeService, IAuthenticationService authService, IPurchasesService purchasesService, IUsersService usersService)
+        private async Task InitUser(IStoresService storeService, IAuthenticationService authService, IPurchasesService purchasesService, IUsersService usersService)
         {
             var user = new UserDto { UserName = "Omer" };
             const string password = "Omer1001";
@@ -227,6 +227,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.StorePurchases, store_purchase_lst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .With(p => p.DiscountedPrice, storePurchase.TotalPrice)
                 .Create();
 
             //Act 

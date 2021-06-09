@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 using FluentValidation;
 
@@ -617,6 +619,216 @@ namespace BoomaEcommerce.Services.Stores
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to get store policy from store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<DiscountDto> AddDiscountAsync(Guid storeGuid, Guid discountGuid, DiscountDto discountDto)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt add new child discount to discount with guid {discountGuid}.", discountGuid);
+                var compositeDiscount = await _storeUnitOfWork.DiscountRepo.FindByIdAsync<CompositeDiscount>(discountGuid);
+                if (compositeDiscount == null)
+                {
+                    return null;
+                }
+                var childDiscount = _mapper.Map<Discount>(discountDto);
+                compositeDiscount.AddToDiscountList(childDiscount);
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.DiscountRepo.InsertOneAsync(childDiscount);
+
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully added new child discount for discount with guid {discountGuid}", discountGuid);
+                return _mapper.Map<DiscountDto>(childDiscount);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to add a new child discount for discount with guid {discountGuid}", discountGuid);
+                return null;
+            }
+        }
+
+        public async Task<bool> DeleteDiscountAsync(Guid storeGuid, Guid discountGuid)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Making attempt to delete discount with guid {discountGuid} from store with guid {storeGuid}.",
+                    discountGuid, storeGuid);
+                await _storeUnitOfWork.DiscountRepo.DeleteByIdAsync(discountGuid);
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation(
+                    "Successfully deleted discount with guid {discountGuid} from store with guid {storeGuid}.", discountGuid,
+                    storeGuid);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to delete discount with guid {discountGuid} from store with guid {storeGuid}",
+                    discountGuid, storeGuid);
+                return false;
+            }
+        }
+
+        public async Task<DiscountDto> CreateDiscountAsync(Guid storeGuid, DiscountDto discountDto)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to set store {storeGuid} with new Discount.", storeGuid);
+                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(storeGuid);
+                if (store == null)
+                {
+                    return null;
+                }
+                var discount = _mapper.Map<Discount>(discountDto);
+                store.StoreDiscount = discount;
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.DiscountRepo.InsertOneAsync(discount);
+
+                await _storeUnitOfWork.SaveAsync();
+
+                var test = await _storeUnitOfWork.DiscountRepo.FindAllAsync();
+                var test2 = test.Count();
+                _logger.LogInformation("Successfully set new Discount for store with guid {storeGuid}", storeGuid);
+                return _mapper.Map<DiscountDto>(discount);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to set a new Discount for store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<DiscountDto> GetDiscountAsync(Guid storeGuid)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to get discount from store with guid {storeGuid}", storeGuid);
+
+                var discount =
+                    (await _storeUnitOfWork.StoreRepo.FilterByAsync(
+                        store => store.Guid == storeGuid,
+                        store => store.StoreDiscount))
+                    .FirstOrDefault();
+
+                if (discount == null)
+                {
+                    return null;
+                }
+
+
+                _logger.LogInformation("Successfully got discount {discountGuid} from store with guid {storeGuid}.", discount.Guid, storeGuid);
+                return _mapper.Map<DiscountDto>(discount);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get store discount from store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<PolicyDto> GetDiscountPolicyAsync(Guid storeGuid, Guid discountGuid)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to get discount policy from store with guid {storeGuid}", storeGuid);
+
+                var policy =
+                    (await _storeUnitOfWork.StoreRepo.FilterByAsync(
+                        store => store.Guid == storeGuid,
+                        store => store.StoreDiscount.Policy))
+                    .FirstOrDefault();
+
+                if (policy == null)
+                {
+                    return null;
+                }
+
+
+                _logger.LogInformation($"Successfully got policy {{policyGuid}} from {{discountGuid}} policy from store with guid {{storeGuid}}.", policy.Guid,discountGuid, storeGuid);
+                return _mapper.Map<PolicyDto>(policy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to get store discount policy from store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<PolicyDto> CreateDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, PolicyDto policyDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Making attempt to set store discount {discountGuid} with new Discount.", discountGuid);
+                var storeDiscount = await _storeUnitOfWork.DiscountRepo.FindByIdAsync(discountGuid);
+                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(storeGuid);
+                if (storeDiscount == null || store == null)
+                {
+                    return null;
+                }
+
+                var policyToInsert = _mapper.Map<Policy>(policyDto);
+                store.StoreDiscount.Policy = policyToInsert;
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.PolicyRepo.InsertOneAsync(policyToInsert);
+
+                await _storeUnitOfWork.SaveAsync();
+
+                _logger.LogInformation("Successfully set new policy for Discount {discountGuid} for store with guid {storeGuid}", discountGuid, storeGuid);
+                return _mapper.Map<PolicyDto>(policyToInsert);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to set a new Discount for store with guid {storeGuid}", storeGuid);
+                return null;
+            }
+        }
+
+        public async Task<bool> DeleteDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, Guid policyGuid)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt to delete store discount policy with guid {policyGuid} from store with guid {storeGuid}.", policyGuid, storeGuid);
+                await _storeUnitOfWork.PolicyRepo.DeleteByIdAsync(policyGuid);
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully deleted store discount policy with guid {policyGuid} from store with guid {storeGuid}.", policyGuid, storeGuid);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to delete store discount policy with guid {policyGuid} from store with guid {storeGuid}", policyGuid, storeGuid);
+                return false;
+            }
+        }
+
+        public async Task<PolicyDto> CreateDiscountSubPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid, PolicyDto policyDto)
+        {
+            try
+            {
+                _logger.LogInformation("Making attempt add new child policy to policy of discount with guid {discountGuid}.", discountGuid);
+                var cPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<CompositePolicy>(policyGuid);
+                if (cPolicy == null)
+                {
+                    return null;
+                }
+
+                var childPolicy = _mapper.Map<Policy>(policyDto);
+                cPolicy.AddPolicy(childPolicy);
+
+                //TODO: remove when moving to EF core
+                await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
+
+                await _storeUnitOfWork.SaveAsync();
+                _logger.LogInformation("Successfully added new child policy to policy of discount with guid {discountGuid}", discountGuid);
+                return _mapper.Map<PolicyDto>(childPolicy);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to add a new child discount for discount with guid {discountGuid}", discountGuid);
                 return null;
             }
         }

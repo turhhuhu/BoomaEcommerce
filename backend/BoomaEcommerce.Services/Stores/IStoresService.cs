@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 
 namespace BoomaEcommerce.Services.Stores
@@ -151,6 +152,16 @@ namespace BoomaEcommerce.Services.Stores
         Task<bool> DeletePolicyAsync(Guid storeGuid, Guid policyGuid);
         Task<PolicyDto> CreatePurchasePolicyAsync(Guid storeGuid, PolicyDto policyDto);
         Task<PolicyDto> GetPolicyAsync(Guid storeGuid);
+
+        Task<DiscountDto> AddDiscountAsync(Guid storeGuid, Guid discountGuid, DiscountDto discountDto);
+        Task<bool> DeleteDiscountAsync(Guid storeGuid, Guid discountGuid);
+        Task<DiscountDto> CreateDiscountAsync(Guid storeGuid, DiscountDto discountDto);
+        Task<DiscountDto> GetDiscountAsync(Guid storeGuid);
+
+        Task<PolicyDto> GetDiscountPolicyAsync(Guid storeGuid, Guid discountGuid);
+        Task<PolicyDto> CreateDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, PolicyDto policyDto);
+        Task<bool> DeleteDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, Guid policyGuid);
+        Task<PolicyDto> CreateDiscountSubPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid, PolicyDto policyDto);
     }
 
 }

@@ -55,7 +55,6 @@ namespace BoomaEcommerce.Domain
         
         public decimal CalculatePrice(int amount)
         {
-            // TODO: Might need to change to use the product discount type
             return Price * amount; 
         }
         public bool PurchaseAmount(int amount)

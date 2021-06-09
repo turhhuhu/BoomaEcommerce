@@ -75,7 +75,7 @@ namespace BoomaEcommerce.Services.Purchases
                 {
                     return null;
                 }
-                await _paymentClient.MakeOrder(purchase);
+                await _paymentClient.MakePayment(purchase);
 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
@@ -86,7 +86,7 @@ namespace BoomaEcommerce.Services.Purchases
                             cart.User.Guid == purchase.Buyer.Guid);
                 }
 
-                await _supplyClient.NotifyOrder(purchase);
+                await _supplyClient.MakeOrder(purchase);
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
 

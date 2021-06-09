@@ -32,6 +32,7 @@ namespace BoomaEcommerce.Services.Tests
             _fixture.Customize<PurchaseDto>(p => p
                 .With(x => x.StorePurchases, TestData.GetTestValidStorePurchasesDtos())
                 .With(x => x.TotalPrice, 450)
+                .With(x => x.DiscountedPrice, 450)
                 .Without(x => x.Guid));
         }
 

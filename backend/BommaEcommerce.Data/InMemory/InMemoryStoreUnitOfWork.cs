@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Data.InMemory
@@ -19,6 +20,7 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<Product> ProductRepo { get; set; }
         public IRepository<Policy> PolicyRepo { get; set; }
         public IRepository<User> UserRepo { get; set; }
+        public IRepository<Discount> DiscountRepo { get; set; }
 
         public InMemoryStoreUnitOfWork(
             IRepository<Store> storeRepo,
@@ -28,6 +30,7 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo,
+            IRepository<Discount> discountRepo)
             IRepository<User> userRepo)
         {
             StoreRepo = storeRepo;
@@ -37,6 +40,7 @@ namespace BoomaEcommerce.Data.InMemory
             StoreManagementPermissionsRepo = storeManagementPermissionsRepo;
             ProductRepo = productRepo;
             PolicyRepo = policyRepo;
+            DiscountRepo = discountRepo;
             UserRepo = userRepo;
         }
 

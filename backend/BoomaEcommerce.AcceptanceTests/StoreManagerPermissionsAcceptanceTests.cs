@@ -59,7 +59,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(sm => sm.CanAddProduct, false)
                 .With(sm => sm.CanDeleteProduct, false)
                 .With(sm => sm.CanUpdateProduct, false)
-                .With(sm => sm.CanUpdateProduct, false)
+                .With(sm => sm.CanGetSellersInfo, false)
                 .Without(sm => sm.Guid)
                 .Create();
 

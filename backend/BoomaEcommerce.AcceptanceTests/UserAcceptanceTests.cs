@@ -108,6 +108,7 @@ namespace BoomaEcommerce.AcceptanceTests
                                    .With(p => p.StorePurchases, store_purchase_lst)
                                    .Without(p => p.Guid)
                                    .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                                   .With(p => p.DiscountedPrice, storePurchase.TotalPrice)
                                    .Create();
         }
 
@@ -264,6 +265,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var myPurchase = _fixture.Build<PurchaseDto>()
                 .With(p => p.StorePurchases, sp)
                 .With(p => p.TotalPrice, purchase_product1.Price + purchase_product2.Price)
+                .With(p => p.DiscountedPrice, purchase_product1.Price + purchase_product2.Price)
                 .Without(p => p.BuyerGuid)
                 .Without(p => p.Guid)
                 .Create();
