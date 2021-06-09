@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Data;
+using System.Net.Http;
 using System.Text.Json.Serialization;
 using BoomaEcommerce.Api.Config;
 using BoomaEcommerce.Api.Middleware;
@@ -51,7 +52,7 @@ namespace BoomaEcommerce.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddControllers();
+                services.AddControllers();
 
             services.AddMvc()
                 .AddNewtonsoftJson(x =>
@@ -167,7 +168,7 @@ namespace BoomaEcommerce.Api
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
 
             app.UseEndpoints(endpoints =>

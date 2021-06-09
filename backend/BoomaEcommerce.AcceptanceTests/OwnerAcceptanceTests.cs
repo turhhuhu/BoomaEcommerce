@@ -338,7 +338,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newOwner = _fixture
                 .Build<StoreOwnershipDto>()
-                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUserArik })
+                .With(ownership => ownership.User, new UserDto {UserName = "Arik", Guid = _notOwnerUserArik })
                 .With(ownership => ownership.Store, _storeOwnership.Store)
                 .Without(ownership => ownership.Guid)
                 .Create();
@@ -421,7 +421,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newManager = _fixture
                 .Build<StoreManagementDto>()
-                .With(management => management.User, new UserDto {Guid = _notOwnerUserArik})
+                .With(management => management.User, new UserDto {UserName = "Arik", Guid = _notOwnerUserArik})
                 .With(management => management.Store, _storeOwnership.Store)
                 .Without(management => management.Guid)
                 .Create();
@@ -512,6 +512,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var newManager = _fixture
                 .Build<StoreManagementDto>()
                 .With(management => management.Store, _storeOwnership.Store)
+                .With(management => management.User, new UserDto {Guid = _notOwnerUserArik})
                 .Without(management => management.Guid)
                 .Without(management => management.Permissions)
                 .Create();

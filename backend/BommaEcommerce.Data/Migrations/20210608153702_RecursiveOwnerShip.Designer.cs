@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210608153702_RecursiveOwnerShip")]
+    partial class RecursiveOwnerShip
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,10 +30,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Notification_type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -43,8 +41,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
-
-                    b.HasDiscriminator<string>("Notification_type").HasValue("Notification");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.Operators.PolicyOperator", b =>
@@ -519,44 +515,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.RoleDismissalNotification", b =>
-                {
-                    b.HasBaseType("BoomaEcommerce.Domain.Notification");
-
-                    b.Property<Guid?>("DismissingUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoreGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("DismissingUserId");
-
-                    b.HasIndex("StoreGuid");
-
-                    b.HasDiscriminator().HasValue("RoleDismissalNotification");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.StorePurchaseNotification", b =>
-                {
-                    b.HasBaseType("BoomaEcommerce.Domain.Notification");
-
-                    b.Property<Guid?>("BuyerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("StoreGuid")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("StorePurchaseNotification_StoreGuid");
-
-                    b.Property<Guid>("StorePurchaseGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("BuyerId");
-
-                    b.HasIndex("StoreGuid");
-
-                    b.HasDiscriminator().HasValue("StorePurchaseNotification");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.Operators.AndPolicyOperator", b =>
                 {
                     b.HasBaseType("BoomaEcommerce.Domain.Policies.Operators.PolicyOperator");
@@ -852,48 +810,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.OwnsOne("BoomaEcommerce.Domain.StoreManagementPermissions", "Permissions", b1 =>
-                        {
-                            b1.Property<Guid>("StoreManagementGuid")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<bool>("CanAddProduct")
-                                .HasColumnType("bit");
-
-                            b1.Property<bool>("CanCreatePolicy")
-                                .HasColumnType("bit");
-
-                            b1.Property<bool>("CanDeletePolicy")
-                                .HasColumnType("bit");
-
-                            b1.Property<bool>("CanDeleteProduct")
-                                .HasColumnType("bit");
-
-                            b1.Property<bool>("CanGetPolicyInfo")
-                                .HasColumnType("bit");
-
-                            b1.Property<bool>("CanGetSellersInfo")
-                                .HasColumnType("bit");
-
-                            b1.Property<bool>("CanUpdatePolicyInfo")
-                                .HasColumnType("bit");
-
-                            b1.Property<bool>("CanUpdateProduct")
-                                .HasColumnType("bit");
-
-                            b1.Property<Guid>("Guid")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.HasKey("StoreManagementGuid");
-
-                            b1.ToTable("Permissions");
-
-                            b1.WithOwner()
-                                .HasForeignKey("StoreManagementGuid");
-                        });
-
-                    b.Navigation("Permissions");
-
                     b.Navigation("Store");
 
                     b.Navigation("User");
@@ -1026,36 +942,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.RoleDismissalNotification", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.User", "DismissingUser")
-                        .WithMany()
-                        .HasForeignKey("DismissingUserId");
-
-                    b.HasOne("BoomaEcommerce.Domain.Store", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreGuid");
-
-                    b.Navigation("DismissingUser");
-
-                    b.Navigation("Store");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.StorePurchaseNotification", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.User", "Buyer")
-                        .WithMany()
-                        .HasForeignKey("BuyerId");
-
-                    b.HasOne("BoomaEcommerce.Domain.Store", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreGuid");
-
-                    b.Navigation("Buyer");
-
-                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.Policies.ProductPolicy", b =>

@@ -141,6 +141,15 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Stores.Roles.Ownerships.Post)]
         public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateOwnershipRequest request)
         {
+            if (request.NominatedUserGuid == default)
+            {
+                request = await PopulateWithUserGuid(request);
+                if (request == null)
+                {
+                    return BadRequest();
+                }
+            }
+
             var nominatedOwnership = _mapper.Map<StoreOwnershipDto>(request,
                 opt => opt.AfterMap((_, dest) => dest.Store.Guid = storeGuid));
 
@@ -158,6 +167,15 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Stores.Roles.Managements.Post)] 
         public async Task<IActionResult> PostManagementRole(Guid storeGuid, [FromBody] CreateManagementRequest request)
         {
+            if (request.NominatedUserGuid == default)
+            {
+                request = await PopulateWithUserGuid(request);
+                if (request == null)
+                {
+                    return BadRequest();
+                }
+            }
+
             var nominatedOwnership = _mapper.Map<StoreManagementDto>(request,
                 opt => opt.AfterMap((_, dest) => dest.Store.Guid = storeGuid));
 

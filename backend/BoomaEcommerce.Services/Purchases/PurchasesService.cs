@@ -48,7 +48,7 @@ namespace BoomaEcommerce.Services.Purchases
             {
                 var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 
-                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid);
 
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>
@@ -135,13 +135,16 @@ namespace BoomaEcommerce.Services.Purchases
 
             var notification = new StorePurchaseNotification(storePurchase.Buyer, storePurchase.Guid, storePurchase.Store);
 
+            var notifications = new List<(Guid, NotificationDto)>();
             foreach (var ownership in ownerships)
             {
                 ownership.User.Notifications.Add(notification);
+                notifications.Add((ownership.User.Guid, _mapper.Map<StorePurchaseNotificationDto>(notification)));
+                // TODO: attach notification
             }
-            var notifyTask = _notificationPublisher.NotifyManyAsync(_mapper.Map<StorePurchaseNotificationDto>(notification),
-                ownerships.Select(ownership => ownership.User.Guid));
 
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
             await Task.WhenAll(_purchaseUnitOfWork.SaveAsync(), notifyTask);
         }
 

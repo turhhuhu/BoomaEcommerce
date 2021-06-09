@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Services.Users
                 
                 if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
 
-                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+                var user = await _userUnitOfWork.UserRepository.FindByIdAsync(userGuid);
 
                 shoppingCart = new ShoppingCart(user);
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
@@ -62,8 +62,8 @@ namespace BoomaEcommerce.Services.Users
                 var shoppingCart = await _userUnitOfWork.ShoppingCartRepo
                     .FindOneAsync(x => x.Guid == shoppingCartGuid) 
                                    ?? new ShoppingCart(await _userUnitOfWork
-                                       .UserManager.
-                                       FindByIdAsync(shoppingCartGuid.ToString()));
+                                       .UserRepository.
+                                       FindByIdAsync(shoppingCartGuid));
 
                 shoppingBasket.PurchaseProducts.ForAll(pp => _userUnitOfWork.AttachNoChange(pp.Product));
                 _userUnitOfWork.AttachNoChange(shoppingBasket.Store);
@@ -159,7 +159,7 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 _logger.LogInformation("Getting user info for user with guid {userGuid}", userGuid);
-                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+                var user = await _userUnitOfWork.UserRepository.FindByIdAsync(userGuid);
                 return _mapper.Map<UserDto>(user);
             }
             catch (Exception e)
@@ -175,7 +175,7 @@ namespace BoomaEcommerce.Services.Users
             {
                 _logger.LogInformation("Updating user info for user with guid {userGuid}", userDto.Guid);
                 var user = _mapper.Map<User>(userDto);
-                await _userUnitOfWork.UserManager.UpdateAsync(user);
+                await _userUnitOfWork.UserRepository.ReplaceOneAsync(user);
                 return true;
             }
             catch (Exception e)
@@ -190,7 +190,8 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 _logger.LogInformation("Getting user by username {username}.", userName);
-                var user = await _userUnitOfWork.UserManager.FindByNameAsync(userName);
+                var users = await _userUnitOfWork.UserRepository.FilterByAsync(u => u.UserName.Equals(userName));
+                var user = users.ToList().First(); 
                 return _mapper.Map<BasicUserInfoDto>(user);
             }
             catch (Exception e)
@@ -205,7 +206,7 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 _logger.LogInformation($"Making attempt to set notification with guid {notificationGuid} to seen.");
-                var user = await _userUnitOfWork.UserManager.FindByIdAsync(userGuid.ToString());
+                var user = await _userUnitOfWork.UserRepository.FindByIdAsync(userGuid);
 
                 var notification = user?.Notifications.FirstOrDefault(n => n.Guid == notificationGuid);
 

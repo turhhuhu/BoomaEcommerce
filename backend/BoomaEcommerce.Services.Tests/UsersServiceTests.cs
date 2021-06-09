@@ -24,9 +24,9 @@ namespace BoomaEcommerce.Services.Tests
         private UsersService GetUserService(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
-            List<User> users = null)
+            IDictionary<Guid, User> users = null)
         {
-            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts, users != null ? DalMockFactory.MockUserManager(users) : null);
+            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts, users);
             return new UsersService(_mapper, _logger.Object, userUnitOfWork.Object);
         }
 
@@ -52,9 +52,9 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var shoppingCartsDict = new Dictionary<Guid, ShoppingCart>();
-            var users = new List<User>();
+            var users = new Dictionary<Guid, User>();
             var userGuid = Guid.NewGuid();
-            users.Add(new User { Guid = userGuid });
+            users[userGuid] = (new User { Guid = userGuid });
 
             var sut = GetUserService(null, shoppingCartsDict, users);
             
@@ -96,8 +96,8 @@ namespace BoomaEcommerce.Services.Tests
             {
                 Guid = Guid.NewGuid()
             };
-            var users = new List<User>();
-            users.Add(user);
+            var users = new Dictionary<Guid, User>();
+            users[user.Guid] = user;
 
             var shoppingBasketGuid = Guid.NewGuid();
             var shoppingBasket= new ShoppingBasket{Guid = shoppingBasketGuid, Store = new Store()};

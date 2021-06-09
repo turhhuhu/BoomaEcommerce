@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
@@ -18,6 +19,7 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         public IRepository<Product> ProductRepo { get; set; }
         public IRepository<Policy> PolicyRepo { get; set; }
+        public IRepository<User> UserRepo { get; set; }
         public IRepository<Discount> DiscountRepo { get; set; }
 
         public InMemoryStoreUnitOfWork(
@@ -28,7 +30,8 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo,
-            IRepository<Discount> discountRepo)
+            IRepository<Discount> discountRepo,
+            IRepository<User> userRepo)
         {
             StoreRepo = storeRepo;
             StoreOwnershipRepo = ownershipRepo;
@@ -38,6 +41,7 @@ namespace BoomaEcommerce.Data.InMemory
             ProductRepo = productRepo;
             PolicyRepo = policyRepo;
             DiscountRepo = discountRepo;
+            UserRepo = userRepo;
         }
 
         public Task SaveAsync()
@@ -46,9 +50,13 @@ namespace BoomaEcommerce.Data.InMemory
         }
 
         public void AttachNoChange<TEntity>(TEntity entity)
-            where TEntity : class
+            where TEntity : class, IBaseEntity
         {
             
+        }
+
+        public void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        {
         }
 
         public Task AttachUser(User user)

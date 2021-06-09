@@ -11,14 +11,14 @@ namespace BoomaEcommerce.Data.InMemory
 {
     public static class RepoContainer
     {
-        public static Dictionary<Type, Dictionary<Guid, BaseEntity>> AllEntities { get; set; } = new();
+        public static ConcurrentDictionary<Type, Dictionary<Guid, IBaseEntity>> AllEntities { get; set; } = new();
     }
-    public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
+    public class InMemoryRepository<T> : IRepository<T> where T : class, IBaseEntity
     {
         public InMemoryRepository()
         {
             var dict = new Dictionary<Guid, T>();
-            RepoContainer.AllEntities.TryAdd(typeof(T), dict.ToDictionary(x => x.Key, x => (BaseEntity)x.Value));
+            RepoContainer.AllEntities.TryAdd(typeof(T), dict.ToDictionary(x => x.Key, x => (IBaseEntity)x.Value));
         }
 
         public Task<IEnumerable<T>> FindAllAsync()
@@ -116,8 +116,13 @@ namespace BoomaEcommerce.Data.InMemory
             return Task.CompletedTask;
         }
 
-        public Task<TType> FindByIdAsync<TType>(Guid guid) 
-            where TType : BaseEntity
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TType> FindByIdAsync<TType>(Guid guid)
+            where TType : class, IBaseEntity
         {
             var entities = RepoContainer.AllEntities[typeof(T)];
             return entities.TryGetValue(guid, out var entity)
