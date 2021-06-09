@@ -30,7 +30,7 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo,
-            IRepository<Discount> discountRepo)
+            IRepository<Discount> discountRepo,
             IRepository<User> userRepo)
         {
             StoreRepo = storeRepo;

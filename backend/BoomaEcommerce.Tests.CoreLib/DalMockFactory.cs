@@ -14,7 +14,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 {
     public static class DalMockFactory
     {
-        public static Mock<UserManager<User>> MockUserManager(List<User> ls)
+        public static Mock<UserManager<User>> MockUserManager(IDictionary<Guid, User> ls)
         {
             if (ls == null)
             {
@@ -30,7 +30,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             mgr.Object.PasswordValidators.Add(new PasswordValidator<User>());
             
             mgr.Setup(userManger => userManger.FindByIdAsync(It.IsAny<string>()))
-                .ReturnsAsync((string guid) => ls.FirstOrDefault(x => x.Guid.ToString().Equals(guid)));
+                .ReturnsAsync((string guid) => ls.Values.FirstOrDefault(x => x.Guid.ToString().Equals(guid)));
 
             mgr.Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync(IdentityResult.Success)
                 .Callback<User, string>((x, y) =>
                 {
-                    ls.Add(x);
+                    ls.Add(x.Guid, x);
                     passwordStore.Add(x.Guid, y);
                 });
 
@@ -50,7 +50,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync((User user, string password) => passwordStore[user.Guid].Equals(password));
 
             mgr.Setup(userManager => userManager.FindByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((string username) => ls.FirstOrDefault(usr => usr.UserName == username));
+                .ReturnsAsync((string username) => ls.Values.FirstOrDefault(usr => usr.UserName == username));
 
             mgr.Setup(userManager => userManager.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success)
@@ -91,6 +91,15 @@ namespace BoomaEcommerce.Tests.CoreLib
                     foreach (var key in keysToRemove)
                     {
                         entities.Remove(key, out _);
+                    }
+                });
+
+            repoMock.Setup(x => x.DeleteRange(It.IsAny<IEnumerable<TEntity>>()))
+                .Callback<IEnumerable<TEntity>>(entitiesToRemove =>
+                {
+                    foreach (var entity in entitiesToRemove)
+                    {
+                        entities.Remove(entity.Guid);
                     }
                 });
 
@@ -266,8 +275,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         public static Mock<IUserUnitOfWork> MockUserUnitOfWork(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
-            IDictionary<Guid, User> users = null,
-            IDictionary<Guid, ShoppingCart> shoppingCarts)
+            IDictionary<Guid, User> users = null)
         {
             var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
             var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
