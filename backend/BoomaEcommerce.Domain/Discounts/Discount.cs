@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain.Discounts.Operators;
 
 namespace BoomaEcommerce.Domain.Discounts
 {
@@ -82,12 +83,12 @@ namespace BoomaEcommerce.Domain.Discounts
 
         public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp)
         {
-            return 0;
+            return sp.TotalPrice;
         }
 
         public override decimal CalculateTotalPriceWithoutApplying(User user, ShoppingBasket basket)
         {
-            return 0;
+            return basket.PurchaseProducts.Sum(pp => pp.Price);
         }
     }
 }
