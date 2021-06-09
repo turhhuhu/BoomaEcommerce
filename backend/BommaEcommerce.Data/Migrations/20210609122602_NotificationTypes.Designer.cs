@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210609114411_StoreNotification_and_RoleDissNotification")]
-    partial class StoreNotification_and_RoleDissNotification
+    [Migration("20210609122602_NotificationTypes")]
+    partial class NotificationTypes
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -2,7 +2,7 @@
 
 namespace BoomaEcommerce.Data.Migrations
 {
-    public partial class StoreNotification_and_RoleDissNotification : Migration
+    public partial class NotificationTypes : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

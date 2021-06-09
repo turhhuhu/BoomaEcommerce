@@ -11,7 +11,7 @@ namespace BoomaEcommerce.Data.InMemory
 {
     public static class RepoContainer
     {
-        public static Dictionary<Type, Dictionary<Guid, IBaseEntity>> AllEntities { get; set; } = new();
+        public static ConcurrentDictionary<Type, Dictionary<Guid, IBaseEntity>> AllEntities { get; set; } = new();
     }
     public class InMemoryRepository<T> : IRepository<T> where T : class, IBaseEntity
     {

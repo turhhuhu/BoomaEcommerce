@@ -98,7 +98,7 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IRepository<StoreManagement>, EfCoreRepository<StoreManagement, ApplicationDbContext>>();
             services.AddTransient<IRepository<StoreOwnership>, StoreOwnershipRepository>();
             services.AddTransient<IRepository<ShoppingBasket>, EfCoreRepository<ShoppingBasket, ApplicationDbContext>>();
-            services.AddTransient<IRepository<User>, EfCoreRepository<User, ApplicationDbContext>>();
+            services.AddTransient<IRepository<User>, EfCoreUsersRepository>();
 
 
             services.AddTransient<IRepository<Notification>, EfCoreRepository<Notification, ApplicationDbContext>>();
