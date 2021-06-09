@@ -72,11 +72,7 @@ namespace BoomaEcommerce.Data.EfCore
                 so.HasOne(s => s.Store).WithMany();
                 so.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade);
                 so.HasKey(s=>s.Guid);
-            }); 
-
-       
-
-            modelBuilder.Entity<Notification>().HasKey(n => n.Guid);
+            });
 
             AddPolicyModels(modelBuilder);
             AddCartModels(modelBuilder);
@@ -114,6 +110,7 @@ namespace BoomaEcommerce.Data.EfCore
 
                 sp.Property(s => s.TotalPrice).HasPrecision(10, 5);
             });
+
 
 
             base.OnModelCreating(modelBuilder);

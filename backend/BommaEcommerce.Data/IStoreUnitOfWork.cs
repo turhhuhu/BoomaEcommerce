@@ -21,6 +21,7 @@ namespace BoomaEcommerce.Data
         IRepository<User> UserRepo { get; set; }
         Task SaveAsync();
         void AttachNoChange<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
-        Task AttachUser(User user);
+
+        void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
     }
 }

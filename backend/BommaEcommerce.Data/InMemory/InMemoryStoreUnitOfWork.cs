@@ -51,6 +51,10 @@ namespace BoomaEcommerce.Data.InMemory
             
         }
 
+        public void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        {
+        }
+
         public Task AttachUser(User user)
         {
             return Task.CompletedTask;

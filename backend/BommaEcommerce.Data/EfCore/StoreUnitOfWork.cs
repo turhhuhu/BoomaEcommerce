@@ -57,6 +57,12 @@ namespace BoomaEcommerce.Data.EfCore
             _dbContext.Set<TEntity>().Attach(entity);
         }
 
+        public void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        {
+            entity.Guid = default;
+            _dbContext.Attach(entity);
+        }
+
         public async Task AttachUser(User user)
         {
             if (!string.IsNullOrEmpty(user.UserName))
