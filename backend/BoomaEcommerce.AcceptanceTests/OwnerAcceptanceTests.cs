@@ -177,8 +177,10 @@ namespace BoomaEcommerce.AcceptanceTests
             };
             _purchase = purchaseDto;
             // added 
-            
-            var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
+            var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseProductDetails);
             if (didPurchasedSucceeded == null)
             {
                 throw new Exception("This shouldn't happen");

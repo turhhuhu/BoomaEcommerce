@@ -25,6 +25,8 @@ using BoomaEcommerce.Api.Hubs;
 using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Data.EfCore.Repositories;
 using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Converters;
@@ -134,8 +136,7 @@ namespace BoomaEcommerce.Api
                 .AddUsersService()
                 .AddPurchasesService()
                 .AddProductsService();
-
-
+            
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddSingleton<IConnectionContainer, ConnectionContainer>();
 

@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Services.DTO;
 
-namespace BoomaEcommerce.Services.External
+namespace BoomaEcommerce.Services.External.Payment
 {
     public interface IPaymentClient
     {
         
-        public Task<long> MakePayment(Purchase purchase);
+        public Task<int> MakePayment(PaymentDetailsDto paymentDetails);
 
-        public Task<int> CancelPayment(Guid purchaseGuid);
-
-        public Task<string> HandShake();
+        public Task<int> CancelPayment(int transactionId);
     }
 }

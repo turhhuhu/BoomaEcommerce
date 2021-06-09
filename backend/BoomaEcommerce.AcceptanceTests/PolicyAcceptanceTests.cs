@@ -26,7 +26,6 @@ namespace BoomaEcommerce.AcceptanceTests
         private Guid UserGuid;
         private PurchaseDto purchase;
         private StoreDto _store_withGuid;
-        private List<PurchaseProductDto> purchase_product_lst;
         private ProductDto product1;
         private ProductDto product2;
         private PurchaseProductDto purchase_product1;
@@ -173,9 +172,13 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchase)
+                .Create();
 
             //Act 
-            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchase));
+            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchaseProductDetails));
 
             // Assert
             await result.Should().ThrowAsync<PolicyValidationException>();
@@ -229,9 +232,13 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .With(p => p.DiscountedPrice, storePurchase.TotalPrice)
                 .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchase)
+                .Create();
 
             //Act 
-            var result =  await _purchaseService.CreatePurchaseAsync(purchase);
+            var result =  await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             result.Should().NotBeNull();
@@ -284,9 +291,13 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchase)
+                .Create();
 
             //Act 
-            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchase));
+            var result = _purchaseService.Awaiting(service => service.CreatePurchaseAsync(purchaseProductDetails));
 
             // Assert
             await result.Should().ThrowAsync<PolicyValidationException>();

@@ -203,8 +203,11 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task
             CreatePurchaseProduct_ShouldNotifyOwner_WhenPurchaseWasCreatedSuccessfully()
         {
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
             // Act 
-            var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(_purchase);
+            var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             _ownerNotifications.Should().NotBeEmpty();
@@ -214,8 +217,11 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task
             CreatePurchaseProduct_ShouldNOTNotifyOwner_WhenPurchaseWasCreatedUnsuccessfully()
         {
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _badPurchase)
+                .Create();
             // Act 
-            var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(_badPurchase);
+            var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             _ownerNotifications.Should().BeEmpty();
@@ -225,8 +231,11 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task
             CreatePurchaseProduct_ShouldNOTNotifyBuyer_WhenPurchaseWasCreatedSuccessfully()
         {
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
             // Act 
-            var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(_purchase);
+            var resTask = await _purchasesServiceBuyer.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             _notOwnerNotifications.Count.Should().Be(0);

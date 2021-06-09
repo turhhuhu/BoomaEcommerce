@@ -2,63 +2,77 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Domain;
-using BoomaEcommerce.Services.ClientRequests;
-using BoomaEcommerce.Services.ClientRequests.paymentRequests;
+using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.External.Payment.Requests;
 
-namespace BoomaEcommerce.Services.External
+namespace BoomaEcommerce.Services.External.Payment
 {
     public class PaymentClient : IPaymentClient
     {
         private HttpClient _httpClient;
 
-        public PaymentClient()
+        public PaymentClient(IHttpClientFactory factory)
         {
-            _httpClient = new HttpClient();
+            _httpClient = factory.CreateClient("externalClient");
         }
-        public async Task<long> MakePayment(Purchase purchase)
+        public async Task<int> MakePayment(PaymentDetailsDto paymentDetails)
         {
-            var payItem = new PayItem(
+            if (!await HandShake())
+            {
+                throw new PaymentFailureException();
+            }
+            var payRequest = new PayRequest(
                 "pay",
-                "1111",
-                "1",
-                "2021",
-                "matan",
-                "112",
-                "23323322");
-            var content = payItem.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+                paymentDetails.CardNumber,
+                paymentDetails.Month,
+                paymentDetails.Year,
+                paymentDetails.HolderName,
+                paymentDetails.Ccv,
+                paymentDetails.Id);
+            var content = payRequest.ToFormData();
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             
-            var successAction =  long.TryParse(responseString,out long retVal);
-            if (successAction)
-                return retVal;
-            return -123;
-
+            var successAction =  int.TryParse(responseString, out var transactionId);
+            if (!successAction || !IsValidTransactionId(transactionId))
+                throw new PaymentFailureException();
+            
+            return transactionId;
         }
 
-        public async Task<int> CancelPayment(Guid purchaseGuid)
+        public async Task<int> CancelPayment(int transactionId)
         {
-            var cancelPayItem = new CancelPayItem(
+            if (!await HandShake())
+            {
+                throw new PaymentFailureException();
+            }
+            var cancelPayRequest = new CancelPayRequest(
                 "cancel_pay",
-                "1234567");
-            var content = cancelPayItem.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+                transactionId.ToString());
+            var content = cancelPayRequest.ToFormData();
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             
-            var successAction =  Int32.TryParse(responseString,out int retVal);
-            if (successAction)
-                return retVal;
-            return -123;
+            var successAction =  int.TryParse(responseString, out var responseAsInt);
+            if (!successAction || responseAsInt == -1)
+                throw new PaymentFailureException();
+            return 1;
         }
         
-        public async Task<string> HandShake()
+        private async Task<bool> HandShake()
         {
-            var handshakeItem = new HandshakeItem("handshake");
-            var content = handshakeItem.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var handshakeRequest = new HandshakeRequest("handshake");
+            var content = handshakeRequest.ToFormData();
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
-            return responseString;
+            return responseString.Equals("OK");
+        }
+
+        private static bool IsValidTransactionId(int transactionId)
+        {
+            return transactionId is >= 10000 and <= 100000;
         }
     }
 }

@@ -41,23 +41,24 @@ namespace BoomaEcommerce.Services.Purchases
             }
         }
 
-        public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchase)
+        public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto)
         {
-            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchase);
+            //TODO: might need to change to a new general validator for purchaseDetailsDto instead of just PurchaseDto
+            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDetailsDto.Purchase);
             
             // Visitor purchase
-            if (purchase.BuyerGuid == default) return _purchaseService.CreatePurchaseAsync(purchase);
+            if (purchaseDetailsDto.Purchase.BuyerGuid == default) return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
 
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
 
             // Different user than the buyer trying to make the purchase. (only if registered)
-            if (userGuidInClaims != purchase.BuyerGuid)
+            if (userGuidInClaims != purchaseDetailsDto.Purchase.BuyerGuid)
             {
-                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchase.BuyerGuid} found in purchase.");
+                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchaseDetailsDto.Purchase.BuyerGuid} found in purchase.");
             }
 
-            return _purchaseService.CreatePurchaseAsync(purchase);
+            return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
         }
 
         public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userGuid)
@@ -76,6 +77,12 @@ namespace BoomaEcommerce.Services.Purchases
             }
 
             throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {userGuid} provided to get history for.");
+        }
+
+        public Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
+        {
+            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDto);
+            return _purchaseService.GetPurchaseFinalPrice(purchaseDto);
         }
 
         public Task DeletePurchaseAsync(Guid purchaseGuid)

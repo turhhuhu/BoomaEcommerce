@@ -8,8 +8,11 @@ using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.Authentication;
+using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Products;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Services.Settings;
@@ -79,12 +82,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x => 
-                x.MakePayment(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
+                x.MakePayment(It.IsAny<PaymentDetailsDto>())).Returns(Task.FromResult(10001));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x => 
-                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
+                x.MakeOrder(It.IsAny<SupplyDetailsDto>())).Returns(Task.FromResult(10001));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, _notificationPublisherStub);
@@ -105,12 +108,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x =>
-                x.MakePayment(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
+                x.MakePayment(It.IsAny<PaymentDetailsDto>())).Returns(Task.FromResult(10001));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x =>
-                x.MakeOrder(It.IsAny<Purchase>())).Throws(new Exception("Supply system collapsed"));
+                x.MakeOrder(It.IsAny<SupplyDetailsDto>())).Throws(new Exception("Supply system collapsed"));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());
@@ -126,12 +129,12 @@ namespace BoomaEcommerce.Tests.CoreLib
             var paymentClientMock = new Mock<IPaymentClient>();
 
             paymentClientMock.Setup(x =>
-                x.MakePayment(It.IsAny<Purchase>())).Throws(new Exception("External system collapsed"));
+                x.MakePayment(It.IsAny<PaymentDetailsDto>())).Throws(new Exception("External system collapsed"));
 
             var supplyClientMock = new Mock<ISupplyClient>();
 
             supplyClientMock.Setup(x =>
-                x.MakeOrder(It.IsAny<Purchase>())).Returns(Task.FromResult((long)1));
+                x.MakeOrder(It.IsAny<SupplyDetailsDto>())).Returns(Task.FromResult(10001));
 
             return new PurchasesService(MapperFactory.GetMapper(), loggerMock.Object, paymentClientMock.Object,
                 purchasesUnitOfWork.Object, supplyClientMock.Object, Mock.Of<INotificationPublisher>());

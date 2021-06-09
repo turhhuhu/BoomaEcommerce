@@ -154,6 +154,10 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p=> p.BuyerGuid, UserGuid)
                 .Without(p => p.Guid)
                 .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchase)
+                .Create();
 
             List<int?> inventoryList = new List<int?>();
             inventoryList.Add(product1.Amount);
@@ -164,7 +168,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Act 
 
-            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
+            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseWasSuccessful.Should().BeNull(); // payment client should throw exception
