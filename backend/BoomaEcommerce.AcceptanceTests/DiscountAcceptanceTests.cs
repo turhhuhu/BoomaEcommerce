@@ -47,7 +47,9 @@ namespace BoomaEcommerce.AcceptanceTests
             _fixture.Customize<StoreDto>(s => s
                 .Without(ss => ss.Guid)
                 .Without(ss => ss.Rating)
-                .Without(ss => ss.FounderUserGuid));
+                .With(ss => ss.FounderUserGuid, _userGuid));
+            var store = _fixture.Create<StoreDto>();
+            _storeWithGuid = await _storeService.CreateStoreAsync(store);
             await InitPurchase(storeService);
         }
 
@@ -55,8 +57,6 @@ namespace BoomaEcommerce.AcceptanceTests
         {
             // create store
             _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, _userGuid));
-            var store = _fixture.Create<StoreDto>();
-            _storeWithGuid = await _storeService.CreateStoreAsync(store);
 
 
             // create products , diary category
@@ -144,7 +144,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discount = _fixture.Build<CategoryDiscountDto>()
                 .With(d => d.Category, "Diary")
                 .With(d => d.Percentage, 10)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -208,7 +208,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discount = _fixture.Build<CategoryDiscountDto>()
                 .With(d => d.Category, "Diary")
                 .With(d => d.Percentage, 10)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -270,7 +270,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discountDiary = _fixture.Build<CategoryDiscountDto>()
                 .With(d => d.Category, "Diary")
                 .With(d => d.Percentage, 10)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -279,7 +279,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discountProduct = _fixture.Build<ProductDiscountDto>()
                 .With(d => d.ProductGuid, _product1WithGuid.Guid)
                 .With(d => d.Percentage, 10)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -289,7 +289,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(d => d.Operator, OperatorTypeDiscount.Sum)
                 .With(d => d.Discounts, new List<DiscountDto>())
                 .With(d => d.Percentage, 10)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -356,7 +356,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discountDiary = _fixture.Build<CategoryDiscountDto>()
                 .With(d => d.Category, "Diary")
                 .With(d => d.Percentage, 20)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -365,7 +365,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discountProduct = _fixture.Build<ProductDiscountDto>()
                 .With(d => d.ProductGuid, _product1WithGuid.Guid)
                 .With(d => d.Percentage, 10)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -375,7 +375,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(d => d.Operator, OperatorTypeDiscount.Sum)
                 .With(d => d.Discounts, new List<DiscountDto>())
                 .Without(d => d.Percentage)
-                .With(d => d.Policy, policy1)
+                .With(d => d.PolicyGuid, policy1.Guid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -387,7 +387,6 @@ namespace BoomaEcommerce.AcceptanceTests
 
             await _storeService.AddDiscountAsync(_storeWithGuid.Guid, compDis.Guid, discountProduct);
             
-
 
             //create purchase product 
             _purchaseProduct1 = _fixture.Build<PurchaseProductDto>()
@@ -405,9 +404,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 .Create();
 
 
-            var purchaseProductList = new List<PurchaseProductDto>();
-            purchaseProductList.Add(_purchaseProduct1);
-            purchaseProductList.Add(_purchaseProduct2);
+            var purchaseProductList = new List<PurchaseProductDto> {_purchaseProduct1, _purchaseProduct2};
 
             var storePurchase = _fixture.Build<StorePurchaseDto>()
                 .With(sp => sp.StoreGuid, _storeWithGuid.Guid)

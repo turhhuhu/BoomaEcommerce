@@ -17,7 +17,8 @@ namespace BoomaEcommerce.Services.DTO.Discounts
         public  int Percentage { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public PolicyDto Policy { get; set; }
+        public Guid PolicyGuid { get; set; }
+        
         public string Description { get; set; }
     }
     public class ProductDiscountDto : DiscountDto

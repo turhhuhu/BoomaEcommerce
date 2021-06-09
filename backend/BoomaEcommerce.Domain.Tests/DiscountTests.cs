@@ -43,7 +43,7 @@ namespace BoomaEcommerce.Domain.Tests
 
             List<PurchaseProduct> ppList = new List<PurchaseProduct>();
 
-            var pp = new PurchaseProduct(product, 8, 80); ;
+            var pp = new PurchaseProduct(product, 8, 80, 80); ;
             
             ppList.Add(pp);
 
@@ -171,7 +171,7 @@ namespace BoomaEcommerce.Domain.Tests
 
             compositeDiscount.AddToDiscountList(tenPercentOff);
 
-            var pp = new PurchaseProduct(product, 10, 100); ;
+            var pp = new PurchaseProduct(product, 10, 100, 100); ;
 
             ppList.Add(pp);
 
@@ -195,8 +195,8 @@ namespace BoomaEcommerce.Domain.Tests
         [Fact]
         public void ApplyDiscount_ShouldApplyALLDiscountsSuccessfullyAndReturnDescriptiveMessage_WhenAllDiscountsAreValid()
         {
-            Guid storeGuid = Guid.NewGuid();
-            Store s = new Store {Guid = storeGuid, StoreName = "Sarah Mashkaot"};
+            var storeGuid = Guid.NewGuid();
+            var s = new Store {Guid = storeGuid, StoreName = "Sarah Mashkaot"};
             var product = new Product
             {
                 Name = "Beer",
@@ -219,7 +219,7 @@ namespace BoomaEcommerce.Domain.Tests
 
             var buyer = new User { DateOfBirth = DateTime.Now.AddYears(-25), UserName = "matureBenny" };
 
-            List<PurchaseProduct> ppList = new List<PurchaseProduct>();
+            var ppList = new List<PurchaseProduct>();
 
             var compositeDiscount = new CompositeDiscount(new SumDiscountOperator());
 
@@ -229,17 +229,16 @@ namespace BoomaEcommerce.Domain.Tests
 
             compositeDiscount.AddToDiscountList(fivePercentOff);
 
-            var pp = new PurchaseProduct(product, 10, 100); ;
+            var pp = new PurchaseProduct(product, 10, 100, 100); ;
 
             ppList.Add(pp);
 
             var sp = new StorePurchase { PurchaseProducts = ppList, Buyer = buyer, Store = s, TotalPrice = 100, DiscountedPrice = 100};
 
-            List<StorePurchase> spList = new List<StorePurchase>();
+            var spList = new List<StorePurchase> {sp};
 
-            spList.Add(sp);
 
-            var purchase = new Purchase { StorePurchases = spList, TotalPrice = 100, Buyer = buyer};
+            var purchase = new Purchase { StorePurchases = spList, TotalPrice = 100, DiscountedPrice = 68.4m, Buyer = buyer};
 
             sp.TotalPrice.Should().Be(100);
 

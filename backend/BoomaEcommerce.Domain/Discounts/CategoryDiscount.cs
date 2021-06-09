@@ -9,12 +9,17 @@ namespace BoomaEcommerce.Domain.Discounts
 {
     public class CategoryDiscount : Discount
     {
-        private readonly string _category;
+        public string Category;
 
         public CategoryDiscount(int percentage, DateTime startTime, DateTime endTime, string description, Policy policy, string category) :
             base(percentage, startTime, endTime, description, policy)
         {
-            _category = category;
+            Category = category;
+        }
+
+        public CategoryDiscount() : base(0, DateTime.MinValue, DateTime.MaxValue, "", Policy.Empty)
+        {
+            
         }
         
         
@@ -28,7 +33,7 @@ namespace BoomaEcommerce.Domain.Discounts
                 return "Could not apply discount!\n" + (Policy.CheckPolicy(sp).IsOk ? "Discount validity has expired\n" : Policy.CheckPolicy(sp).PolicyError);
             }
 
-            foreach (var pp in sp.PurchaseProducts.Where(pp => pp.Product.Category.Equals(_category)))
+            foreach (var pp in sp.PurchaseProducts.Where(pp => pp.Product.Category.Equals(Category)))
             {
                 var productPriceBeforeDiscount = pp.DiscountedPrice;
 
@@ -37,7 +42,7 @@ namespace BoomaEcommerce.Domain.Discounts
                 pp.DiscountedPrice *= discountDecimal;
 
                 discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
-                                " of the " + _category + " category\n";
+                                " of the " + Category + " category\n";
 
                 moneySaved += (productPriceBeforeDiscount - pp.DiscountedPrice);
             }
@@ -60,14 +65,14 @@ namespace BoomaEcommerce.Domain.Discounts
             foreach (var pp in basket.PurchaseProducts)
             {
 
-                if (!(pp.Product.Category.Equals(_category))) continue;
+                if (!(pp.Product.Category.Equals(Category))) continue;
 
                 var discountDecimal = ((100 - (decimal)Percentage) / 100);
 
                 pp.DiscountedPrice = pp.Price * discountDecimal;
 
                 discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
-                                " of the " + _category + " category\n";
+                                " of the " + Category + " category\n";
             }
 
             return discountInfo;
@@ -86,7 +91,7 @@ namespace BoomaEcommerce.Domain.Discounts
 
             foreach (var pp in sp.PurchaseProducts)
             {
-                if (pp.Product.Category.Equals(_category))
+                if (pp.Product.Category.Equals(Category))
                 {
                     ppDiscount = pp.Price - (pp.Price * ((100 - (decimal)Percentage) / 100));
                 }
@@ -110,7 +115,7 @@ namespace BoomaEcommerce.Domain.Discounts
 
             foreach (var pp in basket.PurchaseProducts)
             {
-                if (pp.Product.Category.Equals(_category))
+                if (pp.Product.Category.Equals(Category))
                 {
                     ppDiscount = pp.Price - (pp.Price * ((100 - (decimal)Percentage) / 100));
                 }

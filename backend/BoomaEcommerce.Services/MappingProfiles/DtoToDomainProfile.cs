@@ -45,19 +45,17 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<PurchaseProductDto, PurchaseProduct>()
                 .ForMember(purchaseProduct => purchaseProduct.Product,
-                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}));
-
+                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}))
+                .ForMember(purchaseProduct => purchaseProduct.DiscountedPrice, x => x.MapFrom(dto => dto.Price));
+            
             CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }))
-                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }));
-
+                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}))
+                .ForMember(store => store.DiscountedPrice, x => x.MapFrom(dto => dto.TotalPrice))
+                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}));
+            
             CreateMap<PurchaseDto, Purchase>()
                 .ForMember(purchase => purchase.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}));
-
-            CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(storePurchase => storePurchase.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }))
-                .ForMember(storePurchase => storePurchase.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }));
-
+            
             CreateMap<StoreManagementDto, StoreManagement>()
                 .ForMember(x => x.Permissions, x => x.Condition(xx => xx.Permissions != null));
 
@@ -138,6 +136,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<CategoryDiscountDto, CategoryDiscount>();
 
             CreateMap<BasketDiscountDto, BasketDiscount>();
+                
 
             CreateMap<ProductDiscountDto, ProductDiscount>()
                 .ConstructUsing((discountDto, _) => new ProductDiscount(new Product { Guid = discountDto.ProductGuid }));

@@ -13,12 +13,21 @@ namespace BoomaEcommerce.Domain
         public decimal Price { get; set; }
         public decimal DiscountedPrice { get; set; }
 
+        public PurchaseProduct(Product product, int amount, decimal price, decimal discountedPrice)
+        {
+            Product = product;
+            Amount = amount;
+            Price = price;
+            DiscountedPrice = discountedPrice;
+        }
+        
         public PurchaseProduct(Product product, int amount, decimal price)
         {
             Product = product;
             Amount = amount;
             Price = price;
         }
+
 
         public PurchaseProduct()
         {

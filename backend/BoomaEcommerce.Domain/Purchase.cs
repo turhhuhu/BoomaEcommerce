@@ -55,7 +55,7 @@ namespace BoomaEcommerce.Domain
             {
                 if (sp.Store.StoreDiscount != null)
                 {
-                    var response = sp.Store.ApplyDiscount(sp);
+                    sp.Store.ApplyDiscount(sp);
                     discounted += sp.DiscountedPrice;
                 }
                 else
