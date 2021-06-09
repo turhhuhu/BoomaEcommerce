@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210609082834_PremissionsStoreManagement")]
+    partial class PremissionsStoreManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -842,7 +844,7 @@ namespace BoomaEcommerce.Data.Migrations
 
                             b1.HasKey("StoreManagementGuid");
 
-                            b1.ToTable("Permissions");
+                            b1.ToTable("StoreManagements");
 
                             b1.WithOwner()
                                 .HasForeignKey("StoreManagementGuid");
