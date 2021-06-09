@@ -2,12 +2,12 @@
 {
     public class PayRequest : BaseRequest
     {
-        private string card_number{ get; set; }
-        private string month{ get; set; }
-        private string year{ get; set; }
-        private string holder{ get; set; }
-        private string ccv{ get; set; }
-        private string id{ get; set; }
+        public string card_number{ get; set; }
+        public string month{ get; set; }
+        public string year{ get; set; }
+        public string holder{ get; set; }
+        public string ccv{ get; set; }
+        public string id{ get; set; }
 
         public PayRequest(string actionType, string cardNumber, string month, string year, string holder, string ccv, string id) : base(actionType)
         {

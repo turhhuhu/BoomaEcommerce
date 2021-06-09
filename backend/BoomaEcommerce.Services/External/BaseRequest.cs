@@ -2,7 +2,7 @@
 {
     public class BaseRequest
     {
-        protected string action_type { get; set; }
+        public string action_type { get; set; }
 
         public BaseRequest(string actionType)
         {

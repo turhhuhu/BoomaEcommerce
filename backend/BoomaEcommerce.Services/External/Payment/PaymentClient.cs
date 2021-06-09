@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External.Payment.Requests;
@@ -12,15 +13,15 @@ namespace BoomaEcommerce.Services.External.Payment
     {
         private HttpClient _httpClient;
 
-        public PaymentClient(HttpClient httpClient)
+        public PaymentClient(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
+            _httpClient = factory.CreateClient("externalClient");
         }
         public async Task<int> MakePayment(PaymentDetailsDto paymentDetails)
         {
             if (!await HandShake())
             {
-                return -1;
+                throw new PaymentFailureException();
             }
             var payRequest = new PayRequest(
                 "pay",
@@ -31,12 +32,12 @@ namespace BoomaEcommerce.Services.External.Payment
                 paymentDetails.Ccv,
                 paymentDetails.Id);
             var content = payRequest.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             
             var successAction =  int.TryParse(responseString, out var transactionId);
             if (!successAction || !IsValidTransactionId(transactionId))
-                return -1;
+                throw new PaymentFailureException();
             
             return transactionId;
         }
@@ -45,18 +46,18 @@ namespace BoomaEcommerce.Services.External.Payment
         {
             if (!await HandShake())
             {
-                return -1;
+                throw new PaymentFailureException();
             }
             var cancelPayRequest = new CancelPayRequest(
                 "cancel_pay",
                 transactionId.ToString());
             var content = cancelPayRequest.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             
             var successAction =  int.TryParse(responseString, out var responseAsInt);
             if (!successAction || responseAsInt == -1)
-                return -1;
+                throw new PaymentFailureException();
             return 1;
         }
         
@@ -64,7 +65,7 @@ namespace BoomaEcommerce.Services.External.Payment
         {
             var handshakeRequest = new HandshakeRequest("handshake");
             var content = handshakeRequest.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             return responseString.Equals("OK");
         }

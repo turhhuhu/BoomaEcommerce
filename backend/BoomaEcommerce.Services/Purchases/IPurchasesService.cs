@@ -28,6 +28,16 @@ namespace BoomaEcommerce.Services.Purchases
         /// </returns>
         Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userId);
 
+        /// <summary>
+        /// Gets the purchase final price after discount calculation
+        /// </summary>
+        /// <param name="purchaseDto"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the purchase final price
+        /// </returns>
+        Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto);
+
 
         /// <summary>
         /// Deletes a product by guid.

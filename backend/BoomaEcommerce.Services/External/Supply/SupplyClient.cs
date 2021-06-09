@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External.Supply.Requests;
@@ -12,12 +13,16 @@ namespace BoomaEcommerce.Services.External.Supply
     {
         private HttpClient _httpClient;
 
-        public SupplyClient(HttpClient httpClient)
+        public SupplyClient(IHttpClientFactory factory)
         {
-            _httpClient = httpClient;
+            _httpClient = factory.CreateClient("externalClient");
         }
         public async Task<int> MakeOrder(SupplyDetailsDto supplyDetails)
         {
+            if (!await HandShake())
+            {
+                throw new SupplyFailureException();
+            }
             var supplyItem = new SupplyRequest(
                 "supply",
                 supplyDetails.Name,
@@ -26,26 +31,30 @@ namespace BoomaEcommerce.Services.External.Supply
                 supplyDetails.Country,
                 supplyDetails.Zip);
             var content = supplyItem.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             
             var successAction =  int.TryParse(responseString,out var transactionId);
             if (!successAction || !IsValidTransactionId(transactionId))
-                return -1;
+                throw new SupplyFailureException();
             return transactionId;
         }
         public async Task<int> CancelOrder(int transactionId)
         {
+            if (!await HandShake())
+            {
+                throw new SupplyFailureException();
+            }
             var cancelSupplyItem = new CancelSupplyRequest(
                 "cancel_supply",
                 transactionId.ToString());
             var content = cancelSupplyItem.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             
             var successAction =  int.TryParse(responseString, out var responseAsInt);
             if (!successAction || responseAsInt == -1)
-                return -1;
+                throw new SupplyFailureException();
             return 1;
         }
         
@@ -53,7 +62,7 @@ namespace BoomaEcommerce.Services.External.Supply
         {
             var handshakeRequest = new HandshakeRequest("handshake");
             var content = handshakeRequest.ToFormData();
-            var response = await _httpClient.PostAsync("https://cs-bgu-wsep.herokuapp.com/", content);
+            var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();
             return responseString.Equals("OK");
         }

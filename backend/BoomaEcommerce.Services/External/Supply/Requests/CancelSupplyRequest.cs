@@ -2,7 +2,7 @@
 {
     public class CancelSupplyRequest : BaseRequest
     {
-        private string transaction_id;
+        public string transaction_id;
 
         public CancelSupplyRequest(string actionType, string transactionId) : base(actionType)
         {

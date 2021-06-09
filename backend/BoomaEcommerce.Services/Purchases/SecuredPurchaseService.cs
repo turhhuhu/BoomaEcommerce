@@ -79,6 +79,12 @@ namespace BoomaEcommerce.Services.Purchases
             throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {userGuid} provided to get history for.");
         }
 
+        public Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
+        {
+            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDto);
+            return _purchaseService.GetPurchaseFinalPrice(purchaseDto);
+        }
+
         public Task DeletePurchaseAsync(Guid purchaseGuid)
         {
             throw new NotImplementedException();

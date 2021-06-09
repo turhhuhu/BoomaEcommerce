@@ -41,6 +41,9 @@ namespace BoomaEcommerce.Services.Purchases
 
         public async Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto)
         {
+            int? paymentTransactionId = null;
+            int? supplyTransactionId = null;
+            
             try
             {
                 var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
@@ -77,8 +80,8 @@ namespace BoomaEcommerce.Services.Purchases
                 {
                     return null;
                 }
-                await _paymentClient.MakePayment(purchaseDetailsDto.PaymentDetails);
-
+                paymentTransactionId = await _paymentClient.MakePayment(purchaseDetailsDto.PaymentDetails);
+                
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
                 if (purchase.Buyer is not null)
@@ -88,23 +91,34 @@ namespace BoomaEcommerce.Services.Purchases
                             cart.User.Guid == purchase.Buyer.Guid);
                 }
 
-                await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
+                supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
 
                 return _mapper.Map<PurchaseDto>(purchase);
             }
-            catch (PolicyValidationException)
-            {
-                _logger.LogError("Store policies for purchase failed.");
-                throw;
-            }
             catch (Exception e)
             {
+                RollbackTransactions(paymentTransactionId, supplyTransactionId);
                 _logger.LogError(e, "Failed to make purchase.");
                 return null;
             }
 
+        }
+        
+        
+
+        private void RollbackTransactions(int? paymentTransactionId, int? supplyTransactionId)
+        {
+            if (paymentTransactionId.HasValue)
+            {
+                _paymentClient.CancelPayment(paymentTransactionId.Value);
+            }
+
+            if (supplyTransactionId.HasValue)
+            {
+                _supplyClient.CancelOrder(supplyTransactionId.Value);
+            }
         }
 
         private Task NotifyOnPurchase(Purchase purchaseDto)
@@ -148,6 +162,36 @@ namespace BoomaEcommerce.Services.Purchases
                 return null;
             }
             
+        }
+
+        public async Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
+        {
+            var purchase = _mapper.Map<Purchase>(purchaseDto);
+            var purchaseProducts = purchase.StorePurchases
+                .SelectMany(storePurchase =>
+                    storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
+
+
+            var productTasks = purchaseProducts.Select(purchaseProduct =>
+                Task.Run(async () =>
+                {
+                    var product = purchaseProduct.Product;
+                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+                }));
+
+            var storeTasks = purchase.StorePurchases.Select(storePurchase =>
+                Task.Run(async () =>
+                {
+                    storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                }));
+
+            await Task.WhenAll(productTasks.Concat(storeTasks));
+            var purchaseResult = purchase.CalculatePurchaseFinalPrice();
+            if (purchaseResult.IsPolicyFailure)
+            {
+                throw new PolicyValidationException(purchaseResult.Errors);
+            }
+            return purchaseResult.Price;
         }
 
         // function not supported yet.

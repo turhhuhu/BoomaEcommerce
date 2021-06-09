@@ -79,6 +79,30 @@ namespace BoomaEcommerce.Domain
                 ? PurchaseResult.Ok() 
                 : PurchaseResult.Fail();
         }
+
+        public PurchaseResult CalculatePurchaseFinalPrice()
+        {
+            if (!ValidatePurchase())
+            {
+                return PurchaseResult.Fail();
+            }
+            decimal discounted = 0;
+
+            foreach (var sp in StorePurchases)
+            {
+                if (sp.Store.StoreDiscount != null)
+                {
+                    sp.Store.ApplyDiscount(sp);
+                    discounted += sp.DiscountedPrice;
+                }
+                else
+                {
+                    discounted += sp.TotalPrice;
+                }
+            }
+
+            return PurchaseResult.Ok(discounted);
+        }
         
 
         private bool CanPurchase()
