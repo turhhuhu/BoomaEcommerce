@@ -5,10 +5,14 @@ import { createPurchase } from "../actions/userActions";
 class PurchaseReview extends Component {
   state = {};
 
+  
+
+
   turnCartIntoPurchase = (cart) => {
     return {
       storePurchases: cart.baskets.map((basket) => {
         return {
+          totalPrice: this.calculateBasketTotalPrice(basket),
           purchaseProducts: basket.purchaseProducts.map((purchaseProduct) => {
             return {
               productGuid: purchaseProduct.productGuid,
@@ -25,6 +29,11 @@ class PurchaseReview extends Component {
       discountedPrice: this.calculateCartTotalPrice(cart),
     };
   };
+
+  calculateBasketTotalPrice = (basket) =>
+    basket.purchaseProducts.reduce(
+      (totalPrice, currentPurchaseProduct) =>
+        totalPrice + currentPurchaseProduct.amount*currentPurchaseProduct.price, 0);
 
   calculateCartTotalPrice = (cart) =>
     cart.baskets.reduce(

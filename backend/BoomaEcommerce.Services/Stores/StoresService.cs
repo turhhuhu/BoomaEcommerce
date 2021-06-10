@@ -251,13 +251,6 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        /*  private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
-          {
-              var notification = new RoleDismissalNotification(dismissingOwner.User, dismissingOwner.Store);
-              owners.ForEach(owner => owner.User.AddNotification(notification));
-              return _notificationPublisher.NotifyManyAsync(_mapper.Map<RoleDismissalNotificationDto>(notification), owners.Select(o => o.User.Guid));
-          }*/
-
         private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
         {
             var notifications = new List<(Guid, NotificationDto)>();
@@ -407,28 +400,11 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                var managersTask = _storeUnitOfWork.StoreManagementRepo.FilterByAsync(storeManagement =>
-                    storeManagement.Store.Guid == storeGuid);
+                var managers = (await _storeUnitOfWork.StoreManagementRepo.FilterByAsync(storeManagement =>
+                    storeManagement.Store.Guid == storeGuid)).ToList();
 
-                var ownersTask = _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(storeOwnership =>
-                    storeOwnership.Store.Guid == storeGuid);
-
-                var managers = (await managersTask).Select(storeManagement =>
-                   new StoreManagement
-                   {
-                       Guid = storeManagement.Guid,
-                       User = storeManagement.User,
-                       Store = storeManagement.Store,
-                       Permissions = storeManagement.Permissions
-                   }).ToList();
-
-                var owners = (await ownersTask).Select(storeOwnership =>
-                    new StoreOwnership
-                    {
-                        Guid = storeOwnership.Guid,
-                        User = storeOwnership.User,
-                        Store = storeOwnership.Store
-                    }).ToList();
+                var owners = (await _storeUnitOfWork.StoreOwnershipRepo
+                    .FilterByAsync(storeOwnership => storeOwnership.Store.Guid == storeGuid)).ToList();
 
 
                 var storeManagementDtos = _mapper.Map<List<StoreManagementDto>>(managers);

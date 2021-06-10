@@ -327,6 +327,15 @@ export function receiveRoleDismissalNotification(notification) {
     },
   };
 }
+export function receiveStorePurchaseNotification(notification) {
+  return {
+    type: UserActionTypes.RECEIVE_STORE_PURCHASE_NOTIFICATION,
+    payload: {
+      notification,
+    },
+  };
+}
+
 
 export function seeNotification(notificationGuid) {
   return async (dispatch, getState) => {
