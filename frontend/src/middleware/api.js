@@ -60,6 +60,9 @@ async function callApi(endpoint, authenticated, config) {
 }
 
 const middleware = (store) => (next) => (action) => {
+  if (action === undefined) {
+    return next({ type: "UNDEFINED_ACTION" });
+  }
   const callAPI = action[CALL_API];
 
   // So the middleware doesn't get applied to every single action

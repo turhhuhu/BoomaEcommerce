@@ -11,6 +11,11 @@ import {
   STORE_SUB_POLICIES_URL,
   STORE_POLICIES_URL,
   STORE_POLICY_URL,
+  STORE_DISCOUNTS_URL,
+  STORE_DISCOUNT_URL,
+  STORE_SUB_DISCOUNTS_URL,
+  STORE_DISCOUNT_POLICIES_URL,
+  STORE_DISCOUNT_SUB_POLICIES_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -297,5 +302,171 @@ export function removeStorePolicy(storeGuid, policyToDeleteGuid) {
         headers: { "Content-Type": "application/json" },
       },
     },
+  };
+}
+
+export function addStoreRootDiscount(storeGuid, rootDiscount) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_DISCOUNTS_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_DISCOUNT_ROOT_REQUEST,
+        StoreActionTypes.ADD_STORE_DISCOUNT_ROOT_SUCCESS,
+        StoreActionTypes.ADD_STORE_DISCOUNT_ROOT_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(rootDiscount),
+      },
+    },
+  };
+}
+
+export function addStoreSubDiscount(storeGuid, fatherPolicyGuid, subDiscount) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_SUB_DISCOUNTS_URL.replace(
+        "{storeGuid}",
+        storeGuid
+      ).replace("{discountGuid}", fatherPolicyGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.ADD_STORE_SUB_DISCOUNT_REQUEST,
+        StoreActionTypes.ADD_STORE_SUB_DISCOUNT_SUCCESS,
+        StoreActionTypes.ADD_STORE_SUB_DISCOUNT_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subDiscount),
+      },
+    },
+  };
+}
+
+export function fetchStoreDiscounts(storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_DISCOUNTS_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_DISCOUNT_REQUEST,
+        StoreActionTypes.GET_STORE_DISCOUNT_SUCCESS,
+        StoreActionTypes.GET_STORE_DISCOUNT_FAILURE,
+      ],
+    },
+  };
+}
+export function removeStoreDiscount(storeGuid, discountToDeleteGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_DISCOUNT_URL.replace("{storeGuid}", storeGuid).replace(
+        "{discountGuid}",
+        discountToDeleteGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.REMOVE_STORE_DISCOUNT_REQUEST,
+        StoreActionTypes.REMOVE_STORE_DISCOUNT_SUCCESS,
+        StoreActionTypes.REMOVE_STORE_DISCOUNT_FAILURE,
+      ],
+      config: {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      },
+    },
+  };
+}
+
+export function addStoreDicountRootPolicy(discountGuid) {
+  return function (storeGuid, rootPolicy) {
+    console.log(storeGuid, discountGuid);
+    return {
+      [CALL_API]: {
+        endpoint: STORE_DISCOUNT_POLICIES_URL.replace(
+          "{storeGuid}",
+          storeGuid
+        ).replace("{discountGuid}", discountGuid),
+        authenticated: true,
+        types: [
+          StoreActionTypes.ADD_STORE_DISCOUNT_POLICY_ROOT_REQUEST,
+          StoreActionTypes.ADD_STORE_DISCOUNT_POLICY_ROOT_SUCCESS,
+          StoreActionTypes.ADD_STORE_DISCOUNT_POLICY_ROOT_FAILURE,
+        ],
+        config: {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(rootPolicy),
+        },
+      },
+    };
+  };
+}
+export function addStoreDicountSubPolicy(discountGuid) {
+  return function (storeGuid, fatherPolicyGuid, subPolicy) {
+    return {
+      [CALL_API]: {
+        endpoint: STORE_DISCOUNT_SUB_POLICIES_URL.replace(
+          "{storeGuid}",
+          storeGuid
+        )
+          .replace("{discountGuid}", discountGuid)
+          .replace("{policyGuid}", fatherPolicyGuid),
+        authenticated: true,
+        types: [
+          StoreActionTypes.ADD_STORE_DISCOUNT_SUB_POLICY_REQUEST,
+          StoreActionTypes.ADD_STORE_DISCOUNT_SUB_POLICY_SUCCESS,
+          StoreActionTypes.ADD_STORE_DISCOUNT_SUB_POLICY_FAILURE,
+        ],
+        config: {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subPolicy),
+        },
+      },
+    };
+  };
+}
+
+export function fetchStoreDiscountPolicy(discountGuid) {
+  return function (storeGuid) {
+    return {
+      [CALL_API]: {
+        endpoint: STORE_DISCOUNT_POLICIES_URL.replace(
+          "{storeGuid}",
+          storeGuid
+        ).replace("{discountGuid}", discountGuid),
+        authenticated: true,
+        types: [
+          StoreActionTypes.GET_STORE_DISCOUNT_POLICY_REQUEST,
+          StoreActionTypes.GET_STORE_DISCOUNT_POLICY_SUCCESS,
+          StoreActionTypes.GET_STORE_DISCOUNT_POLICY_FAILURE,
+        ],
+      },
+    };
+  };
+}
+
+export function removeStoreDiscountPolicy(discountGuid) {
+  return function (storeGuid, policyToDeleteGuid) {
+    return {
+      [CALL_API]: {
+        endpoint: STORE_DISCOUNT_POLICIES_URL.replace("{storeGuid}", storeGuid)
+          .replace("{discountGuid}", discountGuid)
+          .replace("{policyGuid}", policyToDeleteGuid),
+        authenticated: true,
+        types: [
+          StoreActionTypes.REMOVE_STORE_DISCOUNT_POLICY_REQUEST,
+          StoreActionTypes.REMOVE_STORE_DISCOUNT_POLICY_SUCCESS,
+          StoreActionTypes.REMOVE_STORE_DISCOUNT_POLICY_FAILURE,
+        ],
+        config: {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        },
+      },
+    };
   };
 }
