@@ -299,3 +299,8 @@ export function removeStorePolicy(storeGuid, policyToDeleteGuid) {
     },
   };
 }
+
+export function addStoreRootDiscount() {}
+export function addStoreSubDiscount() {}
+export function fetchStoreDiscounts() {}
+export function removeStoreDiscount() {}

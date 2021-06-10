@@ -8,6 +8,7 @@ export function store(
     storeRoles: {},
     subordinates: [],
     storePolicy: {},
+    storeDiscount: {},
   },
   action
 ) {

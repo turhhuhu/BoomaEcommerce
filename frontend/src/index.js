@@ -22,6 +22,7 @@ import PaymentPage from "./pages/paymentPage";
 import DeliveryPage from "./pages/deliveryPage";
 import CartReviewPage from "./pages/cartReviewPage";
 import PurchaseReviewPage from "./pages/purchaseReviewPage";
+import storeDiscountsPage from "./pages/storeDiscountsPage";
 
 const { store, persistor } = configureStore();
 
@@ -46,6 +47,11 @@ ReactDOM.render(
             component={NotificationsPage}
           ></Route>
           <Route exact path="/user" component={ProfilePage}></Route>
+          <Route
+            exact
+            path="/store/:guid/discounts"
+            component={storeDiscountsPage}
+          ></Route>
           <Route
             exact
             path="/store/:guid/products"
