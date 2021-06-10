@@ -57,6 +57,14 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             return await GetRecursively(guid);
         }
 
-
+        public override async Task<IEnumerable<StoreOwnership>> FilterByAsync(Expression<Func<StoreOwnership, bool>> predicateExp)
+        {
+            return await DbContext
+                .Set<StoreOwnership>()
+                .Include(o => o.Store)
+                .Include(o => o.User)
+                .Where(predicateExp)
+                .ToListAsync();
+        }
     }
 }

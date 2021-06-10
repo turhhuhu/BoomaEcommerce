@@ -68,6 +68,7 @@ namespace BoomaEcommerce.Services.Purchases
                 await purchase.StorePurchases.Select(async storePurchase =>
                 {
                     storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                    storePurchase.Buyer = purchase.Buyer;
                 }).WhenAllAwaitEach();
 
                 var purchaseResult = await purchase.MakePurchase();

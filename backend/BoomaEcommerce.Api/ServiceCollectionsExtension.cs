@@ -52,11 +52,21 @@ namespace BoomaEcommerce.Api
             return services;
         }
 
-        public static IServiceCollection AddPurchasesService(this IServiceCollection services)
+        public static IServiceCollection AddPurchasesService(this IServiceCollection services,
+            IConfiguration configuration)
         {
-            services.AddTransient<IPaymentClient, PaymentClient>();
-            services.AddTransient<ISupplyClient, SupplyClient>();
-            services.AddHttpClient("externalClient", x => x.BaseAddress = new Uri("https://cs-bgu-wsep.herokuapp.com/"));
+            if (configuration.GetSection("UseStubExternalSystems").Get<bool>())
+            {
+                services.AddTransient(_ => Mock.Of<IPaymentClient>());
+                services.AddTransient(_ => Mock.Of<ISupplyClient>());
+            }
+            else
+            {
+                services.AddTransient<IPaymentClient, PaymentClient>();
+                services.AddTransient<ISupplyClient, SupplyClient>();
+                services.AddHttpClient("externalClient", x => x.BaseAddress = new Uri("https://cs-bgu-wsep.herokuapp.com/"));
+            }
+
             services.AddTransient<PurchasesService>();
             services.AddTransient<IPurchasesService, SecuredPurchaseService>(sp =>
             {

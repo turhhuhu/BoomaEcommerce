@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import {
   receiveRegularNotification,
   receiveRoleDismissalNotification,
+  receiveStorePurchaseNotification,
 } from "../actions/userActions";
 import { setupSignalRConnection } from "../signalR";
 import { NOTIFICATION_HUB_URL } from "../utils/constants";
@@ -34,6 +35,13 @@ class NotificationIcon extends Component {
             snackBarMessage: notification?.message,
           });
           return receiveRoleDismissalNotification(notification);
+        },
+        storePurchaseNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
         },
       });
       this.props.dispatch(setupEventsHub);

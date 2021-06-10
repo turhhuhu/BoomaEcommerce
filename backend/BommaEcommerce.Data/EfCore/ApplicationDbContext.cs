@@ -114,35 +114,38 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<Purchase>(p =>
             {
                 p.HasKey(pp => pp.Guid);
-                p.HasMany(pp => pp.StorePurchases)
-                    .WithOne();
+                p.OwnsMany(pp => pp.StorePurchases, sp =>
+                {
+                    sp.WithOwner();
+                    sp.HasKey(s => s.Guid);
+                    sp.ToTable("StorePurchases");
+                    sp.OwnsMany(s => s.PurchaseProducts, p =>
+                    {
+                        p.Property(pp => pp.DiscountedPrice).HasPrecision(10, 5);
+                        p.HasKey(pp => pp.Guid);
+                        p.HasOne(x => x.Product)
+                            .WithMany();
+                        p.WithOwner();
+                        p.ToTable("StorePurchasePurchaseProducts");
 
-                // TODO: Change to be a new object which is information of user\guest
+                        p.Property(pp => pp.Price).HasPrecision(10, 5);
+                    });
+                    sp.HasOne(s => s.Store)
+                        .WithMany();
+
+                    // TODO: Change to be a new object which is information of user\guest
+                    sp.HasOne(s => s.Buyer)
+                        .WithMany();
+
+                    sp.Property(s => s.TotalPrice).HasPrecision(10, 5);
+                    sp.Property(s => s.DiscountedPrice).HasPrecision(10, 5);
+                });
+
                 p.HasOne(pp => pp.Buyer)
                     .WithMany();
-            });
 
-            modelBuilder.Entity<StorePurchase>(sp =>
-            {
-                sp.HasKey(s => s.Guid);
-                sp.OwnsMany(s => s.PurchaseProducts, p =>
-                {
-                    p.HasKey(pp => pp.Guid);
-                    p.HasOne(x => x.Product)
-                        .WithMany();
-                    p.WithOwner();
-                    p.ToTable("StorePurchasePurchaseProducts");
-
-                    p.Property(pp => pp.Price).HasPrecision(10, 5);
-                });
-                sp.HasOne(s => s.Store)
-                    .WithMany();
-
-                // TODO: Change to be a new object which is information of user\guest
-                sp.HasOne(s => s.Buyer)
-                    .WithMany();
-
-                sp.Property(s => s.TotalPrice).HasPrecision(10, 5);
+                p.Property(pp => pp.DiscountedPrice).HasPrecision(10, 5);
+                p.Property(pp => pp.TotalPrice).HasPrecision(10, 5);
             });
 
             AddDiscountModels(modelBuilder);
@@ -180,6 +183,8 @@ namespace BoomaEcommerce.Data.EfCore
                         .WithMany();
                     p.WithOwner();
                     p.Property(pp => pp.Price).HasPrecision(10, 5);
+                    p.Property(pp => pp.DiscountedPrice).HasPrecision(10, 5);
+
                     p.ToTable("ShoppingBasketPurchaseProducts");
                 });
             });

@@ -259,6 +259,12 @@ export function user(
       return Object.assign({}, state, {
         notifications: [...state.notifications, action.payload.notification],
       });
+    
+    case UserActionTypes.RECEIVE_STORE_PURCHASE_NOTIFICATION:
+      return Object.assign({}, state, {
+        notifications: [...state.notifications, action.payload.notification],
+      });
+    
     case UserActionTypes.SEE_NOTIFICATION: {
       const seenNotificationIndex = action.payload.seenNotificationIndex;
       const seenNotification = action.payload.seenNotification;

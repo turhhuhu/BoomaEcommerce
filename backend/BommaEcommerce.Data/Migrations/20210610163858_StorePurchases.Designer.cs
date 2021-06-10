@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210610163858_StorePurchases")]
+    partial class StorePurchases
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,12 +217,10 @@ namespace BoomaEcommerce.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("DiscountedPrice")
-                        .HasPrecision(10, 5)
-                        .HasColumnType("decimal(10,5)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalPrice")
-                        .HasPrecision(10, 5)
-                        .HasColumnType("decimal(10,5)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Guid");
 
@@ -876,8 +876,7 @@ namespace BoomaEcommerce.Data.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<decimal>("DiscountedPrice")
-                                .HasPrecision(10, 5)
-                                .HasColumnType("decimal(10,5)");
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<Guid>("PurchaseGuid")
                                 .HasColumnType("uniqueidentifier");
@@ -920,8 +919,7 @@ namespace BoomaEcommerce.Data.Migrations
                                         .HasColumnType("int");
 
                                     b2.Property<decimal>("DiscountedPrice")
-                                        .HasPrecision(10, 5)
-                                        .HasColumnType("decimal(10,5)");
+                                        .HasColumnType("decimal(18,2)");
 
                                     b2.Property<decimal>("Price")
                                         .HasPrecision(10, 5)
@@ -984,8 +982,7 @@ namespace BoomaEcommerce.Data.Migrations
                                 .HasColumnType("int");
 
                             b1.Property<decimal>("DiscountedPrice")
-                                .HasPrecision(10, 5)
-                                .HasColumnType("decimal(10,5)");
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<decimal>("Price")
                                 .HasPrecision(10, 5)
