@@ -26,10 +26,11 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             return DeleteRecursively(guid, DbContext.Set<Discount>(), DbContext.Set<Policy>());
         }
 
-        public static async Task DeleteRecursively(Guid guid, DbSet<Discount> discountDbSet, DbSet<Policy> policyDbSet)
+        public async Task DeleteRecursively(Guid guid, DbSet<Discount> discountDbSet, DbSet<Policy> policyDbSet)
         {
+            await FilterByAsync(d => d.Guid == guid, d => d.Policy);
+
             var discount = await discountDbSet
-                .Include(d => d.Policy)
                 .Include(d => (d as CompositeDiscount).Discounts)
                 .FirstOrDefaultAsync(d => d.Guid == guid);
 
@@ -65,7 +66,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             IQueryable<Discount> discountQuery,
             IQueryable<Policy> policyQuery)
         {
-            var policy = await FilterByAsync(d => d.Guid == guid, d => d.Policy);
+            await FilterByAsync(d => d.Guid == guid, d => d.Policy);
 
             var discount = await discountQuery
                 .Include(d => (d as CompositeDiscount).Discounts)
