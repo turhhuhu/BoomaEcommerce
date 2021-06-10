@@ -4,7 +4,6 @@ import TreeView from "@material-ui/lab/TreeView";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import TreeItem from "@material-ui/lab/TreeItem";
-import { fetchStorePolicy, removeStorePolicy } from "../actions/storeActions";
 import AddStorePolicyDialog from "./addStorePolicyDialog";
 import CallSplitIcon from "@material-ui/icons/CallSplit";
 
@@ -51,8 +50,8 @@ class PolicyTree extends Component {
 
   handleRemovePolicy = (policyGuid) => {
     this.props
-      .dispatch(removeStorePolicy(this.props.storeGuid, policyGuid))
-      .then(fetchStorePolicy(this.props.storeGuid));
+      .dispatch(this.props.removePolicy(this.props.storeGuid, policyGuid))
+      .then(this.props.fetchPolicy(this.props.storeGuid));
   };
 
   createPolicyTree = (policy) => {
@@ -146,15 +145,18 @@ class PolicyTree extends Component {
   render() {
     return (
       <main className="col">
-        {this.props.storePolicy?.type ? (
+        {this.props.policies?.type ? (
           <React.Fragment>
             <TreeView
               defaultCollapseIcon={<ExpandMoreIcon />}
               defaultExpandIcon={<ChevronRightIcon />}
             >
-              {this.createPolicyTree(this.props.storePolicy)}
+              {this.createPolicyTree(this.props.policies)}
             </TreeView>
             <AddStorePolicyDialog
+              addRootPolicy={this.props.addRootPolicy}
+              addSubPolicy={this.props.addSubPolicy}
+              fetchPolicy={this.props.fetchPolicy}
               fatherPolicyGuid={this.state.fatherPolicyGuid}
               storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isDialogOpen}
@@ -168,7 +170,6 @@ class PolicyTree extends Component {
 }
 const mapStateToProps = (store) => {
   return {
-    storePolicy: store.store.storePolicy,
     storeProducts: store.store.products,
   };
 };

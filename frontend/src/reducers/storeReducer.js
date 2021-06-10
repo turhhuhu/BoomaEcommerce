@@ -8,6 +8,8 @@ export function store(
     storeRoles: {},
     subordinates: [],
     storePolicy: {},
+    storeDiscount: {},
+    storeDiscountPolicy: {},
   },
   action
 ) {
@@ -254,6 +256,7 @@ export function store(
     case StoreActionTypes.GET_STORE_POLICY_REQUEST:
       return Object.assign({}, state, {
         ...action.payload,
+        storePolicy: {},
         error: undefined,
       });
     case StoreActionTypes.GET_STORE_POLICY_SUCCESS:
@@ -312,6 +315,43 @@ export function store(
         isFetching: action.payload.isFetching,
       });
     }
+    case StoreActionTypes.GET_STORE_DISCOUNT_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        storeDiscount: {},
+        error: undefined,
+      });
+    case StoreActionTypes.GET_STORE_DISCOUNT_SUCCESS:
+      return Object.assign({}, state, {
+        storeDiscount: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_DISCOUNT_FAILURE:
+      console.error(
+        `error occured while getting store discount: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+
+    case StoreActionTypes.GET_STORE_DISCOUNT_POLICY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        storeDiscountPolicy: {},
+        error: undefined,
+      });
+    case StoreActionTypes.GET_STORE_DISCOUNT_POLICY_SUCCESS:
+      return Object.assign({}, state, {
+        storeDiscountPolicy: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_DISCOUNT_POLICY_FAILURE:
+      console.error(
+        `error occured while getting store discount policy: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
 
     default:
       return state;

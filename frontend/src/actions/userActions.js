@@ -12,6 +12,8 @@ import {
   ADD_STORE_URL,
   USER_STORE_ROLE,
   SEE_NOTIFICATION_URL,
+  CREATE_PURCHASE_URL,
+  GET_CART_DISCOUNTED_PRICE_URL,
 } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
@@ -384,6 +386,44 @@ export function submitDeliveryInfo(deliveryInfo) {
     type: UserActionTypes.SUBMIT_DELIVERY_INFO,
     payload: {
       deliveryInfo,
+    },
+  };
+}
+
+export function createPurchase(purchaseDetails) {
+  return {
+    [CALL_API]: {
+      endpoint: CREATE_PURCHASE_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.CREATE_PURCHASE_REQUEST,
+        UserActionTypes.CREATE_PURCHASE_SUCCESS,
+        UserActionTypes.CREATE_PURCHASE_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(purchaseDetails),
+      },
+    },
+  };
+}
+
+export function fetchCartDiscountedPrice(cartAsPurchase) {
+  return {
+    [CALL_API]: {
+      endpoint: GET_CART_DISCOUNTED_PRICE_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.GET_CART_DISCOUNTED_PRICE_REQUEST,
+        UserActionTypes.GET_CART_DISCOUNTED_PRICE_SUCCESS,
+        UserActionTypes.GET_CART_DISCOUNTED_PRICE_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cartAsPurchase),
+      },
     },
   };
 }

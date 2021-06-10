@@ -38,6 +38,7 @@ class AddStoreDialog extends Component {
           addStore({
             storeName: this.state.name,
             description: this.state.description,
+            founderUserGuid: this.props?.userInfo.guid,
           })
         )
         .then((success) => {
@@ -107,6 +108,7 @@ class AddStoreDialog extends Component {
 
 const mapStateToProps = (store) => {
   return {
+    userInfo: store.user.userInfo,
     error: store.store.error,
   };
 };

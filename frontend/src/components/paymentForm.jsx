@@ -6,7 +6,7 @@ import { yearsArray, monthsArray } from "../utils/constants";
 
 class PaymentForm extends Component {
   state = {
-    fullName: "",
+    holderName: "",
     id: "",
     cardNumber: "",
     month: "",
@@ -45,8 +45,8 @@ class PaymentForm extends Component {
               <input
                 type="text"
                 className="form-control"
-                name="fullName"
-                value={this.state.fullName}
+                name="holderName"
+                value={this.state.holderName}
                 onChange={this.handleChange}
                 required
               ></input>
