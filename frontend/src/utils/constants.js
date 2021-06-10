@@ -63,6 +63,12 @@ export const EDIT_MANAGER_PERMISSIONS_URL = MANAGER_ROLE_URL + "/permissions";
 export const REMOVE_SUBORDINATE_URL =
   SUBORDINATES_URL + "/{roleToDeleteGuid}?roleType={roleType}";
 
+//purchases
+export const CREATE_PURCHASE_URL = BASE_URL + "/Purchases";
+//purchases
+export const GET_CART_DISCOUNTED_PRICE_URL =
+  CREATE_PURCHASE_URL + "?onlyReviewPrice=true";
+
 export const monthsArray = [
   "January",
   "February",

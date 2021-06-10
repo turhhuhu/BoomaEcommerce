@@ -1,15 +1,50 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { createPurchase } from "../actions/userActions";
 
 class PurchaseReview extends Component {
   state = {};
+
+  turnCartIntoPurchase = (cart) => {
+    return {
+      storePurchases: cart.baskets.map((basket) => {
+        return {
+          purchaseProducts: basket.purchaseProducts.map((purchaseProduct) => {
+            return {
+              productGuid: purchaseProduct.productGuid,
+              amount: purchaseProduct.amount,
+              price: purchaseProduct.price,
+            };
+          }),
+          storeGuid: basket.store.guid,
+          buyerGuid: this.props?.userInfo.guid,
+        };
+      }),
+      buyerGuid: this.props?.userInfo.guid,
+      totalPrice: this.calculateCartTotalPrice(cart),
+      discountedPrice: this.calculateCartTotalPrice(cart),
+    };
+  };
+
+  calculateCartTotalPrice = (cart) =>
+    cart.baskets.reduce(
+      (totalPrice, basket) =>
+        totalPrice +
+        basket.purchaseProducts.reduce(
+          (totalPricePurchaseProduct, purchaseProduct) =>
+            totalPricePurchaseProduct +
+            purchaseProduct.amount * purchaseProduct.price,
+          0
+        ),
+      0
+    );
 
   getCartItems = () => {
     return this.props.baskets?.map((basket) => {
       return basket.purchaseProducts
         .sort((a, b) => a.guid - b.guid)
         .map((purchaseProduct) => (
-          <tr>
+          <tr key={purchaseProduct.guid}>
             <td>
               <strong className="title mb-0">
                 {purchaseProduct?.product.name}{" "}
@@ -28,6 +63,22 @@ class PurchaseReview extends Component {
     });
   };
 
+  makePurchase = () => {
+    const purchaseobj = {
+      purchase: this.turnCartIntoPurchase(this.props.cart),
+      paymentDetails: this.props.paymentInfo,
+      supplyDetails: this.props.deliveryInfo,
+    };
+    console.log(purchaseobj);
+    this.props.dispatch(
+      createPurchase({
+        purchase: this.turnCartIntoPurchase(this.props.cart),
+        paymentDetails: this.props.paymentInfo,
+        supplyDetails: this.props.deliveryInfo,
+      })
+    );
+  };
+
   render() {
     return (
       <div
@@ -38,7 +89,10 @@ class PurchaseReview extends Component {
       >
         <header className="card-header">
           <strong className="d-inline-block mr-3">Purchase Review</strong>
-          <button className="btn btn-primary float-right">
+          <button
+            onClick={this.makePurchase}
+            className="btn btn-primary float-right"
+          >
             {" "}
             Confirm purhcase{" "}
           </button>
@@ -85,6 +139,8 @@ const mapStateToProps = (store) => {
     baskets: store.user.cart.baskets,
     deliveryInfo: store.user.deliveryInfo,
     paymentInfo: store.user.paymentInfo,
+    cart: store.user.cart,
+    userInfo: store.user.userInfo,
   };
 };
 export default connect(mapStateToProps)(PurchaseReview);
