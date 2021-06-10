@@ -9,11 +9,16 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
     public class CreateStoreUseCaseAction : UseCaseAction
     {
+        
+        [JsonRequired]
+        public string UserLabel { get; set; }
+        [JsonRequired]
         public StoreDto StoreToCreate { get; set; }
 
         public CreateStoreUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
@@ -30,19 +35,35 @@ namespace BoomaEcommerce.Services.UseCases
 
         }
 
-        public override async Task NextAction(object obj = null, ClaimsPrincipal claims = null)
+        public override async Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null)
         {
+            
+            if (dict is null)
+            {
+                throw new ArgumentException(nameof(dict));
+            }
+
+            var userObj = dict[UserLabel];
+            if (userObj is not UserDto user)
+            {
+                throw new ArgumentException(nameof(userObj));
+            }
+
+            StoreToCreate.FounderUserGuid = user.Guid;
+            
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            claims.TryGetUserGuid(out var userGuid);
+            //claims.TryGetUserGuid(out var userGuid);
 
-            StoreToCreate.FounderUserGuid = userGuid ?? default;
+            //StoreToCreate.FounderUserGuid = userGuid ?? default;
 
-            var store =  await storeService.CreateStoreAsync(StoreToCreate);
+            var store = await storeService.CreateStoreAsync(StoreToCreate);
 
-            await Next(store, claims);
+            dict.Add(Label,store);
+
+            await Next(dict, claims);
         }
     }
 }

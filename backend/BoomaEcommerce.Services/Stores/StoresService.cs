@@ -297,6 +297,7 @@ namespace BoomaEcommerce.Services.Stores
                     return false;
                 }
 
+                
                 var ownerStoreOwnership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
 
                 if (ownerStoreOwnership == null)
@@ -372,6 +373,8 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
+                var t =await  _storeUnitOfWork.StoreOwnershipRepo.FindAllAsync();
+                var c = t.First();
                 var ownership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnershipGuid);
                 return _mapper.Map<StoreOwnershipDto>(ownership);
             }

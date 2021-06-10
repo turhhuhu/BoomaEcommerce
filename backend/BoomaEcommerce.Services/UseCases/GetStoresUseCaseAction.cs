@@ -27,15 +27,22 @@ namespace BoomaEcommerce.Services.UseCases
 
         }
 
-        public override async Task NextAction(object obj = null, ClaimsPrincipal claims = null)
+        public override async Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null)
         {
+            if (dict is null)
+            {
+                dict = new Dictionary<string, object>();
+            }
+
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
             var stores = await storeService.GetStoresAsync();
+            
+            dict.Add(Label,stores);
 
-            await Next(stores, claims);
+            await Next(dict, claims);
         }
     }
 }

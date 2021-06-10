@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Http;
@@ -13,24 +10,24 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class GetOwnershipUseCaseAction : UseCaseAction
+    public class GetManagementUseCaseAction : UseCaseAction
     {
         [JsonRequired]
         public string StoreLabel { get; set; }
         [JsonRequired]
         public string UserLabel { get; set; }
 
-        public GetOwnershipUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) :
+        public GetManagementUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) :
             base(next, sp, accessor)
         {
         }
 
-        public GetOwnershipUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public GetManagementUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
 
         }
 
-        public GetOwnershipUseCaseAction()
+        public GetManagementUseCaseAction()
         {
         }
         public override async Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null)
@@ -56,9 +53,9 @@ namespace BoomaEcommerce.Services.UseCases
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var ownership = await storeService.GetStoreOwnerShipAsync(user.Guid, store.Guid);
+            var management = await storeService.GetStoreManagementAsync(user.Guid, store.Guid);
             
-            dict.Add(Label,ownership);
+            dict.Add(Label,management);
 
             await Next(dict, claims);
         }

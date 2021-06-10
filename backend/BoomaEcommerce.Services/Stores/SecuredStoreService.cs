@@ -180,6 +180,7 @@ namespace BoomaEcommerce.Services.Stores
             ServiceUtilities.ValidateDto<StoreManagementDto, StoreServiceValidators.NominateNewStoreManager>(newManagementDto);
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            
             var storeOwner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
             if (storeOwner != null && storeOwner.User.Guid == userGuidInClaims)
             {
