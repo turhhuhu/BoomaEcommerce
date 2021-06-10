@@ -34,7 +34,8 @@ namespace BoomaEcommerce.Data.EfCore
             IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo,
-            IRepository<User> userRepo)
+            IRepository<User> userRepo,
+            IRepository<Discount> discountRepo)
         {
             _dbContext = dbContext;
             StoreRepo = storeRepo;
@@ -45,6 +46,7 @@ namespace BoomaEcommerce.Data.EfCore
             ProductRepo = productRepo;
             PolicyRepo = policyRepo;
             UserRepo = userRepo;
+            DiscountRepo = discountRepo;
         }
 
 
@@ -63,17 +65,6 @@ namespace BoomaEcommerce.Data.EfCore
         {
             entity.Guid = default;
             _dbContext.Attach(entity);
-        }
-
-        public async Task AttachUser(User user)
-        {
-            if (!string.IsNullOrEmpty(user.UserName))
-            {
-                await _dbContext.Set<User>().FirstOrDefaultAsync(u => u.UserName == user.UserName);
-                return;
-            }
-
-            _dbContext.Set<User>().Attach(user);
         }
 
         public void Dispose()

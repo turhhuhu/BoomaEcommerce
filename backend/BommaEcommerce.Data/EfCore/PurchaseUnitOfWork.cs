@@ -41,6 +41,18 @@ namespace BoomaEcommerce.Data.EfCore
             return _dbContext.SaveChangesAsync();
         }
 
+        public void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        {
+            entity.Guid = default;
+            _dbContext.Attach(entity);
+        }
+
+        public async Task<ITransactionContext> BeginTransaction()
+        {
+            var transaction = await _dbContext.Database.BeginTransactionAsync();
+            return new TransactionContext(transaction);
+        }
+
         public void Dispose()
         {
             Dispose(true);

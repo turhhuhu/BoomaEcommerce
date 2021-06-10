@@ -38,9 +38,21 @@ export const STORE_SUBORDINATES_URL =
   STORE_ROLES_URL + "/ownerships/{ownershipGuid}/subordinates?level=0";
 export const ADD_STORE_OWNER_URL = STORE_ROLES_URL + "/ownerships";
 export const ADD_STORE_MANAGER_URL = STORE_ROLES_URL + "/managements";
+
+//policies
 export const STORE_POLICIES_URL = STORE_URL + "/policy";
 export const STORE_POLICY_URL = STORE_POLICIES_URL + "/{policyGuid}";
 export const STORE_SUB_POLICIES_URL = STORE_POLICY_URL + "/sub-policies";
+
+//discounts
+export const STORE_DISCOUNTS_URL = STORE_URL + "/discount";
+export const STORE_DISCOUNT_URL = STORE_DISCOUNTS_URL + "/{discountGuid}";
+export const STORE_SUB_DISCOUNTS_URL = STORE_DISCOUNT_URL + "/sub-discounts";
+export const STORE_DISCOUNT_POLICIES_URL = STORE_DISCOUNT_URL + "/policy";
+export const STORE_DISCOUNT_POLICY_URL =
+  STORE_DISCOUNT_POLICIES_URL + "/{policyGuid}";
+export const STORE_DISCOUNT_SUB_POLICIES_URL =
+  STORE_DISCOUNT_POLICY_URL + "/sub-policies";
 
 //roles
 export const ROLES_URL = BASE_URL + "/Roles";
@@ -50,6 +62,12 @@ export const SUBORDINATES_URL = OWNER_ROLE_URL + "/subordinates";
 export const EDIT_MANAGER_PERMISSIONS_URL = MANAGER_ROLE_URL + "/permissions";
 export const REMOVE_SUBORDINATE_URL =
   SUBORDINATES_URL + "/{roleToDeleteGuid}?roleType={roleType}";
+
+//purchases
+export const CREATE_PURCHASE_URL = BASE_URL + "/Purchases";
+//purchases
+export const GET_CART_DISCOUNTED_PRICE_URL =
+  CREATE_PURCHASE_URL + "?onlyReviewPrice=true";
 
 export const monthsArray = [
   "January",

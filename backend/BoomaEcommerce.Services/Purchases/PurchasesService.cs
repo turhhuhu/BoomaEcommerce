@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
@@ -46,6 +47,9 @@ namespace BoomaEcommerce.Services.Purchases
             
             try
             {
+
+                await using var transaction = await _purchaseUnitOfWork.BeginTransaction();
+
                 var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 
                 purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid);
@@ -55,20 +59,16 @@ namespace BoomaEcommerce.Services.Purchases
                         storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
 
-                var productTasks = purchaseProducts.Select(purchaseProduct =>
-                    Task.Run(async () =>
-                    {
-                        var product = purchaseProduct.Product;
-                        purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                    }));
+                await purchaseProducts.Select(async purchaseProduct =>
+                {
+                    var product = purchaseProduct.Product;
+                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+                }).WhenAllAwaitEach();
 
-                var storeTasks = purchase.StorePurchases.Select(storePurchase =>
-                    Task.Run(async () =>
-                    {
-                        storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
-                    }));
-
-                await Task.WhenAll(productTasks.Concat(storeTasks));
+                await purchase.StorePurchases.Select(async storePurchase =>
+                {
+                    storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                }).WhenAllAwaitEach();
 
                 var purchaseResult = await purchase.MakePurchase();
                 if (purchaseResult.IsPolicyFailure)
@@ -94,6 +94,8 @@ namespace BoomaEcommerce.Services.Purchases
                 supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
+
+                await transaction.CommitAsync();
 
                 return _mapper.Map<PurchaseDto>(purchase);
             }
@@ -126,9 +128,12 @@ namespace BoomaEcommerce.Services.Purchases
             }
         }
 
-        private Task NotifyOnPurchase(Purchase purchaseDto)
+        private async Task NotifyOnPurchase(Purchase purchaseDto)
         {
-            return Task.WhenAll(purchaseDto.StorePurchases.Select(NotifyStoreSellersOnPurchase));
+            foreach (var storePurchase in purchaseDto.StorePurchases)
+            {
+                await NotifyStoreSellersOnPurchase(storePurchase);
+            }
         }
 
 
@@ -138,18 +143,20 @@ namespace BoomaEcommerce.Services.Purchases
                 (await _purchaseUnitOfWork.StoreOwnershipRepository.FilterByAsync(ownership =>
                     ownership.Store.Guid == storePurchase.Store.Guid)).ToList();
 
-            var notification = new StorePurchaseNotification(storePurchase.Buyer, storePurchase.Guid, storePurchase.Store);
 
             var notifications = new List<(Guid, NotificationDto)>();
             foreach (var ownership in ownerships)
             {
+                var notification = new StorePurchaseNotification(storePurchase.Buyer, storePurchase.Guid, storePurchase.Store);
+
                 ownership.User.Notifications.Add(notification);
                 notifications.Add((ownership.User.Guid, _mapper.Map<StorePurchaseNotificationDto>(notification)));
-                // TODO: attach notification
+                _purchaseUnitOfWork.Attach(notification);
             }
 
             var notifyTask =
                 _notificationPublisher.NotifyManyAsync(notifications);
+
             await Task.WhenAll(_purchaseUnitOfWork.SaveAsync(), notifyTask);
         }
 

@@ -6,7 +6,7 @@ import { countriesArray } from "../utils/constants";
 
 class DeliveryForm extends Component {
   state = {
-    fullName: "",
+    name: "",
     country: "",
     city: "",
     address: "",
@@ -39,8 +39,8 @@ class DeliveryForm extends Component {
                 <input
                   type="text"
                   className="form-control"
-                  name="fullName"
-                  value={this.state.fullName}
+                  name="name"
+                  value={this.state.name}
                   onChange={this.handleChange}
                 ></input>
               </div>

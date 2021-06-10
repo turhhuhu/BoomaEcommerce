@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Data.EfCore.Repositories;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +65,7 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IStoreUnitOfWork, InMemoryStoreUnitOfWork>();
             services.AddTransient<IUserUnitOfWork, InMemoryUserUnitOfWork>();
             services.AddTransient<IPurchaseUnitOfWork, InMemoryPurchaseUnitOfWork>();
+            services.AddTransient<IRepository<User>, InMemoryUserRepository>();
 
             return services;
         }
@@ -102,6 +104,8 @@ namespace BoomaEcommerce.Data.EfCore
 
 
             services.AddTransient<IRepository<Notification>, EfCoreRepository<Notification, ApplicationDbContext>>();
+            services.AddTransient<IRepository<Discount>, EfCoreDiscountRepository>();
+
 
             //Purchase Unit Of Work 
             services.AddTransient<IRepository<ShoppingCart>, EfCoreRepository<ShoppingCart, ApplicationDbContext>>();

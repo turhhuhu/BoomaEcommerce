@@ -7,70 +7,54 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
 import Select from "react-select";
-
-const mapPolicyTypeToValueName = {
-  ageRestriction: "minAge",
-  maxCategoryAmount: "amount",
-  maxProductAmount: "amount",
-  maxTotalAmount: "amount",
-  minTotalAmount: "amount",
-  minCategoryAmount: "amount",
-  minProductAmount: "amount",
-};
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import {
+  addStoreRootDiscount,
+  addStoreSubDiscount,
+  fetchStoreDiscounts,
+} from "../actions/storeActions";
 
 const typeOptions = [
   { value: "composite", label: "Composite", name: "type" },
-  { value: "binary", label: "Binary", name: "type" },
+  { value: "basket", label: "Basket", name: "type" },
   {
-    value: "ageRestriction",
-    label: "Age Restriction",
+    value: "category",
+    label: "Category",
     name: "type",
   },
   {
-    value: "maxCategoryAmount",
-    label: "Max Category Amount",
-    name: "type",
-  },
-  {
-    value: "minCategoryAmount",
-    label: "Min Category Amount",
-    name: "type",
-  },
-  {
-    value: "maxProductAmount",
-    label: "Max Product Amount",
-    name: "type",
-  },
-  {
-    value: "minProductAmount",
-    label: "Min Product Amount",
-    name: "type",
-  },
-  {
-    value: "maxTotalAmount",
-    label: "Max Total Amount",
-    name: "type",
-  },
-  {
-    value: "minTotalAmount",
-    label: "Min Total Amount",
+    value: "product",
+    label: "Product",
     name: "type",
   },
 ];
 const operatorOptions = [
-  { value: "and", label: "And", name: "operator" },
-  { value: "or", label: "Or", name: "operator" },
-  { value: "xor", label: "Xor", name: "operator" },
-  { value: "condition", label: "Condition", name: "operator" },
+  { value: "max", label: "Max", name: "operator" },
+  { value: "sum", label: "Sum", name: "operator" },
 ];
-class AddStorePolicyDialog extends Component {
+
+function formatDate(date) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
+}
+
+class AddStorePolicyDiscount extends Component {
   state = {
     error: undefined,
     type: "",
-    operator: "",
-    value: "",
     productGuid: "",
     category: "",
+    startTime: Date.now(),
+    endTime: Date.now(),
+    percentage: 0,
     isMenuOpen: false,
   };
 
@@ -84,6 +68,14 @@ class AddStorePolicyDialog extends Component {
         [event.name]: event.value,
       });
     }
+  };
+
+  handleStartTimeChange = (event) => {
+    this.setState({ startTime: event });
+  };
+
+  handleEndTimeChange = (event) => {
+    this.setState({ endTime: event });
   };
 
   handleClose = (event) => {
@@ -102,9 +94,9 @@ class AddStorePolicyDialog extends Component {
   dynamicStyle = () => {
     if (this.state.isMenuOpen) {
       if (this.props.isRoot) {
-        return { height: "450px" };
+        return { height: "350px" };
       }
-      return { height: "450px" };
+      return { height: "350px" };
     }
     return null;
   };
@@ -112,60 +104,69 @@ class AddStorePolicyDialog extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     if (!this.state.type) {
-      this.setState({ error: "Policy type is required" });
+      this.setState({ error: "Discount type is required" });
       return;
     }
-    if (
-      (this.state.type === "composite" || this.state.type === "binary") &&
-      !this.state.operator
-    ) {
+    if (this.state.type === "composite" && !this.state.operator) {
       this.setState({
-        error: "Operator is needed with composite or binary policy type",
+        error: "Operator is needed with composite discount type",
       });
       return;
     }
     if (
       this.state.type &&
       this.state.type !== "composite" &&
-      this.state.type !== "binary" &&
-      !this.state.value
+      this.state.type !== "basket" &&
+      !this.state.percentage
     ) {
       this.setState({ error: "Value is needed with selected policy type" });
       return;
+    }
+    if (!this.state.startTime || !this.state.endTime) {
+      this.setState({ error: "Start date and end date are required" });
+    }
+    if (
+      (this.state.type === "basket" ||
+        this.state.type === "product" ||
+        this.state.type === "category") &&
+      !this.state.percentage
+    ) {
+      this.setState({
+        error: "Discount percentage is required with given type",
+      });
     }
     this.setState({ error: undefined });
     this.props.isRoot
       ? this.props
           .dispatch(
-            this.props.addRootPolicy(this.props.storeGuid, {
+            addStoreRootDiscount(this.props.storeGuid, {
               type: this.state.type,
               operator: this.state.operator ? this.state.operator : undefined,
-              [mapPolicyTypeToValueName[this.state.type]]: this.state.value
-                ? this.state.value
-                : undefined,
+              startTime: formatDate(this.state.startTime),
+              endTime: formatDate(this.state.endTime),
             })
           )
           .then((success) => {
             if (success) {
               this.props.closeDialog();
-              this.props.dispatch(this.props.fetchPolicy(this.props.storeGuid));
+              this.props.dispatch(fetchStoreDiscounts(this.props.storeGuid));
             }
           })
       : this.props
           .dispatch(
-            this.props.addSubPolicy(
+            addStoreSubDiscount(
               this.props.storeGuid,
-              this.props.fatherPolicyGuid,
+              this.props.fatherDiscountGuid,
               {
                 type: this.state.type,
                 operator: this.state.operator ? this.state.operator : undefined,
-                [mapPolicyTypeToValueName[this.state.type]]: this.state.value
-                  ? this.state.value
-                  : undefined,
                 productGuid: this.state.productGuid
                   ? this.state.productGuid
                   : undefined,
                 category: this.state.category ? this.state.category : undefined,
+                percentage: this.state.percentage,
+                startTime: formatDate(this.state.startTime),
+                endTime: formatDate(this.state.endTime),
               }
             )
           )
@@ -175,12 +176,14 @@ class AddStorePolicyDialog extends Component {
               this.setState({
                 error: undefined,
                 type: "",
-                operator: "",
-                value: "",
-                isTypeMenuOpen: false,
-                isTypeOperatorMenuOpen: false,
+                productGuid: "",
+                category: "",
+                startTime: Date.now(),
+                endTime: Date.now(),
+                percentage: 0,
+                isMenuOpen: false,
               });
-              this.props.dispatch(this.props.fetchPolicy(this.props.storeGuid));
+              this.props.dispatch(fetchStoreDiscounts(this.props.storeGuid));
             }
           });
   };
@@ -196,7 +199,7 @@ class AddStorePolicyDialog extends Component {
         <form>
           <DialogContent style={this.dynamicStyle()}>
             <DialogContentText>
-              Please fill out the following policy details:
+              Please fill out the following discount details:
             </DialogContentText>
             <label>Type:</label>
             <Select
@@ -212,9 +215,7 @@ class AddStorePolicyDialog extends Component {
               }
               onChange={this.handleChange}
             />
-            {(this.state.type && this.state.type === "ageRestriction") ||
-            this.state.type === "maxProductAmount" ||
-            this.state.type === "minProductAmount" ? (
+            {this.state.type && this.state.type === "product" ? (
               <React.Fragment>
                 <br />
                 <label>Product:</label>
@@ -233,8 +234,7 @@ class AddStorePolicyDialog extends Component {
                 />{" "}
               </React.Fragment>
             ) : null}
-            {(this.state.type && this.state.type === "maxCategoryAmount") ||
-            this.state.type === "minCategoryAmount" ? (
+            {this.state.type && this.state.type === "category" ? (
               <React.Fragment>
                 <br />
                 <label>Category:</label>
@@ -259,7 +259,7 @@ class AddStorePolicyDialog extends Component {
                 />{" "}
               </React.Fragment>
             ) : null}
-            {this.state.type === "composite" || this.state.type === "binary" ? (
+            {this.state.type === "composite" ? (
               <React.Fragment>
                 <br />
                 <label>Operator:</label>
@@ -271,20 +271,39 @@ class AddStorePolicyDialog extends Component {
                 />{" "}
               </React.Fragment>
             ) : null}
-            {this.state.type &&
-            this.state.type !== "composite" &&
-            this.state.type !== "binary" ? (
+            {this.state.type && this.state.type !== "composite" ? (
               <React.Fragment>
                 <br />
-                <label>Value:</label>
+                <label>Percentage:</label>
                 <input
                   type="text"
                   className="form-control mb-2"
-                  name="value"
+                  name="percentage"
                   required
-                  value={this.state.value}
+                  value={this.state.percentage}
                   onChange={this.handleChange}
                 ></input>
+              </React.Fragment>
+            ) : null}
+            {this.state.type && this.state.type !== "composite" ? (
+              <React.Fragment>
+                <div className="mt-3">
+                  <label>Start time:</label>
+                  <br />
+                  <DatePicker
+                    selected={this.state.startTime}
+                    onChange={this.handleStartTimeChange} //only when value has changed
+                  />
+                </div>
+                <div>
+                  <br />
+                  <label>End time:</label>
+                  <br />
+                  <DatePicker
+                    selected={this.state.endTime}
+                    onChange={this.handleEndTimeChange} //only when value has changed
+                  />
+                </div>{" "}
               </React.Fragment>
             ) : null}
           </DialogContent>
@@ -319,4 +338,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(mapStateToProps)(AddStorePolicyDialog);
+export default connect(mapStateToProps)(AddStorePolicyDiscount);

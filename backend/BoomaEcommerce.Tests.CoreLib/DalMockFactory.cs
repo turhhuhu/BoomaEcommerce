@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Data;
+using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
@@ -269,6 +270,9 @@ namespace BoomaEcommerce.Tests.CoreLib
             purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.StoresRepository).Returns(storesRepoMock?.Object);
+            purchaseUnitOfWork.Setup(x => x.BeginTransaction())
+                .ReturnsAsync(Mock.Of<ITransactionContext>());
+
             return purchaseUnitOfWork;
         }
         

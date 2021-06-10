@@ -611,10 +611,11 @@ namespace BoomaEcommerce.Services.Stores
                     return null;
                 }
 
-                var policyWithChildren = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
+                var fullPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
 
                 _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
-                return _mapper.Map<PolicyDto>(policyWithChildren);
+                return _mapper.Map<PolicyDto>(fullPolicy
+);
             }
             catch (Exception e)
             {
@@ -690,8 +691,6 @@ namespace BoomaEcommerce.Services.Stores
 
                 await _storeUnitOfWork.SaveAsync();
 
-                var test = await _storeUnitOfWork.DiscountRepo.FindAllAsync();
-                var test2 = test.Count();
                 _logger.LogInformation("Successfully set new Discount for store with guid {storeGuid}", storeGuid);
                 return _mapper.Map<DiscountDto>(discount);
             }
@@ -714,14 +713,15 @@ namespace BoomaEcommerce.Services.Stores
                         store => store.StoreDiscount))
                     .FirstOrDefault();
 
-                if (discount == null)
+                if (discount == null || discount is EmptyDiscount)
                 {
                     return null;
                 }
 
+                var fullDiscount = await _storeUnitOfWork.DiscountRepo.FindByIdAsync(discount.Guid);
 
                 _logger.LogInformation("Successfully got discount {discountGuid} from store with guid {storeGuid}.", discount.Guid, storeGuid);
-                return _mapper.Map<DiscountDto>(discount);
+                return _mapper.Map<DiscountDto>(fullDiscount);
             }
             catch (Exception e)
             {
@@ -737,9 +737,9 @@ namespace BoomaEcommerce.Services.Stores
                 _logger.LogInformation("Making attempt to get discount policy from store with guid {storeGuid}", storeGuid);
 
                 var policy =
-                    (await _storeUnitOfWork.StoreRepo.FilterByAsync(
-                        store => store.Guid == storeGuid,
-                        store => store.StoreDiscount.Policy))
+                    (await _storeUnitOfWork.DiscountRepo.FilterByAsync(
+                        discount => discount.Guid == discountGuid,
+                        discount => discount.Policy))
                     .FirstOrDefault();
 
                 if (policy == null)
@@ -747,9 +747,10 @@ namespace BoomaEcommerce.Services.Stores
                     return null;
                 }
 
+                var fullPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
 
                 _logger.LogInformation($"Successfully got policy {{policyGuid}} from {{discountGuid}} policy from store with guid {{storeGuid}}.", policy.Guid,discountGuid, storeGuid);
-                return _mapper.Map<PolicyDto>(policy);
+                return _mapper.Map<PolicyDto>(fullPolicy);
             }
             catch (Exception e)
             {
@@ -764,16 +765,14 @@ namespace BoomaEcommerce.Services.Stores
             {
                 _logger.LogInformation($"Making attempt to set store discount {discountGuid} with new Discount.", discountGuid);
                 var storeDiscount = await _storeUnitOfWork.DiscountRepo.FindByIdAsync(discountGuid);
-                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(storeGuid);
-                if (storeDiscount == null || store == null)
+                if (storeDiscount == null)
                 {
                     return null;
                 }
 
                 var policyToInsert = _mapper.Map<Policy>(policyDto);
-                store.StoreDiscount.Policy = policyToInsert;
+                storeDiscount.Policy = policyToInsert;
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(policyToInsert);
 
                 await _storeUnitOfWork.SaveAsync();
@@ -810,7 +809,7 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 _logger.LogInformation("Making attempt add new child policy to policy of discount with guid {discountGuid}.", discountGuid);
-                var cPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<CompositePolicy>(policyGuid);
+                var cPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync<MultiPolicy>(policyGuid);
                 if (cPolicy == null)
                 {
                     return null;
@@ -819,7 +818,6 @@ namespace BoomaEcommerce.Services.Stores
                 var childPolicy = _mapper.Map<Policy>(policyDto);
                 cPolicy.AddPolicy(childPolicy);
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
 
                 await _storeUnitOfWork.SaveAsync();

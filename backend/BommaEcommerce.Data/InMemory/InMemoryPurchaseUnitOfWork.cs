@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
+using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BoomaEcommerce.Data.InMemory
 {
@@ -36,6 +39,33 @@ namespace BoomaEcommerce.Data.InMemory
         public Task SaveAsync()
         {
             return Task.CompletedTask;
+        }
+
+        public void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        {
+            
+        }
+
+        public Task<ITransactionContext> BeginTransaction()
+        {
+            return Task.FromResult<ITransactionContext>(new StubTransactionContext());
+        }
+
+        public class StubTransactionContext : ITransactionContext
+        {
+            public void Dispose()
+            {
+            }
+
+            public Task CommitAsync()
+            {
+                return Task.CompletedTask;
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                return ValueTask.CompletedTask;
+            }
         }
     }
 }

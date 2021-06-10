@@ -26,15 +26,22 @@ namespace BoomaEcommerce.Domain.Discounts
             Operator = discountOperator;
         }
 
-        public CompositeDiscount(DiscountOperator discountOperator) : base(0, DateTime.MinValue, DateTime.MaxValue, null, null)
+        public CompositeDiscount(DiscountOperator discountOperator) : base(0, DateTime.MinValue, DateTime.MaxValue, "", Policy.Empty)
         {
             Discounts = new List<Discount>();
             Operator = discountOperator;
         }
 
+        private CompositeDiscount() : base()
+        {
+            Discounts = new List<Discount>();
+        }
+
         public override string ApplyDiscount(StorePurchase sp)
         {
-            return Operator.ApplyOperator(sp, Discounts);
+            return Discounts.Any() 
+                ? Operator.ApplyOperator(sp, Discounts) 
+                : string.Empty;
         }
 
         public override string ApplyDiscount(User user, ShoppingBasket basket)

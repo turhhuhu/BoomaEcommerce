@@ -22,9 +22,9 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var validProductsPurchases = new List<PurchaseProduct>
             {
-                new(GetTestProduct(), 5, 50),
-                new(GetTestProduct(), 5, 50),
-                new(GetTestProduct(), 5, 50)
+                new(GetTestProduct(), 5, 50, 50),
+                new(GetTestProduct(), 5, 50, 50),
+                new(GetTestProduct(), 5, 50, 50)
             };
 
             return validProductsPurchases;
@@ -50,18 +50,21 @@ namespace BoomaEcommerce.Domain.Tests
                 {
                     Store = new Store(),
                     PurchaseProducts = GetTestValidProductsPurchases(),
+                    DiscountedPrice = 150,
                     TotalPrice = 150
                 },
                 new ()
                 {
                     Store = new Store(),
                     PurchaseProducts = GetTestValidProductsPurchases(),
+                    DiscountedPrice = 150,
                     TotalPrice = 150
                 },
                 new ()
                 {
                     Store = new Store(),
                     PurchaseProducts = GetTestValidProductsPurchases(),
+                    DiscountedPrice = 150,
                     TotalPrice = 150
                 }
             };
