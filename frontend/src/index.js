@@ -22,7 +22,8 @@ import PaymentPage from "./pages/paymentPage";
 import DeliveryPage from "./pages/deliveryPage";
 import CartReviewPage from "./pages/cartReviewPage";
 import PurchaseReviewPage from "./pages/purchaseReviewPage";
-import storeDiscountsPage from "./pages/storeDiscountsPage";
+import StoreDiscountsPage from "./pages/storeDiscountsPage";
+import StoreDiscountPolicyPage from "./pages/StoreDiscountPolicyPage";
 
 const { store, persistor } = configureStore();
 
@@ -49,8 +50,13 @@ ReactDOM.render(
           <Route exact path="/user" component={ProfilePage}></Route>
           <Route
             exact
+            path="/store/:guid/discounts/:discountGuid"
+            component={StoreDiscountPolicyPage}
+          ></Route>
+          <Route
+            exact
             path="/store/:guid/discounts"
-            component={storeDiscountsPage}
+            component={StoreDiscountsPage}
           ></Route>
           <Route
             exact

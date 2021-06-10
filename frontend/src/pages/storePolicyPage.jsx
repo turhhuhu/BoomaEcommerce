@@ -2,8 +2,11 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchUserStoreRole } from "../actions/userActions";
 import {
+  addStoreRootPolicy,
+  addStoreSubPolicy,
   fetchAllStoreProducts,
   fetchStorePolicy,
+  removeStorePolicy,
 } from "../actions/storeActions";
 import Header from "../components/header";
 import StorePolicyHeader from "../components/storePolicyHeader";
@@ -36,7 +39,14 @@ class StorePolicyPage extends Component {
                 guid={this.props.match.params.guid}
                 colClass="col-3"
               />
-              <PolicyTree storeGuid={this.props.match.params.guid} />
+              <PolicyTree
+                addRootPolicy={addStoreRootPolicy}
+                addSubPolicy={addStoreSubPolicy}
+                fetchPolicy={fetchStorePolicy}
+                removePolicy={removeStorePolicy}
+                policies={this.props.storePolicy}
+                storeGuid={this.props.match.params.guid}
+              />
             </div>
           </section>
         </div>
@@ -48,6 +58,7 @@ class StorePolicyPage extends Component {
 const mapStateToProps = (store) => {
   return {
     storeInfo: store.store.storeInfo,
+    storePolicy: store.store.storePolicy,
   };
 };
 

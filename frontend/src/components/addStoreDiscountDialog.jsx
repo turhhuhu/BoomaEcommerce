@@ -34,14 +34,26 @@ const operatorOptions = [
   { value: "sum", label: "Sum", name: "operator" },
 ];
 
+function formatDate(date) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
+}
+
 class AddStorePolicyDiscount extends Component {
   state = {
     error: undefined,
     type: "",
     productGuid: "",
     category: "",
-    startTime: "",
-    endTime: "",
+    startTime: Date.now(),
+    endTime: Date.now(),
     percentage: 0,
     isMenuOpen: false,
   };
@@ -56,6 +68,14 @@ class AddStorePolicyDiscount extends Component {
         [event.name]: event.value,
       });
     }
+  };
+
+  handleStartTimeChange = (event) => {
+    this.setState({ startTime: event });
+  };
+
+  handleEndTimeChange = (event) => {
+    this.setState({ endTime: event });
   };
 
   handleClose = (event) => {
@@ -97,7 +117,7 @@ class AddStorePolicyDiscount extends Component {
       this.state.type &&
       this.state.type !== "composite" &&
       this.state.type !== "basket" &&
-      !this.state.value
+      !this.state.percentage
     ) {
       this.setState({ error: "Value is needed with selected policy type" });
       return;
@@ -122,8 +142,8 @@ class AddStorePolicyDiscount extends Component {
             addStoreRootDiscount(this.props.storeGuid, {
               type: this.state.type,
               operator: this.state.operator ? this.state.operator : undefined,
-              startTime: this.state.startTime,
-              endTime: this.state.endTime,
+              startTime: formatDate(this.state.startTime),
+              endTime: formatDate(this.state.endTime),
             })
           )
           .then((success) => {
@@ -145,8 +165,8 @@ class AddStorePolicyDiscount extends Component {
                   : undefined,
                 category: this.state.category ? this.state.category : undefined,
                 percentage: this.state.percentage,
-                startTime: this.state.startTime,
-                endTime: this.state.endTime,
+                startTime: formatDate(this.state.startTime),
+                endTime: formatDate(this.state.endTime),
               }
             )
           )
@@ -158,8 +178,8 @@ class AddStorePolicyDiscount extends Component {
                 type: "",
                 productGuid: "",
                 category: "",
-                startTime: "",
-                endTime: "",
+                startTime: Date.now(),
+                endTime: Date.now(),
                 percentage: 0,
                 isMenuOpen: false,
               });
@@ -267,22 +287,21 @@ class AddStorePolicyDiscount extends Component {
             ) : null}
             {this.state.type && this.state.type !== "composite" ? (
               <React.Fragment>
-                <div>
-                  <br />
+                <div className="mt-3">
                   <label>Start time:</label>
+                  <br />
                   <DatePicker
                     selected={this.state.startTime}
-                    name="startTime"
-                    onChange={this.handleChange} //only when value has changed
+                    onChange={this.handleStartTimeChange} //only when value has changed
                   />
                 </div>
                 <div>
                   <br />
                   <label>End time:</label>
+                  <br />
                   <DatePicker
                     selected={this.state.endTime}
-                    name="endTime"
-                    onChange={this.handleChange} //only when value has changed
+                    onChange={this.handleEndTimeChange} //only when value has changed
                   />
                 </div>{" "}
               </React.Fragment>

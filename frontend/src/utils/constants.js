@@ -48,9 +48,11 @@ export const STORE_SUB_POLICIES_URL = STORE_POLICY_URL + "/sub-policies";
 export const STORE_DISCOUNTS_URL = STORE_URL + "/discount";
 export const STORE_DISCOUNT_URL = STORE_DISCOUNTS_URL + "/{discountGuid}";
 export const STORE_SUB_DISCOUNTS_URL = STORE_DISCOUNT_URL + "/sub-discounts";
-export const STORE_DISCOUNT_POLICY_URL = STORE_DISCOUNT_URL + "/policy";
+export const STORE_DISCOUNT_POLICIES_URL = STORE_DISCOUNT_URL + "/policy";
+export const STORE_DISCOUNT_POLICY_URL =
+  STORE_DISCOUNT_POLICIES_URL + "/{policyGuid}";
 export const STORE_DISCOUNT_SUB_POLICIES_URL =
-  STORE_DISCOUNT_POLICY_URL + "/{policyGuid}/sub-policies";
+  STORE_DISCOUNT_POLICY_URL + "/sub-policies";
 
 //roles
 export const ROLES_URL = BASE_URL + "/Roles";

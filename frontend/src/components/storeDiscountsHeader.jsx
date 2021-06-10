@@ -27,7 +27,7 @@ class StoreDiscountsHeader extends Component {
           <h1 className="jumbotron-heading">{`${this.props.storeName} Discounts`}</h1>
           <p>
             {this.props.myRole?.type === "ownership" &&
-            !this.props.storePolicy?.type ? (
+            !this.props.storeDiscount?.type ? (
               <button
                 onClick={this.handleAddDiscount}
                 className="btn btn-outline-primary my-2"

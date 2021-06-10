@@ -7,11 +7,6 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
 import Select from "react-select";
-import {
-  addStoreRootPolicy,
-  addStoreSubPolicy,
-  fetchStorePolicy,
-} from "../actions/storeActions";
 
 const mapPolicyTypeToValueName = {
   ageRestriction: "minAge",
@@ -142,7 +137,7 @@ class AddStorePolicyDialog extends Component {
     this.props.isRoot
       ? this.props
           .dispatch(
-            addStoreRootPolicy(this.props.storeGuid, {
+            this.props.addRootPolicy(this.props.storeGuid, {
               type: this.state.type,
               operator: this.state.operator ? this.state.operator : undefined,
               [mapPolicyTypeToValueName[this.state.type]]: this.state.value
@@ -153,12 +148,12 @@ class AddStorePolicyDialog extends Component {
           .then((success) => {
             if (success) {
               this.props.closeDialog();
-              this.props.dispatch(fetchStorePolicy(this.props.storeGuid));
+              this.props.dispatch(this.props.fetchPolicy(this.props.storeGuid));
             }
           })
       : this.props
           .dispatch(
-            addStoreSubPolicy(
+            this.props.addSubPolicy(
               this.props.storeGuid,
               this.props.fatherPolicyGuid,
               {
@@ -185,7 +180,7 @@ class AddStorePolicyDialog extends Component {
                 isTypeMenuOpen: false,
                 isTypeOperatorMenuOpen: false,
               });
-              this.props.dispatch(fetchStorePolicy(this.props.storeGuid));
+              this.props.dispatch(this.props.fetchPolicy(this.props.storeGuid));
             }
           });
   };

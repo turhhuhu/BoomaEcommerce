@@ -18,8 +18,8 @@ const mapDiscountTypeToLabel = {
 };
 
 const mapOperatorToLabel = {
-  sum: "Sum of the following discounts:",
-  max: "Maximum of the following discounts:",
+  sum: "Sum of the following discounts (sum operator):",
+  max: "Maximum of the following discounts: (max operator)",
 };
 
 class DiscountsTree extends Component {
@@ -94,7 +94,7 @@ class DiscountsTree extends Component {
           </button>
           <a
             href={`/store/${this.props.storeGuid}/discounts/${discount.guid}`}
-            className="btn btn-outline-secondary btn-sm mb-2 mt-2 ml-2"
+            className="btn btn-outline-info btn-sm mb-2 mt-2 ml-2"
           >
             {" "}
             Show discount policy
@@ -121,7 +121,7 @@ class DiscountsTree extends Component {
           ) : null}
           <TreeItem
             label={`Percentage: 
-              ${discount.percentage}
+              ${discount.percentage}%
             `}
             nodeId={discount.guid + "2"}
             key={discount.guid + "2"}
@@ -134,7 +134,7 @@ class DiscountsTree extends Component {
   render() {
     return (
       <main className="col">
-        {this.props.storePolicy?.type ? (
+        {this.props.storeDiscount?.type ? (
           <React.Fragment>
             <TreeView
               defaultCollapseIcon={<ExpandMoreIcon />}

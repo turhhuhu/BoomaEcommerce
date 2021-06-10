@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import {
-  addStoreRootPolicy,
-  addStoreSubPolicy,
-  fetchStorePolicy,
+  addStoreDicountRootPolicy,
+  addStoreDicountSubPolicy,
+  fetchStoreDiscountPolicy,
 } from "../actions/storeActions";
 import AddStorePolicyDialog from "./addStorePolicyDialog";
 
-class StorePolicyHeader extends Component {
+class StoreDiscountPolicyHeader extends Component {
   state = {
     isDialogOpen: false,
   };
@@ -29,10 +29,10 @@ class StorePolicyHeader extends Component {
     return (
       <div className="container" style={{ maxWidth: "1400px" }}>
         <section className="text-center border-bottom">
-          <h1 className="jumbotron-heading">{`${this.props.storeName} Policy`}</h1>
+          <h1 className="jumbotron-heading">{`${this.props.storeName} Discount Policy`}</h1>
           <p>
             {this.props.myRole?.type === "ownership" &&
-            !this.props.storePolicy?.type ? (
+            !this.props.storeDiscountPolicy?.type ? (
               <button
                 onClick={this.handleAddPolicy}
                 className="btn btn-outline-primary my-2"
@@ -42,9 +42,9 @@ class StorePolicyHeader extends Component {
               </button>
             ) : null}
             <AddStorePolicyDialog
-              addRootPolicy={addStoreRootPolicy}
-              addSubPolicy={addStoreSubPolicy}
-              fetchPolicy={fetchStorePolicy}
+              addRootPolicy={addStoreDicountRootPolicy(this.props.discountGuid)}
+              addSubPolicy={addStoreDicountSubPolicy(this.props.discountGuid)}
+              fetchPolicy={fetchStoreDiscountPolicy(this.props.discountGuid)}
               isRoot="true"
               storeGuid={this.props.storeGuid}
               isDialogOpen={this.state.isDialogOpen}
@@ -60,8 +60,8 @@ class StorePolicyHeader extends Component {
 const mapStateToProps = (store) => {
   return {
     myRole: store.user.storeRole,
-    storePolicy: store.store.storePolicy,
+    storeDiscountPolicy: store.store.storeDiscountPolicy,
   };
 };
 
-export default connect(mapStateToProps)(StorePolicyHeader);
+export default connect(mapStateToProps)(StoreDiscountPolicyHeader);
