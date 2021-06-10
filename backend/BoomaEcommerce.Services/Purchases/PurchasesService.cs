@@ -48,7 +48,7 @@ namespace BoomaEcommerce.Services.Purchases
             try
             {
 
-                using var transaction = await _purchaseUnitOfWork.BeginTransaction();
+                await using var transaction = await _purchaseUnitOfWork.BeginTransaction();
 
                 var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 

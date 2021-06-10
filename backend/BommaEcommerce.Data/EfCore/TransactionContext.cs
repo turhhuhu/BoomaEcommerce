@@ -26,9 +26,14 @@ namespace BoomaEcommerce.Data.EfCore
         {
             _transaction?.Dispose();
         }
+
+        public ValueTask DisposeAsync()
+        {
+            return _transaction.DisposeAsync();
+        }
     }
 
-    public interface ITransactionContext : IDisposable
+    public interface ITransactionContext : IAsyncDisposable, IDisposable
     {
         public Task CommitAsync();
     }

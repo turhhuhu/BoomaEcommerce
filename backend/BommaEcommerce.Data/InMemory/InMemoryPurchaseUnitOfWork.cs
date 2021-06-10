@@ -61,6 +61,11 @@ namespace BoomaEcommerce.Data.InMemory
             {
                 return Task.CompletedTask;
             }
+
+            public ValueTask DisposeAsync()
+            {
+                return ValueTask.CompletedTask;
+            }
         }
     }
 }
