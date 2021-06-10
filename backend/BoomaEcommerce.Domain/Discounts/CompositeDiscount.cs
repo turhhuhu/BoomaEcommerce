@@ -49,14 +49,14 @@ namespace BoomaEcommerce.Domain.Discounts
             return Operator.ApplyOperator(user, basket, Discounts);
         }
 
-        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp)
+        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp, Dictionary<Guid, decimal> updatedPrices)
         {
-            throw new NotImplementedException();
+            return Discounts.Sum(discount => discount.CalculateTotalPriceWithoutApplying(sp, updatedPrices));
         }
 
         public override decimal CalculateTotalPriceWithoutApplying(User user, ShoppingBasket basket)
         {
-            throw new NotImplementedException();
+            return Discounts.Sum(discount => discount.CalculateTotalPriceWithoutApplying(user, basket));
         }
     }
 

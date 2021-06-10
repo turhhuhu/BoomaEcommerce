@@ -82,10 +82,11 @@ namespace BoomaEcommerce.Domain.Discounts
             return discountInfo;
         }
 
-        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp)
+        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp, Dictionary<Guid, decimal> updatedPrices)
         {
             decimal calculatedDiscount = 0;
             decimal ppDiscount = 0;
+            decimal moneySaved = 0;
 
             if (!ValidateDiscount(sp))
             {
@@ -95,10 +96,15 @@ namespace BoomaEcommerce.Domain.Discounts
             
             foreach (var pp in sp.PurchaseProducts)
             {
-                if (pp.Product.Guid == Product.Guid)
-                {
-                    ppDiscount = pp.Price - (pp.Price * ((100 - (decimal) Percentage) / 100));
-                }
+                if (!(pp.Product.Guid == Product.Guid)) continue;
+
+                var productPriceBeforeDiscount = updatedPrices[pp.Guid];
+
+                var discountDecimal = ((100 - (decimal)Percentage) / 100);
+
+                ppDiscount = (productPriceBeforeDiscount - productPriceBeforeDiscount * discountDecimal);
+
+                updatedPrices[pp.Guid] -= ppDiscount;
 
                 calculatedDiscount += ppDiscount;
             }

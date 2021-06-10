@@ -404,6 +404,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<DiscountDto> AddDiscountAsync(Guid storeGuid, Guid discountGuid, DiscountDto discountDto)
         {
+            ServiceUtilities.ValidateDto<CreateDiscountDto, StoreServiceValidators.AddDiscountValidator>(new CreateDiscountDto { DiscountToCreate = discountDto });
             CheckAuthenticated();
             if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
             {
@@ -426,7 +427,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<DiscountDto> CreateDiscountAsync(Guid storeGuid, DiscountDto discountDto)
         {
-            //ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = policyDto });
+            ServiceUtilities.ValidateDto<CreateDiscountDto, StoreServiceValidators.CreateDiscountAsync>(new CreateDiscountDto { DiscountToCreate = discountDto });
             CheckAuthenticated();
             if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
             {
@@ -460,6 +461,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<PolicyDto> CreateDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, PolicyDto policyDto)
         {
+            ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = policyDto });
             CheckAuthenticated();
             if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
             {
@@ -482,6 +484,7 @@ namespace BoomaEcommerce.Services.Stores
 
         public async Task<PolicyDto> CreateDiscountSubPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid, PolicyDto policyDto)
         {
+            ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = policyDto });
             CheckAuthenticated();
             if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
             {

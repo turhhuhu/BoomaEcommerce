@@ -60,7 +60,7 @@ namespace BoomaEcommerce.Domain.Discounts
         public abstract string ApplyDiscount(User user, ShoppingBasket basket);
 
         // MaxDiscountOperator 
-        public abstract decimal CalculateTotalPriceWithoutApplying(StorePurchase sp);
+        public abstract decimal CalculateTotalPriceWithoutApplying(StorePurchase sp, Dictionary<Guid, decimal> updatedPrices);
         public abstract decimal CalculateTotalPriceWithoutApplying(User user, ShoppingBasket basket);
     }
 
@@ -90,7 +90,7 @@ namespace BoomaEcommerce.Domain.Discounts
             return "";
         }
 
-        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp)
+        public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp, Dictionary<Guid, decimal> updatedPrices)
         {
             return sp.TotalPrice;
         }
