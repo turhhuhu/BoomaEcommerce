@@ -51,12 +51,12 @@ namespace BoomaEcommerce.Domain.Discounts
 
         public override decimal CalculateTotalPriceWithoutApplying(StorePurchase sp)
         {
-            throw new NotImplementedException();
+            return Discounts.Sum(discount => discount.CalculateTotalPriceWithoutApplying(sp));
         }
 
         public override decimal CalculateTotalPriceWithoutApplying(User user, ShoppingBasket basket)
         {
-            throw new NotImplementedException();
+            return Discounts.Sum(discount => discount.CalculateTotalPriceWithoutApplying(user, basket));
         }
     }
 
