@@ -40,24 +40,29 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public override Task<Policy> FindByIdAsync(Guid guid)
         {
-            return GetRecursively(guid);
+            return GetRecursively(guid, DbContext.Policies);
         }
 
-        private async Task<Policy> GetRecursively(Guid guid)
+        public static async Task<Policy> GetRecursively(Guid guid, IQueryable<Policy> query)
         {
-            var policy = await DbContext.Set<Policy>()
+            var policy = await query
                 .Include(p => (p as MultiPolicy).Operator)
                 .Include(p => (p as CompositePolicy).SubPolicies)
                 .Include(p => (p as BinaryPolicy).FirstPolicy)
                 .Include(p => (p as BinaryPolicy).SecondPolicy)
                 .Include(p => (p as ProductPolicy).Product)
-                .FirstAsync(p => p.Guid == guid);
+                .FirstOrDefaultAsync(p => p.Guid == guid);
+
+            if (policy == null)
+            {
+                return null;
+            }
 
             if (policy is CompositePolicy compositePolicy)
             {
                 foreach (var multiPolicy in compositePolicy.SubPolicies)
                 {
-                    await GetRecursively(multiPolicy.Guid);
+                    await GetRecursively(multiPolicy.Guid, query);
                 }
             }
 
@@ -65,12 +70,12 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             {
                 if (binaryPolicy.FirstPolicy != null)
                 {
-                    await GetRecursively(binaryPolicy.FirstPolicy.Guid);
+                    await GetRecursively(binaryPolicy.FirstPolicy.Guid, query);
                 }
 
                 if (binaryPolicy.SecondPolicy != null)
                 {
-                    await GetRecursively(binaryPolicy.SecondPolicy.Guid);
+                    await GetRecursively(binaryPolicy.SecondPolicy.Guid, query);
                 }
             }
 
@@ -79,17 +84,17 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public override async Task DeleteByIdAsync(Guid guid)
         {
-            var store = await DbContext
-                .Set<Store>()
-                .FirstOrDefaultAsync(s => s.StorePolicy.Guid == guid);
+            //var store = await DbContext
+            //    .Set<Store>()
+            //    .FirstOrDefaultAsync(s => s.StorePolicy.Guid == guid);
 
-            //store.StorePolicy = Policy.Empty;
+            //store.StorePolicy = Policy.EmptyDisc;
 
-            await DeleteRecursively(guid);
+            await DeleteRecursively(guid, DbContext.Set<Policy>());
         }
-        private async Task DeleteRecursively(Guid guid)
+        public static async Task DeleteRecursively(Guid guid, DbSet<Policy> dbSet)
         {
-            var policy = await DbContext.Set<Policy>()
+            var policy = await dbSet
                 .Include(p => (p as CompositePolicy).SubPolicies)
                 .Include(p => (p as BinaryPolicy).FirstPolicy)
                 .Include(p => (p as BinaryPolicy).SecondPolicy)
@@ -105,23 +110,23 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
                 var (multiPolicies, simplePolicies) = compositePolicy.SubPolicies.Split(p => p is MultiPolicy);
                 foreach (var multiPolicy in multiPolicies)
                 {
-                    await DeleteRecursively(multiPolicy.Guid);
+                    await DeleteRecursively(multiPolicy.Guid, dbSet);
                 }
-                DbContext.Set<Policy>().RemoveRange(simplePolicies);
+                dbSet.RemoveRange(simplePolicies);
             }
             else if (policy is BinaryPolicy binaryPolicy)
             {
                 if (binaryPolicy.FirstPolicy != null)
                 {
-                    await DeleteRecursively(binaryPolicy.FirstPolicy.Guid);
+                    await DeleteRecursively(binaryPolicy.FirstPolicy.Guid, dbSet);
                 }
 
                 if (binaryPolicy.SecondPolicy != null)
                 {
-                    await DeleteRecursively(binaryPolicy.SecondPolicy.Guid);
+                    await DeleteRecursively(binaryPolicy.SecondPolicy.Guid, dbSet);
                 }
             }
-            DbContext.Set<Policy>().Remove(policy);
+            dbSet.Remove(policy);
         }
     }
 }

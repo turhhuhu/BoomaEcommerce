@@ -12,7 +12,7 @@ namespace BoomaEcommerce.Data.InMemory
 {
     public class InMemoryUserStore : IUserStore<User>, IUserPasswordStore<User>, IUserRoleStore<User>
     {
-        public static Dictionary<string, User> Users = new ();
+        public static ConcurrentDictionary<string, User> Users = new ();
 
         public static Dictionary<Guid, string> PasswordHash = new();
 

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Discounts.Operators;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Domain.Policies.Operators;
 using BoomaEcommerce.Domain.Policies.PolicyTypes;
@@ -22,6 +24,7 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<StoreManagement> StoreManagements {get; set;}
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<StoreOwnership> StoreOwnerships { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -47,7 +50,7 @@ namespace BoomaEcommerce.Data.EfCore
                     .WithMany();
 
                 s.HasOne(ss => ss.StorePolicy);
-
+                s.HasOne(ss => ss.StoreDiscount);
                 s.HasKey(ss => ss.Guid);
             });
 
@@ -60,8 +63,8 @@ namespace BoomaEcommerce.Data.EfCore
             {
                 sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
                 sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
-                //sm.Ignore(s => s.Permissions);
-                sm.OwnsOne(s => s.Permissions).ToTable("Permissions"); 
+                sm.OwnsOne(s => s.Permissions)
+                    .ToTable("Permissions"); 
                 sm.HasKey(s => s.Guid);          
             });
 
@@ -142,10 +145,11 @@ namespace BoomaEcommerce.Data.EfCore
                 sp.Property(s => s.TotalPrice).HasPrecision(10, 5);
             });
 
-
+            AddDiscountModels(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
+
 
         private void AddCartModels(ModelBuilder modelBuilder)
         {
@@ -180,6 +184,56 @@ namespace BoomaEcommerce.Data.EfCore
                 });
             });
         }
+        private void AddDiscountModels(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Discount>(d =>
+            {
+                d.HasDiscriminator<string>("DiscountType")
+                    .HasValue<EmptyDiscount>(nameof(EmptyDiscount))
+                    .HasValue<BasketDiscount>(nameof(BasketDiscount))
+                    .HasValue<CategoryDiscount>(nameof(CategoryDiscount))
+                    .HasValue<CompositeDiscount>(nameof(CompositeDiscount))
+                    .HasValue<ProductDiscount>(nameof(ProductDiscount));
+                d.HasKey(ds => ds.Guid);
+
+                d.HasOne(ds => ds.Policy);
+            });
+
+
+            modelBuilder.Entity<EmptyDiscount>();
+            modelBuilder.Entity<BasketDiscount>();
+            modelBuilder.Entity<CategoryDiscount>();
+
+            modelBuilder.Entity<ProductDiscount>()
+                .HasOne(d => d.Product)
+                .WithMany()
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<CompositeDiscount>(d =>
+            {
+                d.HasMany(cd => cd.Discounts)
+                    .WithOne()
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                d.HasOne(cd => cd.Operator)
+                    .WithOne()
+                    .HasForeignKey<DiscountOperator>(op => op.Guid)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DiscountOperator>(op =>
+            {
+                op.HasKey(opr => opr.Guid);
+                op.HasDiscriminator<string>("DiscountOperatorType")
+                    .HasValue<MaxDiscountOperator>(nameof(MaxDiscountOperator))
+                    .HasValue<SumDiscountOperator>(nameof(SumDiscountOperator));
+
+                op.ToTable("DiscountOperators");
+            });
+            modelBuilder.Entity<MaxDiscountOperator>();
+            modelBuilder.Entity<SumDiscountOperator>();
+        }
+
         private void AddPolicyModels(ModelBuilder modelBuilder)
         {
 

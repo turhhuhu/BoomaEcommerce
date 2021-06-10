@@ -17,6 +17,7 @@ namespace BoomaEcommerce.Domain.Discounts
         public DateTime EndTime { get; set; }
         public Policy Policy { get; set; }
         public string Description { get; set; }
+        public static Discount Empty => EmptyDiscount.EmptyDisc;
 
         protected Discount(int percentage, DateTime startTime, DateTime endTime, string description, Policy policy)
         {
@@ -33,6 +34,9 @@ namespace BoomaEcommerce.Domain.Discounts
             
         }
 
+        protected Discount()
+        {
+        }
         protected bool ValidateDiscount(StorePurchase sp)
         {
             DateTime current = DateTime.Now;
@@ -62,10 +66,15 @@ namespace BoomaEcommerce.Domain.Discounts
 
     public class EmptyDiscount : Discount
     {
+        public static EmptyDiscount EmptyDisc => new();
         public EmptyDiscount(int percentage, DateTime startTime, DateTime endTime, string description, Policy policy) : base(percentage, startTime, endTime, description, policy)
         {
         }
 
+        private EmptyDiscount()
+        {
+            
+        }
         public EmptyDiscount(int percentage, DateTime startTime, DateTime endTime, string description) : base(percentage, startTime, endTime, description)
         {
             this.Policy = Policy.Empty;
