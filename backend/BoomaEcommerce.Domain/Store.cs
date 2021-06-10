@@ -25,6 +25,7 @@ namespace BoomaEcommerce.Domain
         public Store()
         {
             this.StorePolicy = Policy.Empty;
+            this.StoreDiscount = Discount.Empty;
         }
         
         public PolicyResult CheckPolicy(StorePurchase purchase)

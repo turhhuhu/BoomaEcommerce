@@ -14,6 +14,10 @@ namespace BoomaEcommerce.Domain.Discounts
         {
         }
 
+        private BasketDiscount() : base()
+        {
+            
+        }
         public override string ApplyDiscount(StorePurchase sp)
         {
             var discountInfo = "";

@@ -611,10 +611,11 @@ namespace BoomaEcommerce.Services.Stores
                     return null;
                 }
 
-                var policyWithChildren = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
+                var fullPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
 
                 _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
-                return _mapper.Map<PolicyDto>(policyWithChildren);
+                return _mapper.Map<PolicyDto>(fullPolicy
+);
             }
             catch (Exception e)
             {
@@ -690,8 +691,6 @@ namespace BoomaEcommerce.Services.Stores
 
                 await _storeUnitOfWork.SaveAsync();
 
-                var test = await _storeUnitOfWork.DiscountRepo.FindAllAsync();
-                var test2 = test.Count();
                 _logger.LogInformation("Successfully set new Discount for store with guid {storeGuid}", storeGuid);
                 return _mapper.Map<DiscountDto>(discount);
             }
@@ -714,14 +713,15 @@ namespace BoomaEcommerce.Services.Stores
                         store => store.StoreDiscount))
                     .FirstOrDefault();
 
-                if (discount == null)
+                if (discount == null || discount is EmptyDiscount)
                 {
                     return null;
                 }
 
+                var fullDiscount = await _storeUnitOfWork.DiscountRepo.FindByIdAsync(discount.Guid);
 
                 _logger.LogInformation("Successfully got discount {discountGuid} from store with guid {storeGuid}.", discount.Guid, storeGuid);
-                return _mapper.Map<DiscountDto>(discount);
+                return _mapper.Map<DiscountDto>(fullDiscount);
             }
             catch (Exception e)
             {

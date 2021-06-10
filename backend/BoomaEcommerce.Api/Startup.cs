@@ -168,7 +168,7 @@ namespace BoomaEcommerce.Api
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
 
             app.UseEndpoints(endpoints =>
