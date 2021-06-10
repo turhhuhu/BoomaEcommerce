@@ -134,7 +134,7 @@ namespace BoomaEcommerce.Api
             services
                 .AddStoresService()
                 .AddUsersService()
-                .AddPurchasesService()
+                .AddPurchasesService(Configuration)
                 .AddProductsService();
             
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
