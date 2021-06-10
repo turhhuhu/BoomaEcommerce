@@ -20,5 +20,13 @@ namespace BoomaEcommerce.Core
         {
             return (enumTuple.first.ToList(), enumTuple.second.ToList());
         }
+
+        public static async Task WhenAllAwaitEach(this IEnumerable<Task> tasks)
+        {
+            foreach (var task in tasks)
+            {
+                await task;
+            }
+        }
     }
 }
