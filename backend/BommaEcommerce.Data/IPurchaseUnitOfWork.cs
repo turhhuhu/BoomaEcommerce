@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Core;
+using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Domain;
 using Microsoft.AspNetCore.Identity;
 
@@ -17,5 +19,7 @@ namespace BoomaEcommerce.Data
         IRepository<StoreOwnership> StoreOwnershipRepository { get; set; }
         IRepository<Store> StoresRepository { get; set; }
         Task SaveAsync();
+        void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
+        Task<ITransactionContext> BeginTransaction();
     }
 }
