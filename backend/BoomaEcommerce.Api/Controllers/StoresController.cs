@@ -365,7 +365,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost("{storeGuid}/discount/{discountGuid}/policy/{policyGuid}/sub-policies")]
         public async Task<IActionResult> CreateDiscountSubPolicies(Guid storeGuid, Guid discountGuid, Guid policyGuid, [FromBody] PolicyDto policy)
         {
-            var createdSubPolicy = await _storesService.CreateDiscountSubPolicy(storeGuid, discountGuid, policyGuid, policy);
+            var createdSubPolicy = await _storesService.AddPolicyAsync(storeGuid, policyGuid, policy);
 
             if (createdSubPolicy == null)
             {
