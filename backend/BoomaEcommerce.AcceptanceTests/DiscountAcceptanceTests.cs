@@ -448,6 +448,148 @@ namespace BoomaEcommerce.AcceptanceTests
             purchaseDto.DiscountedPrice.Should().Be((decimal)15.2);
         }
 
+        [Fact]
+        private async Task ApplyDiscountCompositeDiscount_ShouldBestDiscounts_WhenDiscountAreComplex()
+        {
+            // Arrange
+            // create new policy 
+            _fixture.Customize<CategoryAmountPolicyDto>(p => p.With(pp => pp.Type, PolicyType.MaxCategoryAmount)
+                                                              .With(pp => pp.Category, "Diary")
+                                                              .With(pp => pp.Amount, 10)
+                                                              .Without(pp => pp.Guid));
+            var policy1 = _fixture.Create<CategoryAmountPolicyDto>();
+
+            await _storeService.CreatePurchasePolicyAsync(_storeWithGuid.Guid, policy1);
+
+            var discountDiary = _fixture.Build<CategoryDiscountDto>()
+                .With(d => d.Category, "Diary")
+                .With(d => d.Percentage, 20)
+                .With(d => d.PolicyGuid, policy1.Guid)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            var discountProduct1 = _fixture.Build<ProductDiscountDto>()
+                .With(d => d.ProductGuid, _product1WithGuid.Guid)
+                .With(d => d.Percentage, 10)
+                .With(d => d.PolicyGuid, policy1.Guid)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            var compositeDiscount1 = _fixture.Build<CompositeDiscountDto>()
+                .With(d => d.Operator, OperatorTypeDiscount.Sum)
+                .With(d => d.Discounts, new List<DiscountDto>())
+                .Without(d => d.Percentage)
+                .With(d => d.PolicyGuid, policy1.Guid)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            var discountStore = _fixture.Build<BasketDiscountDto>()
+                .With(d => d.Percentage, 25)
+                .With(d => d.PolicyGuid, policy1.Guid)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            var discountProduct2 = _fixture.Build<ProductDiscountDto>()
+                .With(d => d.ProductGuid, _product2WithGuid.Guid)
+                .With(d => d.Percentage, 5)
+                .With(d => d.PolicyGuid, policy1.Guid)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            var compositeDiscount2 = _fixture.Build<CompositeDiscountDto>()
+                .With(d => d.Operator, OperatorTypeDiscount.Sum)
+                .With(d => d.Discounts, new List<DiscountDto>())
+                .Without(d => d.Percentage)
+                .With(d => d.PolicyGuid, policy1.Guid)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            var fatherCompositeDiscount = _fixture.Build<CompositeDiscountDto>()
+                .With(d => d.Operator, OperatorTypeDiscount.Max)
+                .With(d => d.Discounts, new List<DiscountDto>())
+                .Without(d => d.Percentage)
+                .With(d => d.PolicyGuid, policy1.Guid)
+                .With(d => d.StartTime, DateTime.MinValue)
+                .With(d => d.EndTime, DateTime.MaxValue)
+                .Without(d => d.Guid)
+                .Create();
+
+            var fatherCompDis = await _storeService.CreateDiscountAsync(_storeWithGuid.Guid, fatherCompositeDiscount);
+
+            var childCompDis1 = await _storeService.AddDiscountAsync(_storeWithGuid.Guid, fatherCompDis.Guid, compositeDiscount1);
+
+            await _storeService.AddDiscountAsync(_storeWithGuid.Guid, childCompDis1.Guid, discountDiary);
+
+            await _storeService.AddDiscountAsync(_storeWithGuid.Guid, childCompDis1.Guid, discountProduct1);
+
+            var childCompDis2 = await _storeService.AddDiscountAsync(_storeWithGuid.Guid, fatherCompDis.Guid, compositeDiscount2);
+
+            await _storeService.AddDiscountAsync(_storeWithGuid.Guid, childCompDis2.Guid, discountStore);
+
+            await _storeService.AddDiscountAsync(_storeWithGuid.Guid, childCompDis2.Guid, discountProduct2);
+
+
+
+            //create purchase product 
+            _purchaseProduct1 = _fixture.Build<PurchaseProductDto>()
+                                            .With(pp => pp.ProductGuid, _product1WithGuid.Guid)
+                                            .Without(pp => pp.Guid)
+                                            .With(pp => pp.Price, _product1WithGuid.Price * 5)
+                                            .With(pp => pp.Amount, 5)
+                                            .Create();
+
+            _purchaseProduct2 = _fixture.Build<PurchaseProductDto>()
+                .With(pp => pp.ProductGuid, _product2WithGuid.Guid)
+                .Without(pp => pp.Guid)
+                .With(pp => pp.Price, _product2WithGuid.Price * 5)
+                .With(pp => pp.Amount, 5)
+                .Create();
+
+
+            var purchaseProductList = new List<PurchaseProductDto> { _purchaseProduct1, _purchaseProduct2 };
+
+            var storePurchase = _fixture.Build<StorePurchaseDto>()
+                .With(sp => sp.StoreGuid, _storeWithGuid.Guid)
+                .With(sp => sp.BuyerGuid, _userGuid)
+                .With(sp => sp.PurchaseProducts, purchaseProductList)
+                .Without(sp => sp.Guid)
+                .With(sp => sp.TotalPrice, _purchaseProduct1.Price + _purchaseProduct2.Price)
+                .Create();
+
+            var storePurchaseLst = new List<StorePurchaseDto> { storePurchase };
+
+            _purchase = _fixture.Build<PurchaseDto>()
+                .With(p => p.BuyerGuid, _userGuid)
+                .With(p => p.StorePurchases, storePurchaseLst)
+                .Without(p => p.Guid)
+                .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .With(p => p.DiscountedPrice, (decimal)14.625)
+                .Create();
+
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
+
+            //Act 
+            var purchaseDto = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
+
+            // Assert
+            purchaseDto.TotalPrice.Should().Be(20);
+            purchaseDto.DiscountedPrice.Should().Be((decimal)14.625);
+        }
+
 
         public Task DisposeAsync()
         {

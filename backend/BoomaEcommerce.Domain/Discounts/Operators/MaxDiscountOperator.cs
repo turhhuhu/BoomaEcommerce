@@ -13,9 +13,15 @@ namespace BoomaEcommerce.Domain.Discounts.Operators
             var bestDiscount = discounts[0];
             var maximalDiscountValue = decimal.MinValue;
 
+            var productsX_updatedPrices = new Dictionary<Guid, decimal>();
+
             foreach (var discount in discounts)
             {
-                var calculatedDiscount = discount.CalculateTotalPriceWithoutApplying(sp);
+                foreach (var pp in sp.PurchaseProducts)
+                {
+                    productsX_updatedPrices[pp.Guid] = pp.Price;
+                }
+                var calculatedDiscount = discount.CalculateTotalPriceWithoutApplying(sp, productsX_updatedPrices);
                 if (calculatedDiscount < maximalDiscountValue) continue;
                 maximalDiscountValue = calculatedDiscount;
                 bestDiscount = discount;
