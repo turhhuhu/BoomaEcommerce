@@ -259,12 +259,12 @@ export function user(
       return Object.assign({}, state, {
         notifications: [...state.notifications, action.payload.notification],
       });
-    
+
     case UserActionTypes.RECEIVE_STORE_PURCHASE_NOTIFICATION:
       return Object.assign({}, state, {
         notifications: [...state.notifications, action.payload.notification],
       });
-    
+
     case UserActionTypes.SEE_NOTIFICATION: {
       const seenNotificationIndex = action.payload.seenNotificationIndex;
       const seenNotification = action.payload.seenNotification;
@@ -283,6 +283,17 @@ export function user(
     case UserActionTypes.SUBMIT_DELIVERY_INFO: {
       return Object.assign({}, state, action.payload);
     }
+    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_REQUEST:
+      return Object.assign({}, state, action.payload);
+    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_SUCCESS:
+      console.log(action.payload.response);
+      return Object.assign({}, state, {
+        ...state.cart,
+        discountedPrice: action.payload.response,
+      });
+    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_FAILURE:
+      console.error(`error occured while getting user info: ${action.error}`);
+      return state;
 
     default:
       return state;

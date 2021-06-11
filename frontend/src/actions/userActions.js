@@ -336,7 +336,6 @@ export function receiveStorePurchaseNotification(notification) {
   };
 }
 
-
 export function seeNotification(notificationGuid) {
   return async (dispatch, getState) => {
     const seenNotificationIndex = getState().user.notifications.findIndex(
