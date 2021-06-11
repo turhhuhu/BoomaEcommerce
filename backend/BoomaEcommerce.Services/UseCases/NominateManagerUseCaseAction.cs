@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
@@ -12,30 +10,31 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class NominateOwnerUseCaseAction : UseCaseAction
+    public class NominateManagerUseCaseAction : UseCaseAction
     {
         [JsonRequired]
         public string UserToNominateLabel { get; set; }
         [JsonRequired]
         public string OwnershipLabel { get; set; }
         
-        public NominateOwnerUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) :
+        
+        public StoreManagementPermissionsDto ManagerPermissions {get; set; }
+
+        public NominateManagerUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) :
             base(next, sp, accessor)
         {
         }
 
-        public NominateOwnerUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public NominateManagerUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
 
         }
 
-        public NominateOwnerUseCaseAction()
+        public NominateManagerUseCaseAction()
         {
         }
-
         public override async Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null)
         {
-
             if (dict is null)
             {
                 throw new ArgumentException(nameof(dict));
@@ -53,24 +52,19 @@ namespace BoomaEcommerce.Services.UseCases
                 throw new ArgumentException(nameof(ownershipObj));
             }
 
+
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            await storeService.NominateNewStoreOwnerAsync(storeOwnership.Guid, new StoreOwnershipDto
+            await storeService.NominateNewStoreManagerAsync(storeOwnership.Guid, new StoreManagementDto
             {
-                User = new UserDto
-                {
-                    Guid = userToNominate.Guid,
-                    UserName = userToNominate.Name
-                },
-                Store = new StoreDto
-                {
-                    Guid = storeOwnership.Store.Guid
-                }
+                User = userToNominate,
+                Store = storeOwnership.Store,
+                Permissions = ManagerPermissions ?? new StoreManagementPermissionsDto()
             });
 
-            await Next(dict, claims);
+            await Next(dict,claims);
         }
     }
 }
