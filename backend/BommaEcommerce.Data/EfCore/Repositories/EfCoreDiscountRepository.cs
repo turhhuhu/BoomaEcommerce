@@ -21,6 +21,15 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             return await GetRecursively(guid, DbContext.Set<Discount>(), DbContext.Set<Policy>());
         }
 
+        public override Task InsertOneAsync(Discount entity)
+        {
+            if (entity is ProductDiscount productDiscount)
+            {
+                DbContext.Products.Attach(productDiscount.Product);
+            }
+            return base.InsertOneAsync(entity);
+        }
+
         public override Task DeleteByIdAsync(Guid guid)
         {
             return DeleteRecursively(guid, DbContext.Set<Discount>(), DbContext.Set<Policy>());
