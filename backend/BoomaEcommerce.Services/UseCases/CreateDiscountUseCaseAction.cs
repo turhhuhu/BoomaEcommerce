@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,20 +11,22 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class GetAllSellersUseCaseAction : UseCaseAction
+    public class CreateDiscountUseCaseAction : UseCaseAction
     {
-        
         [JsonRequired]
         public string StoreLabel { get; set; }
+
+        [JsonRequired]
+        public DiscountDto Discount { get; set; }
         
-        public GetAllSellersUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
+        public CreateDiscountUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
         }
 
-        public GetAllSellersUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public CreateDiscountUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
         }
-        public GetAllSellersUseCaseAction()
+        public CreateDiscountUseCaseAction()
         {
 
         }
@@ -39,15 +42,13 @@ namespace BoomaEcommerce.Services.UseCases
             {
                 throw new ArgumentException(nameof(storeObj));
             }
-            
-            
+
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var storeSellers = await storeService.GetAllSellersInformationAsync(store.Guid);
-
-            dict.Add(Label, storeSellers);
+            var createdDiscount = await storeService.CreateDiscountAsync(store.Guid,Discount);
+            dict.Add(Label,createdDiscount);
             scope.Dispose();
             await Next(dict, claims);
         }

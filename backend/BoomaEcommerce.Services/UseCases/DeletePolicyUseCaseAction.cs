@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
+using BoomaEcommerce.Services.DTO.Policies;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,20 +12,25 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class GetAllSellersUseCaseAction : UseCaseAction
+    public class DeletePolicyUseCaseAction : UseCaseAction
     {
-        
         [JsonRequired]
         public string StoreLabel { get; set; }
         
-        public GetAllSellersUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
+        
+        [JsonRequired]
+        public string PolicyLabel { get; set; }
+        
+        
+        
+        public DeletePolicyUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
         }
 
-        public GetAllSellersUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public DeletePolicyUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
         }
-        public GetAllSellersUseCaseAction()
+        public DeletePolicyUseCaseAction()
         {
 
         }
@@ -39,15 +46,20 @@ namespace BoomaEcommerce.Services.UseCases
             {
                 throw new ArgumentException(nameof(storeObj));
             }
+
+            var policyObj = dict[PolicyLabel];
+            if (policyObj is not PolicyDto policy)
+            {
+                throw new ArgumentException(nameof(policyObj));
+            }
             
             
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var storeSellers = await storeService.GetAllSellersInformationAsync(store.Guid);
+            await storeService.DeletePolicyAsync(store.Guid,policy.Guid);
 
-            dict.Add(Label, storeSellers);
             scope.Dispose();
             await Next(dict, claims);
         }

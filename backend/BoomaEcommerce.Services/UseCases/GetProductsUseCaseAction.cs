@@ -46,7 +46,7 @@ namespace BoomaEcommerce.Services.UseCases
             var products = await storeService.GetProductsFromStoreAsync(store.Guid);
             
             dict.Add(Label,products);
-
+            scope.Dispose();
             await Next(dict, claims);
         }
     }

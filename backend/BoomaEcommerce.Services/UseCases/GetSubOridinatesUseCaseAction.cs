@@ -46,7 +46,7 @@ namespace BoomaEcommerce.Services.UseCases
             var subOridinates = await storeService.GetSubordinateSellersAsync(storeOwnership.Guid);
             
             dict.Add(Label,subOridinates);
-
+            scope.Dispose();
             await Next(dict,claims);        }
     }
 }

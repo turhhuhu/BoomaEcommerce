@@ -69,7 +69,7 @@ namespace BoomaEcommerce.Services.UseCases
                     Guid = storeOwnership.Store.Guid
                 }
             });
-
+            scope.Dispose();
             await Next(dict, claims);
         }
     }

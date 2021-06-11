@@ -47,7 +47,7 @@ namespace BoomaEcommerce.Services.UseCases
             var policy = await storeService.GetPolicyAsync(store.Guid);
             
             dict.Add(Label,policy);
-
+            scope.Dispose();
             await Next(dict, claims);
         }
     }

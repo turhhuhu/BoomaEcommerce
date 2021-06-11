@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Http;
@@ -10,20 +11,20 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class GetAllSellersUseCaseAction : UseCaseAction
+    public class GetPolicyUseCaseAction : UseCaseAction
     {
-        
         [JsonRequired]
         public string StoreLabel { get; set; }
         
-        public GetAllSellersUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
+        
+        public GetPolicyUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
         }
 
-        public GetAllSellersUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public GetPolicyUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
         }
-        public GetAllSellersUseCaseAction()
+        public GetPolicyUseCaseAction()
         {
 
         }
@@ -45,9 +46,9 @@ namespace BoomaEcommerce.Services.UseCases
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var storeSellers = await storeService.GetAllSellersInformationAsync(store.Guid);
+            var policy = await storeService.GetPolicyAsync(store.Guid);
 
-            dict.Add(Label, storeSellers);
+            dict.Add(Label, policy);
             scope.Dispose();
             await Next(dict, claims);
         }
