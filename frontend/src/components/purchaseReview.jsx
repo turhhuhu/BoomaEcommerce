@@ -1,52 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { createPurchase } from "../actions/userActions";
+import { createPurchase, fetchUserCart } from "../actions/userActions";
+import { turnCartIntoPurchase } from "../utils/utilFunctions";
 
 class PurchaseReview extends Component {
   state = {};
-
-  
-
-
-  turnCartIntoPurchase = (cart) => {
-    return {
-      storePurchases: cart.baskets.map((basket) => {
-        return {
-          totalPrice: this.calculateBasketTotalPrice(basket),
-          purchaseProducts: basket.purchaseProducts.map((purchaseProduct) => {
-            return {
-              productGuid: purchaseProduct.productGuid,
-              amount: purchaseProduct.amount,
-              price: purchaseProduct.price,
-            };
-          }),
-          storeGuid: basket.store.guid,
-          buyerGuid: this.props?.userInfo.guid,
-        };
-      }),
-      buyerGuid: this.props?.userInfo.guid,
-      totalPrice: this.calculateCartTotalPrice(cart),
-      discountedPrice: this.calculateCartTotalPrice(cart),
-    };
-  };
-
-  calculateBasketTotalPrice = (basket) =>
-    basket.purchaseProducts.reduce(
-      (totalPrice, currentPurchaseProduct) =>
-        totalPrice + currentPurchaseProduct.amount*currentPurchaseProduct.price, 0);
-
-  calculateCartTotalPrice = (cart) =>
-    cart.baskets.reduce(
-      (totalPrice, basket) =>
-        totalPrice +
-        basket.purchaseProducts.reduce(
-          (totalPricePurchaseProduct, purchaseProduct) =>
-            totalPricePurchaseProduct +
-            purchaseProduct.amount * purchaseProduct.price,
-          0
-        ),
-      0
-    );
 
   getCartItems = () => {
     return this.props.baskets?.map((basket) => {
@@ -74,18 +32,30 @@ class PurchaseReview extends Component {
 
   makePurchase = () => {
     const purchaseobj = {
-      purchase: this.turnCartIntoPurchase(this.props.cart),
+      purchase: turnCartIntoPurchase(
+        this.props.cart,
+        this.props.userInfo?.guid
+      ),
       paymentDetails: this.props.paymentInfo,
       supplyDetails: this.props.deliveryInfo,
     };
     console.log(purchaseobj);
-    this.props.dispatch(
-      createPurchase({
-        purchase: this.turnCartIntoPurchase(this.props.cart),
-        paymentDetails: this.props.paymentInfo,
-        supplyDetails: this.props.deliveryInfo,
-      })
-    );
+    this.props
+      .dispatch(
+        createPurchase({
+          purchase: turnCartIntoPurchase(
+            this.props.cart,
+            this.props.userInfo?.guid
+          ),
+          paymentDetails: this.props.paymentInfo,
+          supplyDetails: this.props.deliveryInfo,
+        })
+      )
+      .then((success) => {
+        if (success) {
+          this.props.dispatch(fetchUserCart());
+        }
+      });
   };
 
   render() {
@@ -111,7 +81,7 @@ class PurchaseReview extends Component {
             <div className="col-md-8">
               <h6 className="text-muted">Delivery to</h6>
               <p style={{ maxWidth: "350px" }}>
-                Full Name: {this.props?.deliveryInfo.fullName} <br />
+                Full Name: {this.props?.deliveryInfo.name} <br />
                 Address: {this.props?.deliveryInfo?.address}{" "}
               </p>
             </div>

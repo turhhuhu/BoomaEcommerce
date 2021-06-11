@@ -11,7 +11,7 @@ class PaymentForm extends Component {
     cardNumber: "",
     month: "",
     year: "",
-    cvv: "",
+    ccv: "",
   };
 
   handleChange = (event) => {
@@ -124,11 +124,11 @@ class PaymentForm extends Component {
               </div>
               <div className="col-3">
                 <div className="form-group">
-                  <label>CVV</label>
+                  <label>CCV</label>
                   <input
                     className="form-control"
-                    name="cvv"
-                    value={this.state.cvv}
+                    name="ccv"
+                    value={this.state.ccv}
                     onChange={this.handleChange}
                     required
                     type="text"
