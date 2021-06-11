@@ -13,7 +13,7 @@ namespace BoomaEcommerce.Services.UseCases
     public interface IUseCaseAction
     {
         public IUseCaseAction NextUseCaseAction { get; set; }
-        public Task NextAction(object obj = null, ClaimsPrincipal claims = null);
+        public Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null);
     }
 
     public abstract class UseCaseAction : IUseCaseAction
@@ -23,6 +23,9 @@ namespace BoomaEcommerce.Services.UseCases
 
         [JsonIgnore]
         public IServiceProvider Sp { get; set; }
+        
+        [JsonRequired]
+        public string Label { get; set; }
 
 
         private readonly IHttpContextAccessor _accessor;
@@ -44,7 +47,7 @@ namespace BoomaEcommerce.Services.UseCases
         {
         }
 
-        protected async Task Next(object obj = null, ClaimsPrincipal claims = null)
+        protected async Task Next(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null)
         {
             if (NextUseCaseAction != null)
             {
@@ -53,12 +56,12 @@ namespace BoomaEcommerce.Services.UseCases
                     ? new DefaultHttpContext { User = claims }
                     : null;
 
-                await NextUseCaseAction.NextAction(obj, claims);
+                await NextUseCaseAction.NextAction(dict, claims);
 
                 _accessor.HttpContext = null;
             }
         }
 
-        public abstract Task NextAction(object obj = null, ClaimsPrincipal claims = null);
+        public abstract Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null);
     }
 }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Http;
@@ -13,25 +10,30 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class GetOwnershipUseCaseAction : UseCaseAction
+    public class CreateStoreProductUseCaseAction : UseCaseAction
     {
         [JsonRequired]
-        public string StoreLabel { get; set; }
+        public string ProductName { get; set; }
+
         [JsonRequired]
-        public string UserLabel { get; set; }
-
-        public GetOwnershipUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) :
-            base(next, sp, accessor)
+        public int ProductAmount { get; set; }
+        
+        [JsonRequired]
+        public int ProductPrice { get; set; }
+        
+        [JsonRequired]
+        public string StoreLabel { get; set; }
+        
+        public CreateStoreProductUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
         }
 
-        public GetOwnershipUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public CreateStoreProductUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
-
         }
-
-        public GetOwnershipUseCaseAction()
+        public CreateStoreProductUseCaseAction()
         {
+
         }
         public override async Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null)
         {
@@ -45,21 +47,20 @@ namespace BoomaEcommerce.Services.UseCases
             {
                 throw new ArgumentException(nameof(storeObj));
             }
-
-            var userObj = dict[UserLabel];
-            if (userObj is not UserDto user)
-            {
-                throw new ArgumentException(nameof(userObj));
-            }
-
+            
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var ownership = await storeService.GetStoreOwnerShipAsync(user.Guid, store.Guid);
-            
-            dict.Add(Label,ownership);
-
+            var product = await storeService.CreateStoreProductAsync(new ProductDto
+            {
+                StoreGuid = store.Guid,
+                Amount = ProductAmount,
+                Name = ProductName,
+                Price = ProductPrice
+                
+            });
+            dict.Add(Label,product);
             await Next(dict, claims);
         }
     }

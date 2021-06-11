@@ -33,6 +33,22 @@ namespace BoomaEcommerce.Api
                 "GetOwnershipAction" => new GetOwnershipUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "NominateOwnerAction" => new NominateOwnerUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "GetStoresAction" => new GetStoresUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "RegisterAction" => new RegisterUseCaseAction(_jwtSettings, _serviceProvider, _httpContextAccessor),
+                "CreateProductAction" => new CreateStoreProductUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "NominateManagerAction" => new NominateManagerUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetAllSellersAction" => new GetAllSellersUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "DeleteProductAction" => new DeleteProductUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetProductsAction" => new GetProductsUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetPolicyAction" => new GetPolicyUserCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetSuboridinatesAction" => new GetSubOridinatesUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "UpdateProductAction" => new UpdateProductUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetStoreAction" => new GetStoreUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetStorePurchaseHistoryAction" => new StorePurchaseHistoryUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "DeleteStoreAction" => new DeleteStoreUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetManagementAction" => new GetManagementUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "UpdatePermissionsAction" => new UpdatePermissionsUseCaeAction(_serviceProvider, _httpContextAccessor),
+                "RemoveStoreOwnerAction" => new RemoveStoreOwnerUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "RemoveManagerAction" => new RemoveManagerUseCaseAction(_serviceProvider, _httpContextAccessor),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
