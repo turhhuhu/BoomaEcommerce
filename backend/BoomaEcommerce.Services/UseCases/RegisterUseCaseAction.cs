@@ -59,7 +59,7 @@ namespace BoomaEcommerce.Services.UseCases
             }
             
             dict.Add(Label,user);
-
+            scope.Dispose();
             await Next(dict, claimsPrincipal);
         }
     }

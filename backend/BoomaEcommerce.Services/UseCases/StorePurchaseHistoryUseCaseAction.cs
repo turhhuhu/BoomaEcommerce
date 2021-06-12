@@ -46,7 +46,7 @@ namespace BoomaEcommerce.Services.UseCases
             var purchaseHistory = await storeService.GetStorePurchaseHistoryAsync(store.Guid);
             
             dict.Add(Label,purchaseHistory);
-
+            scope.Dispose();
             await Next(dict, claims);
         }
     }

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.Stores;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,20 +12,24 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class GetAllSellersUseCaseAction : UseCaseAction
+    public class DeleteDiscountUseCaseAction : UseCaseAction
     {
-        
         [JsonRequired]
         public string StoreLabel { get; set; }
         
-        public GetAllSellersUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
+        [JsonRequired]
+        public string DiscountLabel { get; set; }
+        
+        
+        
+        public DeleteDiscountUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
         }
 
-        public GetAllSellersUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public DeleteDiscountUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
         }
-        public GetAllSellersUseCaseAction()
+        public DeleteDiscountUseCaseAction()
         {
 
         }
@@ -40,14 +46,19 @@ namespace BoomaEcommerce.Services.UseCases
                 throw new ArgumentException(nameof(storeObj));
             }
             
+            var discountObj = dict[DiscountLabel];
+            if (discountObj is not DiscountDto discount)
+            {
+                throw new ArgumentException(nameof(discountObj));
+            }
+            
             
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var storeSellers = await storeService.GetAllSellersInformationAsync(store.Guid);
+            await storeService.DeleteDiscountAsync(store.Guid,discount.Guid);
 
-            dict.Add(Label, storeSellers);
             scope.Dispose();
             await Next(dict, claims);
         }

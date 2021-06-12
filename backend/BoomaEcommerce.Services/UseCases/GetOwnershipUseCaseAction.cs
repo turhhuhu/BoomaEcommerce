@@ -59,7 +59,7 @@ namespace BoomaEcommerce.Services.UseCases
             var ownership = await storeService.GetStoreOwnerShipAsync(user.Guid, store.Guid);
             
             dict.Add(Label,ownership);
-
+            scope.Dispose();
             await Next(dict, claims);
         }
     }

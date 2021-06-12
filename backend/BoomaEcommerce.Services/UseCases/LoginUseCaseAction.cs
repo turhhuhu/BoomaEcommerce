@@ -47,7 +47,7 @@ namespace BoomaEcommerce.Services.UseCases
             var loginRes = await authService.LoginAsync(UserName, Password);
 
             var claimsPrincipal = SecuredServiceBase.ValidateToken(loginRes.Token, JwtSettings.Secret);
-
+            scope.Dispose();
             await Next(dict, claimsPrincipal);
         }
     }
