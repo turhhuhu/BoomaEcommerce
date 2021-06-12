@@ -596,7 +596,7 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var storesDict = new Dictionary<Guid, Store>();
             var storeGuid = Guid.NewGuid();
-            storesDict[storeGuid] = new Store(null) { Guid = storeGuid};
+            storesDict[storeGuid] = new Store { Guid = storeGuid};
 
             var productToReplaceGuid = Guid.NewGuid();
             productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid, storeGuid);
@@ -623,7 +623,8 @@ namespace BoomaEcommerce.Services.Tests
             resultProduct.Should().BeEquivalentTo(replacementProductDto, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.StoreGuid));
+                    .Excluding(p => p.StoreGuid)
+                    .Excluding(p => p.StoreMetaData));
         }
         
         [Fact]
