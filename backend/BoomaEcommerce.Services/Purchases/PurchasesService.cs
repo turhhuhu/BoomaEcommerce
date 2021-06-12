@@ -188,20 +188,17 @@ namespace BoomaEcommerce.Services.Purchases
                     storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
 
-            var productTasks = purchaseProducts.Select(purchaseProduct =>
-                Task.Run(async () =>
-                {
-                    var product = purchaseProduct.Product;
-                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                }));
+            await purchaseProducts.Select(async purchaseProduct =>
+            {
+                var product = purchaseProduct.Product;
+                purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+            }).WhenAllAwaitEach();
 
-            var storeTasks = purchase.StorePurchases.Select(storePurchase =>
-                Task.Run(async () =>
-                {
-                    storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
-                }));
-
-            await Task.WhenAll(productTasks.Concat(storeTasks));
+            await purchase.StorePurchases.Select(async storePurchase =>
+            {
+                storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                storePurchase.Buyer = purchase.Buyer;
+            }).WhenAllAwaitEach();
             var purchaseResult = purchase.CalculatePurchaseFinalPrice();
             if (purchaseResult.IsPolicyFailure)
             {
