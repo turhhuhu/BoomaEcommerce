@@ -10,7 +10,7 @@ namespace BoomaEcommerce.Domain.Tests
         public void AddShoppingBasket_ReturnsTrueAndAddsShoppingBasket_WhenShoppingBasketNotNull()
         {
             // Arrange
-            var shoppingBasket = new ShoppingBasket{Store = new Store(null)};
+            var shoppingBasket = new ShoppingBasket{Store = new Store()};
             shoppingBasket.Store.Guid = Guid.NewGuid();
             var sut = new ShoppingCart(new User());
             
@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Domain.Tests
         [Fact]
         public void RemoveShoppingBasket_ReturnsTrueAndRemovesShoppingBasket_WhenShoppingBasketExists()
         {
-            var shoppingBasket = new ShoppingBasket{Store = new Store(null){Guid = Guid.NewGuid()}};
+            var shoppingBasket = new ShoppingBasket{Store = new Store{Guid = Guid.NewGuid()}};
             var sut = new ShoppingCart(new User());
             sut.AddShoppingBasket(shoppingBasket);
             
@@ -53,7 +53,7 @@ namespace BoomaEcommerce.Domain.Tests
         [Fact]
         public void RemoveShoppingBasket_ReturnsFalse_WhenPShoppingBasketDoesNotExists()
         {
-            var shoppingBasket = new ShoppingBasket{Store = new Store(null){Guid = Guid.NewGuid()}};
+            var shoppingBasket = new ShoppingBasket{Store = new Store{Guid = Guid.NewGuid()}};
             var sut = new ShoppingCart(new User());
 
             // Act

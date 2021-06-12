@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
 
-    public class StoreOwnershipRepository : EfCoreRepository<StoreOwnership, ApplicationDbContext>
+    public class EfCoreStoreOwnershipRepository : EfCoreRepository<StoreOwnership>
     {
-        public StoreOwnershipRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public EfCoreStoreOwnershipRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
         }
 

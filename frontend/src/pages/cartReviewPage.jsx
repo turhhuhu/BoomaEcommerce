@@ -15,9 +15,12 @@ class CartReviewPage extends Component {
         .dispatch(fetchUserCart())
         .then((success) =>
           this.props.dispatch(
-            fetchCartDiscountedPrice(
-              turnCartIntoPurchase(this.props.cart, this.props.userInfo?.guid)
-            )
+            fetchCartDiscountedPrice({
+              purchase: turnCartIntoPurchase(
+                this.props.cart,
+                this.props.userInfo?.guid
+              ),
+            })
           )
         );
     }

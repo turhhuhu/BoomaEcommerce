@@ -9,7 +9,7 @@ namespace BoomaEcommerce.Domain.Discounts
 {
     public class CategoryDiscount : Discount
     {
-        public string Category;
+        public string Category { get; set; }
 
         public CategoryDiscount(int percentage, DateTime startTime, DateTime endTime, string description, Policy policy, string category) :
             base(percentage, startTime, endTime, description, policy)

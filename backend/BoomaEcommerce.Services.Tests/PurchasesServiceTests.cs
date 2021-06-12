@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.External.Payment;
@@ -84,7 +86,7 @@ namespace BoomaEcommerce.Services.Tests
                     var testProductGuid = productsPurchaseDto.ProductGuid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
                     productDict[testProductGuid] = testProduct;
-                    storesDict[storePurchaseDto.StoreGuid] = new Store() { Guid = storePurchaseDto.StoreGuid };
+                    storesDict[storePurchaseDto.StoreGuid] = new Store(new User(), Policy.Empty, Discount.Empty) { Guid = storePurchaseDto.StoreGuid };
                 }
             }
 

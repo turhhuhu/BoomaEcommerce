@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
-    public class EfCorePolicyRepository : EfCoreRepository<Policy, ApplicationDbContext>
+    public class EfCorePolicyRepository : EfCoreRepository<Policy>
     {
         public EfCorePolicyRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
@@ -40,46 +40,7 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public override Task<Policy> FindByIdAsync(Guid guid)
         {
-            return GetRecursively(guid, DbContext.Policies);
-        }
-
-        public static async Task<Policy> GetRecursively(Guid guid, IQueryable<Policy> query)
-        {
-            var policy = await query
-                .Include(p => (p as MultiPolicy).Operator)
-                .Include(p => (p as CompositePolicy).SubPolicies)
-                .Include(p => (p as BinaryPolicy).FirstPolicy)
-                .Include(p => (p as BinaryPolicy).SecondPolicy)
-                .Include(p => (p as ProductPolicy).Product)
-                .FirstOrDefaultAsync(p => p.Guid == guid);
-
-            if (policy == null)
-            {
-                return null;
-            }
-
-            if (policy is CompositePolicy compositePolicy)
-            {
-                foreach (var multiPolicy in compositePolicy.SubPolicies)
-                {
-                    await GetRecursively(multiPolicy.Guid, query);
-                }
-            }
-
-            if (policy is BinaryPolicy binaryPolicy)
-            {
-                if (binaryPolicy.FirstPolicy != null)
-                {
-                    await GetRecursively(binaryPolicy.FirstPolicy.Guid, query);
-                }
-
-                if (binaryPolicy.SecondPolicy != null)
-                {
-                    await GetRecursively(binaryPolicy.SecondPolicy.Guid, query);
-                }
-            }
-
-            return policy;
+            return DbContext.Policies.GetRecursively(guid);
         }
 
         public override async Task DeleteByIdAsync(Guid guid)

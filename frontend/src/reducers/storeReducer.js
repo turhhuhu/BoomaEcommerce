@@ -276,8 +276,9 @@ export function store(
         ...action.payload,
         error: undefined,
       });
-    case StoreActionTypes.REMOVE_STORE_POLICY_SUCCESS:
+    case StoreActionTypes.REMOVE_STORE_POLICY_SUCCESS: {
       return state;
+    }
     case StoreActionTypes.REMOVE_STORE_POLICY_FAILURE: {
       console.error(
         `error occured while remvoving store sub-policy: ${action.error}`

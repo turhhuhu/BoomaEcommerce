@@ -117,15 +117,28 @@ export function user(
     case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_SUCCESS: {
-      const basketToAddToIndex = state.cart.baskets.findIndex(
+      const basketToRemoveFromIndex = state.cart.baskets.findIndex(
         (basket) => basket.guid === action.extraPayload.basketGuid
       );
-      const basketToRemoveFrom = state.cart.baskets[basketToAddToIndex];
+      const basketToRemoveFrom = state.cart.baskets[basketToRemoveFromIndex];
       const purchaseProductToRemoveIndex =
         basketToRemoveFrom.purchaseProducts.findIndex(
           (purchaseProduct) =>
             purchaseProduct.guid === action.extraPayload.purchaseProductGuid
         );
+      if (
+        state.cart.baskets[basketToRemoveFromIndex].purchaseProducts.length ===
+        1
+      ) {
+        return Object.assign({}, state, {
+          cart: {
+            baskets: [
+              ...state.cart.baskets.slice(0, basketToRemoveFromIndex),
+              ...state.cart.baskets.slice(basketToRemoveFromIndex + 1),
+            ],
+          },
+        });
+      }
       const newBasket = {
         ...basketToRemoveFrom,
         purchaseProducts: [
@@ -141,7 +154,7 @@ export function user(
       return Object.assign({}, state, {
         cart: {
           baskets: Object.assign([], state.cart.baskets, {
-            [basketToAddToIndex]: newBasket,
+            [basketToRemoveFromIndex]: newBasket,
           }),
         },
       });
@@ -155,15 +168,28 @@ export function user(
         isFetching: action.payload.isFetching,
       });
     case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_AS_GUEST:
-      const basketToAddToIndex = state.cart.baskets.findIndex(
+      const basketToRemoveFromIndex = state.cart.baskets.findIndex(
         (basket) => basket.guid === action.payload.basketGuid
       );
-      const basketToRemoveFrom = state.cart.baskets[basketToAddToIndex];
+      const basketToRemoveFrom = state.cart.baskets[basketToRemoveFromIndex];
       const purchaseProductToRemoveIndex =
         basketToRemoveFrom.purchaseProducts.findIndex(
           (purchaseProduct) =>
             purchaseProduct.guid === action.payload.purchaseProductGuid
         );
+      if (
+        state.cart.baskets[basketToRemoveFromIndex].purchaseProducts.length ===
+        1
+      ) {
+        return Object.assign({}, state, {
+          cart: {
+            baskets: [
+              ...state.cart.baskets.slice(0, basketToRemoveFromIndex),
+              ...state.cart.baskets.slice(basketToRemoveFromIndex + 1),
+            ],
+          },
+        });
+      }
       const newBasket = {
         ...basketToRemoveFrom,
         purchaseProducts: [
@@ -179,7 +205,7 @@ export function user(
       return Object.assign({}, state, {
         cart: {
           baskets: Object.assign([], state.cart.baskets, {
-            [basketToAddToIndex]: newBasket,
+            [basketToRemoveFromIndex]: newBasket,
           }),
         },
       });

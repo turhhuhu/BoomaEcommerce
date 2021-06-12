@@ -4,6 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using BoomaEcommerce.Data.EfCore.Repositories;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -80,6 +83,77 @@ namespace BoomaEcommerce.Data.EfCore
             where T : class
         {
             return navigationPropertyPaths.Aggregate(source, (query, path) => query.Include(path));
+        }
+        public static async Task<Discount> GetDiscountRecursively(this ApplicationDbContext dbContext, Guid guid)
+        {
+
+            await dbContext.Discounts
+                .Where(d => d.Guid == guid)
+                .Select(d => d.Policy)
+                .SingleOrDefaultAsync();
+
+            var discount = await dbContext.Discounts
+                .Include(d => (d as CompositeDiscount).Discounts)
+                .Include(d => (d as CompositeDiscount).Operator)
+                .Include(d => (d as ProductDiscount).Product)
+                .FirstOrDefaultAsync(d => d.Guid == guid);
+
+
+            if (discount == null)
+            {
+                return null;
+            }
+
+            await dbContext.Policies.GetRecursively(discount.Policy.Guid);
+
+            if (discount is CompositeDiscount compositeDiscount && compositeDiscount.Discounts.Any())
+            {
+                foreach (var childDisc in compositeDiscount.Discounts)
+                {
+                    await dbContext.GetDiscountRecursively(childDisc.Guid);
+                }
+            }
+
+            return discount;
+        }
+
+        public static async Task<Policy> GetRecursively(this IQueryable<Policy> query, Guid guid)
+        {
+            var policy = await query
+                .Include(p => (p as MultiPolicy).Operator)
+                .Include(p => (p as CompositePolicy).SubPolicies)
+                .Include(p => (p as BinaryPolicy).FirstPolicy)
+                .Include(p => (p as BinaryPolicy).SecondPolicy)
+                .Include(p => (p as ProductPolicy).Product)
+                .FirstOrDefaultAsync(p => p.Guid == guid);
+
+            if (policy == null)
+            {
+                return null;
+            }
+
+            if (policy is CompositePolicy compositePolicy)
+            {
+                foreach (var multiPolicy in compositePolicy.SubPolicies)
+                {
+                    await query.GetRecursively(multiPolicy.Guid);
+                }
+            }
+
+            if (policy is BinaryPolicy binaryPolicy)
+            {
+                if (binaryPolicy.FirstPolicy != null)
+                {
+                    await query.GetRecursively(binaryPolicy.FirstPolicy.Guid);
+                }
+
+                if (binaryPolicy.SecondPolicy != null)
+                {
+                    await query.GetRecursively(binaryPolicy.SecondPolicy.Guid);
+                }
+            }
+
+            return policy;
         }
     }
 }
