@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.External.Payment;
@@ -61,7 +63,7 @@ namespace BoomaEcommerce.Services.Tests
             var cart = new ShoppingCart(userFixture) {Guid = shoppingCartGuid};
             shoppingCartDict[shoppingCartGuid] = cart;
 
-            var store = new Store();
+            var store = new Store(new User(), Policy.Empty, Discount.Empty);
             storesDict[store.Guid] = store;
 
             var productGuid = Guid.NewGuid();

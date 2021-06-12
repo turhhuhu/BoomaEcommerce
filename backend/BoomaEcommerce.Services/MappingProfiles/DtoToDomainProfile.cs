@@ -29,7 +29,9 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(x => x.Guid, x => x.Condition(xx => xx.Guid != default));
 
             CreateMap<StoreDto, Store>()
-                .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}));
+                .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}))
+                .ForMember(store => store.StoreDiscount, x => x.MapFrom(_ => Discount.Empty))
+                .ForMember(store => store.StorePolicy, x => x.MapFrom(_ => Policy.Empty));
 
             CreateMap<List<PurchaseProductDto>, ISet<PurchaseProduct>>()
                 .ConstructUsing((x, y) => x.Select(pp => y.Mapper.Map<PurchaseProduct>(pp)).ToHashSet(new EqualityComparers.SameGuid<PurchaseProduct>()));

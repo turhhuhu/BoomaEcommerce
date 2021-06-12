@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
-    public class ProductsRepository : EfCoreRepository<Product, ApplicationDbContext>, IProductsRepository
+    public class ProductsRepository : EfCoreRepository<Product>, IProductsRepository
     {
         public ProductsRepository(ApplicationDbContext dbContext) : base(dbContext)
         {

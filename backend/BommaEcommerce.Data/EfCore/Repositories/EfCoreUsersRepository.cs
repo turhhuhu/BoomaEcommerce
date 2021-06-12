@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
-    public class EfCoreUsersRepository : EfCoreRepository<User, ApplicationDbContext>
+    public class EfCoreUsersRepository : EfCoreRepository<User>
     {
         public EfCoreUsersRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
