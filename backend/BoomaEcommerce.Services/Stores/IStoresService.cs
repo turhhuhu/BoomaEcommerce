@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -162,6 +163,18 @@ namespace BoomaEcommerce.Services.Stores
         Task<PolicyDto> CreateDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, PolicyDto policyDto);
         Task<bool> DeleteDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, Guid policyGuid);
         Task<PolicyDto> CreateDiscountSubPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid, PolicyDto policyDto);
+
+        Task ApproveOffer(Guid ownerGuid, Guid productOfferGuid);
+
+        Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid);
+
+        Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid);
+
+        Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid);
+
+        Task<IEnumerable<ProductOfferDto>> GetAllUserProductOffers(Guid userGuid);
+
+        Task<IEnumerable<ProductOfferDto>> GetAllOwnerProductOffers(Guid ownerGuid);
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Data
@@ -9,6 +10,7 @@ namespace BoomaEcommerce.Data
     {
         IRepository<ShoppingBasket> ShoppingBasketRepo { get; set; }
         IRepository<ShoppingCart> ShoppingCartRepo { get; set; }
+        IRepository<ProductOffer> ProductOfferRepo { get; set; }
         IRepository<User> UserRepository { get; set; }
         Task SaveAsync();
 

@@ -7,6 +7,7 @@ using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.EntityFrameworkCore;
 
 namespace BoomaEcommerce.Data.EfCore
@@ -23,6 +24,7 @@ namespace BoomaEcommerce.Data.EfCore
         public IRepository<Policy> PolicyRepo { get; set; }
         public IRepository<Discount> DiscountRepo { get; set; }
         public IRepository<User> UserRepo { get; set; }
+        public IRepository<ProductOffer> OffersRepo { get; set; }
 
 
         public StoreUnitOfWork(
@@ -35,7 +37,8 @@ namespace BoomaEcommerce.Data.EfCore
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo,
             IRepository<User> userRepo,
-            IRepository<Discount> discountRepo)
+            IRepository<Discount> discountRepo,
+            IRepository<ProductOffer> offersRepo)
         {
             _dbContext = dbContext;
             StoreRepo = storeRepo;
@@ -47,6 +50,7 @@ namespace BoomaEcommerce.Data.EfCore
             PolicyRepo = policyRepo;
             UserRepo = userRepo;
             DiscountRepo = discountRepo;
+            OffersRepo = offersRepo;
         }
 
 

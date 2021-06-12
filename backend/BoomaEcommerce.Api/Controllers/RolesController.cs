@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Api.Responses;
@@ -92,6 +93,19 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return NotFound();
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers")]
+        public async Task<IActionResult> GetAllOffersOwner(Guid ownershipGuid)
+        {
+            var offers = await _storesService.GetAllOwnerProductOffers(ownershipGuid);
+            if (offers == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(offers.ToList());
         }
     }
 }

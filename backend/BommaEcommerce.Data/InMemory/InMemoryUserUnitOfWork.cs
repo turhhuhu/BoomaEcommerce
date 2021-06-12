@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Data.InMemory
@@ -13,6 +14,7 @@ namespace BoomaEcommerce.Data.InMemory
     {
         public IRepository<ShoppingBasket> ShoppingBasketRepo { get; set; }
         public IRepository<ShoppingCart> ShoppingCartRepo { get; set; }
+        public IRepository<ProductOffer> ProductOfferRepo { get; set; }
         public IRepository<PurchaseProduct> PurchaseProductRepo { get; set; }
         public IRepository<User> UserRepository { get; set; }
 
@@ -20,12 +22,14 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<ShoppingBasket> shoppingBasketRepo,
             IRepository<ShoppingCart> shoppingCartRepo,
             IRepository<PurchaseProduct> purchaseProductRepo,
-            IRepository<User> userRepository)
+            IRepository<User> userRepository,
+            IRepository<ProductOffer> productOfferRepo)
         {
             ShoppingBasketRepo = shoppingBasketRepo;
             ShoppingCartRepo = shoppingCartRepo;
             PurchaseProductRepo = purchaseProductRepo;
             UserRepository = userRepository;
+            ProductOfferRepo = productOfferRepo;
         }
 
         public Task SaveAsync()

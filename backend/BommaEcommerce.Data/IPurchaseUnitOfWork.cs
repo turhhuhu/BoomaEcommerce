@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Data
@@ -17,7 +18,9 @@ namespace BoomaEcommerce.Data
         IRepository<Product> ProductRepository { get; set; }
         IRepository<ShoppingCart> ShoppingCartRepository { get; set; }
         IRepository<StoreOwnership> StoreOwnershipRepository { get; set; }
+        IRepository<ShoppingBasket> ShoppingBasketRepository { get; set; }
         IRepository<Store> StoresRepository { get; set; }
+        IRepository<ProductOffer> OffersRepository { get; set; }
         Task SaveAsync();
         void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
         Task<ITransactionContext> BeginTransaction();

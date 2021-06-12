@@ -7,7 +7,9 @@ using BoomaEcommerce.Core;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.External.Payment;
 using BoomaEcommerce.Services.External.Supply;
@@ -221,5 +223,14 @@ namespace BoomaEcommerce.Services.Purchases
         {
             throw new NotSupportedException();
         }
+
+        
+
+      
+
+
+        
+
+       
     }
 }

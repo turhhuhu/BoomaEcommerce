@@ -16,6 +16,7 @@ using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using BoomaEcommerce.Services;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.Purchases;
 using Microsoft.AspNetCore.SignalR;
 
@@ -223,6 +224,19 @@ namespace BoomaEcommerce.Api.Controllers
         {
             var isUpdated = await _userService.SetNotificationAsSeen(User.GetUserGuid(), notificationGuid);
             if (isUpdated)
+            {
+                return NoContent();
+            }
+
+            return NotFound();
+        }
+
+        [Authorize]
+        [HttpPost(ApiRoutes.Me + "/offers")]
+        public async Task<IActionResult> CreateProductOffer(ProductOfferDto offerDto)
+        {
+            var createdProductOfferDto = await _userService.CreateProductOffer(offerDto);
+            if (createdProductOfferDto == null)
             {
                 return NoContent();
             }
