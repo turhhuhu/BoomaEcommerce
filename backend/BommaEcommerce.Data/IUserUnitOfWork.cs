@@ -14,5 +14,8 @@ namespace BoomaEcommerce.Data
 
         void AttachNoChange<TEntity>(TEntity entity)
             where TEntity : class, IBaseEntity;
+
+        public void Attach<TEntity>(TEntity entity) 
+            where TEntity : class, IBaseEntity;
     }
 }

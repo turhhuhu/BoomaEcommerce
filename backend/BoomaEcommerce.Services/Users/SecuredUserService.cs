@@ -92,7 +92,7 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Baskets.FirstOrDefault(basket => basket.Guid == shoppingBasketGuid) != null)
+            if (shoppingCart?.Baskets.FirstOrDefault(basket => basket.Guid == shoppingBasketGuid) != null)
             {
                 return await _next.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
             }

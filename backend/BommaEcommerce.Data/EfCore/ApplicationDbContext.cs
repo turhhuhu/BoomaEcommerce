@@ -33,6 +33,9 @@ namespace BoomaEcommerce.Data.EfCore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<StoreOwnership>()
+                .HasMany(x => x.StoreManagements);
+
             modelBuilder.Entity<Product>(p =>
             {
                 p.Property(pp => pp.Price).HasPrecision(10, 5);
