@@ -52,7 +52,7 @@ namespace BoomaEcommerce.Services.UseCases
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
             await storeService.UpdateManagerPermissionAsync(ManagerPermissions);
-
+            scope.Dispose();
             await Next(dict,claims);
         }
     }

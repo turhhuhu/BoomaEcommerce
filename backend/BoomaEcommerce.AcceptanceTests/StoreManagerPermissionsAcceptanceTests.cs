@@ -162,7 +162,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _managerStoreServiceWithPermissions.CreateStoreProductAsync(fixtureProductDto);
             // Assert
             result.Should().NotBeNull().And.BeEquivalentTo(fixtureProductDto, 
-                opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating));
+                opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating).Excluding(p => p.StoreMetaData));
         }
         
         [Fact]

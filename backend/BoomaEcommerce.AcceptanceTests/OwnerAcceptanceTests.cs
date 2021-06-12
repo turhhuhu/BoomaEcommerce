@@ -218,9 +218,9 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.CreateStoreProductAsync(productDto);
 
             // Assert
-            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating));
+            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating).Excluding(p => p.StoreMetaData));
             var product = await _ownerStoreService.GetStoreProductAsync(result.Guid);
-            product.Should().BeEquivalentTo(result);
+            product.Should().BeEquivalentTo(result, x => x.Excluding(p => p.StoreMetaData));
         }
 
 
@@ -286,7 +286,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             result.Should().BeTrue();
             updatedProduct.Should()
-                .BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+                .BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating).Excluding(p => p.StoreMetaData));
         }
 
         [Fact]

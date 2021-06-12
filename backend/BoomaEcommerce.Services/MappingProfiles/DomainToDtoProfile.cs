@@ -42,7 +42,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<StoreOwnership, StoreOwnershipDto>();
 
             CreateMap<Product, ProductDto>()
-                .ForMember(dto => dto.StoreGuid, x => x.MapFrom(product => product.Store.Guid));
+                .ForMember(dto => dto.StoreGuid, x => x.MapFrom(product => product.Store.Guid))
+                .ForMember(dto => dto.StoreMetaData, x => x.MapFrom(product => product.Store));
 
             CreateMap<StorePurchase, StorePurchaseDto>()
                 .ForMember(dto => dto.StoreGuid, x => x.MapFrom(storePurchase => storePurchase.Store.Guid))

@@ -55,7 +55,7 @@ namespace BoomaEcommerce.Services.UseCases
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
             await storeService.RemoveManagerAsync(userToRemoveFrom.Guid, userToRemove.Guid);
-
+            scope.Dispose();
             await Next(dict,claims);
         }
     }

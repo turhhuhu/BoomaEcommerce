@@ -38,6 +38,8 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
                 .Include(o => o.User)
                 .Include(o => o.StoreManagements)
                 .Include(o => o.StoreOwnerships)
+                .OrderByDescending(x => x.Guid)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(o => o.Guid == guid);
 
             if (ownership == null || !ownership.StoreOwnerships.Any())

@@ -61,6 +61,8 @@ namespace BoomaEcommerce.Services.UseCases
                 
             });
             dict.Add(Label,product);
+            
+            scope.Dispose();
             await Next(dict, claims);
         }
     }
