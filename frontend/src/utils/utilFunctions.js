@@ -41,3 +41,35 @@ export function calculateCartTotalPrice(cart) {
     0
   );
 }
+
+export function formatDate(date) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
+
+  return [year, month, day].join("-");
+}
+
+export function formatDateWithExactTime(date) {
+  var dt = new Date(date);
+  return `${(dt.getMonth() + 1).toString().padStart(2, "0")}/${dt
+    .getDate()
+    .toString()
+    .padStart(2, "0")}/${dt.getFullYear().toString().padStart(4, "0")} ${dt
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${dt.getMinutes().toString().padStart(2, "0")}:${dt
+    .getSeconds()
+    .toString()
+    .padStart(2, "0")}`;
+}
+
+export function formatDateWithExactTimeNonReadable(date) {
+  return new Date(new Date().toString().split("GMT")[0] + " UTC")
+    .toISOString()
+    .split(".")[0];
+}
