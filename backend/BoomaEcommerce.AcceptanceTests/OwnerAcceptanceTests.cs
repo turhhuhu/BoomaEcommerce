@@ -153,7 +153,7 @@ namespace BoomaEcommerce.AcceptanceTests
             
             var purchaseDto = new PurchaseDto
             {
-                BuyerGuid = buyerToken.UserGuid,
+                UserBuyerGuid = buyerToken.UserGuid,
                 TotalPrice = 10,
                 DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
@@ -218,9 +218,9 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.CreateStoreProductAsync(productDto);
 
             // Assert
-            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating).Excluding(p => p.StoreMetaData));
+            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.StoreMetaData).Excluding(p => p.Rating));
             var product = await _ownerStoreService.GetStoreProductAsync(result.Guid);
-            product.Should().BeEquivalentTo(result, x => x.Excluding(p => p.StoreMetaData));
+            product.Should().BeEquivalentTo(result);
         }
 
 

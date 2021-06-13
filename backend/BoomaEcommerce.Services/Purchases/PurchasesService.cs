@@ -47,13 +47,17 @@ namespace BoomaEcommerce.Services.Purchases
             
             try
             {
-
+                purchaseDetailsDto.Purchase.UserBuyerGuid = null;
+                purchaseDetailsDto.Purchase.Buyer = new BasicUserInfoDto
+                {
+                    Name = "Yosi",
+                    LastName = "A maniak",
+                    DateOfBirth = DateTime.UtcNow
+                };
                 await using var transaction = await _purchaseUnitOfWork.BeginTransaction();
-
                 var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 
-                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid);
-
+                await CreateOrGetBuyerInfo(purchase, purchaseDetailsDto.Purchase.UserBuyerGuid);
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>
                         storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
@@ -85,11 +89,11 @@ namespace BoomaEcommerce.Services.Purchases
                 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
-                if (purchase.Buyer is not null)
+                if (purchaseDetailsDto.Purchase.UserBuyerGuid.HasValue)
                 {
                     await _purchaseUnitOfWork.ShoppingCartRepository
                         .DeleteOneAsync(cart =>
-                            cart.User.Guid == purchase.Buyer.Guid);
+                            cart.User.Guid == purchaseDetailsDto.Purchase.UserBuyerGuid);
                 }
 
                 supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
@@ -113,8 +117,26 @@ namespace BoomaEcommerce.Services.Purchases
             }
 
         }
-        
-        
+
+        private async Task CreateOrGetBuyerInfo(Purchase purchase, Guid? userBuyerGuid)
+        {
+            if (userBuyerGuid.HasValue)
+            {
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(userBuyerGuid.ToString());
+            }
+            else
+            {
+                purchase.Buyer.UserName = "GUEST" +  Guid.NewGuid();
+                var res = await _purchaseUnitOfWork.UserRepository.CreateAsync(purchase.Buyer, Guid.NewGuid().ToString());
+                if (!res.Succeeded)
+                {
+                    throw new UserCreationException("Failed to create guest user for the purchase.");
+                }
+
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByNameAsync(purchase.Buyer.UserName);
+            }
+        }
+
 
         private void RollbackTransactions(int? paymentTransactionId, int? supplyTransactionId)
         {

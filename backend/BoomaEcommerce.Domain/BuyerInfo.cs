@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.String;
+using BoomaEcommerce.Core;
 
-namespace BoomaEcommerce.Services.DTO
+namespace BoomaEcommerce.Domain
 {
-    public class BasicUserInfoDto : BaseEntityDto
+    public class BuyerInfo : BaseEntity
     {
-        public string UserName { get; set; } = Empty;
         public string Name { get; set; }
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }

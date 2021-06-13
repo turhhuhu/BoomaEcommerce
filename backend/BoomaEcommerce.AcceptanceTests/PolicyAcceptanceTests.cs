@@ -55,7 +55,7 @@ namespace BoomaEcommerce.AcceptanceTests
         private async Task InitPurchase(IStoresService storesService)
         {
             // create store
-            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, UserGuid));
+            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.UserBuyerGuid, UserGuid));
             var store = _fixture.Create<StoreDto>();
             _store_withGuid = await _storeService.CreateStoreAsync(store);
 
@@ -167,10 +167,11 @@ namespace BoomaEcommerce.AcceptanceTests
             store_purchase_lst.Add(storePurchase);
 
             purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, UserGuid)
+                .With(p => p.UserBuyerGuid, UserGuid)
                 .With(p => p.StorePurchases, store_purchase_lst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Without(p => p.Buyer)
                 .Create();
             
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
@@ -226,11 +227,12 @@ namespace BoomaEcommerce.AcceptanceTests
             store_purchase_lst.Add(storePurchase);
 
             purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, UserGuid)
+                .With(p => p.UserBuyerGuid, UserGuid)
                 .With(p => p.StorePurchases, store_purchase_lst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .With(p => p.DiscountedPrice, storePurchase.TotalPrice)
+                .Without(p => p.Buyer)
                 .Create();
             
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
@@ -286,10 +288,11 @@ namespace BoomaEcommerce.AcceptanceTests
             store_purchase_lst.Add(storePurchase);
 
             purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, UserGuid)
+                .With(p => p.UserBuyerGuid, UserGuid)
                 .With(p => p.StorePurchases, store_purchase_lst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Without(p => p.Buyer)
                 .Create();
             
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()

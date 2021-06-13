@@ -14,7 +14,7 @@ export function turnCartIntoPurchase(cart, buyerGuid) {
         buyerGuid: buyerGuid,
       };
     }),
-    buyerGuid: buyerGuid,
+    userBuyerGuid: buyerGuid,
     totalPrice: calculateCartTotalPrice(cart),
     discountedPrice: calculateCartTotalPrice(cart),
   };

@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         {
             if (ls == null)
             {
-                throw new NullReferenceException("User or user list must be provided to mock the UserManager.");
+                return null;
             }
             var store = new Mock<IUserStore<User>>();
             var mgr = new Mock<UserManager<User>>(store.Object, null, null, null, null, null, null, null, null);
@@ -259,7 +259,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 
             var storesRepoMock = MockRepository(stores);
             var productRepoMock = MockRepository(products);
-            var userRepoMock = MockRepository(users);
+            var userRepoMock = MockUserManager(users);
             var shoppingCartMock = MockRepository(shoppingCarts);
             var ownershipsMock = MockRepository(ownerships);
             var notificationsMock = MockRepository(notifications);
