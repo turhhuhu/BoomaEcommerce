@@ -107,6 +107,7 @@ namespace BoomaEcommerce.Api
             services.Configure<AppInitializationSettings>(Configuration.GetSection(AppInitializationSettings.Section));
 
             services.AddSingleton<IUseCaseRunner, UseCaseRunner>();
+
             services.Configure<UseCasesSettings>(Configuration.GetSection(UseCasesSettings.Section));
 
             services.AddAutoMapper(

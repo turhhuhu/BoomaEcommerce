@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Services.External.Supply
                 supplyDetails.Address,
                 supplyDetails.City,
                 supplyDetails.Country,
-                supplyDetails.Zip);
+                supplyDetails.Zip.ToString());
             var content = supplyItem.ToFormData();
             var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();

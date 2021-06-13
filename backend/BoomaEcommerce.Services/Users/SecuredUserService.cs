@@ -60,7 +60,7 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Guid == shoppingCartGuid)
+            if (shoppingCart != null && shoppingCart.Guid == shoppingCartGuid)
             {
                 return await _next.CreateShoppingBasketAsync(shoppingCartGuid, shoppingBasket);
             }

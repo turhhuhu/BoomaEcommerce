@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Data.InMemory
     {
         public InMemoryPurchaseUnitOfWork(
             IRepository<Purchase> purchaseRepository,
-            IRepository<User> userRepository,
+            UserManager<User> userRepository,
             IRepository<Product> productRepository,
             IRepository<ShoppingCart> shoppingCartRepository,
             IRepository<StoreOwnership> storeOwnershipRepository,
@@ -30,7 +30,7 @@ namespace BoomaEcommerce.Data.InMemory
 
         }
         public IRepository<Purchase> PurchaseRepository { get; set; }
-        public IRepository<User> UserRepository { get; set; }
+        public UserManager<User> UserRepository { get; set; }
         public IRepository<Product> ProductRepository { get; set; }
         public IRepository<ShoppingCart> ShoppingCartRepository { get; set; }
         public IRepository<StoreOwnership> StoreOwnershipRepository { get; set; }

@@ -43,19 +43,18 @@ namespace BoomaEcommerce.Services.Purchases
 
         public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto)
         {
-            //TODO: might need to change to a new general validator for purchaseDetailsDto instead of just PurchaseDto
-            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDetailsDto.Purchase);
+            ServiceUtilities.ValidateDto<PurchaseDetailsDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDetailsDto);
             
             // Visitor purchase
-            if (purchaseDetailsDto.Purchase.BuyerGuid == default) return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
+            if (!purchaseDetailsDto.Purchase.UserBuyerGuid.HasValue) return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
 
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
 
             // Different user than the buyer trying to make the purchase. (only if registered)
-            if (userGuidInClaims != purchaseDetailsDto.Purchase.BuyerGuid)
+            if (userGuidInClaims != purchaseDetailsDto.Purchase.UserBuyerGuid)
             {
-                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchaseDetailsDto.Purchase.BuyerGuid} found in purchase.");
+                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchaseDetailsDto.Purchase.UserBuyerGuid} found in purchase.");
             }
 
             return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
@@ -81,7 +80,7 @@ namespace BoomaEcommerce.Services.Purchases
 
         public Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
         {
-            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDto);
+            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.PurchaseValidator>(purchaseDto);
             return _purchaseService.GetPurchaseFinalPrice(purchaseDto);
         }
 

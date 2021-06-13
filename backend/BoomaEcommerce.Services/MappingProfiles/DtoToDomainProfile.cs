@@ -56,7 +56,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(store => store.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}));
             
             CreateMap<PurchaseDto, Purchase>()
-                .ForMember(purchase => purchase.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}));
+                .ForMember(purchase => purchase.Buyer, x => x.Condition(p => p.Buyer != null));
             
             CreateMap<StoreManagementDto, StoreManagement>()
                 .ForMember(x => x.Permissions, x => x.Condition(xx => xx.Permissions != null));
@@ -138,7 +138,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<CategoryDiscountDto, CategoryDiscount>();
 
             CreateMap<BasketDiscountDto, BasketDiscount>();
-                
+
+            CreateMap<BasicUserInfoDto, User>();
 
             CreateMap<ProductDiscountDto, ProductDiscount>()
                 .ConstructUsing((discountDto, _) => new ProductDiscount(new Product { Guid = discountDto.ProductGuid }));

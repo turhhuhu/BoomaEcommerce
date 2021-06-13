@@ -154,6 +154,15 @@ namespace BoomaEcommerce.Data.EfCore
                 p.Property(pp => pp.TotalPrice).HasPrecision(10, 5);
             });
 
+            modelBuilder.Entity<RefreshToken>(r =>
+            {
+                r.HasKey(rt => rt.Guid);
+                r.HasOne(rt => rt.User)
+                    .WithOne()
+                    .HasForeignKey<RefreshToken>(rt => rt.Guid);
+                r.ToTable("RefreshTokens");
+            });
+
             AddDiscountModels(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
