@@ -8,6 +8,7 @@ using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 using Moq;
 
@@ -154,9 +155,11 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, Product> products,
             IDictionary<Guid,Policy> policies,
             IDictionary<Guid, Discount> discounts,
-            IDictionary<Guid, User> users
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ProductOffer> offers
         )
         {
+            var offersRepoMock = MockRepository(offers);
             var userRepoMock = MockRepository(users);
             var storeRepoMock = MockRepository(stores);
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
@@ -217,7 +220,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.DiscountRepo).Returns(storeDiscountRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.UserRepo).Returns(userRepoMock?.Object);
-
+            storeUnitOfWorkMock.SetupGet(x => x.OffersRepo).Returns(offersRepoMock?.Object);
             if (storeDiscountRepoMock != null)
             {
                 storeDiscountRepoMock.Setup(x => x.FindByIdAsync<CompositeDiscount>(It.IsAny<Guid>()))
