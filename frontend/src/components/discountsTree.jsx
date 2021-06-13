@@ -137,7 +137,7 @@ class DiscountsTree extends Component {
             key={discount.guid + "3"}
           />
           <TreeItem
-            label={`Start time: 
+            label={`End time: 
               ${formatDateWithExactTime(discount.endTime)}
             `}
             nodeId={discount.guid + "4"}

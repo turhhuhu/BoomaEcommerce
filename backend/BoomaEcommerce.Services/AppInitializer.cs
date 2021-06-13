@@ -72,14 +72,7 @@ namespace BoomaEcommerce.Services
         private async Task SeedData(User user)
         {
             _logger.LogInformation("Seeding dummy data...");
-            var store = new Store
-            {
-                StoreFounder = user,
-                StoreName = "AdminStore",
-                Description = "AdminStore",
-                Rating = 10
-            };
-
+            var store = new Store(user) {StoreName = "AdminStore", Description = "AdminStore", Rating = 10};
 
             await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
 

@@ -92,7 +92,11 @@ namespace BoomaEcommerce.Services.Purchases
                             cart.User.Guid == purchase.Buyer.Guid);
                 }
 
-                supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
+                if (purchaseDetailsDto.SupplyDetails is not null)
+                {
+                    supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
+                }
+
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
 

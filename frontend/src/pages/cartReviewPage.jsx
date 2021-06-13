@@ -11,18 +11,16 @@ class CartReviewPage extends Component {
   state = {};
   componentDidMount() {
     if (this.props.isAuthenticated) {
-      this.props
-        .dispatch(fetchUserCart())
-        .then((success) =>
-          this.props.dispatch(
-            fetchCartDiscountedPrice({
-              purchase: turnCartIntoPurchase(
-                this.props.cart,
-                this.props.userInfo?.guid
-              ),
-            })
-          )
-        );
+      this.props.dispatch(fetchUserCart()).then(() =>
+        this.props.dispatch(
+          fetchCartDiscountedPrice({
+            purchase: turnCartIntoPurchase(
+              this.props.cart,
+              this.props.userInfo?.guid
+            ),
+          })
+        )
+      );
     }
   }
   render() {
