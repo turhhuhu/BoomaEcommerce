@@ -42,6 +42,7 @@ async function callApi(endpoint, authenticated, config) {
     .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
         if (response.status === 400) {
+          console.log(response);
           return Promise.reject("Bad request");
         }
         if (response.status === 401) {
