@@ -59,6 +59,15 @@ namespace BoomaEcommerce.Api
                 "DeleteDiscountAction" => new DeleteDiscountUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "DeletePolicyAction" => new DeletePolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "GetDiscountPolicyAction" => new GetDiscountPolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "CreatePurchaseAction" => new CreatePurchaseUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetProductsFromStoreAction" => new GetProductsFromStoreUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetAllProductsAction" => new GetAllProductsUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetAllUserPurchaseHistoryAction" => new GetAllUserPurchaseHistoryUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetProductsByCategory" => new GetProductByCategoryUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetProductsByName" => new GetProductByNameUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetProductsByKeyWord" => new GetProductsByKeywordUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetProductAction" => new GetProductUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetPurchaseFinalPriceAction" => new GetPurchaseFinalPriceUseCaseAction(_serviceProvider, _httpContextAccessor),
 
                 _ => throw new ArgumentOutOfRangeException()
             };
