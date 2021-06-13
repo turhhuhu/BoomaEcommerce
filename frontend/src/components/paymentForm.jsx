@@ -6,12 +6,16 @@ import { yearsArray, monthsArray } from "../utils/constants";
 
 class PaymentForm extends Component {
   state = {
-    holderName: "",
-    id: "",
-    cardNumber: "",
-    month: "",
-    year: "",
-    ccv: "",
+    holderName: this.props.paymentInfo.holderName
+      ? this.props.paymentInfo.holderName
+      : "",
+    id: this.props.paymentInfo.id ? this.props.paymentInfo.id : "",
+    cardNumber: this.props.paymentInfo.cardNumber
+      ? this.props.paymentInfo.cardNumber
+      : "",
+    month: this.props.paymentInfo.month ? this.props.paymentInfo.month : "",
+    year: this.props.paymentInfo.year ? this.props.paymentInfo.year : "",
+    ccv: this.props.paymentInfo.ccv ? this.props.paymentInfo.ccv : "",
   };
 
   handleChange = (event) => {
@@ -139,7 +143,7 @@ class PaymentForm extends Component {
             <button
               onClick={() => this.handlePayment(false)}
               className="btn btn-primary btn-block"
-              type="submit"
+              type="button"
             >
               {" "}
               Continue to review purchase{" "}
@@ -147,7 +151,7 @@ class PaymentForm extends Component {
             <button
               onClick={() => this.handlePayment(true)}
               className="btn btn-outline-primary btn-block"
-              type="submit"
+              type="button"
             >
               {" "}
               Continue and order delivery{" "}
@@ -159,4 +163,10 @@ class PaymentForm extends Component {
   }
 }
 
-export default withRouter(connect()(PaymentForm));
+const mapStateToProps = (store) => {
+  return {
+    paymentInfo: store.user.paymentInfo,
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(PaymentForm));

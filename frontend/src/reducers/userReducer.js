@@ -12,6 +12,7 @@ export function user(
     notifications: [],
     paymentInfo: {},
     deliveryInfo: {},
+    guestInformation: {},
   },
   action
 ) {
@@ -29,7 +30,9 @@ export function user(
       });
     case UserActionTypes.USER_INFO_FAILURE:
       console.error(`error occured while getting user info: ${action.error}`);
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.USER_CART_REQUEST:
       return Object.assign({}, state, {
         ...action.payload,
@@ -42,7 +45,9 @@ export function user(
       });
     case UserActionTypes.USER_CART_FAILURE:
       console.error(`error occured while getting user's cart: ${action.error}`);
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.ADD_PRODUCT_WITH_BASKET_REQUEST:
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
@@ -251,7 +256,9 @@ export function user(
       });
     case UserActionTypes.USER_ROLES_FAILURE:
       console.error(`error occured while getting user roles: ${action.error}`);
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.ADD_STORE_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.ADD_STORE_SUCCESS:
@@ -260,7 +267,9 @@ export function user(
       });
     case UserActionTypes.ADD_STORE_FAILURE:
       console.error(`error occured while adding store: ${action.error}`);
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.USER_STORE_ROLE_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.USER_STORE_ROLE_SUCCESS:
@@ -272,7 +281,9 @@ export function user(
       console.error(
         `error occured while getting user store role: ${action.error}`
       );
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.START_WEB_SOCKET_CONNECTION:
       return Object.assign({}, state, {
         webSocketConnection: action.payload.webSocketConnection,
@@ -330,34 +341,47 @@ export function user(
         cart: Object.assign({}, state.cart, {
           discountedPrice: action.payload.response,
         }),
+        isFetching: action.payload.isFetching,
       });
     }
-    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_FAILURE:
+    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_FAILURE: {
       console.error(
         `error occured while getting cart discounted price: ${action.error}`
       );
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    }
     case UserActionTypes.CREATE_PURCHASE_REQUEST:
       return Object.assign({}, state, {
         ...action.payload,
         error: undefined,
+        isFetching: action.payload.isFetching,
       });
     case UserActionTypes.CREATE_PURCHASE_SUCCESS: {
       return Object.assign({}, state, {
         paymentInfo: {},
         discountedPrice: {},
+        guestInformation: {},
         isFetching: action.payload.isFetching,
       });
     }
     case UserActionTypes.CREATE_PURCHASE_FAILURE: {
       console.error(`error occured while purchasing cart: ${action.error}`);
       return Object.assign({}, state, {
-        paymentInfo: {},
-        discountedPrice: {},
         isFetching: action.payload.isFetching,
         error: action.error,
       });
     }
+
+    case UserActionTypes.SUBMIT_GUEST_INFORMATION:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.CLEAR_GUEST_CART:
+      return Object.assign({}, state, { cart: { baskets: [] } });
 
     default:
       return state;

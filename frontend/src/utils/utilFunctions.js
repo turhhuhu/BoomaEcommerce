@@ -20,6 +20,27 @@ export function turnCartIntoPurchase(cart, buyerGuid) {
   };
 }
 
+export function turnCartIntoPurchaseAsGuest(cart, guestInformation) {
+  return {
+    storePurchases: cart.baskets.map((basket) => {
+      return {
+        totalPrice: calculateBasketTotalPrice(basket),
+        purchaseProducts: basket.purchaseProducts.map((purchaseProduct) => {
+          return {
+            productGuid: purchaseProduct.productGuid,
+            amount: purchaseProduct.amount,
+            price: purchaseProduct.price * purchaseProduct.amount,
+          };
+        }),
+        storeGuid: basket.storeGuid,
+      };
+    }),
+    buyer: guestInformation,
+    totalPrice: calculateCartTotalPrice(cart),
+    discountedPrice: cart.discountedPrice,
+  };
+}
+
 export function calculateBasketTotalPrice(basket) {
   return basket.purchaseProducts.reduce(
     (totalPrice, currentPurchaseProduct) =>
