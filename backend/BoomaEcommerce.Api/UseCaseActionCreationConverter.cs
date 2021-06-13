@@ -68,6 +68,15 @@ namespace BoomaEcommerce.Api
                 "GetProductsByKeyWord" => new GetProductsByKeywordUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "GetProductAction" => new GetProductUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "GetPurchaseFinalPriceAction" => new GetPurchaseFinalPriceUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "AddPurchaseProductToShoppingBasketAction" => new AddPurchaseProductToShoppingBasketUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "CreateShoppingBasketAction" => new CreateShoppingBasketUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "DeletePurchaseProductFromShoppingBasketAction" => new DeletePurchaseProductFromShoppingBasketUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "DeleteShoppingBasketAction" => new DeleteShoppingBasketUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetBasicUserInfoAction" => new GetBasicUserInfoUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetShoppingCartAction" => new GetShoppingCartUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetUserInfoAction" => new GetUserInfoUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "SetNotificationAsSeenAction" => new SetNotificationsAsSeenUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "UpdateUserInfoAction" => new UpdateUserInfoUseCaseAction(_serviceProvider, _httpContextAccessor),
 
                 _ => throw new ArgumentOutOfRangeException()
             };

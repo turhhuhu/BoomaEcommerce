@@ -47,6 +47,8 @@ namespace BoomaEcommerce.Services.UseCases
             
             dict.Add(Label,subOridinates);
             scope.Dispose();
-            await Next(dict,claims);        }
+            await Next(dict,claims);
+            
+        }
     }
 }
