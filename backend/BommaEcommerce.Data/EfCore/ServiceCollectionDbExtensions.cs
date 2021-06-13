@@ -114,9 +114,10 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWork>();
             services.AddTransient<IRepository<Purchase>, EfCoreRepository<Purchase, ApplicationDbContext>>();
             
-            /* offers 
+            
             services.AddTransient<IRepository<ProductOffer>, EfCoreRepository<ProductOffer, ApplicationDbContext>>();
-            */
+            services.AddTransient<IRepository<ApproverOwner>, EfCoreRepository<ApproverOwner, ApplicationDbContext>>();
+
 
             return services;
         }

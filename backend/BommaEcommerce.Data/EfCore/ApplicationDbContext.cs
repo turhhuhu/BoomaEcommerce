@@ -26,9 +26,11 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<StoreOwnership> StoreOwnerships { get; set; }
         public DbSet<Discount> Discounts { get; set; }
-        /* offers
+        
         public DbSet<ProductOffer> ProductOffers { get;  set; }
-        */
+
+        public DbSet<ApproverOwner> ApproversOffers { get; set; }
+        
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
@@ -36,7 +38,7 @@ namespace BoomaEcommerce.Data.EfCore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            /*offers
+            
             modelBuilder.Entity<ProductOffer>(
                 po =>
                 {
@@ -44,7 +46,9 @@ namespace BoomaEcommerce.Data.EfCore
                     po.HasOne(ppo  =>  ppo.User).WithMany();
                     po.HasOne(ppo => ppo.Product).WithMany();
 
-                    po.HasMany<StoreOwnership>(ppo => ppo.ApprovedOwners);
+                    //po.HasMany<StoreOwnership>(ppo => ppo.ApprovedOwners);
+
+                    po.HasMany(ppo => ppo.ApprovedOwners).WithOne();
                     
                     po.Property(ppo => ppo.OfferPrice).HasPrecision(10, 5);
 
@@ -52,10 +56,16 @@ namespace BoomaEcommerce.Data.EfCore
                     
                 }
                 );
-            */
 
-        
-           modelBuilder.Entity<Product>(p =>
+            modelBuilder.Entity<ApproverOwner>(
+                 ao =>
+                 {
+                     ao.HasKey(aao =>aao.Guid);
+                     ao.HasOne(aao => aao.Approver).WithMany();
+                 }
+                 );
+
+            modelBuilder.Entity<Product>(p =>
             {
                 p.Property(pp => pp.Price).HasPrecision(10, 5);
                 p.Property(pp => pp.Rating).HasPrecision(4, 2);

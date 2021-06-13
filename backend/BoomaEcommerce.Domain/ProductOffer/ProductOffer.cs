@@ -15,7 +15,7 @@ namespace BoomaEcommerce.Domain.ProductOffer
         public ProductOfferState State { get; set; }
         public decimal OfferPrice { get; set; }
         public decimal? CounterOfferPrice { get; set; }
-        public List<StoreOwnership> ApprovedOwners { get; set; }
+        public List<ApproverOwner> ApprovedOwners { get; set; }
 
         public ProductOfferState CheckProductOfferState(List<StoreOwnership> ownersInStore)
         {
@@ -31,8 +31,9 @@ namespace BoomaEcommerce.Domain.ProductOffer
 
         public ProductOfferState ApproveOffer(StoreOwnership owner, List<StoreOwnership> ownersInStore)
         {
-            if(this.State == ProductOfferState.Pending) { 
-                this.ApprovedOwners.Add(owner);
+            if(this.State == ProductOfferState.Pending) {
+                ApproverOwner approver = new ApproverOwner() { Approver = owner };
+                this.ApprovedOwners.Add(approver);
                 return CheckProductOfferState(ownersInStore);
             }
 
@@ -69,7 +70,7 @@ namespace BoomaEcommerce.Domain.ProductOffer
         public ProductOffer(User user)
         {
             this.State = ProductOfferState.Pending;
-            this.ApprovedOwners = new List<StoreOwnership>();
+            this.ApprovedOwners = new List<ApproverOwner>();
             this.OfferPrice = 0;
             this.CounterOfferPrice = 0;
             this.User = user;

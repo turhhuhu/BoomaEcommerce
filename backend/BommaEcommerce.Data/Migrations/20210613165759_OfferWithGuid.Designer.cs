@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210613165759_OfferWithGuid")]
+    partial class OfferWithGuid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,14 +216,9 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Property<Guid?>("ApproverGuid")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ProductOfferGuid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Guid");
 
                     b.HasIndex("ApproverGuid");
-
-                    b.HasIndex("ProductOfferGuid");
 
                     b.ToTable("ApproversOffers");
                 });
@@ -919,10 +916,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ApproverGuid");
 
-                    b.HasOne("BoomaEcommerce.Domain.ProductOffer.ProductOffer", null)
-                        .WithMany("ApprovedOwners")
-                        .HasForeignKey("ProductOfferGuid");
-
                     b.Navigation("Approver");
                 });
 
@@ -1324,11 +1317,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.ProductOffer.ProductOffer", b =>
-                {
-                    b.Navigation("ApprovedOwners");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.ShoppingCart", b =>

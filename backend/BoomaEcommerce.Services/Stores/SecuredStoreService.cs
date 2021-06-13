@@ -538,11 +538,6 @@ namespace BoomaEcommerce.Services.Stores
             throw new UnAuthorizedException(nameof(MakeCounterOffer), ClaimsPrincipal.GetUserGuid());
         }
 
-        public Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid)
         {
             throw new NotImplementedException();
@@ -570,6 +565,11 @@ namespace BoomaEcommerce.Services.Stores
             }
 
             throw new UnAuthorizedException(nameof(GetAllOwnerProductOffers), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
+        {
+            throw new NotImplementedException();
         }
     }
 }
