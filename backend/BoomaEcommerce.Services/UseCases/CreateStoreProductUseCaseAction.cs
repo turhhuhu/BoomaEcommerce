@@ -12,17 +12,12 @@ namespace BoomaEcommerce.Services.UseCases
 {
     public class CreateStoreProductUseCaseAction : UseCaseAction
     {
-        [JsonRequired]
-        public string ProductName { get; set; }
-
-        [JsonRequired]
-        public int ProductAmount { get; set; }
-        
-        [JsonRequired]
-        public int ProductPrice { get; set; }
         
         [JsonRequired]
         public string StoreLabel { get; set; }
+        
+        [JsonRequired]
+        public ProductDto NewPoduct { get; set; }
         
         public CreateStoreProductUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
@@ -52,14 +47,9 @@ namespace BoomaEcommerce.Services.UseCases
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var product = await storeService.CreateStoreProductAsync(new ProductDto
-            {
-                StoreGuid = store.Guid,
-                Amount = ProductAmount,
-                Name = ProductName,
-                Price = ProductPrice
-                
-            });
+            NewPoduct.StoreGuid = store.Guid;
+
+            var product = await storeService.CreateStoreProductAsync(NewPoduct);
             dict.Add(Label,product);
             
             scope.Dispose();

@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Api
                 "GetAllSellersAction" => new GetAllSellersUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "DeleteProductAction" => new DeleteProductUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "GetProductsAction" => new GetProductsUseCaseAction(_serviceProvider, _httpContextAccessor),
-                "GetPolicyAction" => new GetPolicyUserCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetPolicyAction" => new GetPolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "GetSuboridinatesAction" => new GetSubOridinatesUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "UpdateProductAction" => new UpdateProductUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "GetStoreAction" => new GetStoreUseCaseAction(_serviceProvider, _httpContextAccessor),
@@ -48,7 +48,18 @@ namespace BoomaEcommerce.Api
                 "GetManagementAction" => new GetManagementUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "UpdatePermissionsAction" => new UpdatePermissionsUseCaeAction(_serviceProvider, _httpContextAccessor),
                 "RemoveStoreOwnerAction" => new RemoveStoreOwnerUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "AddDiscountAction" => new AddDiscountUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "RemoveManagerAction" => new RemoveManagerUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "AddPolicyAction" => new AddPolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "CreateDiscountSubPolicyAction" => new RemoveManagerUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "CreateDiscountPolicyAction" => new CreateDiscountPolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "CreateDiscountAction" => new CreateDiscountUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "CreatePurchasePolicyAction" => new CreatePurchasePolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "DeleteDiscountPolicyAction" => new DeleteDiscountPolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "DeleteDiscountAction" => new DeleteDiscountUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "DeletePolicyAction" => new DeletePolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "GetDiscountPolicyAction" => new GetDiscountPolicyUseCaseAction(_serviceProvider, _httpContextAccessor),
+
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
