@@ -11,9 +11,11 @@ using BoomaEcommerce.Domain.Discounts.Operators;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Domain.Policies.Operators;
 using BoomaEcommerce.Domain.Policies.PolicyTypes;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using OperatorType = BoomaEcommerce.Services.DTO.Policies.OperatorType;
 
 namespace BoomaEcommerce.Services.MappingProfiles
@@ -176,6 +178,10 @@ namespace BoomaEcommerce.Services.MappingProfiles
                         SumDiscountOperator => OperatorTypeDiscount.Sum,
                         _ => throw new ArgumentOutOfRangeException(nameof(@operator))
                     });
+
+
+            CreateMap<ProductOffer, ProductOfferDto>()
+                .ForMember(dto => dto.UserGuid, x => x.MapFrom(offer => offer.User.Guid));
         }
 
     }

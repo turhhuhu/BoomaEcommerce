@@ -238,10 +238,10 @@ namespace BoomaEcommerce.Api.Controllers
             var createdProductOfferDto = await _userService.CreateProductOffer(offerDto);
             if (createdProductOfferDto == null)
             {
-                return NoContent();
+                return NotFound();
             }
 
-            return NotFound();
+            return Ok(createdProductOfferDto);
         }
     }
 }

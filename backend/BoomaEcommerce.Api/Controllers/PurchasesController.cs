@@ -40,7 +40,7 @@ namespace BoomaEcommerce.Api.Controllers
             return Created(locationUrl, purchaseResult);
         }
 
-        
+        /*
         [Authorize]
         [HttpPost("{storeGuid}/offers")]
         public async Task<IActionResult> CreateProductOffer(Guid userGuid, ProductDto productDto, decimal price)
@@ -86,7 +86,7 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Created(locationUrl, createdOffer);
         }
-
+        */
         //Todo Controller for Update - UPDATE {storeGuid}/offers (approve / decline / counter offer)
 
     }

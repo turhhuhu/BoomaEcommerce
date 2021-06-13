@@ -100,7 +100,7 @@ namespace BoomaEcommerce.Services.Purchases
         /*
          * Product Offers
          */
-
+        /*
         public Task<ProductOfferDto> CreateProductOffer(Guid userGuid, ProductDto product, decimal price)
         {
             CheckAuthenticated();
@@ -144,7 +144,7 @@ namespace BoomaEcommerce.Services.Purchases
             }
             throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match owner {ownerGuid} provided to make a counter offer.");
         }
-
+        
         public Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid)
         {
             throw new NotImplementedException();
@@ -154,5 +154,6 @@ namespace BoomaEcommerce.Services.Purchases
         {
             throw new NotImplementedException();
         }
+        */
     }
 }

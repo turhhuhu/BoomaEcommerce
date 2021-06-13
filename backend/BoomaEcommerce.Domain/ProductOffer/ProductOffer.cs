@@ -65,7 +65,20 @@ namespace BoomaEcommerce.Domain.ProductOffer
             this.State = ProductOfferState.CounterOfferReceived;
             this.CounterOfferPrice = counterOfferPrice;
         }
-  
+
+        public ProductOffer(User user)
+        {
+            this.State = ProductOfferState.Pending;
+            this.ApprovedOwners = new List<StoreOwnership>();
+            this.OfferPrice = 0;
+            this.CounterOfferPrice = 0;
+            this.User = user;
+        }
+
+        private ProductOffer()
+        {
+        }
+
 
     }
 

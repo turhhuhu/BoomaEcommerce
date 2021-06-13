@@ -170,7 +170,7 @@ namespace BoomaEcommerce.Services.Stores
 
         Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid);
 
-        Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid);
+        Task<ProductOfferDto> GetProductOffer(Guid offerGuid);
 
         Task<IEnumerable<ProductOfferDto>> GetAllUserProductOffers(Guid userGuid);
 

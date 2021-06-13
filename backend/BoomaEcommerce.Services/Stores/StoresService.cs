@@ -940,7 +940,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        public async Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid)
+        public async Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
         {
             try
             {
@@ -978,7 +978,7 @@ namespace BoomaEcommerce.Services.Stores
                 var productOffers = await _storeUnitOfWork.OffersRepo.FilterByAsync
                     (offer => offer.Product.Store.Guid == owner.Store.Guid);
 
-                return _mapper.Map<IEnumerable<ProductOfferDto>>(productOffers);
+                return _mapper.Map<List<ProductOfferDto>>(productOffers.ToList());
             }
             catch (Exception e)
             {

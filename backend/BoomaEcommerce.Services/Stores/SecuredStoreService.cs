@@ -529,13 +529,18 @@ namespace BoomaEcommerce.Services.Stores
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
             var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
-            var offer = await _storeService.GetProductOffer(productOfferGuid);
+            var offer = await _storeService.GetProductOffer(offerGuid);
             if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.Store.Guid)
             {
                 await _storeService.MakeCounterOffer(ownerGuid, counterOfferPrice, offerGuid);
             }
 
             throw new UnAuthorizedException(nameof(MakeCounterOffer), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid)

@@ -17,19 +17,22 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<ProductOffer> ProductOfferRepo { get; set; }
         public IRepository<PurchaseProduct> PurchaseProductRepo { get; set; }
         public IRepository<User> UserRepository { get; set; }
+        public IRepository<Product> ProductRepository { get; set; }
 
         public InMemoryUserUnitOfWork(
             IRepository<ShoppingBasket> shoppingBasketRepo,
             IRepository<ShoppingCart> shoppingCartRepo,
             IRepository<PurchaseProduct> purchaseProductRepo,
             IRepository<User> userRepository,
-            IRepository<ProductOffer> productOfferRepo)
+            IRepository<ProductOffer> productOfferRepo,
+            IRepository<Product> productRepository)
         {
             ShoppingBasketRepo = shoppingBasketRepo;
             ShoppingCartRepo = shoppingCartRepo;
             PurchaseProductRepo = purchaseProductRepo;
             UserRepository = userRepository;
             ProductOfferRepo = productOfferRepo;
+            ProductRepository = productRepository;
         }
 
         public Task SaveAsync()

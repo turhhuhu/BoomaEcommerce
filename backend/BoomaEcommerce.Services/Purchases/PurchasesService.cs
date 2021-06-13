@@ -223,14 +223,5 @@ namespace BoomaEcommerce.Services.Purchases
         {
             throw new NotSupportedException();
         }
-
-        
-
-      
-
-
-        
-
-       
     }
 }

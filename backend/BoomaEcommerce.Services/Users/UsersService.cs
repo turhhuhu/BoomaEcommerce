@@ -235,6 +235,8 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 var productOffer = _mapper.Map<ProductOffer>(offerDto);
+                var prod = await _userUnitOfWork.ProductRepository.FindByIdAsync(productOffer.Product.Guid);
+                productOffer.Product = prod;
                 await _userUnitOfWork.ProductOfferRepo.InsertOneAsync(productOffer);
                 await _userUnitOfWork.SaveAsync();
 
@@ -242,7 +244,7 @@ namespace BoomaEcommerce.Services.Users
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "The following error occurred during The creation of product offer to product with guid {storeGuid}", offerDto.ProductGuid);
+                _logger.LogError(e, "The following error occurred during The creation of product offer to product with guid {storeGuid}", offerDto.Product.Guid);
                 return null;
             }
             
