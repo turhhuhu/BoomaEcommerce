@@ -47,13 +47,6 @@ namespace BoomaEcommerce.Services.Purchases
             
             try
             {
-                purchaseDetailsDto.Purchase.UserBuyerGuid = null;
-                purchaseDetailsDto.Purchase.Buyer = new BasicUserInfoDto
-                {
-                    Name = "Yosi",
-                    LastName = "A maniak",
-                    DateOfBirth = DateTime.UtcNow
-                };
                 await using var transaction = await _purchaseUnitOfWork.BeginTransaction();
                 var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 

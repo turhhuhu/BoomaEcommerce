@@ -303,14 +303,15 @@ namespace BoomaEcommerce.AcceptanceTests
             List<StorePurchaseDto> sp = new List<StorePurchaseDto>();
             sp.Add(myStorePurchase);
 
+
             var myPurchase = _fixture.Build<PurchaseDto>()
                 .With(p => p.StorePurchases, sp)
                 .With(p => p.TotalPrice, purchase_product1.Price + purchase_product2.Price + 1)
-                .Without(p => p.UserBuyerGuid)
+                .With(p => p.UserBuyerGuid, UserGuid)
                 .Without(p => p.Guid)
                 .Without(p => p.Buyer)
                 .Create();
-            
+
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
                 .With(pd => pd.Purchase, myPurchase)
                 .Create();

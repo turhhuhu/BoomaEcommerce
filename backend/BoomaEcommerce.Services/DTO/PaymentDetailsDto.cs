@@ -2,11 +2,11 @@
 {
     public class PaymentDetailsDto
     {
-        public string CardNumber { get; set; }
-        public string Month { get; set; }
-        public string Year { get; set; }
+        public int CardNumber { get; set; }
+        public int Month { get; set; }
+        public int Year { get; set; }
         public string HolderName { get; set; }
-        public string Ccv { get; set; }
-        public string Id { get; set; }
+        public int Ccv { get; set; }
+        public int Id { get; set; }
     }
 }

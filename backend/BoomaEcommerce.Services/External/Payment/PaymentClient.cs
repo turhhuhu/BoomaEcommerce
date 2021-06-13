@@ -25,12 +25,12 @@ namespace BoomaEcommerce.Services.External.Payment
             }
             var payRequest = new PayRequest(
                 "pay",
-                paymentDetails.CardNumber,
-                paymentDetails.Month,
-                paymentDetails.Year,
+                paymentDetails.CardNumber.ToString(),
+                paymentDetails.Month.ToString(),
+                paymentDetails.Year.ToString(),
                 paymentDetails.HolderName,
-                paymentDetails.Ccv,
-                paymentDetails.Id);
+                paymentDetails.Ccv.ToString(),
+                paymentDetails.Id.ToString());
             var content = payRequest.ToFormData();
             var response = await _httpClient.PostAsync(_httpClient.BaseAddress, content);
             var responseString = await response.Content.ReadAsStringAsync();

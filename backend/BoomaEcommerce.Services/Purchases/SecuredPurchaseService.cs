@@ -43,11 +43,10 @@ namespace BoomaEcommerce.Services.Purchases
 
         public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto)
         {
-            //TODO: might need to change to a new general validator for purchaseDetailsDto instead of just PurchaseDto
-            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDetailsDto.Purchase);
+            ServiceUtilities.ValidateDto<PurchaseDetailsDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDetailsDto);
             
             // Visitor purchase
-            if (purchaseDetailsDto.Purchase.UserBuyerGuid == default) return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
+            if (!purchaseDetailsDto.Purchase.UserBuyerGuid.HasValue) return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
 
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
@@ -81,7 +80,7 @@ namespace BoomaEcommerce.Services.Purchases
 
         public Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
         {
-            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDto);
+            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.PurchaseValidator>(purchaseDto);
             return _purchaseService.GetPurchaseFinalPrice(purchaseDto);
         }
 
