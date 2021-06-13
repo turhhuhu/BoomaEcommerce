@@ -237,6 +237,8 @@ namespace BoomaEcommerce.Services.Users
                 var productOffer = _mapper.Map<ProductOffer>(offerDto);
                 var prod = await _userUnitOfWork.ProductRepository.FindByIdAsync(productOffer.Product.Guid);
                 productOffer.Product = prod;
+                var user = await _userUnitOfWork.UserRepository.FindByIdAsync(productOffer.User.Guid);
+                productOffer.User = user;
                 await _userUnitOfWork.ProductOfferRepo.InsertOneAsync(productOffer);
                 await _userUnitOfWork.SaveAsync();
 

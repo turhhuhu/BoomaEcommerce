@@ -18,6 +18,7 @@ namespace BoomaEcommerce.Data.EfCore
         public IRepository<ProductOffer> ProductOfferRepo { get; set; }
         public IRepository<User> UserRepository { get; set; }
         public IRepository<Product> ProductRepository { get; set; }
+        public IRepository<ApproverOwner> ApproversRepo { get; set ; }
 
         public UserUnitOfWork(
             ApplicationDbContext dbContext,
@@ -26,7 +27,8 @@ namespace BoomaEcommerce.Data.EfCore
             IRepository<PurchaseProduct> purchaseProductRepo,
             IRepository<User> userRepo,
             IRepository<ProductOffer> productOfferRepo,
-            IRepository<Product> productRepository
+            IRepository<Product> productRepository,
+            IRepository<ApproverOwner> approversRepo
             )
         {
             _dbContext = dbContext;
@@ -35,6 +37,7 @@ namespace BoomaEcommerce.Data.EfCore
             UserRepository = userRepo;
             ProductOfferRepo = productOfferRepo;
             ProductRepository = productRepository;
+            ApproversRepo = approversRepo;
         }
 
 

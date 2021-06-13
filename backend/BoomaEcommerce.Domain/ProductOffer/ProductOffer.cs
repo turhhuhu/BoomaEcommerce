@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Domain.ProductOffer
 
         public ProductOfferState CheckProductOfferState(List<StoreOwnership> ownersInStore)
         {
-            if (ownersInStore.Select(o => o.Guid).Any(guid => ApprovedOwners.Select(o => o.Guid).Contains(guid)))
+            if (ownersInStoreContainedInApprovers(ownersInStore))
             {
                 // Owners in store all contained in the approval list
                 this.State = ProductOfferState.Approved;
@@ -29,15 +29,27 @@ namespace BoomaEcommerce.Domain.ProductOffer
             return ProductOfferState.Pending;
         }
 
-        public ProductOfferState ApproveOffer(StoreOwnership owner, List<StoreOwnership> ownersInStore)
+        private bool ownersInStoreContainedInApprovers(List<StoreOwnership> ownersInStore)
+        { 
+            foreach(var owner in ownersInStore)
+            {
+                if (!(this.ApprovedOwners.Select(o=>o.Approver.Guid).Contains(owner.Guid)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public ApproverOwner ApproveOffer(StoreOwnership owner, List<StoreOwnership> ownersInStore)
         {
-            if(this.State == ProductOfferState.Pending) {
-                ApproverOwner approver = new ApproverOwner() { Approver = owner };
+            ApproverOwner approver = null;
+            if (this.State == ProductOfferState.Pending) {
+                approver = new ApproverOwner() { Approver = owner };
                 this.ApprovedOwners.Add(approver);
-                return CheckProductOfferState(ownersInStore);
+                CheckProductOfferState(ownersInStore);
             }
 
-            return ProductOfferState.Pending;
+            return approver;
         }
 
         public void DeclineOffer(StoreOwnership owner)

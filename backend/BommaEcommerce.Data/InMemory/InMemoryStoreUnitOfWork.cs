@@ -23,6 +23,7 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<User> UserRepo { get; set; }
         public IRepository<ProductOffer> OffersRepo { get; set; }
         public IRepository<Discount> DiscountRepo { get; set; }
+        public IRepository<ApproverOwner> ApproversRepo { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public InMemoryStoreUnitOfWork(
             IRepository<Store> storeRepo,
@@ -34,7 +35,8 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<Policy> policyRepo,
             IRepository<Discount> discountRepo,
             IRepository<User> userRepo,
-            IRepository<ProductOffer> offersRepo)
+            IRepository<ProductOffer> offersRepo,
+            IRepository<ApproverOwner> approversRepo)
         {
             StoreRepo = storeRepo;
             StoreOwnershipRepo = ownershipRepo;
@@ -46,6 +48,7 @@ namespace BoomaEcommerce.Data.InMemory
             DiscountRepo = discountRepo;
             UserRepo = userRepo;
             OffersRepo = offersRepo;
+            ApproversRepo = approversRepo;
         }
 
         public Task SaveAsync()

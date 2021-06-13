@@ -245,11 +245,12 @@ namespace BoomaEcommerce.Services.Stores
 
                 _storeUnitOfWork.StoreManagementRepo.DeleteRange(managers);
 
-
-                await UpdateStoreOffers(storeGuid);
-
-
                 await _storeUnitOfWork.SaveAsync();
+
+                var isUpdated = await UpdateStoreOffers(storeGuid);
+
+                if(isUpdated)
+                    await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -259,16 +260,20 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        private async Task UpdateStoreOffers(Guid storeGuid)
+        private async Task<bool> UpdateStoreOffers(Guid storeGuid)
         {
+            var isUpdated = false;
             var storeOwners = await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(so => so.Store.Guid == storeGuid);
             var offers = await _storeUnitOfWork.OffersRepo.FilterByAsync(o => o.Product.Store.Guid == storeGuid);
 
             foreach (var offer in offers)
             {
-                offer.CheckProductOfferState(storeOwners.ToList());
+                var res = offer.CheckProductOfferState(storeOwners.ToList());
+                if (res != ProductOfferState.Pending)
+                    isUpdated = true;
             }
 
+            return isUpdated;
         }
 
         private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
@@ -897,9 +902,13 @@ namespace BoomaEcommerce.Services.Stores
                 var ownersInStore =
                     await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(o => o.Store.Guid == storeGuid);
 
-                var state = productOffer.ApproveOffer(owner, ownersInStore.ToList());
+                var approveOwner = productOffer.ApproveOffer(owner, ownersInStore.ToList());
 
-                await _storeUnitOfWork.SaveAsync();
+                if (approveOwner != null)
+                {
+                    await _storeUnitOfWork.ApproversRepo.InsertOneAsync(approveOwner);
+                    await _storeUnitOfWork.SaveAsync();
+                }
             }
             catch (Exception e)
             {

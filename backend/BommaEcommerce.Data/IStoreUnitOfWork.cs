@@ -23,6 +23,7 @@ namespace BoomaEcommerce.Data
         IRepository<Discount> DiscountRepo { get; set; }
         IRepository<User> UserRepo { get; set; }
         IRepository<ProductOffer> OffersRepo { get; set; }
+        IRepository<ApproverOwner> ApproversRepo { get; set; }
         Task SaveAsync();
         void AttachNoChange<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
 

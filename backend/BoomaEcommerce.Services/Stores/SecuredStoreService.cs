@@ -505,6 +505,7 @@ namespace BoomaEcommerce.Services.Stores
             if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid ==  offer.Product.Store.Guid)
             {
                 await _storeService.ApproveOffer(ownerGuid, productOfferGuid);
+                return;
             }
 
             throw new UnAuthorizedException(nameof(ApproveOffer), ClaimsPrincipal.GetUserGuid());
@@ -519,6 +520,7 @@ namespace BoomaEcommerce.Services.Stores
             if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.Store.Guid)
             {
                 await _storeService.DeclineOffer(ownerGuid, productOfferGuid);
+                return;
             }
 
             throw new UnAuthorizedException(nameof(DeclineOffer), ClaimsPrincipal.GetUserGuid());
@@ -532,7 +534,8 @@ namespace BoomaEcommerce.Services.Stores
             var offer = await _storeService.GetProductOffer(offerGuid);
             if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.Store.Guid)
             {
-                await _storeService.MakeCounterOffer(ownerGuid, counterOfferPrice, offerGuid);
+                return await _storeService.MakeCounterOffer(ownerGuid, counterOfferPrice, offerGuid);
+            
             }
 
             throw new UnAuthorizedException(nameof(MakeCounterOffer), ClaimsPrincipal.GetUserGuid());

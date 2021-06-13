@@ -235,6 +235,8 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Me + "/offers")]
         public async Task<IActionResult> CreateProductOffer(ProductOfferDto offerDto)
         {
+            var userGuid = User.GetUserGuid();
+            offerDto.UserGuid = userGuid;
             var createdProductOfferDto = await _userService.CreateProductOffer(offerDto);
             if (createdProductOfferDto == null)
             {
