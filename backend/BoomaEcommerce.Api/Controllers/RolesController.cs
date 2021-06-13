@@ -107,5 +107,34 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(offers.ToList());
         }
+
+        [Authorize]
+        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/ApprovedOwners")]
+        public async Task<IActionResult> ApproveProductOffer(Guid ownershipGuid, Guid offerGuid)
+        {
+            await _storesService.ApproveOffer(ownershipGuid, offerGuid);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpDelete(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}")]
+        public async Task<IActionResult> DeclineProductOffer(Guid ownershipGuid, Guid offerGuid)
+        {
+            await _storesService.DeclineOffer(ownershipGuid, offerGuid);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/CounterOfferPrice")]
+        public async Task<IActionResult> ProposeCounterOffer(Guid ownershipGuid, Guid offerGuid, decimal counterOfferPrice)
+        {
+            var offerDto = await _storesService.MakeCounterOffer(ownershipGuid, counterOfferPrice, offerGuid);
+            if (offerDto == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(offerDto);
+        }
     }
 }

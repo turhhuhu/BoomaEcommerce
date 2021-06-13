@@ -243,5 +243,19 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(createdProductOfferDto);
         }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Me + "/offers")]
+        public async Task<IActionResult> GetUserProductOffers()
+        {
+            var userGuid = User.GetUserGuid();
+            var offers = await _storesService.GetAllUserProductOffers(userGuid);
+            if (offers == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(offers.ToList());
+        }
     }
 }

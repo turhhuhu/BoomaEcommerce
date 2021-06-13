@@ -957,11 +957,10 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                
                 var productOffers = await _storeUnitOfWork.OffersRepo.FilterByAsync
                     (offer => offer.User.Guid == userGuid);
 
-                return _mapper.Map<IEnumerable<ProductOfferDto>>(productOffers);
+                return _mapper.Map<List<ProductOfferDto>>(productOffers.ToList());
             }
             catch (Exception e)
             {
