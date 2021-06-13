@@ -61,7 +61,7 @@ namespace BoomaEcommerce.Services.UseCases
                 Category = NewCategory ?? product.Category
                 
             });
-
+            scope.Dispose();
             await Next(dict, claims);
         }
     }

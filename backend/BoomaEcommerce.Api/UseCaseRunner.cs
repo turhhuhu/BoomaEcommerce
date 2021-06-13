@@ -64,7 +64,7 @@ namespace BoomaEcommerce.Api
 
             useCaseAggregated.ForEach(async u => await u.NextAction());
         }
-
+        
         public UseCases ReadUseCases()
         {
             var jsonString = File.ReadAllText(_useCasesSettings.FilePath);

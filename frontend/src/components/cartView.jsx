@@ -7,7 +7,7 @@ class CartView extends Component {
   getCartItems = () => {
     return this.props.cart.baskets?.map((basket) => {
       return basket.purchaseProducts
-        .sort((a, b) => a.guid - b.guid)
+        ?.sort((a, b) => a.guid - b.guid)
         .map((purchaseProduct, index) => (
           <CartItem
             key={index}

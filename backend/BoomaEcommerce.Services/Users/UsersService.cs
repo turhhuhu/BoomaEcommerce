@@ -43,6 +43,11 @@ namespace BoomaEcommerce.Services.Users
 
                 var user = await _userUnitOfWork.UserRepository.FindByIdAsync(userGuid);
 
+                if (user is null)
+                {
+                    return null;
+                }
+
                 shoppingCart = new ShoppingCart(user);
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
                 await _userUnitOfWork.SaveAsync();
@@ -93,8 +98,6 @@ namespace BoomaEcommerce.Services.Users
             {
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
 
-                _userUnitOfWork.AttachNoChange(purchaseProduct.Product);
-
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketGuid);
 
                 if (shoppingBasket == null)
@@ -102,10 +105,20 @@ namespace BoomaEcommerce.Services.Users
                     return null;
                 }
 
+                if (shoppingBasket.ContainsProduct(purchaseProduct.Product, out var product))
+                {
+                    purchaseProduct.Product = product;
+                }
+                else
+                {
+                    _userUnitOfWork.AttachNoChange(purchaseProduct.Product);
+                }
+
                 if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
                     return null;
                 }
+
                 await _userUnitOfWork.SaveAsync();
                 return _mapper.Map<PurchaseProductDto>(purchaseProduct);
             }
@@ -131,7 +144,12 @@ namespace BoomaEcommerce.Services.Users
                 {
                     return false;
                 }
-                await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
+
+                if (!shoppingBasket.PurchaseProducts.Any())
+                {
+                    await _userUnitOfWork.ShoppingBasketRepo.DeleteByIdAsync(shoppingBasket.Guid);
+                }
+
                 await _userUnitOfWork.SaveAsync();
                 return true;
             }

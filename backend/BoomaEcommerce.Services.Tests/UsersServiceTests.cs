@@ -143,13 +143,13 @@ namespace BoomaEcommerce.Services.Tests
             shoppingBasket.AddPurchaseProduct(purchaseProduct);
             shoppingBasketDict[shoppingBasketGuid] = shoppingBasket;
             var sut = GetUserService(shoppingBasketDict, null);
-            
+
             // Act
             var result = await sut.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
 
             // Assert
             result.Should().BeTrue();
-            shoppingBasketDict[shoppingBasketGuid].PurchaseProducts.Should().NotContain(x => x.Guid == purchaseProductGuid);
+            shoppingBasketDict.ContainsKey(shoppingBasket.Guid).Should().BeFalse();
         }
         
         [Fact]

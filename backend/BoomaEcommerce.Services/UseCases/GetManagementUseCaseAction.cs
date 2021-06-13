@@ -56,7 +56,7 @@ namespace BoomaEcommerce.Services.UseCases
             var management = await storeService.GetStoreManagementAsync(user.Guid, store.Guid);
             
             dict.Add(Label,management);
-
+            scope.Dispose();
             await Next(dict, claims);
         }
     }

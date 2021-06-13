@@ -27,7 +27,18 @@ namespace BoomaEcommerce.Domain
         }
         public bool AddPurchaseProduct(PurchaseProduct purchaseProduct)
         {
-            return purchaseProduct is not null && PurchaseProducts.Add(purchaseProduct);
+            if (purchaseProduct == null)
+            {
+                return false;
+            }
+            var existingPurchaseProduct =  PurchaseProducts.FirstOrDefault(p => p.Product.Guid == purchaseProduct.Product.Guid);
+
+            if (existingPurchaseProduct == null) 
+                return PurchaseProducts.Add(purchaseProduct);
+
+            existingPurchaseProduct.Amount += purchaseProduct.Amount;
+            return true;
+
         }
         public bool RemovePurchaseProduct(Guid purchaseProductGuid)
         {
@@ -40,6 +51,10 @@ namespace BoomaEcommerce.Domain
         public bool Contains(Guid purchaseProductGuid)
         {
             return PurchaseProducts.Contains(new PurchaseProduct { Guid = purchaseProductGuid});
+        }
+        public bool ContainsProduct(Product product, out Product existingProduct)
+        {
+            return (existingProduct = PurchaseProducts.FirstOrDefault(p => p.Product.Guid == product.Guid)?.Product) != null;
         }
     }
 

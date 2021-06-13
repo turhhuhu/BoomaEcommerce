@@ -10,13 +10,12 @@ using BoomaEcommerce.Data.EfCore;
 
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
-    public class EfCoreRepository<T, TDbContext> : IRepository<T> 
+    public class EfCoreRepository<T> : IRepository<T> 
         where T : class, IBaseEntity
-        where TDbContext : DbContext
     {
-        protected readonly TDbContext DbContext;
+        protected readonly ApplicationDbContext DbContext;
 
-        public EfCoreRepository(TDbContext dbContext)
+        public EfCoreRepository(ApplicationDbContext dbContext)
         {
             DbContext = dbContext;
         }

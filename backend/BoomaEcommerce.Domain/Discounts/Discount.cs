@@ -73,7 +73,7 @@ namespace BoomaEcommerce.Domain.Discounts
 
         private EmptyDiscount()
         {
-            
+            this.Policy = Policy.Empty;
         }
         public EmptyDiscount(int percentage, DateTime startTime, DateTime endTime, string description) : base(percentage, startTime, endTime, description)
         {

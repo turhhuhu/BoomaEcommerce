@@ -59,6 +59,10 @@ namespace BoomaEcommerce.Data.EfCore
                 _dbContext.Dispose();
             }
         }
+        public void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        {
+            _dbContext.Add(entity);
+        }
         public void AttachNoChange<TEntity>(TEntity entity)
             where TEntity : class, IBaseEntity
         {

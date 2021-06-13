@@ -63,7 +63,7 @@ namespace BoomaEcommerce.Services.UseCases
                 Store = storeOwnership.Store,
                 Permissions = ManagerPermissions ?? new StoreManagementPermissionsDto()
             });
-
+            scope.Dispose();
             await Next(dict,claims);
         }
     }

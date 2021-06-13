@@ -84,14 +84,15 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var product = _mapper.Map<Product>(productDto);
-                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
-                if (store is null)
+                product.Store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
+                if (product.Store is null)
                 {
                     _logger.LogWarning("create UserStore product failed because" +
-                                       " UserStore with guid {UserDto} does not exists", product.Store.Guid);
+                                       " UserStore with guid {UserDto} does not exists", productDto.StoreGuid);
                     return null;
                 }
                 await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return _mapper.Map<ProductDto>(product);
             }
             catch (Exception e)
@@ -412,8 +413,6 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                var t =await  _storeUnitOfWork.StoreOwnershipRepo.FindAllAsync();
-                var c = t.First();
                 var ownership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnershipGuid);
                 return _mapper.Map<StoreOwnershipDto>(ownership);
             }

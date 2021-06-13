@@ -143,6 +143,10 @@ class AddStorePolicyDialog extends Component {
               [mapPolicyTypeToValueName[this.state.type]]: this.state.value
                 ? this.state.value
                 : undefined,
+              productGuid: this.state.productGuid
+                ? this.state.productGuid
+                : undefined,
+              category: this.state.category ? this.state.category : undefined,
             })
           )
           .then((success) => {
@@ -202,14 +206,7 @@ class AddStorePolicyDialog extends Component {
             <Select
               onMenuOpen={this.handleOpenMenu}
               onMenuClose={this.handleCloseMenu}
-              options={
-                this.props.isRoot
-                  ? [
-                      { value: "composite", label: "Composite", name: "type" },
-                      { value: "binary", label: "Binary", name: "type" },
-                    ]
-                  : typeOptions
-              }
+              options={typeOptions}
               onChange={this.handleChange}
             />
             {(this.state.type && this.state.type === "ageRestriction") ||

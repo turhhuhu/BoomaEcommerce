@@ -61,7 +61,7 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Guid == shoppingCartGuid)
+            if (shoppingCart != null && shoppingCart.Guid == shoppingCartGuid)
             {
                 return await _next.CreateShoppingBasketAsync(shoppingCartGuid, shoppingBasket);
             }
@@ -93,7 +93,7 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Baskets.FirstOrDefault(basket => basket.Guid == shoppingBasketGuid) != null)
+            if (shoppingCart?.Baskets.FirstOrDefault(basket => basket.Guid == shoppingBasketGuid) != null)
             {
                 return await _next.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
             }

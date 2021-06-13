@@ -42,11 +42,16 @@ async function callApi(endpoint, authenticated, config) {
     .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
         if (response.status === 400) {
+          console.log(response);
           return Promise.reject("Bad request");
         }
         if (response.status === 401) {
           return Promise.reject("Unauthorized");
         }
+        if (response.status === 404) {
+          return Promise.reject("Not found");
+        }
+        console.log(responsePayLoad);
         return responsePayLoad.errors
           ? Promise.reject(responsePayLoad.errors[""][0])
           : Promise.reject(responsePayLoad.join("\n"));

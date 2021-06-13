@@ -10,6 +10,7 @@ import {
 } from "../actions/storeActions";
 import AddStoreDiscountDialog from "./addStoreDiscountDialog";
 import CallSplitIcon from "@material-ui/icons/CallSplit";
+import { formatDateWithExactTime } from "../utils/utilFunctions";
 
 const mapDiscountTypeToLabel = {
   category: "Category discount",
@@ -42,7 +43,9 @@ class DiscountsTree extends Component {
   handleRemoveDiscount = (discountGuid) => {
     this.props
       .dispatch(removeStoreDiscount(this.props.storeGuid, discountGuid))
-      .then(fetchStoreDiscounts(this.props.storeGuid));
+      .then(() =>
+        this.props.dispatch(fetchStoreDiscounts(this.props.storeGuid))
+      );
   };
 
   createDiscountTree = (discount) => {
@@ -125,6 +128,20 @@ class DiscountsTree extends Component {
             `}
             nodeId={discount.guid + "2"}
             key={discount.guid + "2"}
+          />
+          <TreeItem
+            label={`Start time: 
+              ${formatDateWithExactTime(discount.startTime)}
+            `}
+            nodeId={discount.guid + "3"}
+            key={discount.guid + "3"}
+          />
+          <TreeItem
+            label={`End time: 
+              ${formatDateWithExactTime(discount.endTime)}
+            `}
+            nodeId={discount.guid + "4"}
+            key={discount.guid + "4"}
           />
         </TreeItem>
       );

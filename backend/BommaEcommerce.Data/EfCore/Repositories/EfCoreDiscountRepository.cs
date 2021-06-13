@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BoomaEcommerce.Data.EfCore.Repositories
 {
-    public class EfCoreDiscountRepository : EfCoreRepository<Discount, ApplicationDbContext>
+    public class EfCoreDiscountRepository : EfCoreRepository<Discount>
     {
         public EfCoreDiscountRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
@@ -18,12 +18,21 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public override async Task<Discount> FindByIdAsync(Guid guid)
         {
-            return await GetRecursively(guid, DbContext.Set<Discount>(), DbContext.Set<Policy>());
+            return await DbContext.GetDiscountRecursively(guid);
+        }
+
+        public override Task InsertOneAsync(Discount entity)
+        {
+            if (entity is ProductDiscount productDiscount)
+            {
+                DbContext.Products.Attach(productDiscount.Product);
+            }
+            return base.InsertOneAsync(entity);
         }
 
         public override Task DeleteByIdAsync(Guid guid)
         {
-            return DeleteRecursively(guid, DbContext.Set<Discount>(), DbContext.Set<Policy>());
+            return DeleteRecursively(guid, DbContext.Discounts, DbContext.Policies);
         }
 
         public async Task DeleteRecursively(Guid guid, DbSet<Discount> discountDbSet, DbSet<Policy> policyDbSet)
@@ -60,37 +69,6 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
             await EfCorePolicyRepository.DeleteRecursively(discount.Policy.Guid, policyDbSet);
             discountDbSet.Remove(discount);
-        }
-
-        public async Task<Discount> GetRecursively(Guid guid,
-            IQueryable<Discount> discountQuery,
-            IQueryable<Policy> policyQuery)
-        {
-            await FilterByAsync(d => d.Guid == guid, d => d.Policy);
-
-            var discount = await discountQuery
-                .Include(d => (d as CompositeDiscount).Discounts)
-                .Include(d => (d as ProductDiscount).Product)
-                .FirstOrDefaultAsync(d => d.Guid == guid);
-
-
-
-            if (discount == null)
-            {
-                return null;
-            }
-
-            await EfCorePolicyRepository.GetRecursively(discount.Policy.Guid, policyQuery);
-
-            if (discount is CompositeDiscount compositeDiscount && compositeDiscount.Discounts.Any())
-            {
-                foreach (var childDisc in compositeDiscount.Discounts)
-                {
-                    await GetRecursively(childDisc.Guid, discountQuery, policyQuery);
-                }
-            }
-
-            return discount;
         }
     }
 }

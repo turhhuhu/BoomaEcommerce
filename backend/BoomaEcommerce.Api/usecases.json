@@ -4,63 +4,20 @@
       "Actions": [
         {
           "Type": "RegisterAction",
-          "Label" : "Arik User",
-          "UserName": "Arik",
-          "Password": "Arik"
-        },
-        {
-          "Type": "RegisterAction",
-          "Label" : "Omer User",
-          "UserName": "Omer",
-          "Password": "Omer"
-        },
-        {
-          "Type": "LoginAction",
-          "Label" : "",
-          "UserName": "Arik",
-          "Password": "Arik"
-        },
-        {
-          "Type": "CreateStoreAction",
-          "UserLabel": "Arik User",
-          "Label" : "Shufersal",
-          "StoreToCreate": {
-            "StoreName": "Shufersal",
-            "Description": "Blah"
-          }
-        },
-        {
-          "Type": "GetOwnershipAction",
-          "UserLabel": "Arik User",
-          "StoreLabel": "Shufersal",
-          "Label" : "Arik Shufersal Ownership"
-        },
-        {
-          "Type": "NominateOwnerAction",
-          "UserToNominateLabel": "Omer User",
-          "OwnershipLabel": "Arik Shufersal Ownership",
-          "Label" : ""
-        }
-      ]
-    },
-    {
-      "Actions": [
-        {
-          "Type": "RegisterAction",
           "Label" : "Benny User",
-          "UserName": "Benny",
+          "UserName": "Benny11",
           "Password": "Benny"
         },
         {
           "Type": "RegisterAction",
           "Label" : "Ori User",
-          "UserName": "Ori",
+          "UserName": "Ori11",
           "Password": "Ori"
         },
         {
           "Type": "LoginAction",
           "Label" : "test",
-          "UserName": "Benny",
+          "UserName": "Benny11",
           "Password": "Benny"
         },
         {
