@@ -2,8 +2,15 @@ import { Alert } from "@material-ui/lab";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router";
-import { createPurchase, fetchUserCart } from "../actions/userActions";
-import { turnCartIntoPurchase } from "../utils/utilFunctions";
+import {
+  clearGuestCart,
+  createPurchase,
+  fetchUserCart,
+} from "../actions/userActions";
+import {
+  turnCartIntoPurchase,
+  turnCartIntoPurchaseAsGuest,
+} from "../utils/utilFunctions";
 
 class PurchaseReview extends Component {
   state = { success: false, loading: false };
@@ -18,8 +25,8 @@ class PurchaseReview extends Component {
     return this.props.baskets?.map((basket) => {
       return basket.purchaseProducts
         .sort((a, b) => a.guid - b.guid)
-        .map((purchaseProduct) => (
-          <tr key={purchaseProduct.guid}>
+        .map((purchaseProduct, index) => (
+          <tr key={index}>
             <td>
               <strong className="title mb-0">
                 {purchaseProduct?.product.name}{" "}
@@ -39,26 +46,49 @@ class PurchaseReview extends Component {
   makePurchase = () => {
     this.setState({ loading: true });
     this.startLoading();
-    this.props
-      .dispatch(
-        createPurchase({
-          purchase: turnCartIntoPurchase(
-            this.props.cart,
-            this.props.userInfo?.guid
-          ),
-          paymentDetails: this.props.paymentInfo,
-          supplyDetails:
-            Object.keys(this.props.deliveryInfo).length === 0
-              ? undefined
-              : this.props.deliveryInfo,
-        })
-      )
-      .then((success) => {
-        if (success) {
-          this.props.dispatch(fetchUserCart());
-          this.setState({ success: true });
-        }
-      });
+    if (this.props.isAuthenticated) {
+      this.props
+        .dispatch(
+          createPurchase({
+            purchase: turnCartIntoPurchase(
+              this.props.cart,
+              this.props.userInfo?.guid
+            ),
+            paymentDetails: this.props.paymentInfo,
+            supplyDetails:
+              Object.keys(this.props.deliveryInfo).length === 0
+                ? undefined
+                : this.props.deliveryInfo,
+          })
+        )
+        .then((success) => {
+          if (success) {
+            this.props.dispatch(fetchUserCart());
+            this.setState({ success: true });
+          }
+        });
+    } else {
+      this.props
+        .dispatch(
+          createPurchase({
+            purchase: turnCartIntoPurchaseAsGuest(
+              this.props.cart,
+              this.props.guestInformation
+            ),
+            paymentDetails: this.props.paymentInfo,
+            supplyDetails:
+              Object.keys(this.props.deliveryInfo).length === 0
+                ? undefined
+                : this.props.deliveryInfo,
+          })
+        )
+        .then((success) => {
+          if (success) {
+            this.props.dispatch(clearGuestCart());
+            this.setState({ success: true });
+          }
+        });
+    }
   };
 
   render() {
@@ -90,7 +120,7 @@ class PurchaseReview extends Component {
         </header>
         {(this.props.error || this.state.error) && (
           <Alert severity="error" onClick={() => this.setState(null)}>
-            {this.props.error || this.state.error}
+            {this.props?.error || this.state?.error}
           </Alert>
         )}
         {this.state.success && (
@@ -149,6 +179,8 @@ const mapStateToProps = (store) => {
     userInfo: store.user.userInfo,
     isFetching: store.user.isFetching,
     error: store.user.error,
+    isAuthenticated: store.auth.isAuthenticated,
+    guestInformation: store.user.guestInformation,
   };
 };
 export default connect(mapStateToProps)(PurchaseReview);

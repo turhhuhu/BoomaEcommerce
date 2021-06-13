@@ -129,6 +129,7 @@ class CartReview extends Component {
 const mapStateToProps = (store) => {
   return {
     cart: store.user.cart,
+    isAuthenticated: store.auth.isAuthenticated,
   };
 };
 

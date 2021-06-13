@@ -2,11 +2,14 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import ProfileSideBar from "./profileSideBar";
 import { fetchUserInfo } from "../actions/userActions";
+import { TextField } from "@material-ui/core";
+import { formatDate } from "../utils/utilFunctions";
 class UserProfile extends Component {
   state = {
     username: "",
     name: "",
     lastName: "",
+    dateOfBirth: Date.now(),
   };
 
   handleChange = (event) => {
@@ -19,7 +22,7 @@ class UserProfile extends Component {
     if (this.props.isAuthenticated) {
       const userInfoPromise = this.props.dispatch(fetchUserInfo());
       userInfoPromise
-        .then((action) =>
+        .then((action) => {
           this.setState({
             username: action.payload.response.userName,
             name: action.payload.response.name
@@ -28,8 +31,11 @@ class UserProfile extends Component {
             lastName: action.payload.response.lastName
               ? action.payload.response.lastName
               : "",
-          })
-        )
+            dateOfBirth: action.payload.response.dateOfBirth
+              ? action.payload.response.dateOfBirth
+              : Date.now(),
+          });
+        })
         .catch((error) => console.error(error));
     }
   }
@@ -83,6 +89,19 @@ class UserProfile extends Component {
                     name="lastName"
                     required
                   ></input>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group col">
+                  <label>Date of birth: </label>
+                  <TextField
+                    value={formatDate(this.state.dateOfBirth)}
+                    type="date"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
                 </div>
               </div>
 
