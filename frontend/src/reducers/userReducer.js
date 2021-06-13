@@ -2,6 +2,7 @@ import * as UserActionTypes from "../actions/types/userActionsTypes";
 export function user(
   state = {
     isFetching: false,
+    error: undefined,
     userInfo: {},
     userRoles: {},
     cart: {
@@ -30,7 +31,10 @@ export function user(
       console.error(`error occured while getting user info: ${action.error}`);
       return state;
     case UserActionTypes.USER_CART_REQUEST:
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     case UserActionTypes.USER_CART_SUCCESS:
       return Object.assign({}, state, {
         cart: action.payload.response,
@@ -304,22 +308,56 @@ export function user(
       });
     }
     case UserActionTypes.SUBMIT_PAYMENT_INFO: {
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     }
     case UserActionTypes.SUBMIT_DELIVERY_INFO: {
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     }
     case UserActionTypes.GET_CART_DISCOUNTED_PRICE_REQUEST:
-      return Object.assign({}, state, action.payload);
-    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_SUCCESS:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_SUCCESS: {
       console.log(action.payload.response);
       return Object.assign({}, state, {
-        ...state.cart,
-        discountedPrice: action.payload.response,
+        cart: Object.assign({}, state.cart, {
+          discountedPrice: action.payload.response,
+        }),
       });
+    }
     case UserActionTypes.GET_CART_DISCOUNTED_PRICE_FAILURE:
-      console.error(`error occured while getting user info: ${action.error}`);
+      console.error(
+        `error occured while getting cart discounted price: ${action.error}`
+      );
       return state;
+    case UserActionTypes.CREATE_PURCHASE_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case UserActionTypes.CREATE_PURCHASE_SUCCESS: {
+      return Object.assign({}, state, {
+        paymentInfo: {},
+        discountedPrice: {},
+        isFetching: action.payload.isFetching,
+      });
+    }
+    case UserActionTypes.CREATE_PURCHASE_FAILURE: {
+      console.error(`error occured while purchasing cart: ${action.error}`);
+      return Object.assign({}, state, {
+        paymentInfo: {},
+        discountedPrice: {},
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    }
 
     default:
       return state;

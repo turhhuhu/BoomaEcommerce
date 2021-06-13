@@ -1,10 +1,18 @@
+import { Alert } from "@material-ui/lab";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Redirect } from "react-router";
 import { createPurchase, fetchUserCart } from "../actions/userActions";
 import { turnCartIntoPurchase } from "../utils/utilFunctions";
 
 class PurchaseReview extends Component {
-  state = {};
+  state = { success: false, loading: false };
+
+  startLoading = () => {
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 2000);
+  };
 
   getCartItems = () => {
     return this.props.baskets?.map((basket) => {
@@ -16,8 +24,6 @@ class PurchaseReview extends Component {
               <strong className="title mb-0">
                 {purchaseProduct?.product.name}{" "}
               </strong>
-              <br />
-              <var className="price text-muted">$TBD</var>
             </td>
             <td>
               <div className="float-right">
@@ -31,15 +37,8 @@ class PurchaseReview extends Component {
   };
 
   makePurchase = () => {
-    const purchaseobj = {
-      purchase: turnCartIntoPurchase(
-        this.props.cart,
-        this.props.userInfo?.guid
-      ),
-      paymentDetails: this.props.paymentInfo,
-      supplyDetails: this.props.deliveryInfo,
-    };
-    console.log(purchaseobj);
+    this.setState({ loading: true });
+    this.startLoading();
     this.props
       .dispatch(
         createPurchase({
@@ -48,17 +47,24 @@ class PurchaseReview extends Component {
             this.props.userInfo?.guid
           ),
           paymentDetails: this.props.paymentInfo,
-          supplyDetails: this.props.deliveryInfo,
+          supplyDetails:
+            Object.keys(this.props.deliveryInfo).length === 0
+              ? undefined
+              : this.props.deliveryInfo,
         })
       )
       .then((success) => {
         if (success) {
           this.props.dispatch(fetchUserCart());
+          this.setState({ success: true });
         }
       });
   };
 
   render() {
+    if (!this.state.loading && this.state.success) {
+      return <Redirect to="/home" />;
+    }
     return (
       <div
         className="row col-5 mx-auto card"
@@ -68,14 +74,33 @@ class PurchaseReview extends Component {
       >
         <header className="card-header">
           <strong className="d-inline-block mr-3">Purchase Review</strong>
-          <button
-            onClick={this.makePurchase}
-            className="btn btn-primary float-right"
-          >
-            {" "}
-            Confirm purhcase{" "}
-          </button>
+          {this.props.isFetching ? (
+            <div className="d-flex justify-content-center">
+              <div className="spinner-border text-primary" role="status"></div>
+            </div>
+          ) : (
+            <button
+              onClick={this.makePurchase}
+              className="btn btn-primary float-right"
+            >
+              {" "}
+              Confirm purhcase{" "}
+            </button>
+          )}
         </header>
+        {(this.props.error || this.state.error) && (
+          <Alert severity="error" onClick={() => this.setState(null)}>
+            {this.props.error || this.state.error}
+          </Alert>
+        )}
+        {this.state.success && (
+          <div>
+            <Alert severity="success" onClick={() => this.setState(null)}>
+              Successfuly purchased cart!
+              <br /> redirecting to home page...{" "}
+            </Alert>
+          </div>
+        )}
         <div className="card-body">
           <div className="row">
             <div className="col-md-8">
@@ -89,16 +114,18 @@ class PurchaseReview extends Component {
               <h6 className="text-muted">Payment</h6>
               <span>
                 ****{" "}
-                {this.props?.paymentInfo.cardNumber.substring(
-                  this.props?.paymentInfo.cardNumber.length - 4,
-                  this.props?.paymentInfo.cardNumber.length
+                {this.props?.paymentInfo.cardNumber?.substring(
+                  this.props?.paymentInfo.cardNumber?.length - 4,
+                  this.props?.paymentInfo.cardNumber?.length
                 )}{" "}
                 <i className="fa fa-lg fa-cc-visa"></i>
                 <i className="fa fa-lg fa-cc-mastercard"></i>
                 <i className="fa fa-lg fa-cc-amex"></i>
               </span>
               <p>
-                <span className="b">Total: $TBD </span>
+                <span className="b">
+                  Total: ${this.props.cart.discountedPrice}{" "}
+                </span>
               </p>
             </div>
           </div>
@@ -120,6 +147,8 @@ const mapStateToProps = (store) => {
     paymentInfo: store.user.paymentInfo,
     cart: store.user.cart,
     userInfo: store.user.userInfo,
+    isFetching: store.user.isFetching,
+    error: store.user.error,
   };
 };
 export default connect(mapStateToProps)(PurchaseReview);
