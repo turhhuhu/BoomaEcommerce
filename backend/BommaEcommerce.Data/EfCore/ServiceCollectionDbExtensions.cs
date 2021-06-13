@@ -121,11 +121,11 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IRepository<ShoppingCart>, EfCoreRepository<ShoppingCart>>();
             services.AddTransient<IUserUnitOfWork, UserUnitOfWork>();
             services.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWork>();
-            services.AddTransient<IRepository<Purchase>, EfCoreRepository<Purchase, ApplicationDbContext>>();
+            services.AddTransient<IRepository<Purchase>, EfCoreRepository<Purchase>>();
             
             
-            services.AddTransient<IRepository<ProductOffer>, EfCoreRepository<ProductOffer, ApplicationDbContext>>();
-            services.AddTransient<IRepository<ApproverOwner>, EfCoreRepository<ApproverOwner, ApplicationDbContext>>();
+            services.AddTransient<IRepository<ProductOffer>, EfCoreRepository<ProductOffer>>();
+            services.AddTransient<IRepository<ApproverOwner>, EfCoreRepository<ApproverOwner>>();
 
 
             return services;
