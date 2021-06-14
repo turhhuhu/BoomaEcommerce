@@ -22,6 +22,7 @@ export const ADD_STORE_URL = USER_STORES_URL;
 export const USER_STORE_ROLE = USER_STORES_URL + "/{storeGuid}/role";
 export const SEE_NOTIFICATION_URL =
   USER_INFO_URL + "/notifications/{notificationGuid}/seen";
+export const USER_PURCHASE_HISTORY_URL = USER_INFO_URL + "/purchases";
 
 //products
 export const PRODUCTS_URL = BASE_URL + "/Products";
@@ -38,6 +39,7 @@ export const STORE_SUBORDINATES_URL =
   STORE_ROLES_URL + "/ownerships/{ownershipGuid}/subordinates?level=0";
 export const ADD_STORE_OWNER_URL = STORE_ROLES_URL + "/ownerships";
 export const ADD_STORE_MANAGER_URL = STORE_ROLES_URL + "/managements";
+export const STORE_PURCHASE_HISTORY_URL = STORE_URL + "/purchases";
 
 //policies
 export const STORE_POLICIES_URL = STORE_URL + "/policy";
@@ -65,7 +67,6 @@ export const REMOVE_SUBORDINATE_URL =
 
 //purchases
 export const CREATE_PURCHASE_URL = BASE_URL + "/Purchases";
-//purchases
 export const GET_CART_DISCOUNTED_PRICE_URL =
   CREATE_PURCHASE_URL + "?onlyReviewPrice=true";
 

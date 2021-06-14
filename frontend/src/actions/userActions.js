@@ -14,6 +14,7 @@ import {
   SEE_NOTIFICATION_URL,
   CREATE_PURCHASE_URL,
   GET_CART_DISCOUNTED_PRICE_URL,
+  USER_PURCHASE_HISTORY_URL,
 } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
@@ -450,5 +451,19 @@ export function submitGuestInformation(guestInformation) {
 export function clearGuestCart() {
   return {
     type: UserActionTypes.CLEAR_GUEST_CART,
+  };
+}
+
+export function fetchUserPurchaseHistory() {
+  return {
+    [CALL_API]: {
+      endpoint: USER_PURCHASE_HISTORY_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.GET_PURCHASE_HISTORY_REQUEST,
+        UserActionTypes.GET_PURCHASE_HISTORY_SUCCESS,
+        UserActionTypes.GET_PURCHASE_HISTORY_FAILURE,
+      ],
+    },
   };
 }

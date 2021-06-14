@@ -112,8 +112,7 @@ namespace BoomaEcommerce.Services.Stores
                 if (product == null) return false;
                 if (product.IsSoftDeleted) return false;
                 product.IsSoftDeleted = true;
-
-                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -147,7 +146,7 @@ namespace BoomaEcommerce.Services.Stores
                 product.Category = productDto.Category ?? product.Category;
                 product.Rating = productDto.Rating ?? product.Rating;
 
-                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -220,8 +219,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-
-
+        
         public async Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom ,Guid ownerGuid)
         {
             try

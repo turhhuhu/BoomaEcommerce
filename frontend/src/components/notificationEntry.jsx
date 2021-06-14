@@ -11,7 +11,7 @@ class NotificationEntry extends Component {
     }
   };
 
-  getTypeMessage = (type) => {
+  getTypeMessage = () => {
     if (this.props.type === "roleDismissalNotification") {
       return "Role dismissal";
     } else if (this.props.type === "storePurchaseNotification") {
