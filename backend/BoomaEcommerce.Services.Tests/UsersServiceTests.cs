@@ -27,7 +27,7 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, User> users = null)
         {
             var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts, users);
-            return new UsersService(_mapper, _logger.Object, userUnitOfWork.Object);
+            return new UsersService(_mapper, _logger.Object, userUnitOfWork.Object,null);
         }
 
         [Fact]

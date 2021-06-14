@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Domain.ProductOffer
 
         public ProductOfferState CheckProductOfferState(List<StoreOwnership> ownersInStore)
         {
-            if (ownersInStoreContainedInApprovers(ownersInStore))
+            if (OwnersInStoreContainedInApprovers(ownersInStore))
             {
                 // Owners in store all contained in the approval list
                 this.State = ProductOfferState.Approved;
@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Domain.ProductOffer
             return ProductOfferState.Pending;
         }
 
-        private bool ownersInStoreContainedInApprovers(List<StoreOwnership> ownersInStore)
+        private bool OwnersInStoreContainedInApprovers(List<StoreOwnership> ownersInStore)
         { 
             foreach(var owner in ownersInStore)
             {

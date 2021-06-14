@@ -163,13 +163,16 @@ namespace BoomaEcommerce.Services.Users
 
         public async Task<ProductOfferDto> CreateProductOffer(ProductOfferDto offerDto)
         {
+            ServiceUtilities.ValidateDto<ProductOfferDto, UserServiceValidators.CreateProductOffer>(offerDto);
             CheckAuthenticated();
             return await _next.CreateProductOffer(offerDto);
         }
 
-        public Task<PurchaseProductDto> createPurchaseProductFromOffer(Guid userGuid, Guid offerGuid, Guid storeGuid)
+        /*
+         * public Task<PurchaseProductDto> createPurchaseProductFromOffer(Guid userGuid, Guid offerGuid, Guid storeGuid)
         {
             throw new NotImplementedException();
         }
+        */
     }
 }

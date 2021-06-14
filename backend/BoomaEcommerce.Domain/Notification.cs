@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Domain
@@ -23,6 +19,49 @@ namespace BoomaEcommerce.Domain
             Message = "";
             WasSeen = false;
         }
+    }
+
+    public class NewOfferNotification : Notification
+    {
+        public ProductOffer.ProductOffer Offer { get; set; }
+
+        public NewOfferNotification(ProductOffer.ProductOffer offer, 
+            string message = "New offer has recived.") : base(message)
+        {
+            Offer = offer;
+        }
+
+        private NewOfferNotification() : base()
+        { }
+    }
+
+
+    public class OfferDeclinedNotification : Notification
+    {
+        public ProductOffer.ProductOffer Offer { get; set; }
+
+        public OfferDeclinedNotification(ProductOffer.ProductOffer offer,
+            string message = "Your offer has been declined.") : base(message)
+        {
+            Offer = offer;
+        }
+
+        private OfferDeclinedNotification() : base()
+        { }
+    }
+
+    public class OfferApprovedNotification : Notification
+    {
+        public ProductOffer.ProductOffer Offer { get; set; }
+
+        public OfferApprovedNotification(ProductOffer.ProductOffer offer,
+            string message = "Your offer has been approved.") : base(message)
+        {
+            Offer = offer;
+        }
+
+        private OfferApprovedNotification() : base()
+        { }
     }
 
     public class StorePurchaseNotification : Notification
