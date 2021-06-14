@@ -402,7 +402,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "failed to get UserStore management for guid {guid}", storeManagementGuid);
+                _logger.LogError(e, "failed to get UserStore management for guid {Guid}", storeManagementGuid);
                 return null;
             }
         }

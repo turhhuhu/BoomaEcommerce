@@ -17,6 +17,7 @@ import {
   STORE_DISCOUNT_POLICIES_URL,
   STORE_DISCOUNT_SUB_POLICIES_URL,
   STORE_PURCHASE_HISTORY_URL,
+  MANAGER_PERMISSIONS_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -482,6 +483,28 @@ export function fetchStorePurchaseHistory(storeGuid) {
         StoreActionTypes.GET_STORE_PURCHASE_HISTORY_SUCCESS,
         StoreActionTypes.GET_STORE_PURCHASE_HISTORY_FAILURE,
       ],
+    },
+  };
+}
+
+export function editManagerPermissions(permissions, managementGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: MANAGER_PERMISSIONS_URL.replace(
+        "{managementGuid}",
+        managementGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.EDIT_STORE_MANAGER_PERMISSIONS_REQUEST,
+        StoreActionTypes.EDIT_STORE_MANAGER_PERMISSIONS_SUCCESS,
+        StoreActionTypes.EDIT_STORE_MANAGER_PERMISSIONS_FAILURE,
+      ],
+      config: {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(permissions),
+      },
     },
   };
 }

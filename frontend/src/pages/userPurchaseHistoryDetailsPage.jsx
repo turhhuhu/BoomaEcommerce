@@ -1,8 +1,16 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router";
-class PurchaseHistoryDetails extends Component {
+import Header from "../components/header";
+import UserPurchaseHistoryDetails from "../components/UserPurchaseHistoryDetails";
+class UserPurchaseHistoryDetailsPage extends Component {
   state = {};
+
+  findPurchase = () => {
+    return this.props.purchaseHistory?.find(
+      (purchase) => purchase.guid === this.props.match.params.guid
+    );
+  };
   render() {
     if (!this.props.isAuthenticated) {
       return <Redirect to="/login" />;
@@ -11,11 +19,7 @@ class PurchaseHistoryDetails extends Component {
       <React.Fragment>
         <Header />
         <section className="section-conten padding-y">
-          <PurchaseHistoryDetails
-            purchase={this.props.purchaseHistory?.find(
-              (purchase) => purchase.guid === this.props.match.params.guid
-            )}
-          />
+          <UserPurchaseHistoryDetails purchase={this.findPurchase()} />
         </section>
       </React.Fragment>
     );
@@ -29,4 +33,4 @@ const mapStateToProps = (store) => {
   };
 };
 
-export default connect(mapStateToProps)(PurchaseHistoryDetails);
+export default connect(mapStateToProps)(UserPurchaseHistoryDetailsPage);
