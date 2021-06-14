@@ -10,6 +10,7 @@ export function store(
     storePolicy: {},
     storeDiscount: {},
     storeDiscountPolicy: {},
+    purchaseHistory: {},
   },
   action
 ) {
@@ -340,6 +341,7 @@ export function store(
         ...action.payload,
         storeDiscountPolicy: {},
         error: undefined,
+        isFetching: action.payload.isFetching,
       });
     case StoreActionTypes.GET_STORE_DISCOUNT_POLICY_SUCCESS:
       return Object.assign({}, state, {
@@ -349,6 +351,23 @@ export function store(
     case StoreActionTypes.GET_STORE_DISCOUNT_POLICY_FAILURE:
       console.error(
         `error occured while getting store discount policy: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_PURCHASE_HISTORY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_PURCHASE_HISTORY_SUCCESS:
+      return Object.assign({}, state, {
+        purchaseHistory: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_PURCHASE_HISTORY_FAILURE:
+      console.error(
+        `error occured while fetching purchase history: ${action.error}`
       );
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,

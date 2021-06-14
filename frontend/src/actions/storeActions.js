@@ -16,6 +16,7 @@ import {
   STORE_SUB_DISCOUNTS_URL,
   STORE_DISCOUNT_POLICIES_URL,
   STORE_DISCOUNT_SUB_POLICIES_URL,
+  STORE_PURCHASE_HISTORY_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -468,5 +469,19 @@ export function removeStoreDiscountPolicy(discountGuid) {
         },
       },
     };
+  };
+}
+
+export function fetchStorePurchaseHistory(storeGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PURCHASE_HISTORY_URL.replace("{storeGuid}", storeGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_PURCHASE_HISTORY_REQUEST,
+        StoreActionTypes.GET_STORE_PURCHASE_HISTORY_SUCCESS,
+        StoreActionTypes.GET_STORE_PURCHASE_HISTORY_FAILURE,
+      ],
+    },
   };
 }
