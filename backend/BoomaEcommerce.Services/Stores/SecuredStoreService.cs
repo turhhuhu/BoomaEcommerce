@@ -545,7 +545,7 @@ namespace BoomaEcommerce.Services.Stores
                 throw new ArgumentException("Counter offer price MUST not exceed product original price !\n");
             }
 
-            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.Store.Guid)
+            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.StoreGuid)
             {
                 return await _storeService.MakeCounterOffer(ownerGuid, counterOfferPrice, offerGuid);
             
