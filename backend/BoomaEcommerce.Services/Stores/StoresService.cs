@@ -264,7 +264,7 @@ namespace BoomaEcommerce.Services.Stores
         private async Task<bool> UpdateStoreOffers(Guid storeGuid)
         {
             var isUpdated = false;
-            var storeOwners = await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(so => so.Store.Guid == storeGuid);
+            var storeOwners = (await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(so => so.Store.Guid == storeGuid)).ToList();
             var offers = await _storeUnitOfWork.OffersRepo.FilterByAsync(o => o.Product.Store.Guid == storeGuid);
 
             foreach (var offer in offers)
@@ -689,7 +689,6 @@ namespace BoomaEcommerce.Services.Stores
                 var discount = _mapper.Map<Discount>(discountDto);
                 store.StoreDiscount = discount;
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.DiscountRepo.InsertOneAsync(discount);
 
                 await _storeUnitOfWork.SaveAsync();
@@ -866,7 +865,6 @@ namespace BoomaEcommerce.Services.Stores
                 var childPolicy = _mapper.Map<Policy>(childPolicyDto);
                 multiPolicy.AddPolicy(childPolicy);
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
 
                 await _storeUnitOfWork.SaveAsync();
