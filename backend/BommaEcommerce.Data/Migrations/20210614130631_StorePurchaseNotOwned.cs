@@ -7,9 +7,6 @@ namespace BoomaEcommerce.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "RefreshTokens");
-
             migrationBuilder.AlterColumn<Guid>(
                 name: "PurchaseGuid",
                 table: "StorePurchases",

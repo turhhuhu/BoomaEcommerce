@@ -26,7 +26,8 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<StoreOwnership> StoreOwnerships { get; set; }
         public DbSet<Discount> Discounts { get; set; }
-        
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         public DbSet<ProductOffer> ProductOffers { get;  set; }
 
         public DbSet<ApproverOwner> ApproversOffers { get; set; }
@@ -196,12 +197,19 @@ namespace BoomaEcommerce.Data.EfCore
                 sp.HasOne(s => s.Store)
                     .WithMany();
 
-                // TODO: Change to be a new object which is information of user\guest
                 sp.HasOne(s => s.Buyer)
                     .WithMany();
 
                 sp.Property(s => s.TotalPrice).HasPrecision(10, 5);
                 sp.Property(s => s.DiscountedPrice).HasPrecision(10, 5);
+            });
+            modelBuilder.Entity<RefreshToken>(r =>
+            {
+                r.HasKey(rt => rt.Guid);
+                r.HasOne(rt => rt.User)
+                    .WithOne()
+                    .HasForeignKey<RefreshToken>(rt => rt.Guid);
+                r.ToTable("RefreshTokens");
             });
 
             base.OnModelCreating(modelBuilder);

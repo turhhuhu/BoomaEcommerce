@@ -44,6 +44,7 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IRepository<Policy>, EfCorePolicyRepository>();
             services.AddTransient<IRepository<Discount>, EfCoreDiscountRepository>();
             services.AddTransient<IRepository<Store>, EfCoreStoreRepository>();
+            services.AddTransient<IRepository<RefreshToken>, EfCoreRefreshTokenRepository>();
 
             services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
             services.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWork>();
