@@ -4,98 +4,25 @@
       "Actions": [
         {
           "Type": "RegisterAction",
-          "Label" : "Arik User",
-          "UserName": "Arik",
-          "Password": "Arik"
-        },
-        {
-          "Type": "RegisterAction",
-          "Label" : "Omer User",
-          "UserName": "Omer",
-          "Password": "Omer"
-        },
-        {
-          "Type": "LoginAction",
-          "Label" : "",
-          "UserName": "Arik",
-          "Password": "Arik"
-        },
-        {
-          "Type": "CreateStoreAction",
-          "UserLabel": "Arik User",
-          "Label" : "Shufersal",
-          "StoreToCreate": {
-            "StoreName": "Shufersal",
-            "Description": "Blah"
-          }
-        },
-        {
-          "Type": "GetOwnershipAction",
-          "UserLabel": "Arik User",
-          "StoreLabel": "Shufersal",
-          "Label" : "Arik Shufersal Ownership"
-        },
-        {
-          "Type": "NominateOwnerAction",
-          "UserToNominateLabel": "Omer User",
-          "OwnershipLabel": "Arik Shufersal Ownership",
-          "Label" : ""
-        }
-      ]
-    },
-    {
-      "Actions": [
-        {
-          "Type": "RegisterAction",
           "Label" : "Benny User",
           "UserName": "Benny",
           "Password": "Benny"
         },
         {
-          "Type": "RegisterAction",
-          "Label" : "Ori User",
-          "UserName": "Ori",
-          "Password": "Ori"
-        },
-        {
           "Type": "LoginAction",
-          "Label" : "test",
+          "Label" : "",
           "UserName": "Benny",
           "Password": "Benny"
         },
         {
-          "Type": "CreateStoreAction",
-          "UserLabel": "Benny User",
-          "Label" : "Rami Levi",
+          "Type": "LoadTestAction",
+          "Label" : "",
           "StoreToCreate": {
             "StoreName": "Rami Levi",
             "Description": "Blah"
-          }
-        },
-        {
-          "Type": "GetOwnershipAction",
-          "UserLabel": "Benny User",
-          "StoreLabel": "Rami Levi",
-          "Label" : "Benny Rami Levi Ownership"
-        },
-        {
-          "Type": "NominateManagerAction",
-          "UserToNominateLabel": "Ori User",
-          "OwnershipLabel": "Benny Rami Levi Ownership",
-          "Label" : "",
-          "ManagerPermissions": {
-            "CanAddProduct":  true,
-            "CanDeleteProduct": true,
-            "CanUpdateProduct": true
-          }
-        },
-        {
-          "Type": "CreateProductAction",
-          "Label" : "test",
-          "StoreLabel": "Rami Levi",
-          "ProductName": "Bambda",
-          "ProductAmount": 20,
-          "ProductPrice": 30
+          },
+          "UserLabel": "Benny User"
+          
         }
       ]
     }
