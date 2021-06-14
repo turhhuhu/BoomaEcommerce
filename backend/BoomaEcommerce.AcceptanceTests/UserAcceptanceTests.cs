@@ -165,11 +165,16 @@ namespace BoomaEcommerce.AcceptanceTests
             //Assert 
             res.First().Should().BeEquivalentTo(purchase, x => x.Excluding(p => p.Guid)
                                                                 .Excluding(p=> p.StorePurchases[0].PurchaseProducts[0].ProductGuid)
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[0].ProductMetaData)
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[0].ProductGuid)
                                                                 .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].ProductGuid)
                                                                 .Excluding(p=> p.StorePurchases[0].Guid)
+                                                                .Excluding(p => p.StorePurchases[0].UserMetaData)
+                                                                .Excluding(p => p.StorePurchases[0].StoreMetaData)
                                                                 .Excluding(p=> p.StorePurchases[0].PurchaseProducts[0].Guid)
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].ProductMetaData)
                                                                 .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].Guid)
-                                                                .Excluding(p =>p.Buyer));;
+                                                                .Excluding(p =>p.Buyer));
 
         }
 
@@ -214,7 +219,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(UserGuid, shoppingBasket.Guid, purchase_product1);
             var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
             var basket = shoppingCart1.Baskets.First();
-            basket.PurchaseProducts.First(x => x.ProductGuid == purchase_product1.ProductGuid).Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid).Excluding(y => y.Amount));
+            basket.PurchaseProducts.First(x => x.ProductGuid == purchase_product1.ProductGuid).Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid).Excluding(y => y.Amount).Excluding(y => y.ProductMetaData));
             res.Should().NotBeNull();    
         }
 

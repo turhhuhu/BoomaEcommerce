@@ -802,8 +802,15 @@ namespace BoomaEcommerce.AcceptanceTests
             var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
 
             // Assert
-            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt.Excluding(p => p.Guid).Excluding(p => p.PurchaseProducts));
-            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.ProductGuid));
+            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt
+                .Excluding(p => p.Guid)
+                .Excluding(p => p.PurchaseProducts)
+                .Excluding(p => p.StoreMetaData)
+                .Excluding(p => p.UserMetaData));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt
+                .Excluding(p => p.Guid)
+                .Excluding(p => p.ProductGuid)
+                .Excluding(p => p.ProductMetaData));
         }
         
         [Fact]
