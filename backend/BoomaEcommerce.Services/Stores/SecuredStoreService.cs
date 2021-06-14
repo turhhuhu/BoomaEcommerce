@@ -532,6 +532,19 @@ namespace BoomaEcommerce.Services.Stores
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
             var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
             var offer = await _storeService.GetProductOffer(offerGuid);
+
+            // Simple validator 
+
+            if (counterOfferPrice < 0)
+            {
+                throw new ArgumentException("Counter offer price MUST be greater or equal to 0!\n");
+            }
+
+            if (counterOfferPrice > offer.Product.Price)
+            {
+                throw new ArgumentException("Counter offer price MUST not exceed product original price !\n");
+            }
+
             if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.Store.Guid)
             {
                 return await _storeService.MakeCounterOffer(ownerGuid, counterOfferPrice, offerGuid);

@@ -270,7 +270,7 @@ namespace BoomaEcommerce.Services.Users
             
         }
 
-
+        /*
         public async Task<PurchaseProductDto> CreatePurchaseProductFromOffer(Guid userGuid, Guid offerGuid, Guid storeGuid)
         {
             var shoppingCart = (await _userUnitOfWork.ShoppingCartRepo.FilterByAsync((sc) => (sc.User.Guid == userGuid))).First();
@@ -290,6 +290,6 @@ namespace BoomaEcommerce.Services.Users
 
             return await AddPurchaseProductToShoppingBasketAsync(userGuid, shoppingBasket.Guid, purchaseProductDto);
 
-        }
+        }*/
     }
 }
