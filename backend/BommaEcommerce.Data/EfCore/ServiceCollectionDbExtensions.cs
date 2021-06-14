@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using BoomaEcommerce.Domain.ProductOffer;
 
 namespace BoomaEcommerce.Data.EfCore
 {
@@ -121,6 +122,12 @@ namespace BoomaEcommerce.Data.EfCore
             services.AddTransient<IUserUnitOfWork, UserUnitOfWork>();
             services.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWork>();
             services.AddTransient<IRepository<Purchase>, EfCoreRepository<Purchase>>();
+            
+            
+            services.AddTransient<IRepository<ProductOffer>, EfCoreRepository<ProductOffer>>();
+            services.AddTransient<IRepository<ApproverOwner>, EfCoreRepository<ApproverOwner>>();
+
+
             return services;
         }
 

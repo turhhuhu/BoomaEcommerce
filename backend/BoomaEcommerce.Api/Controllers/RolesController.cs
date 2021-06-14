@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Api.Responses;
@@ -92,6 +93,48 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return NotFound();
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers")]
+        public async Task<IActionResult> GetAllOffersOwner(Guid ownershipGuid)
+        {
+            var offers = await _storesService.GetAllOwnerProductOffers(ownershipGuid);
+            if (offers == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(offers.ToList());
+        }
+
+        [Authorize]
+        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/ApprovedOwners")]
+        public async Task<IActionResult> ApproveProductOffer(Guid ownershipGuid, Guid offerGuid)
+        {
+            await _storesService.ApproveOffer(ownershipGuid, offerGuid);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpDelete(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}")]
+        public async Task<IActionResult> DeclineProductOffer(Guid ownershipGuid, Guid offerGuid)
+        {
+            await _storesService.DeclineOffer(ownershipGuid, offerGuid);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/CounterOfferPrice")]
+        public async Task<IActionResult> ProposeCounterOffer(Guid ownershipGuid, Guid offerGuid, decimal counterOfferPrice)
+        {
+            var offerDto = await _storesService.MakeCounterOffer(ownershipGuid, counterOfferPrice, offerGuid);
+            if (offerDto == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(offerDto);
         }
     }
 }

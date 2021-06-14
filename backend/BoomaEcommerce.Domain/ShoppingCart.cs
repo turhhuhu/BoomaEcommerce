@@ -34,5 +34,18 @@ namespace BoomaEcommerce.Domain
         {
             return ShoppingBaskets.Remove(new ShoppingBasket {Store = new Store {Guid = storeGuid}});
         }
+
+        public ShoppingBasket FindStoreShoppingBasket(Guid storeGuid)
+        {
+            foreach (var sb in ShoppingBaskets)
+            {
+                if (sb.Store.Guid == storeGuid)
+                {
+                    return sb;
+                }
+            }
+
+            return null;
+        }
     }
 }

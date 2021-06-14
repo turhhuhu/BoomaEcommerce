@@ -1,12 +1,15 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.Internal;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
@@ -243,6 +246,50 @@ namespace BoomaEcommerce.Services.Users
                 _logger.LogError(e, $"Failed to set notification with guid {notificationGuid} to see.");
                 return false;
             }
+        }
+
+        public async Task<ProductOfferDto> CreateProductOffer(ProductOfferDto offerDto)
+        { 
+            try
+            {
+                var productOffer = _mapper.Map<ProductOffer>(offerDto);
+                var prod = await _userUnitOfWork.ProductRepository.FindByIdAsync(productOffer.Product.Guid);
+                productOffer.Product = prod;
+                var user = await _userUnitOfWork.UserRepository.FindByIdAsync(productOffer.User.Guid);
+                productOffer.User = user;
+                await _userUnitOfWork.ProductOfferRepo.InsertOneAsync(productOffer);
+                await _userUnitOfWork.SaveAsync();
+
+                return offerDto; 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "The following error occurred during The creation of product offer to product with guid {storeGuid}", offerDto.Product.Guid);
+                return null;
+            }
+            
+        }
+
+
+        public async Task<PurchaseProductDto> CreatePurchaseProductFromOffer(Guid userGuid, Guid offerGuid, Guid storeGuid)
+        {
+            var shoppingCart = (await _userUnitOfWork.ShoppingCartRepo.FilterByAsync((sc) => (sc.User.Guid == userGuid))).First();
+            var shoppingBasket = shoppingCart.FindStoreShoppingBasket(storeGuid);
+
+            if (shoppingBasket == null)
+            {
+                var shoppingBasketDto = await CreateShoppingBasketAsync(shoppingCart.Guid, null);
+                shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketDto.Guid);
+            }
+
+            var offer = await _userUnitOfWork.ProductOfferRepo.FindByIdAsync(offerGuid);
+
+            var purchaseProduct = offer.ConvertOfferToPurchaseProduct();
+
+            var purchaseProductDto = _mapper.Map<PurchaseProductDto>(purchaseProduct);
+
+            return await AddPurchaseProductToShoppingBasketAsync(userGuid, shoppingBasket.Guid, purchaseProductDto);
+
         }
     }
 }

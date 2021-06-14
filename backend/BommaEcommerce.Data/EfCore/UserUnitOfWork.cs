@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 
 namespace BoomaEcommerce.Data.EfCore
@@ -14,21 +15,29 @@ namespace BoomaEcommerce.Data.EfCore
         private readonly ApplicationDbContext _dbContext;
         public IRepository<ShoppingBasket> ShoppingBasketRepo { get; set; }
         public IRepository<ShoppingCart> ShoppingCartRepo { get; set; }
+        public IRepository<ProductOffer> ProductOfferRepo { get; set; }
         public IRepository<User> UserRepository { get; set; }
+        public IRepository<Product> ProductRepository { get; set; }
+        public IRepository<ApproverOwner> ApproversRepo { get; set ; }
 
         public UserUnitOfWork(
             ApplicationDbContext dbContext,
             IRepository<ShoppingBasket> shoppingBasketRepo,
             IRepository<ShoppingCart> shoppingCartRepo,
             IRepository<PurchaseProduct> purchaseProductRepo,
-            IRepository<User> userRepo 
+            IRepository<User> userRepo,
+            IRepository<ProductOffer> productOfferRepo,
+            IRepository<Product> productRepository,
+            IRepository<ApproverOwner> approversRepo
             )
         {
             _dbContext = dbContext;
             ShoppingBasketRepo = shoppingBasketRepo;
             ShoppingCartRepo = shoppingCartRepo;
             UserRepository = userRepo;
-
+            ProductOfferRepo = productOfferRepo;
+            ProductRepository = productRepository;
+            ApproversRepo = approversRepo;
         }
 
 

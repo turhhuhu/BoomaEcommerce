@@ -9,6 +9,7 @@ using BoomaEcommerce.Domain.Discounts.Operators;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Domain.Policies.Operators;
 using BoomaEcommerce.Domain.Policies.PolicyTypes;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,11 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<StoreOwnership> StoreOwnerships { get; set; }
         public DbSet<Discount> Discounts { get; set; }
+        
+        public DbSet<ProductOffer> ProductOffers { get;  set; }
 
+        public DbSet<ApproverOwner> ApproversOffers { get; set; }
+        
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
@@ -33,8 +38,32 @@ namespace BoomaEcommerce.Data.EfCore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<StoreOwnership>()
-                .HasMany(x => x.StoreManagements);
+            
+            modelBuilder.Entity<ProductOffer>(
+                po =>
+                {
+                    po.HasKey(ppo  =>  ppo.Guid);
+                    po.HasOne(ppo  =>  ppo.User).WithMany();
+                    po.HasOne(ppo => ppo.Product).WithMany();
+
+                    //po.HasMany<StoreOwnership>(ppo => ppo.ApprovedOwners);
+
+                    po.HasMany(ppo => ppo.ApprovedOwners).WithOne();
+                    
+                    po.Property(ppo => ppo.OfferPrice).HasPrecision(10, 5);
+
+                    po.Property(ppo => ppo.CounterOfferPrice).IsRequired(false).HasPrecision(10, 5);
+                    
+                }
+                );
+
+            modelBuilder.Entity<ApproverOwner>(
+                 ao =>
+                 {
+                     ao.HasKey(aao =>aao.Guid);
+                     ao.HasOne(aao => aao.Approver).WithMany();
+                 }
+                 );
 
             modelBuilder.Entity<Product>(p =>
             {
@@ -67,8 +96,7 @@ namespace BoomaEcommerce.Data.EfCore
                 sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
                 sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
                 sm.OwnsOne(s => s.Permissions)
-                    .ToTable("Permissions")
-                    .WithOwner();
+                    .ToTable("Permissions"); 
                 sm.HasKey(s => s.Guid);          
             });
 
@@ -118,10 +146,8 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<Purchase>(p =>
             {
                 p.HasKey(pp => pp.Guid);
-                p.Property(pp => pp.Guid).ValueGeneratedNever();
                 p.OwnsMany(pp => pp.StorePurchases, sp =>
                 {
-                    sp.Property(s => s.Guid).ValueGeneratedNever();
                     sp.WithOwner();
                     sp.HasKey(s => s.Guid);
                     sp.ToTable("StorePurchases");
@@ -154,15 +180,6 @@ namespace BoomaEcommerce.Data.EfCore
                 p.Property(pp => pp.TotalPrice).HasPrecision(10, 5);
             });
 
-            modelBuilder.Entity<RefreshToken>(r =>
-            {
-                r.HasKey(rt => rt.Guid);
-                r.HasOne(rt => rt.User)
-                    .WithOne()
-                    .HasForeignKey<RefreshToken>(rt => rt.Guid);
-                r.ToTable("RefreshTokens");
-            });
-
             AddDiscountModels(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
@@ -186,11 +203,14 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<ShoppingBasket>(sb =>
             {
                 sb.HasKey(b => b.Guid);
-                sb.Property(b => b.Guid).ValueGeneratedNever();
+                sb.OwnsMany(b => b.PurchaseProducts)
+                    .ToTable("ShoppingBasketPurchaseProducts")
+                    .HasOne(x => x.Product)
+                    .WithMany();
+
                 sb.OwnsMany(b => b.PurchaseProducts, p =>
                 {
                     p.HasKey(pp => pp.Guid);
-                    p.Property(pp => pp.Guid).ValueGeneratedNever();
                     p.HasOne(x => x.Product)
                         .WithMany();
                     p.WithOwner();

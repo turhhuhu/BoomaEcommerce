@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 
 namespace BoomaEcommerce.Services.Purchases
 {
@@ -56,5 +58,6 @@ namespace BoomaEcommerce.Services.Purchases
         /// A task that represents the asynchronous operation
         /// </returns>
         Task UpdatePurchaseAsync(PurchaseDto purchase);
+
     }
 }

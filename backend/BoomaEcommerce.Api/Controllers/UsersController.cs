@@ -16,6 +16,7 @@ using BoomaEcommerce.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using BoomaEcommerce.Services;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.Purchases;
 using Microsoft.AspNetCore.SignalR;
 
@@ -228,6 +229,35 @@ namespace BoomaEcommerce.Api.Controllers
             }
 
             return NotFound();
+        }
+
+        [Authorize]
+        [HttpPost(ApiRoutes.Me + "/offers")]
+        public async Task<IActionResult> CreateProductOffer(ProductOfferDto offerDto)
+        {
+            var userGuid = User.GetUserGuid();
+            offerDto.UserGuid = userGuid;
+            var createdProductOfferDto = await _userService.CreateProductOffer(offerDto);
+            if (createdProductOfferDto == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(createdProductOfferDto);
+        }
+
+        [Authorize]
+        [HttpGet(ApiRoutes.Me + "/offers")]
+        public async Task<IActionResult> GetUserProductOffers()
+        {
+            var userGuid = User.GetUserGuid();
+            var offers = await _storesService.GetAllUserProductOffers(userGuid);
+            if (offers == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(offers.ToList());
         }
     }
 }

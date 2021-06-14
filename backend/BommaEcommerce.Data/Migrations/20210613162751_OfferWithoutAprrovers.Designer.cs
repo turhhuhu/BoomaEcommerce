@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210613162751_OfferWithoutAprrovers")]
+    partial class OfferWithoutAprrovers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -205,27 +207,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.ProductOffer.ApproverOwner", b =>
-                {
-                    b.Property<Guid>("Guid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ApproverGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ProductOfferGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Guid");
-
-                    b.HasIndex("ApproverGuid");
-
-                    b.HasIndex("ProductOfferGuid");
-
-                    b.ToTable("ApproversOffers");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.ProductOffer.ProductOffer", b =>
                 {
                     b.Property<Guid>("Guid")
@@ -261,6 +242,7 @@ namespace BoomaEcommerce.Data.Migrations
             modelBuilder.Entity("BoomaEcommerce.Domain.Purchase", b =>
                 {
                     b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("BuyerId")
@@ -281,37 +263,10 @@ namespace BoomaEcommerce.Data.Migrations
                     b.ToTable("Purchase");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.RefreshToken", b =>
-                {
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Invalidated")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("JwtId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Token")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Used")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Guid");
-
-                    b.ToTable("RefreshTokens");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.ShoppingBasket", b =>
                 {
                     b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ShoppingCartGuid")
@@ -644,9 +599,6 @@ namespace BoomaEcommerce.Data.Migrations
                 {
                     b.HasBaseType("BoomaEcommerce.Domain.Discounts.Discount");
 
-                    b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasDiscriminator().HasValue("CategoryDiscount");
                 });
 
@@ -942,19 +894,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.ProductOffer.ApproverOwner", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.StoreOwnership", "Approver")
-                        .WithMany()
-                        .HasForeignKey("ApproverGuid");
-
-                    b.HasOne("BoomaEcommerce.Domain.ProductOffer.ProductOffer", null)
-                        .WithMany("ApprovedOwners")
-                        .HasForeignKey("ProductOfferGuid");
-
-                    b.Navigation("Approver");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.ProductOffer.ProductOffer", b =>
                 {
                     b.HasOne("BoomaEcommerce.Domain.Product", "Product")
@@ -979,6 +918,7 @@ namespace BoomaEcommerce.Data.Migrations
                     b.OwnsMany("BoomaEcommerce.Domain.StorePurchase", "StorePurchases", b1 =>
                         {
                             b1.Property<Guid>("Guid")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<Guid?>("BuyerId")
@@ -1072,17 +1012,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.Navigation("StorePurchases");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.RefreshToken", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.User", "User")
-                        .WithOne()
-                        .HasForeignKey("BoomaEcommerce.Domain.RefreshToken", "Guid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.ShoppingBasket", b =>
                 {
                     b.HasOne("BoomaEcommerce.Domain.ShoppingCart", null)
@@ -1097,6 +1026,7 @@ namespace BoomaEcommerce.Data.Migrations
                     b.OwnsMany("BoomaEcommerce.Domain.PurchaseProduct", "PurchaseProducts", b1 =>
                         {
                             b1.Property<Guid>("Guid")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<int>("Amount")
@@ -1362,11 +1292,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.ProductOffer.ProductOffer", b =>
-                {
-                    b.Navigation("ApprovedOwners");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.ShoppingCart", b =>
