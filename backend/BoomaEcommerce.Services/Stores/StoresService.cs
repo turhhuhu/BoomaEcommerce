@@ -112,8 +112,7 @@ namespace BoomaEcommerce.Services.Stores
                 if (product == null) return false;
                 if (product.IsSoftDeleted) return false;
                 product.IsSoftDeleted = true;
-
-                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -147,7 +146,7 @@ namespace BoomaEcommerce.Services.Stores
                 product.Category = productDto.Category ?? product.Category;
                 product.Rating = productDto.Rating ?? product.Rating;
 
-                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -220,8 +219,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-
-
+        
         public async Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom ,Guid ownerGuid)
         {
             try
@@ -264,7 +262,7 @@ namespace BoomaEcommerce.Services.Stores
         private async Task<bool> UpdateStoreOffers(Guid storeGuid)
         {
             var isUpdated = false;
-            var storeOwners = await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(so => so.Store.Guid == storeGuid);
+            var storeOwners = (await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(so => so.Store.Guid == storeGuid)).ToList();
             var offers = await _storeUnitOfWork.OffersRepo.FilterByAsync(o => o.Product.Store.Guid == storeGuid);
 
             foreach (var offer in offers)
@@ -689,7 +687,6 @@ namespace BoomaEcommerce.Services.Stores
                 var discount = _mapper.Map<Discount>(discountDto);
                 store.StoreDiscount = discount;
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.DiscountRepo.InsertOneAsync(discount);
 
                 await _storeUnitOfWork.SaveAsync();
@@ -866,7 +863,6 @@ namespace BoomaEcommerce.Services.Stores
                 var childPolicy = _mapper.Map<Policy>(childPolicyDto);
                 multiPolicy.AddPolicy(childPolicy);
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
 
                 await _storeUnitOfWork.SaveAsync();

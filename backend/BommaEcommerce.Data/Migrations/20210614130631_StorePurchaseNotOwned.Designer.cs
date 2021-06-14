@@ -4,14 +4,16 @@ using BoomaEcommerce.Data.EfCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BoomaEcommerce.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210614130631_StorePurchaseNotOwned")]
+    partial class StorePurchaseNotOwned
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -698,44 +700,6 @@ namespace BoomaEcommerce.Data.Migrations
                     b.HasDiscriminator().HasValue("SumDiscountOperator");
                 });
 
-            modelBuilder.Entity("BoomaEcommerce.Domain.NewOfferNotification", b =>
-                {
-                    b.HasBaseType("BoomaEcommerce.Domain.Notification");
-
-                    b.Property<Guid?>("OfferGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("OfferGuid");
-
-                    b.HasDiscriminator().HasValue("NewOfferNotification");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.OfferApprovedNotification", b =>
-                {
-                    b.HasBaseType("BoomaEcommerce.Domain.Notification");
-
-                    b.Property<Guid?>("OfferGuid")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("OfferApprovedNotification_OfferGuid");
-
-                    b.HasIndex("OfferGuid");
-
-                    b.HasDiscriminator().HasValue("OfferApprovedNotification");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.OfferDeclinedNotification", b =>
-                {
-                    b.HasBaseType("BoomaEcommerce.Domain.Notification");
-
-                    b.Property<Guid?>("OfferGuid")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("OfferDeclinedNotification_OfferGuid");
-
-                    b.HasIndex("OfferGuid");
-
-                    b.HasDiscriminator().HasValue("OfferDeclinedNotification");
-                });
-
             modelBuilder.Entity("BoomaEcommerce.Domain.RoleDismissalNotification", b =>
                 {
                     b.HasBaseType("BoomaEcommerce.Domain.Notification");
@@ -1328,33 +1292,6 @@ namespace BoomaEcommerce.Data.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.NewOfferNotification", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.ProductOffer.ProductOffer", "Offer")
-                        .WithMany()
-                        .HasForeignKey("OfferGuid");
-
-                    b.Navigation("Offer");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.OfferApprovedNotification", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.ProductOffer.ProductOffer", "Offer")
-                        .WithMany()
-                        .HasForeignKey("OfferGuid");
-
-                    b.Navigation("Offer");
-                });
-
-            modelBuilder.Entity("BoomaEcommerce.Domain.OfferDeclinedNotification", b =>
-                {
-                    b.HasOne("BoomaEcommerce.Domain.ProductOffer.ProductOffer", "Offer")
-                        .WithMany()
-                        .HasForeignKey("OfferGuid");
-
-                    b.Navigation("Offer");
                 });
 
             modelBuilder.Entity("BoomaEcommerce.Domain.RoleDismissalNotification", b =>

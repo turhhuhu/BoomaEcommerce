@@ -49,10 +49,13 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<StorePurchase, StorePurchaseDto>()
                 .ForMember(dto => dto.StoreGuid, x => x.MapFrom(storePurchase => storePurchase.Store.Guid))
-                .ForMember(dto => dto.BuyerGuid, x => x.MapFrom(storePurchase => storePurchase.Buyer.Guid));
+                .ForMember(dto => dto.BuyerGuid, x => x.MapFrom(storePurchase => storePurchase.Buyer.Guid))
+                .ForMember(dto => dto.StoreMetaData, x => x.MapFrom(storePurchase => storePurchase.Store))
+                .ForMember(dto => dto.UserMetaData, x => x.MapFrom(storePurchase => storePurchase.Buyer));
 
             CreateMap<PurchaseProduct, PurchaseProductDto>()
-                .ForMember(dto => dto.ProductGuid, x => x.MapFrom(purchaseProduct => purchaseProduct.Product.Guid));
+                .ForMember(dto => dto.ProductGuid, x => x.MapFrom(purchaseProduct => purchaseProduct.Product.Guid))
+                .ForMember(dto => dto.ProductMetaData, x => x.MapFrom(purchaseProduct => purchaseProduct.Product));
                 
             CreateMap<Purchase, PurchaseDto>()
                 .ForMember(dto => dto.UserBuyerGuid, x => x.MapFrom(purchase => purchase.Buyer.Guid));
@@ -87,7 +90,8 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .ForMember(dto => dto.StoreMetaData, x => x.MapFrom(n => n.Store));
 
             CreateMap<Product, ProductMetaData>()
-                .ForMember(dto => dto.ProductName, x => x.MapFrom(product => product.Name));
+                .ForMember(dto => dto.ProductName, x => x.MapFrom(product => product.Name))
+                .ForMember(dto => dto.ProductGuid, x => x.MapFrom(product => product.Guid));
 
             CreateMap<User, BasicUserInfoDto>();
             CreateMap<User, UserMetaData>()

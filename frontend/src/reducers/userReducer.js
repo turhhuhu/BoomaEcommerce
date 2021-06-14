@@ -13,6 +13,7 @@ export function user(
     paymentInfo: {},
     deliveryInfo: {},
     guestInformation: {},
+    purchaseHistory: {},
   },
   action
 ) {
@@ -385,5 +386,25 @@ export function user(
 
     default:
       return state;
+
+    case UserActionTypes.GET_PURCHASE_HISTORY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.GET_PURCHASE_HISTORY_SUCCESS:
+      return Object.assign({}, state, {
+        purchaseHistory: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.GET_PURCHASE_HISTORY_FAILURE:
+      console.error(
+        `error occured while fetching purchase history: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
   }
 }

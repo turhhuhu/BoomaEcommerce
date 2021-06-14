@@ -247,7 +247,7 @@ namespace BoomaEcommerce.Services.Stores
                     .GreaterThanOrEqualTo(0);
 
                 RuleFor(discount => discount.Category)
-                    .Must(category => !category.Equals(""));
+                    .NotEmpty();
             }
         }
 

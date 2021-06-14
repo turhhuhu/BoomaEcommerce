@@ -175,11 +175,14 @@ namespace BoomaEcommerce.AcceptanceTests
             storePurchase.Should().BeEquivalentTo(realStorePurchase, 
                 opt => opt
                         .Excluding(p => p.Guid)
-                        .Excluding(p => p.PurchaseProducts));
+                        .Excluding(p => p.PurchaseProducts)
+                        .Excluding(p => p.StoreMetaData)
+                        .Excluding(p => p.UserMetaData));
             purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.ProductGuid));
+                    .Excluding(p => p.ProductGuid)
+                    .Excluding(p => p.ProductMetaData));
         }
         
         [Fact]
@@ -213,6 +216,7 @@ namespace BoomaEcommerce.AcceptanceTests
                     .Excluding(p => p.StorePurchases)
                     .Excluding(p => p.Guid)
                     .Excluding(p => p.Buyer));
+
             var storePurchase = purchase.StorePurchases.First();
             var purchaseProduct = storePurchase.PurchaseProducts.First();
             var realStorePurchase = _purchase.StorePurchases.First();
@@ -220,11 +224,14 @@ namespace BoomaEcommerce.AcceptanceTests
             storePurchase.Should().BeEquivalentTo(realStorePurchase, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.PurchaseProducts));
+                    .Excluding(p => p.PurchaseProducts)
+                    .Excluding(p => p.StoreMetaData)
+                    .Excluding(p => p.UserMetaData));
             purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.ProductGuid));
+                    .Excluding(p => p.ProductGuid)
+                    .Excluding(p => p.ProductMetaData));
         }
         
         [Fact]

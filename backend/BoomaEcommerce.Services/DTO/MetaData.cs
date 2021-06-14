@@ -23,5 +23,7 @@ namespace BoomaEcommerce.Services.DTO
     {
         public Guid ProductGuid { get; set; }
         public string ProductName { get; set; }
+        public string Category { get; set; }
+
     }
 }
