@@ -77,6 +77,7 @@ namespace BoomaEcommerce.Api
                 "GetUserInfoAction" => new GetUserInfoUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "SetNotificationAsSeenAction" => new SetNotificationsAsSeenUseCaseAction(_serviceProvider, _httpContextAccessor),
                 "UpdateUserInfoAction" => new UpdateUserInfoUseCaseAction(_serviceProvider, _httpContextAccessor),
+                "LoadTestAction" => new LoadTestUseCaseAction(_serviceProvider, _httpContextAccessor),
 
                 _ => throw new ArgumentOutOfRangeException()
             };

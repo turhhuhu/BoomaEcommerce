@@ -9,5 +9,6 @@ namespace BoomaEcommerce.Services.UseCases
     public interface IUseCase
     {
         Task RunUseCaseAsync();
+        
     }
 }
