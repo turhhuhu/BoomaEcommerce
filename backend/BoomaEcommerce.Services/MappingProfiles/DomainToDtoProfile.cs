@@ -61,7 +61,22 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<Notification, NotificationDto>()
                 .Include<StorePurchaseNotification, StorePurchaseNotificationDto>()
-                .Include<RoleDismissalNotification, RoleDismissalNotificationDto>();
+                .Include<RoleDismissalNotification, RoleDismissalNotificationDto>()
+                .Include<NewOfferNotification, NewOfferNotificationDto>()
+                .Include<OfferApprovedNotification, OfferApprovedNotificationDto>()
+                .Include<OfferDeclinedNotification, OfferDeclinedNotificationDto>();
+
+            CreateMap<NewOfferNotification, NewOfferNotificationDto>()
+                .ForMember(dto => dto.OfferUserMetaData, x => x.MapFrom(n => n.Offer.User))
+                .ForMember(dto => dto.ProductMetaData, x => x.MapFrom(n => n.Offer.Product));
+
+            CreateMap<OfferApprovedNotification, OfferApprovedNotificationDto>()
+              .ForMember(dto => dto.OfferUserMetaData, x => x.MapFrom(n => n.Offer.User))
+              .ForMember(dto => dto.ProductMetaData, x => x.MapFrom(n => n.Offer.Product));
+
+            CreateMap<OfferDeclinedNotification, OfferDeclinedNotificationDto>()
+              .ForMember(dto => dto.OfferUserMetaData, x => x.MapFrom(n => n.Offer.User))
+              .ForMember(dto => dto.ProductMetaData, x => x.MapFrom(n => n.Offer.Product));
 
             CreateMap<StorePurchaseNotification, StorePurchaseNotificationDto>()
                 .ForMember(dto => dto.BuyerMetaData, x => x.MapFrom(n => n.Buyer))
@@ -70,6 +85,9 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<RoleDismissalNotification, RoleDismissalNotificationDto>()
                 .ForMember(dto => dto.DismissingUserMetaData, x => x.MapFrom(n => n.DismissingUser))
                 .ForMember(dto => dto.StoreMetaData, x => x.MapFrom(n => n.Store));
+
+            CreateMap<Product, ProductMetaData>()
+                .ForMember(dto => dto.ProductName, x => x.MapFrom(product => product.Name));
 
             CreateMap<User, BasicUserInfoDto>();
             CreateMap<User, UserMetaData>()

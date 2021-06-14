@@ -15,6 +15,8 @@ namespace BoomaEcommerce.Data
         IRepository<Product> ProductRepository { get; set; }
 
         IRepository<ApproverOwner> ApproversRepo { get; set; }
+
+        IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         Task SaveAsync();
 
         void AttachNoChange<TEntity>(TEntity entity)

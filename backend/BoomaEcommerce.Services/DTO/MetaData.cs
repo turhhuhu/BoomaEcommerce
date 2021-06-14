@@ -18,4 +18,10 @@ namespace BoomaEcommerce.Services.DTO
         public Guid UserGuid { get; set; }
         public string UserName { get; set; }
     }
+
+    public class ProductMetaData
+    {
+        public Guid ProductGuid { get; set; }
+        public string ProductName { get; set; }
+    }
 }

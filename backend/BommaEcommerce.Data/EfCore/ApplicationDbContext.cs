@@ -118,10 +118,30 @@ namespace BoomaEcommerce.Data.EfCore
                 n.HasDiscriminator<string>("Notification_type")
                     .HasValue<Notification>("Notification")
                     .HasValue<StorePurchaseNotification>("StorePurchaseNotification")
-                    .HasValue<RoleDismissalNotification>("RoleDismissalNotification");
+                    .HasValue<RoleDismissalNotification>("RoleDismissalNotification")
+                    .HasValue<NewOfferNotification>("NewOfferNotification")
+                    .HasValue<OfferApprovedNotification>("OfferApprovedNotification")
+                    .HasValue<OfferDeclinedNotification>("OfferDeclinedNotification");
             });
 
-            
+            modelBuilder.Entity<OfferDeclinedNotification>(n =>
+            {
+                n.HasOne(no => no.Offer)
+                    .WithMany();
+            });
+
+            modelBuilder.Entity<OfferApprovedNotification>(n =>
+            {
+                n.HasOne(no => no.Offer)
+                    .WithMany();
+            });
+
+            modelBuilder.Entity<NewOfferNotification>(n =>
+            {
+                n.HasOne(no => no.Offer)
+                    .WithMany();
+            });
+
             modelBuilder.Entity<StorePurchaseNotification>(n =>
             {
                 n.HasOne(sn => sn.Store)
