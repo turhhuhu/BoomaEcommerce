@@ -6,7 +6,10 @@ import {
   fetchUserCart,
 } from "../actions/userActions";
 import { connect } from "react-redux";
-import { turnCartIntoPurchase } from "../utils/utilFunctions";
+import {
+  turnCartIntoPurchase,
+  turnCartIntoPurchaseAsGuest,
+} from "../utils/utilFunctions";
 class CartReviewPage extends Component {
   state = {};
   componentDidMount() {
@@ -20,6 +23,15 @@ class CartReviewPage extends Component {
             ),
           })
         )
+      );
+    } else {
+      this.props.dispatch(
+        fetchCartDiscountedPrice({
+          purchase: turnCartIntoPurchaseAsGuest(
+            this.props.cart,
+            this.props.guestInformation
+          ),
+        })
       );
     }
   }
@@ -40,6 +52,7 @@ const mapStateToProps = (store) => {
     isAuthenticated: store.auth.isAuthenticated,
     cart: store.user.cart,
     userInfo: store.user.userInfo,
+    guestInformation: store.user.guestInformation,
   };
 };
 

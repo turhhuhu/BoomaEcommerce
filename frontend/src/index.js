@@ -24,6 +24,7 @@ import CartReviewPage from "./pages/cartReviewPage";
 import PurchaseReviewPage from "./pages/purchaseReviewPage";
 import StoreDiscountsPage from "./pages/storeDiscountsPage";
 import StoreDiscountPolicyPage from "./pages/StoreDiscountPolicyPage";
+import GuestInformationPage from "./pages/guestInformationPage";
 
 const { store, persistor } = configureStore();
 
@@ -36,6 +37,7 @@ ReactDOM.render(
           <Route path="/login" component={LoginPage}></Route>
           <Route path="/products" component={ProductsPage}></Route>
           <Route path="/home" component={ProductsPage}></Route>
+          <Route path="/cart/guest" component={GuestInformationPage}></Route>
           <Route path="/cart/review" component={CartReviewPage}></Route>
           <Route path="/cart/purchase" component={PurchaseReviewPage}></Route>
           <Route path="/cart/payment" component={PaymentPage}></Route>
