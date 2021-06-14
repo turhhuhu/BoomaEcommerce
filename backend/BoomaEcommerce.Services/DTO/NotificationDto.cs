@@ -21,6 +21,33 @@ namespace BoomaEcommerce.Services.DTO
         public Guid StorePurchaseGuid { get; set; }
     }
 
+    public class NewOfferNotificationDto : NotificationDto
+    {
+        public override NotificationType Type { get; set; } = NotificationType.NewOfferNotification;
+
+        public UserMetaData OfferUserMetaData { get; set; }
+
+        public ProductMetaData ProductMetaData { get; set; }
+    }
+
+    public class OfferDeclinedNotificationDto : NotificationDto
+    {
+        public override NotificationType Type { get; set; } = NotificationType.OfferDeclinedNotification;
+
+        public UserMetaData OfferUserMetaData { get; set; }
+
+        public ProductMetaData ProductMetaData { get; set; }
+    }
+
+    public class OfferApprovedNotificationDto : NotificationDto
+    {
+        public override NotificationType Type { get; set; } = NotificationType.OfferApprovedNotification;
+
+        public UserMetaData OfferUserMetaData { get; set; }
+
+        public ProductMetaData ProductMetaData { get; set; }
+    }
+
     public class RoleDismissalNotificationDto : NotificationDto
     {
         public override NotificationType Type { get; set; } = NotificationType.RoleDismissalNotification;
@@ -31,6 +58,9 @@ namespace BoomaEcommerce.Services.DTO
     {
         Notification,
         StorePurchaseNotification,
-        RoleDismissalNotification
+        RoleDismissalNotification,
+        NewOfferNotification,
+        OfferDeclinedNotification,
+        OfferApprovedNotification
     }
 }

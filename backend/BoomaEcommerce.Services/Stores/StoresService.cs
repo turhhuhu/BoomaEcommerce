@@ -903,11 +903,17 @@ namespace BoomaEcommerce.Services.Stores
 
                 var approveOwner = productOffer.ApproveOffer(owner, ownersInStore.ToList());
 
+
+                if (productOffer.State == ProductOfferState.Approved)
+                    NotifyUserOnApprovedOffer(productOffer);
+
                 if (approveOwner != null)
                 {
                     await _storeUnitOfWork.ApproversRepo.InsertOneAsync(approveOwner);
                     await _storeUnitOfWork.SaveAsync();
                 }
+
+
             }
             catch (Exception e)
             {
@@ -916,6 +922,26 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
+        private async void NotifyUserOnApprovedOffer(ProductOffer offer)
+        {
+            var user = offer.User;
+
+
+            var notifications = new List<(Guid, NotificationDto)>();
+
+            var notification = new OfferApprovedNotification(offer);
+
+            user.Notifications.Add(notification);
+           
+            notifications.Add((user.Guid, _mapper.Map<OfferApprovedNotificationDto>(notification)));
+            _storeUnitOfWork.Attach(notification);
+
+
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
+
+            await Task.WhenAll(_storeUnitOfWork.SaveAsync(), notifyTask);
+        }
 
         public async Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid)
         {
@@ -923,12 +949,33 @@ namespace BoomaEcommerce.Services.Stores
             {
                 var offer = await _storeUnitOfWork.OffersRepo.FindByIdAsync(productOfferGuid);
                 offer.State = ProductOfferState.Declined;
+                await NotifyUserOnDeclinedOffer(offer);
                 await _storeUnitOfWork.SaveAsync();
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "The following error occurred during decline product offer with guid {productOfferGuid}", productOfferGuid);
             }
+        }
+
+        private async Task NotifyUserOnDeclinedOffer(ProductOffer offer)
+        {
+            var user = offer.User; 
+
+
+            var notifications = new List<(Guid, NotificationDto)>();
+           
+                var notification = new OfferDeclinedNotification(offer);
+
+                user.Notifications.Add(notification);
+                notifications.Add((user.Guid, _mapper.Map<OfferDeclinedNotificationDto>(notification)));
+                _storeUnitOfWork.Attach(notification);
+            
+
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
+
+            await Task.WhenAll(_storeUnitOfWork.SaveAsync(), notifyTask);
         }
 
         public async Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid)

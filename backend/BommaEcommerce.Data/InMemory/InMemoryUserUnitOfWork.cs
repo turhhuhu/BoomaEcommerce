@@ -18,7 +18,8 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<PurchaseProduct> PurchaseProductRepo { get; set; }
         public IRepository<User> UserRepository { get; set; }
         public IRepository<Product> ProductRepository { get; set; }
-        public IRepository<ApproverOwner> ApproversRepo { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IRepository<ApproverOwner> ApproversRepo { get; set; }
+        public IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
 
         public InMemoryUserUnitOfWork(
             IRepository<ShoppingBasket> shoppingBasketRepo,
@@ -27,7 +28,8 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<User> userRepository,
             IRepository<ProductOffer> productOfferRepo,
             IRepository<Product> productRepository,
-            IRepository<ApproverOwner> approversRepo)
+            IRepository<ApproverOwner> approversRepo,
+            IRepository<StoreOwnership> storeOwnershipRepo)
         {
             ShoppingBasketRepo = shoppingBasketRepo;
             ShoppingCartRepo = shoppingCartRepo;
@@ -36,6 +38,7 @@ namespace BoomaEcommerce.Data.InMemory
             ProductOfferRepo = productOfferRepo;
             ProductRepository = productRepository;
             ApproversRepo = approversRepo;
+            StoreOwnershipRepo = storeOwnershipRepo;
         }
 
         public Task SaveAsync()

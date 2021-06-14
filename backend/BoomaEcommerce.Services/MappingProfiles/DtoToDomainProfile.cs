@@ -75,6 +75,10 @@ namespace BoomaEcommerce.Services.MappingProfiles
             CreateMap<AdminUserDto, AdminUser>();
             CreateMap<NotificationDto, Notification>();
             CreateMap<StorePurchaseNotificationDto, StorePurchaseNotification>();
+            CreateMap<NewOfferNotificationDto, NewOfferNotification>();
+            CreateMap<OfferApprovedNotificationDto, OfferApprovedNotification>();
+            CreateMap<OfferDeclinedNotificationDto, OfferDeclinedNotification>();
+
 
             CreateMap<PolicyDto, Policy>()
                 .Include<AgeRestrictionPolicyDto, AgeRestrictionPolicy>()
@@ -159,7 +163,7 @@ namespace BoomaEcommerce.Services.MappingProfiles
                     });
 
             CreateMap<ProductOfferDto, ProductOffer>()
-                .ConstructUsing((offerDto, _) => new ProductOffer( new User { Guid = offerDto.UserGuid }));
+                .ForMember(offer => offer.User, x => x.MapFrom(dto => new User { Guid = dto.UserGuid }));
         }
     }
 }

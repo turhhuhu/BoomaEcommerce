@@ -10,7 +10,7 @@ namespace BoomaEcommerce.Services.DTO.ProductOffer
     public class ProductOfferDto : BaseEntityDto
     {
         public Guid UserGuid { get; set; }
-        public Product Product { get; set; }
+        public ProductDto Product { get; set; }
         public ProductOfferStateDto State { get; set; }
         public decimal OfferPrice { get; set; }
         public decimal? CounterOfferPrice { get; set; }

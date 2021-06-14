@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -22,14 +23,17 @@ namespace BoomaEcommerce.Services.Users
         private readonly IMapper _mapper;
         private readonly ILogger<UsersService> _logger;
         private readonly IUserUnitOfWork _userUnitOfWork;
+        private readonly INotificationPublisher _notificationPublisher;
 
 
         public UsersService(IMapper mapper, ILogger<UsersService> logger,
-             IUserUnitOfWork userUnitOfWork)
+             IUserUnitOfWork userUnitOfWork, INotificationPublisher notificationPublisher)
         {
             _mapper = mapper;
             _logger = logger;
             _userUnitOfWork = userUnitOfWork;
+            _notificationPublisher = notificationPublisher;
+
         }
 
         public async Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid)
@@ -258,9 +262,10 @@ namespace BoomaEcommerce.Services.Users
                 var user = await _userUnitOfWork.UserRepository.FindByIdAsync(productOffer.User.Guid);
                 productOffer.User = user;
                 await _userUnitOfWork.ProductOfferRepo.InsertOneAsync(productOffer);
+                await NotifyStoreSellersOnOffer(productOffer);
                 await _userUnitOfWork.SaveAsync();
 
-                return offerDto; 
+                return _mapper.Map<ProductOfferDto>(productOffer);
             }
             catch (Exception e)
             {
@@ -268,6 +273,30 @@ namespace BoomaEcommerce.Services.Users
                 return null;
             }
             
+        }
+
+
+        private async Task NotifyStoreSellersOnOffer(ProductOffer offer)
+        {
+            var ownerships =
+                (await _userUnitOfWork.StoreOwnershipRepo.FilterByAsync(ownership =>
+                    ownership.Store.Guid == offer.Product.Store.Guid)).ToList();
+
+
+            var notifications = new List<(Guid, NotificationDto)>();
+            foreach (var ownership in ownerships)
+            {
+                var notification = new NewOfferNotification(offer);
+
+                ownership.User.Notifications.Add(notification);
+                notifications.Add((ownership.User.Guid, _mapper.Map<NewOfferNotificationDto>(notification)));
+                _userUnitOfWork.Attach(notification);
+            }
+
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
+
+            await Task.WhenAll(_userUnitOfWork.SaveAsync(), notifyTask);
         }
 
         /*
