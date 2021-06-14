@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using FluentValidation;
 
 namespace BoomaEcommerce.Services.Users
@@ -39,6 +40,16 @@ namespace BoomaEcommerce.Services.Users
             public UpdateUserInfoAsync()
             {
                 RuleFor(u => u.Guid != default);
+            }
+        }
+
+        internal class CreateProductOffer : AbstractValidator<ProductOfferDto>
+        {
+            public CreateProductOffer()
+            {
+                RuleFor(offer => offer.OfferPrice).GreaterThanOrEqualTo(0);
+                RuleFor(offer => offer.State).Equal(ProductOfferStateDto.Pending);
+                RuleFor(offer => offer.Product.Guid != default);
             }
         }
     }
