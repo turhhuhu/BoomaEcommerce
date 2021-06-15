@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, ShoppingCart> shoppingCarts,
             IDictionary<Guid, User> users = null)
         {
-            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts, users);
+            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts,null, users);
             return new UsersService(_mapper, _logger.Object, userUnitOfWork.Object,null);
         }
 
@@ -66,26 +66,6 @@ namespace BoomaEcommerce.Services.Tests
             result.Guid.Should().Be(userGuid);
         }
         
-        [Fact]
-        public async Task CreateShoppingBasketAsync_ReturnsTrueAndCreateShoppingBasket_WhenShoppingCartExistsAndShoppingCartDtoIsValid()
-        {
-            // Arrange
-            var shoppingBasketDict = new Dictionary<Guid, ShoppingBasket>();
-            var shoppingCartsDict = new Dictionary<Guid, ShoppingCart>();
-            var userGuid = Guid.NewGuid();
-            var shoppingCart = new ShoppingCart(new User {Guid = userGuid});
-            shoppingCartsDict[shoppingCart.Guid] = shoppingCart;
-            var shoppingBasketDto = 
-                new ShoppingBasketDto{StoreGuid = Guid.NewGuid()};
-            var sut = GetUserService(shoppingBasketDict, shoppingCartsDict, null);
-            
-            // Act
-            var result = await sut.CreateShoppingBasketAsync(shoppingCart.Guid, shoppingBasketDto);
-
-            // Assert
-            result.Should().NotBeNull();
-            shoppingCart.ShoppingBaskets.Contains(new ShoppingBasket {Store = new Store {Guid = shoppingBasketDto.StoreGuid}}).Should().BeTrue();
-        }
 
         [Fact]
         public async Task AddPurchaseProductToShoppingBasketAsync_ReturnsTrueAndAddsPurchaseProduct_WhenShoppingBasketExistsAndPurchaseProductDtoIsValid()

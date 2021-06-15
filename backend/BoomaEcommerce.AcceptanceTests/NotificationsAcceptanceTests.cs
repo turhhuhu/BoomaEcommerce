@@ -16,11 +16,12 @@ using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class NotificationsAcceptanceTests : IAsyncLifetime
+    public class NotificationsAcceptanceTests : TestsBase
     {
 
         private IPurchasesService _purchasesServiceOwner;
@@ -35,7 +36,23 @@ namespace BoomaEcommerce.AcceptanceTests
         private List<NotificationDto> _ownerNotifications = new List<NotificationDto>();
         private List<NotificationDto> _notOwnerNotifications = new List<NotificationDto>();
 
-        public async Task InitializeAsync()
+
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+            _fixture = new Fixture();
+            _fixture.Customize<StoreDto>(s =>
+                s.Without(ss => ss.Guid).Without(ss => ss.Rating));
+
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+            var mutualPurchaseService = provider.GetRequiredService<PurchasesService>();
+            _notificationPublisher = provider.GetRequiredService<NotificationPublisherStub>();
+            await InitOwnerUser(storeService, authService, mutualPurchaseService);
+            var product = await CreateStoreProduct(storeService);
+            await PurchaseProduct(mutualPurchaseService, product, authService, storeService);
+        }
+
+        public override async Task InitInMemoryDb()
         {
             _fixture = new Fixture();
             _fixture.Customize<StoreDto>(s =>
@@ -49,10 +66,27 @@ namespace BoomaEcommerce.AcceptanceTests
             await InitOwnerUser(storeService, authService, mutualPurchaseService);
             var product = await CreateStoreProduct(storeService);
             await PurchaseProduct(mutualPurchaseService, product, authService, storeService);
-
-            //_fixture.Customize<ProductDto>(p => p.Without(pp => pp.Id).Without(pp => pp.Rating)
-                //.With(pp => pp.StoreGuid, _storeOwnership.Store.Id));
         }
+
+        public NotificationsAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
+        {
+        }
+
+        //public async Task InitializeAsync()
+        //{
+        //    _fixture = new Fixture();
+        //    _fixture.Customize<StoreDto>(s =>
+        //        s.Without(ss => ss.Guid).Without(ss => ss.Rating));
+
+        //    var serviceMockFactory = new ServiceMockFactory();
+        //    var storeService = serviceMockFactory.MockStoreService();
+        //    var authService = serviceMockFactory.MockAuthenticationService();
+        //    var mutualPurchaseService = serviceMockFactory.MockPurchaseService();
+        //    _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
+        //    await InitOwnerUser(storeService, authService, mutualPurchaseService);
+        //    var product = await CreateStoreProduct(storeService);
+        //    await PurchaseProduct(mutualPurchaseService, product, authService, storeService);
+        //}
 
         private async Task InitOwnerUser(IStoresService storeService, IAuthenticationService authService, 
             IPurchasesService purchasesService)
@@ -241,9 +275,6 @@ namespace BoomaEcommerce.AcceptanceTests
             _notOwnerNotifications.Count.Should().Be(0);
         }
 
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
+
     }
 }

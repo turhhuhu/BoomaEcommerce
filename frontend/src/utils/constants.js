@@ -61,7 +61,7 @@ export const ROLES_URL = BASE_URL + "/Roles";
 export const MANAGER_ROLE_URL = ROLES_URL + "/managements/{managementGuid}";
 export const OWNER_ROLE_URL = ROLES_URL + "/ownerships/{ownershipGuid}";
 export const SUBORDINATES_URL = OWNER_ROLE_URL + "/subordinates";
-export const EDIT_MANAGER_PERMISSIONS_URL = MANAGER_ROLE_URL + "/permissions";
+export const MANAGER_PERMISSIONS_URL = MANAGER_ROLE_URL + "/permissions";
 export const REMOVE_SUBORDINATE_URL =
   SUBORDINATES_URL + "/{roleToDeleteGuid}?roleType={roleType}";
 

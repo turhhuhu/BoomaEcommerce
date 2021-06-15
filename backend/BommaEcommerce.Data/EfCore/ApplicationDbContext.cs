@@ -28,6 +28,10 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+        public DbSet<Purchase> Purchases { get; set; }
+
+        public DbSet<StorePurchase> StorePurchases { get; set; }
+
         public DbSet<ProductOffer> ProductOffers { get;  set; }
 
         public DbSet<ApproverOwner> ApproversOffers { get; set; }
@@ -47,8 +51,6 @@ namespace BoomaEcommerce.Data.EfCore
                     po.HasOne(ppo  =>  ppo.User).WithMany();
                     po.HasOne(ppo => ppo.Product).WithMany();
 
-                    //po.HasMany<StoreOwnership>(ppo => ppo.ApprovedOwners);
-
                     po.HasMany(ppo => ppo.ApprovedOwners).WithOne();
                     
                     po.Property(ppo => ppo.OfferPrice).HasPrecision(10, 5);
@@ -63,8 +65,7 @@ namespace BoomaEcommerce.Data.EfCore
                  {
                      ao.HasKey(aao =>aao.Guid);
                      ao.HasOne(aao => aao.Approver).WithMany();
-                 }
-                 );
+                 });
 
             modelBuilder.Entity<Product>(p =>
             {
@@ -92,12 +93,15 @@ namespace BoomaEcommerce.Data.EfCore
                 .HasMany(u => u.Notifications)
                 .WithOne();
 
+
             modelBuilder.Entity<StoreManagement>(sm =>
             {
                 sm.HasOne(s => s.User).WithMany().OnDelete(DeleteBehavior.Cascade); 
                 sm.HasOne(s => s.Store).WithMany().OnDelete(DeleteBehavior.Cascade);
                 sm.OwnsOne(s => s.Permissions)
-                    .ToTable("Permissions"); 
+                    .ToTable("ManagementPermissions")
+                    .WithOwner(); 
+
                 sm.HasKey(s => s.Guid);          
             });
 
@@ -167,6 +171,7 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<Purchase>(p =>
             {
                 p.HasKey(pp => pp.Guid);
+                p.Property(s => s.Guid).ValueGeneratedNever();
                 p.HasMany(pp => pp.StorePurchases)
                     .WithOne()
                     .OnDelete(DeleteBehavior.Cascade);
@@ -181,10 +186,12 @@ namespace BoomaEcommerce.Data.EfCore
             AddDiscountModels(modelBuilder);
             modelBuilder.Entity<StorePurchase>(sp =>
             {
+                sp.Property(s => s.Guid).ValueGeneratedNever();
                 sp.HasKey(s => s.Guid);
                 sp.ToTable("StorePurchases");
                 sp.OwnsMany(s => s.PurchaseProducts, p =>
                 {
+                    p.Property(s => s.Guid).ValueGeneratedNever();
                     p.Property(pp => pp.DiscountedPrice).HasPrecision(10, 5);
                     p.HasKey(pp => pp.Guid);
                     p.HasOne(x => x.Product)
@@ -232,6 +239,7 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<ShoppingBasket>(sb =>
             {
                 sb.HasKey(b => b.Guid);
+                sb.Property(b => b.Guid).ValueGeneratedNever();
                 sb.OwnsMany(b => b.PurchaseProducts)
                     .ToTable("ShoppingBasketPurchaseProducts")
                     .HasOne(x => x.Product)
@@ -239,6 +247,7 @@ namespace BoomaEcommerce.Data.EfCore
 
                 sb.OwnsMany(b => b.PurchaseProducts, p =>
                 {
+                    p.Property(pp => pp.Guid).ValueGeneratedNever();
                     p.HasKey(pp => pp.Guid);
                     p.HasOne(x => x.Product)
                         .WithMany();

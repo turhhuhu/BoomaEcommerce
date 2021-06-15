@@ -19,7 +19,6 @@ namespace BoomaEcommerce.Data.EfCore
         public IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         public IRepository<StorePurchase> StorePurchaseRepo { get; set; }
         public IRepository<StoreManagement> StoreManagementRepo { get; set; }
-        public IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         public IRepository<Product> ProductRepo { get; set; }
         public IRepository<Policy> PolicyRepo { get; set; }
         public IRepository<Discount> DiscountRepo { get; set; }
@@ -33,7 +32,6 @@ namespace BoomaEcommerce.Data.EfCore
             IRepository<StoreOwnership> ownershipRepo,
             IRepository<StorePurchase> purchaseRepo,
             IRepository<StoreManagement> storeManagementRepo,
-            IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo,
             IRepository<User> userRepo,
@@ -46,7 +44,6 @@ namespace BoomaEcommerce.Data.EfCore
             StoreOwnershipRepo = ownershipRepo;
             StorePurchaseRepo = purchaseRepo;
             StoreManagementRepo = storeManagementRepo;
-            StoreManagementPermissionsRepo = storeManagementPermissionsRepo;
             ProductRepo = productRepo;
             PolicyRepo = policyRepo;
             UserRepo = userRepo;

@@ -17,7 +17,6 @@ namespace BoomaEcommerce.Data
         IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         IRepository<StorePurchase> StorePurchaseRepo { get; set; }
         IRepository<StoreManagement> StoreManagementRepo { get; set; }
-        IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         IRepository<Product> ProductRepo { get; set; }
         IRepository<Policy> PolicyRepo { get; set; }
         IRepository<Discount> DiscountRepo { get; set; }

@@ -6,9 +6,18 @@ import {
   removeStoreManager,
 } from "../actions/storeActions";
 import { connect } from "react-redux";
+import EditStoreManagerPermissions from "./editStoreManagerPermissions";
 
 class StoreManagementEntry extends Component {
-  state = {};
+  state = { isDialogOpen: false };
+
+  handleEditPermissions = () => {
+    this.setState({ isDialogOpen: true });
+  };
+
+  closeEditPermissionsDialog = () => {
+    this.setState({ isDialogOpen: false });
+  };
 
   handleRemoveManager = () => {
     if (this.props.isAuthenticated) {
@@ -64,9 +73,19 @@ class StoreManagementEntry extends Component {
             checked={this.props.permissions.canGetSellersInfo}
           />{" "}
         </td>
+        <EditStoreManagerPermissions
+          storeGuid={this.props.storeGuid}
+          managementGuid={this.props.guid}
+          management={this.props.management}
+          isDialogOpen={this.state.isDialogOpen}
+          closeDialog={this.closeEditPermissionsDialog}
+        />
         {this.props.isSubordinate ? (
           <td>
-            <button className="d-flex p-1 justify-content-center btn btn-outline-primary">
+            <button
+              onClick={this.handleEditPermissions}
+              className="d-flex p-1 justify-content-center btn btn-outline-primary"
+            >
               {" "}
               Edit Permissions{" "}
             </button>{" "}

@@ -4,7 +4,7 @@ class PurchaseHistoryView extends Component {
   state = {};
   render() {
     return (
-      <div className="col-5">
+      <div className="col-6">
         <article className="card mb-3">
           <header
             className="card-header pl-3"

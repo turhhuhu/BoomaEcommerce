@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.Internal;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
@@ -77,8 +78,13 @@ namespace BoomaEcommerce.Services.Users
                                        .UserRepository.
                                        FindByIdAsync(shoppingCartGuid));
 
-                shoppingBasket.PurchaseProducts.ForAll(pp => _userUnitOfWork.AttachNoChange(pp.Product));
-                _userUnitOfWork.AttachNoChange(shoppingBasket.Store);
+                await shoppingBasket.PurchaseProducts.Select(async pp =>
+                {
+                    pp.Product = await _userUnitOfWork.ProductRepository.FindByIdAsync(pp.Product.Guid);
+                }).WhenAllAwaitEach();
+
+                shoppingBasket.Store = 
+                    shoppingBasket.PurchaseProducts.FirstOrDefault()?.Product?.Store;
 
                 if (!shoppingCart.AddShoppingBasket(shoppingBasket))
                 {
