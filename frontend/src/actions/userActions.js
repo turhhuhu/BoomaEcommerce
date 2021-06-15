@@ -15,6 +15,7 @@ import {
   CREATE_PURCHASE_URL,
   GET_CART_DISCOUNTED_PRICE_URL,
   USER_PURCHASE_HISTORY_URL,
+  PRODUCT_PRICE_OFFER_URL,
 } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
@@ -463,6 +464,39 @@ export function fetchUserPurchaseHistory() {
         UserActionTypes.GET_PURCHASE_HISTORY_REQUEST,
         UserActionTypes.GET_PURCHASE_HISTORY_SUCCESS,
         UserActionTypes.GET_PURCHASE_HISTORY_FAILURE,
+      ],
+    },
+  };
+}
+
+export function offerProductPrice(offer) {
+  return {
+    [CALL_API]: {
+      endpoint: PRODUCT_PRICE_OFFER_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.OFFER_PRODUCT_PRICE_REQUEST,
+        UserActionTypes.OFFER_PRODUCT_PRICE_SUCESS,
+        UserActionTypes.OFFER_PRODUCT_PRICE_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(offer),
+      },
+    },
+  };
+}
+
+export function fetchProductOffers() {
+  return {
+    [CALL_API]: {
+      endpoint: PRODUCT_PRICE_OFFER_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.GET_PRODUCT_OFFERS_REQUEST,
+        UserActionTypes.GET_PRODUCT_OFFERS_SUCCESS,
+        UserActionTypes.GET_PRODUCT_OFFERS_FAILURE,
       ],
     },
   };

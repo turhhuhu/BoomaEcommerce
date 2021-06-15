@@ -16,7 +16,14 @@ class NotificationEntry extends Component {
       return "Role dismissal";
     } else if (this.props.type === "storePurchaseNotification") {
       return "Store purchase";
+    } else if (this.props.type === "newOfferNotification") {
+      return "New offer";
+    } else if (this.props.type === "offerDeclinedNotification") {
+      return "Offer declined";
+    } else if (this.props.type === "offerApprovedNotification") {
+      return "Offer approved";
     }
+
     return "Regular";
   };
 

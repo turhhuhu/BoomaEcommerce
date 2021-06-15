@@ -43,6 +43,27 @@ class NotificationIcon extends Component {
           });
           return receiveStorePurchaseNotification(notification);
         },
+        newOfferNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
+        },
+        offerDeclinedNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
+        },
+        offerApprovedNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
+        },
       });
       this.props.dispatch(setupEventsHub);
     }

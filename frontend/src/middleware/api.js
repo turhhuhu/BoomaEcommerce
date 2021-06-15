@@ -39,6 +39,13 @@ async function callApi(endpoint, authenticated, config) {
         .then((text) => {
           const errorText = text.substring(1, text.length - 1);
           if (response.status === 400 && !errorText.startsWith('"type":')) {
+            if (errorText.startsWith("{")) {
+              const error = JSON.parse(text);
+              const errorMsg = error
+                .map((errorObj) => errorObj.error)
+                .join("\n");
+              return Promise.reject(errorMsg);
+            }
             return Promise.reject(errorText);
           }
           if (response.status === 500) {

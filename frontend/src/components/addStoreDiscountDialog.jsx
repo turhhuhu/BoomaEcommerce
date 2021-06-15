@@ -331,6 +331,7 @@ class AddStorePolicyDiscount extends Component {
 const mapStateToProps = (store) => {
   return {
     storeProducts: store.store.products,
+    error: this.store.error,
   };
 };
 
