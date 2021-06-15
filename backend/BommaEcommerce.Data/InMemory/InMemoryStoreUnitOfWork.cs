@@ -17,7 +17,6 @@ namespace BoomaEcommerce.Data.InMemory
         public IRepository<StoreOwnership> StoreOwnershipRepo { get; set; }
         public IRepository<StorePurchase> StorePurchaseRepo { get; set; }
         public IRepository<StoreManagement> StoreManagementRepo { get; set; }
-        public IRepository<StoreManagementPermissions> StoreManagementPermissionsRepo { get; set; }
         public IRepository<Product> ProductRepo { get; set; }
         public IRepository<Policy> PolicyRepo { get; set; }
         public IRepository<User> UserRepo { get; set; }
@@ -30,7 +29,6 @@ namespace BoomaEcommerce.Data.InMemory
             IRepository<StoreOwnership> ownershipRepo,
             IRepository<StorePurchase> purchaseRepo,
             IRepository<StoreManagement> storeManagementRepo,
-            IRepository<StoreManagementPermissions> storeManagementPermissionsRepo,
             IRepository<Product> productRepo,
             IRepository<Policy> policyRepo,
             IRepository<Discount> discountRepo,
@@ -42,7 +40,6 @@ namespace BoomaEcommerce.Data.InMemory
             StoreOwnershipRepo = ownershipRepo;
             StorePurchaseRepo = purchaseRepo;
             StoreManagementRepo = storeManagementRepo;
-            StoreManagementPermissionsRepo = storeManagementPermissionsRepo;
             ProductRepo = productRepo;
             PolicyRepo = policyRepo;
             DiscountRepo = discountRepo;
