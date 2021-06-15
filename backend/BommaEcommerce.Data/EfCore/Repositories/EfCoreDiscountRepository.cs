@@ -37,9 +37,19 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             await base.InsertOneAsync(entity);
         }
 
-        public override Task DeleteByIdAsync(Guid guid)
+        public override async Task DeleteByIdAsync(Guid guid)
         {
-            return DeleteRecursively(guid, DbContext.Discounts, DbContext.Policies);
+            await DeleteRecursively(guid, DbContext.Discounts, DbContext.Policies);
+
+            var store = await DbContext
+                .Set<Store>()
+                .FirstOrDefaultAsync(s => s.StoreDiscount.Guid == guid);
+
+            if (store != null)
+            {
+                store.StoreDiscount = Discount.Empty;
+                await InsertOneAsync(store.StoreDiscount);
+            }
         }
 
         public async Task DeleteRecursively(Guid guid, DbSet<Discount> discountDbSet, DbSet<Policy> policyDbSet)

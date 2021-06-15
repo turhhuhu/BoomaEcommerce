@@ -643,7 +643,6 @@ namespace BoomaEcommerce.Services.Stores
                 var childDiscount = _mapper.Map<Discount>(discountDto);
                 compositeDiscount.AddToDiscountList(childDiscount);
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.DiscountRepo.InsertOneAsync(childDiscount);
 
                 await _storeUnitOfWork.SaveAsync();
