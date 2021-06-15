@@ -42,7 +42,11 @@ namespace BoomaEcommerce.Services.Stores
             var newStore = _mapper.Map<Store>(store);
             try
             {
-                _storeUnitOfWork.AttachNoChange(newStore.StoreFounder);
+                newStore.StoreFounder = await _storeUnitOfWork.UserRepo.FindByIdAsync(store.FounderUserGuid);
+                if (newStore.StoreFounder == null)
+                {
+                    return null;
+                }
 
                 await _storeUnitOfWork.StoreRepo.InsertOneAsync(newStore);
 
@@ -639,7 +643,6 @@ namespace BoomaEcommerce.Services.Stores
                 var childDiscount = _mapper.Map<Discount>(discountDto);
                 compositeDiscount.AddToDiscountList(childDiscount);
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.DiscountRepo.InsertOneAsync(childDiscount);
 
                 await _storeUnitOfWork.SaveAsync();

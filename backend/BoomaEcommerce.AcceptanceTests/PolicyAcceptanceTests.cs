@@ -13,11 +13,12 @@ using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class PolicyAcceptanceTests : IAsyncLifetime
+    public class PolicyAcceptanceTests : TestsBase
     {
         private IStoresService _storeService;
         private IPurchasesService _purchaseService;
@@ -35,8 +36,29 @@ namespace BoomaEcommerce.AcceptanceTests
         private ShoppingBasketDto shopping_basket;
         private Guid _founderGuid;
 
-        public async Task InitializeAsync()
+
+        public PolicyAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
         {
+        }
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+            _fixture = new Fixture();
+            _founderGuid = Guid.NewGuid();
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+            var purchaseService = provider.GetRequiredService<PurchasesService>();
+            var userService = provider.GetRequiredService<UsersService>();
+            await InitUser(storeService, authService, purchaseService, userService);
+            _fixture.Customize<StoreDto>(s => s
+                .Without(ss => ss.Guid)
+                .Without(ss => ss.Rating)
+                .With(ss => ss.FounderUserGuid, _founderGuid));
+            await InitPurchase(storeService);
+        }
+
+        public override async Task InitInMemoryDb()
+        {
+            await base.InitInMemoryDb();
             _fixture = new Fixture();
             _founderGuid = Guid.NewGuid();
             var serviceMockFactory = new ServiceMockFactory();
@@ -44,7 +66,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var authService = serviceMockFactory.MockAuthenticationService();
             var purchaseService = serviceMockFactory.MockPurchaseService();
             var userService = serviceMockFactory.MockUserService();
-            await InitUser(storeService, authService,purchaseService, userService );
+            await InitUser(storeService, authService, purchaseService, userService);
             _fixture.Customize<StoreDto>(s => s
                 .Without(ss => ss.Guid)
                 .Without(ss => ss.Rating)
@@ -307,10 +329,7 @@ namespace BoomaEcommerce.AcceptanceTests
         }
 
 
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
+
     }
 
 }

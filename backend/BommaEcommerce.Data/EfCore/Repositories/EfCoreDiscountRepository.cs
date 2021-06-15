@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
@@ -21,18 +22,34 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             return await DbContext.GetDiscountRecursively(guid);
         }
 
-        public override Task InsertOneAsync(Discount entity)
+        public override async Task InsertOneAsync(Discount entity)
         {
             if (entity is ProductDiscount productDiscount)
             {
-                DbContext.Products.Attach(productDiscount.Product);
+                productDiscount.Product = await DbContext
+                    .Set<Product>()
+                    .SingleOrDefaultAsync(p => p.Guid == productDiscount.Product.Guid);
+                if (productDiscount.Product == null)
+                {
+                    return;
+                }
             }
-            return base.InsertOneAsync(entity);
+            await base.InsertOneAsync(entity);
         }
 
-        public override Task DeleteByIdAsync(Guid guid)
+        public override async Task DeleteByIdAsync(Guid guid)
         {
-            return DeleteRecursively(guid, DbContext.Discounts, DbContext.Policies);
+            await DeleteRecursively(guid, DbContext.Discounts, DbContext.Policies);
+
+            var store = await DbContext
+                .Set<Store>()
+                .FirstOrDefaultAsync(s => s.StoreDiscount.Guid == guid);
+
+            if (store != null)
+            {
+                store.StoreDiscount = Discount.Empty;
+                await InsertOneAsync(store.StoreDiscount);
+            }
         }
 
         public async Task DeleteRecursively(Guid guid, DbSet<Discount> discountDbSet, DbSet<Policy> policyDbSet)

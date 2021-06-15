@@ -62,7 +62,13 @@ namespace BoomaEcommerce.Api
                     .Where(u => u != null)
                     .ToList();
 
-            useCaseAggregated.ForEach(async u => await u.NextAction());
+            useCaseAggregated.ForEach(async u =>
+            {
+                for (int i = 0; i < u.AmountToRun; i++)
+                {
+                    await u.NextAction();
+                }
+            });
         }
         
         public UseCases ReadUseCases()

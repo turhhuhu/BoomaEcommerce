@@ -8,12 +8,13 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
     
-    public class StoreManagerPermissionsAcceptanceTests : IAsyncLifetime
+    public class StoreManagerPermissionsAcceptanceTests : TestsBase
     {
         private StoreManagementDto _storeManagementWithPermissions;
         private IStoresService _managerStoreServiceWithPermissions;
@@ -26,14 +27,37 @@ namespace BoomaEcommerce.AcceptanceTests
         
         private IFixture _fixture;
 
-        public async Task InitializeAsync()
+        public StoreManagerPermissionsAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
         {
+        }
+
+        public override async Task InitInMemoryDb()
+        {
+            await base.InitInMemoryDb();
             _fixture = new Fixture();
 
             var serviceMockFactory = new ServiceMockFactory();
-            
+
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
+            await InitOwnerUser(storeService, authService);
+            await InitManagerUserWithPermissions(storeService, authService);
+            await InitManagerUserWithoutPermissions(storeService, authService);
+            _fixture.Customize<ProductDto>(
+                p => p
+                    .With(pp => pp.StoreGuid, _storeOwnership.Store.Guid)
+                    .With(pp => pp.Amount, 10)
+                    .With(pp => pp.Price, 10)
+                    .Without(pp => pp.Rating)
+                    .Without(pp => pp.Guid));
+
+        }
+
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+            _fixture = new Fixture();
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
             await InitOwnerUser(storeService, authService);
             await InitManagerUserWithPermissions(storeService, authService);
             await InitManagerUserWithoutPermissions(storeService, authService);
@@ -284,11 +308,6 @@ namespace BoomaEcommerce.AcceptanceTests
                 service.GetAllSellersInformationAsync(storeGuid.Guid));
             // Assert
             await act.Should().ThrowAsync<UnAuthorizedException>();
-        }
-
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
         }
     }
 }

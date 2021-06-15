@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using BoomaEcommerce.Core.Exceptions;
+using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.DTO.Discounts;
@@ -14,11 +15,12 @@ using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class DiscountAcceptanceTests : IAsyncLifetime
+    public class DiscountAcceptanceTests : TestsBase
     {
         private IStoresService _storeService;
         private IPurchasesService _purchaseService;
@@ -34,21 +36,47 @@ namespace BoomaEcommerce.AcceptanceTests
         private ProductDto _product1WithGuid;
         private ProductDto _product2WithGuid;
 
-        public async Task InitializeAsync()
+        public DiscountAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
+        {
+        }
+        public override async Task InitEfCoreDb(ServiceProvider provider)
         {
             _fixture = new Fixture();
 
+            _fixture.Customize<StoreDto>(s => s
+                .Without(ss => ss.Guid)
+                .Without(ss => ss.Rating)
+                .With(ss => ss.FounderUserGuid, _userGuid));
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+            var purchaseService = provider.GetRequiredService<PurchasesService>();
+            var userService = provider.GetRequiredService<UsersService>();
+            await InitUser(storeService, authService, purchaseService, userService);
+
+            var store = _fixture.Build<StoreDto>()
+                .Without(ss => ss.Guid)
+                .Without(ss => ss.Rating)
+                .With(ss => ss.FounderUserGuid, _userGuid).Create();
+            _storeWithGuid = await _storeService.CreateStoreAsync(store);
+            await InitPurchase(storeService);
+        }
+
+        public override async Task InitInMemoryDb()
+        {
+            _fixture = new Fixture();
+
+            await base.InitInMemoryDb();
             var serviceMockFactory = new ServiceMockFactory();
             var storeService = serviceMockFactory.MockStoreService();
             var authService = serviceMockFactory.MockAuthenticationService();
             var purchaseService = serviceMockFactory.MockPurchaseService();
             var userService = serviceMockFactory.MockUserService();
             await InitUser(storeService, authService, purchaseService, userService);
-            _fixture.Customize<StoreDto>(s => s
+
+            var store = _fixture.Build<StoreDto>()
                 .Without(ss => ss.Guid)
                 .Without(ss => ss.Rating)
-                .With(ss => ss.FounderUserGuid, _userGuid));
-            var store = _fixture.Create<StoreDto>();
+                .With(ss => ss.FounderUserGuid, _userGuid).Create();
             _storeWithGuid = await _storeService.CreateStoreAsync(store);
             await InitPurchase(storeService);
         }
@@ -468,7 +496,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discountDiary = _fixture.Build<CategoryDiscountDto>()
                 .With(d => d.Category, "Diary")
                 .With(d => d.Percentage, 20)
-                .With(d => d.PolicyGuid, policy1.Guid)
+                .Without(d => d.PolicyGuid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -477,7 +505,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discountProduct1 = _fixture.Build<ProductDiscountDto>()
                 .With(d => d.ProductGuid, _product1WithGuid.Guid)
                 .With(d => d.Percentage, 10)
-                .With(d => d.PolicyGuid, policy1.Guid)
+                .Without(d => d.PolicyGuid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -485,9 +513,9 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var compositeDiscount1 = _fixture.Build<CompositeDiscountDto>()
                 .With(d => d.Operator, OperatorTypeDiscount.Sum)
-                .With(d => d.Discounts, new List<DiscountDto>())
+                .Without(d => d.Discounts)
                 .Without(d => d.Percentage)
-                .With(d => d.PolicyGuid, policy1.Guid)
+                .Without(d => d.PolicyGuid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -495,7 +523,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var discountStore = _fixture.Build<BasketDiscountDto>()
                 .With(d => d.Percentage, 25)
-                .With(d => d.PolicyGuid, policy1.Guid)
+                .Without(d => d.PolicyGuid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -504,7 +532,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var discountProduct2 = _fixture.Build<ProductDiscountDto>()
                 .With(d => d.ProductGuid, _product2WithGuid.Guid)
                 .With(d => d.Percentage, 5)
-                .With(d => d.PolicyGuid, policy1.Guid)
+                .Without(d => d.PolicyGuid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -512,9 +540,9 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var compositeDiscount2 = _fixture.Build<CompositeDiscountDto>()
                 .With(d => d.Operator, OperatorTypeDiscount.Sum)
-                .With(d => d.Discounts, new List<DiscountDto>())
+                .Without(d => d.Discounts)
                 .Without(d => d.Percentage)
-                .With(d => d.PolicyGuid, policy1.Guid)
+                .Without(d => d.PolicyGuid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -522,9 +550,9 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var fatherCompositeDiscount = _fixture.Build<CompositeDiscountDto>()
                 .With(d => d.Operator, OperatorTypeDiscount.Max)
-                .With(d => d.Discounts, new List<DiscountDto>())
+                .Without(d => d.Discounts)
                 .Without(d => d.Percentage)
-                .With(d => d.PolicyGuid, policy1.Guid)
+                .Without(d => d.PolicyGuid)
                 .With(d => d.StartTime, DateTime.MinValue)
                 .With(d => d.EndTime, DateTime.MaxValue)
                 .Without(d => d.Guid)
@@ -533,12 +561,13 @@ namespace BoomaEcommerce.AcceptanceTests
             var fatherCompDis = await _storeService.CreateDiscountAsync(_storeWithGuid.Guid, fatherCompositeDiscount);
 
             var childCompDis1 = await _storeService.AddDiscountAsync(_storeWithGuid.Guid, fatherCompDis.Guid, compositeDiscount1);
+            var childCompDis2 = await _storeService.AddDiscountAsync(_storeWithGuid.Guid, fatherCompDis.Guid, compositeDiscount2);
 
             await _storeService.AddDiscountAsync(_storeWithGuid.Guid, childCompDis1.Guid, discountDiary);
 
             await _storeService.AddDiscountAsync(_storeWithGuid.Guid, childCompDis1.Guid, discountProduct1);
 
-            var childCompDis2 = await _storeService.AddDiscountAsync(_storeWithGuid.Guid, fatherCompDis.Guid, compositeDiscount2);
+            //var childCompDis2 = await _storeService.AddDiscountAsync(_storeWithGuid.Guid, fatherCompDis.Guid, compositeDiscount2);
 
             await _storeService.AddDiscountAsync(_storeWithGuid.Guid, childCompDis2.Guid, discountStore);
 
@@ -596,9 +625,7 @@ namespace BoomaEcommerce.AcceptanceTests
         }
 
 
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
+
+
     }
 }

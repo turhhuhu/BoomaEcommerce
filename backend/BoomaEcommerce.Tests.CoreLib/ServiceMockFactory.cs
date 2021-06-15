@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 {
     public class ServiceMockFactory
     {
-        public const string Secret = "aaaaaaaaaaaaaaaaaaa";
+        public const string Secret = "aaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         private IDictionary<Guid, Store> _stores = new ConcurrentDictionary<Guid, Store>();
         private IDictionary<Guid, StoreOwnership> _storeOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
@@ -157,7 +157,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         {
             var loggerMock = new Mock<ILogger<UsersService>>();
             var userUnitOfWork =
-                DalMockFactory.MockUserUnitOfWork(_shoppingBaskets, _shoppingCarts, _users);
+                DalMockFactory.MockUserUnitOfWork(_shoppingBaskets, _shoppingCarts, _products, _users);
             return new UsersService(MapperFactory.GetMapper(), loggerMock.Object, userUnitOfWork.Object, _notificationPublisherStub);
         }
     }

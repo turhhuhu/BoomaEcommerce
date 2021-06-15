@@ -58,5 +58,13 @@ namespace BoomaEcommerce.Services.Products
         /// The task result contains the products collection.
         /// </returns>
         Task<IReadOnlyCollection<ProductDto>> GetProductByKeywordAsync(string productKeyword);
+        
+        /// <summary>
+        /// get all products in store
+        /// </summary>
+        /// <param name="storeGuid"></param>
+        /// <returns></returns>
+        Task<IReadOnlyCollection<ProductDto>> GetProductsFromStoreAsync(Guid storeGuid);
+
     }
 }

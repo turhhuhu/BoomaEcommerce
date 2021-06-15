@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies.Operators;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -45,13 +46,26 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
 
         public override async Task DeleteByIdAsync(Guid guid)
         {
-            //var store = await DbContext
-            //    .Set<Store>()
-            //    .FirstOrDefaultAsync(s => s.StorePolicy.Guid == guid);
-
-            //store.StorePolicy = Policy.EmptyDisc;
-
             await DeleteRecursively(guid, DbContext.Set<Policy>());
+            var store = await DbContext
+                .Set<Store>()
+                .FirstOrDefaultAsync(s => s.StorePolicy.Guid == guid);
+
+            var discount = await DbContext
+                .Set<Discount>()
+                .FirstOrDefaultAsync(s => s.Policy.Guid == guid);
+
+            if (discount != null)
+            {
+                discount.Policy = Policy.Empty;
+                await InsertOneAsync(discount.Policy);
+            }
+
+            if (store != null)
+            {
+                store.StorePolicy = Policy.Empty;
+                await InsertOneAsync(store.StorePolicy);
+            }
         }
         public static async Task DeleteRecursively(Guid guid, DbSet<Policy> dbSet)
         {

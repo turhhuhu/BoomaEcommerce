@@ -50,7 +50,7 @@ namespace BoomaEcommerce.Services.UseCases
             var UserToNominateObj = dict[UserToNominateLabel];
             if (UserToNominateObj is not UserDto userToNominate)
             {
-                throw new ArgumentException(nameof(ownershipObj));
+                throw new ArgumentException(nameof(UserToNominateObj));
             }
 
             using var scope = Sp.CreateScope();

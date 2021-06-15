@@ -5,6 +5,33 @@
         {
           "Type": "RegisterAction",
           "Label" : "Benny User",
+          "UserName": "Benny",
+          "Password": "Benny"
+        },
+        {
+          "Type": "LoginAction",
+          "Label" : "",
+          "UserName": "Benny",
+          "Password": "Benny"
+        },
+        {
+          "Type": "LoadTestAction",
+          "Label" : "",
+          "StoreToCreate": {
+            "StoreName": "Rami Levi",
+            "Description": "Blah"
+          },
+          "UserLabel": "Benny User"
+          
+        }
+        
+      ]
+    },
+    {
+      "Actions": [
+        {
+          "Type": "RegisterAction",
+          "Label" : "Benny User",
           "UserName": "Benny11",
           "Password": "Benny"
         },
