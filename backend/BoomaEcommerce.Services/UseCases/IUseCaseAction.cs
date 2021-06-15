@@ -12,12 +12,15 @@ namespace BoomaEcommerce.Services.UseCases
 {
     public interface IUseCaseAction
     {
+        int AmountToRun { get; set; }
         public IUseCaseAction NextUseCaseAction { get; set; }
         public Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null);
     }
 
     public abstract class UseCaseAction : IUseCaseAction
     {
+        public int AmountToRun { get; set; } = 1;
+
         [JsonIgnore]
         public IUseCaseAction NextUseCaseAction { get; set; }
 

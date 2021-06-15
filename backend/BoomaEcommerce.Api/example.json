@@ -1,0 +1,95 @@
+﻿{
+  "examples" :
+  [
+    {
+      "Type": "RegisterAction",
+      "Label" : "Benny",
+      "UserName": "Benny",
+      "Password": "Benny"
+    },
+    {
+      "Type": "LoginAction",
+      "Label" : "",
+      "UserName": "Benny",
+      "Password": "Benny"
+    },
+    {
+      "Type": "CreateStoreAction",
+      "UserLabel": "Benny",
+      "Label" : "Rami Levi",
+      "StoreToCreate": {
+        "StoreName": "Rami Levi",
+        "Description": "Blah"
+      }
+    },
+    {
+      "Type": "GetOwnershipAction",
+      "UserLabel": "Benny",
+      "StoreLabel": "Rami Levi",
+      "Label" : "Benny Rami Levi Ownership"
+    },
+    {
+      "Type": "NominateManagerAction",
+      "UserToNominateLabel": "Ori",
+      "OwnershipLabel": "Benny Rami Levi Ownership",
+      "Label" : "",
+      "ManagerPermissions": {
+        "CanAddProduct":  true,
+        "CanDeleteProduct": true,
+        "CanUpdateProduct": true
+      }
+    },
+    {
+      "Type": "CreateProductAction",
+      "Label" : "test",
+      "StoreLabel": "Rami Levi",
+      "ProductName": "Bambda",
+      "ProductAmount": 20,
+      "ProductPrice": 30
+    },
+    {
+      "Type": "CreateDiscountAction",
+      "Label": "Category 10 percent",
+      "StoreLabel": "Rami Levi",
+      "Discount": {
+        "Type": "Category",
+        "Percentage": 10
+      }
+    },
+    {
+      "Type": "AddDiscountAction",
+      "Label" : "",
+      "StoreLabel": "Rami Levi",
+      "DiscountLabel": "Category 10 percent",
+      "Discount": {
+        "Type": "Category",
+        "Percentage": 10
+      }
+    },
+    {
+      "Type": "GetShoppingCartAction",
+      "Label": "benny shopping cart",
+      "UserLabel": "Benny"
+    },
+    {
+      "Type": "CreateShoppingBasketAction",
+      "Label": "benny rami levi basket",
+      "ShoppingCartLabel": "benny shopping cart",
+      "StoreLabel": "Rami Levi",
+      "NewShoppingBasket": {
+        "PurchaseProducts": []
+      }
+    },
+    {
+      "Type": "AddPurchaseProductToShoppingBasketActon",
+      "Label": "benny rami levi basket",
+      "UserLabel": "Benny",
+      "ShoppingBasketLabel": "added bamba to benny basket",
+      "NewPurchaseProduct": {
+        "Amount": "1",
+        "Price": 30
+      }
+    }
+  ]
+}
+
