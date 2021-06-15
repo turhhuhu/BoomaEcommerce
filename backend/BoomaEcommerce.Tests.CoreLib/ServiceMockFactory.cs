@@ -29,7 +29,7 @@ namespace BoomaEcommerce.Tests.CoreLib
 {
     public class ServiceMockFactory
     {
-        public const string Secret = "aaaaaaaaaaaaaaaaaaa";
+        public const string Secret = "aaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
         private IDictionary<Guid, Store> _stores = new ConcurrentDictionary<Guid, Store>();
         private IDictionary<Guid, StoreOwnership> _storeOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();

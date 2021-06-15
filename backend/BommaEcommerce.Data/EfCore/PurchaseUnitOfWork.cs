@@ -54,7 +54,7 @@ namespace BoomaEcommerce.Data.EfCore
             _dbContext.Attach(entity);
         }
 
-        public async Task<ITransactionContext> BeginTransaction()
+        public virtual async Task<ITransactionContext> BeginTransaction()
         {
             var transaction = await _dbContext.Database.BeginTransactionAsync();
             return new TransactionContext(transaction);
