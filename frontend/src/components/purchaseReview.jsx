@@ -84,6 +84,7 @@ class PurchaseReview extends Component {
         )
         .then((success) => {
           if (success) {
+            this.startLoading();
             this.props.dispatch(clearGuestCart());
             this.setState({ success: true });
           }

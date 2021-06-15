@@ -22,7 +22,7 @@ class PurchaseHistoryView extends Component {
           >
             <table className="table table-hover">
               <tbody>
-                {this.props.purchases?.map((purchase, index) => (
+                {this.props.purchases.map((purchase, index) => (
                   <PurchaseHistoryEntry
                     key={index}
                     hrefPrefix={this.props.hrefPrefix}

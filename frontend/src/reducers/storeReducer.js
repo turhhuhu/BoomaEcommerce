@@ -10,7 +10,7 @@ export function store(
     storePolicy: {},
     storeDiscount: {},
     storeDiscountPolicy: {},
-    purchaseHistory: {},
+    purchaseHistory: [],
   },
   action
 ) {

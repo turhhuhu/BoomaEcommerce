@@ -15,6 +15,7 @@ class StoreManagementView extends Component {
           <div>
             <StoreManagersTable
               title="Managers"
+              storeGuid={this.props.guid}
               myRole={this.props.myRole}
               subordinates={this.props.subordinates?.storeManagers}
               managers={this.props.storeRoles?.storeManagers}
@@ -23,6 +24,7 @@ class StoreManagementView extends Component {
           <div>
             <StoreOwnersTable
               title="Owners"
+              storeGuid={this.props.guid}
               myRole={this.props.myRole}
               subordinates={this.props.subordinates?.storeOwners}
               owners={this.props.storeRoles?.storeOwners}

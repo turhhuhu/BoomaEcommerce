@@ -13,7 +13,7 @@ export function user(
     paymentInfo: {},
     deliveryInfo: {},
     guestInformation: {},
-    purchaseHistory: {},
+    purchaseHistory: [],
   },
   action
 ) {
