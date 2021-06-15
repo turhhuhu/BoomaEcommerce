@@ -49,6 +49,7 @@ class StoreManagersTable extends Component {
                         key={managementship.guid}
                         username={managementship.userMetaData?.userName}
                         permissions={managementship.permissions}
+                        management={managementship}
                         guid={managementship.guid}
                       />
                     );
@@ -59,6 +60,7 @@ class StoreManagersTable extends Component {
                       key={managementship.guid}
                       username={managementship.userMetaData?.userName}
                       permissions={managementship.permissions}
+                      management={managementship}
                       guid={managementship.guid}
                     />
                   );

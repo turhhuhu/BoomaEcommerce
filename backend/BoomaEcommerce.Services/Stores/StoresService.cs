@@ -383,8 +383,9 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                var permission = _mapper.Map<StoreManagementPermissions>(smpDto);
-                await _storeUnitOfWork.StoreManagementPermissionsRepo.ReplaceOneAsync(permission);
+                var permissions = _mapper.Map<StoreManagementPermissions>(smpDto);
+                var management = await _storeUnitOfWork.StoreManagementRepo.FindByIdAsync(smpDto.Guid);
+                management.Permissions = permissions;
                 await _storeUnitOfWork.SaveAsync();
             }
             catch (Exception e)
@@ -402,7 +403,7 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "failed to get UserStore management for guid {guid}", storeManagementGuid);
+                _logger.LogError(e, "failed to get UserStore management for guid {Guid}", storeManagementGuid);
                 return null;
             }
         }

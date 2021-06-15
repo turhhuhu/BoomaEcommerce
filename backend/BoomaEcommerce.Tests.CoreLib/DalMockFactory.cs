@@ -215,7 +215,6 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.StoreOwnershipRepo).Returns(storeOwnershipRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StorePurchaseRepo).Returns(storePurchasesRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementRepo).Returns(storeManagementRepoMock?.Object);
-            storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.ProductRepo).Returns(productsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.DiscountRepo).Returns(storeDiscountRepoMock?.Object);
