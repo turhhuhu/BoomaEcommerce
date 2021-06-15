@@ -175,7 +175,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Act
             var result = await _adminStoreService.GetStorePurchaseHistoryAsync(storeGuid);
-            var storePurchase = result.First();
+            var storePurchase = result.First(x => x.BuyerGuid == _purchase.StorePurchases.First().BuyerGuid);
             var purchaseProduct = storePurchase.PurchaseProducts.First();
             var realStorePurchase = _purchase.StorePurchases.First();
             var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();

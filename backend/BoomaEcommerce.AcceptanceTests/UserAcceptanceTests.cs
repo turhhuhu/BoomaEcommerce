@@ -12,11 +12,12 @@ using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class UserAcceptanceTests : IAsyncLifetime
+    public class UserAcceptanceTests : TestsBase
     {
         private IStoresService _storeService;
         private IPurchasesService _purchaseService;
@@ -33,8 +34,10 @@ namespace BoomaEcommerce.AcceptanceTests
         private NotificationPublisherStub _notificationPublisher;
         private Guid _founderGuid;
 
-        public async Task InitializeAsync()
+
+        public override async Task InitInMemoryDb()
         {
+            await base.InitInMemoryDb();
             _fixture = new Fixture();
 
             _founderGuid = Guid.NewGuid();
@@ -47,13 +50,38 @@ namespace BoomaEcommerce.AcceptanceTests
             _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
             var usersService = serviceMockFactory.MockUserService();
 
-            await InitUser(storeService, authService, purchasesService ,usersService);
+            await InitUser(storeService, authService, purchasesService, usersService);
             _fixture.Customize<StoreDto>(s => s
                 .Without(ss => ss.Guid)
                 .Without(ss => ss.Rating)
                 .With(ss => ss.FounderUserGuid, _founderGuid));
 
             await InitPurchase(storeService);
+        }
+
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+            _fixture = new Fixture();
+
+            _founderGuid = Guid.NewGuid();
+
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+            var purchasesService = provider.GetRequiredService<PurchasesService>();
+            _notificationPublisher = provider.GetRequiredService<NotificationPublisherStub>();
+            var usersService = provider.GetRequiredService<UsersService>();
+
+            await InitUser(storeService, authService, purchasesService, usersService);
+            _fixture.Customize<StoreDto>(s => s
+                .Without(ss => ss.Guid)
+                .Without(ss => ss.Rating)
+                .With(ss => ss.FounderUserGuid, _founderGuid));
+
+            await InitPurchase(storeService);
+        }
+
+        public UserAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
+        {
         }
 
         private async Task InitPurchase(IStoresService storesService)
@@ -388,15 +416,6 @@ namespace BoomaEcommerce.AcceptanceTests
             success.Should().BeFalse();
 
         }
-
-
-
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-
 
     }
 }

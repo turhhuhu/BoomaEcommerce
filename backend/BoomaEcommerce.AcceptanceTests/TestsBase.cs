@@ -42,10 +42,11 @@ namespace BoomaEcommerce.AcceptanceTests
                     _transaction = DataBaseFixture.Connection.BeginTransaction();
                     _dbContext = DataBaseFixture.CreateContext(_transaction);
                     DataBaseFixture.Services.AddTransient(_ => _dbContext);
-                    DataBaseFixture.Services.AddSingleton<INotificationPublisher, NotificationPublisherStub>();
+                    var notfPublisher = new NotificationPublisherStub();
+                    DataBaseFixture.Services.AddSingleton<INotificationPublisher, NotificationPublisherStub>(_ => notfPublisher);
+                    DataBaseFixture.Services.AddSingleton<NotificationPublisherStub>(_ => notfPublisher);
 
                     var provider = DataBaseFixture.Services.BuildServiceProvider();
-                    var userManager = provider.GetRequiredService<UserManager<User>>();
                     var roleManager = provider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
                     if (!await roleManager.RoleExistsAsync(UserRoles.AdminRole))
                     {
@@ -55,7 +56,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 }
                 catch
                 {
-                    _semaphore.Release(); // ignored
+                    _semaphore.Release();
                 }
             }
         }
