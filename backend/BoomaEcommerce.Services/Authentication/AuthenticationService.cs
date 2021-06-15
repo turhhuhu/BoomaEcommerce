@@ -105,7 +105,7 @@ namespace BoomaEcommerce.Services.Authentication
                     Errors = createdUser.Errors.Select(err => err.Description).ToArray()
                 };
             }
-
+            
             var roleResult = await _userManager.AddToRoleAsync(user, "Admin");
             if (roleResult == null || !roleResult.Succeeded)
             {

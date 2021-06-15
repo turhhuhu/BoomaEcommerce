@@ -12,7 +12,7 @@ namespace BoomaEcommerce.Data.EfCore
 {
     public class PurchaseUnitOfWork : IPurchaseUnitOfWork
     {
-        private readonly ApplicationDbContext _dbContext;
+        protected readonly ApplicationDbContext DbContext;
         public IRepository<Purchase> PurchaseRepository { get; set; }
         public UserManager<User> UserRepository { get; set; }
         public IRepository<Product> ProductRepository { get; set; }
@@ -32,7 +32,7 @@ namespace BoomaEcommerce.Data.EfCore
                                   IRepository<ProductOffer> offersRepo,
                                   IRepository<ShoppingBasket> shoppingBasketRepo)
         {
-            _dbContext = dbContext;
+            DbContext = dbContext;
             PurchaseRepository = purchaseRepo;
             UserRepository = userRepo;
             ProductRepository = productRepo;
@@ -45,18 +45,18 @@ namespace BoomaEcommerce.Data.EfCore
 
         public Task SaveAsync()
         {
-            return _dbContext.SaveChangesAsync();
+            return DbContext.SaveChangesAsync();
         }
 
-        public void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
+        public virtual void Attach<TEntity>(TEntity entity) where TEntity : class, IBaseEntity
         {
             entity.Guid = default;
-            _dbContext.Attach(entity);
+            DbContext.Attach(entity);
         }
 
         public virtual async Task<ITransactionContext> BeginTransaction()
         {
-            var transaction = await _dbContext.Database.BeginTransactionAsync();
+            var transaction = await DbContext.Database.BeginTransactionAsync();
             return new TransactionContext(transaction);
         }
 
@@ -70,13 +70,13 @@ namespace BoomaEcommerce.Data.EfCore
         {
             if (disposing)
             {
-                _dbContext.Dispose();
+                DbContext.Dispose();
             }
         }
         public void AttachNoChange<TEntity>(TEntity entity)
             where TEntity : class, IBaseEntity
         {
-            _dbContext.Set<TEntity>().Attach(entity);
+            DbContext.Set<TEntity>().Attach(entity);
         }
     }
 }

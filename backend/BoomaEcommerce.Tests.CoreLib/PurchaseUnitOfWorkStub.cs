@@ -23,5 +23,10 @@ namespace BoomaEcommerce.Tests.CoreLib
         {
             return new InMemoryPurchaseUnitOfWork.StubTransactionContext();
         }
+
+        //public override void Attach<TEntity>(TEntity entity)
+        //{
+        //    DbContext.Set<TEntity>().Add(entity);
+        //}
     }
 }

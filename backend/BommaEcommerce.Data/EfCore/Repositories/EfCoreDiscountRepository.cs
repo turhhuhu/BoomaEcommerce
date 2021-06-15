@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +22,19 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
             return await DbContext.GetDiscountRecursively(guid);
         }
 
-        public override Task InsertOneAsync(Discount entity)
+        public override async Task InsertOneAsync(Discount entity)
         {
             if (entity is ProductDiscount productDiscount)
             {
-                DbContext.Products.Attach(productDiscount.Product);
+                productDiscount.Product = await DbContext
+                    .Set<Product>()
+                    .SingleOrDefaultAsync(p => p.Guid == productDiscount.Product.Guid);
+                if (productDiscount.Product == null)
+                {
+                    return;
+                }
             }
-            return base.InsertOneAsync(entity);
+            await base.InsertOneAsync(entity);
         }
 
         public override Task DeleteByIdAsync(Guid guid)

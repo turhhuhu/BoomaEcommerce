@@ -28,6 +28,10 @@ namespace BoomaEcommerce.Data.EfCore
         public DbSet<Discount> Discounts { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+        public DbSet<Purchase> Purchases { get; set; }
+
+        public DbSet<StorePurchase> StorePurchases { get; set; }
+
         public DbSet<ProductOffer> ProductOffers { get;  set; }
 
         public DbSet<ApproverOwner> ApproversOffers { get; set; }
@@ -88,6 +92,7 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Notifications)
                 .WithOne();
+
 
             modelBuilder.Entity<StoreManagement>(sm =>
             {
@@ -166,6 +171,7 @@ namespace BoomaEcommerce.Data.EfCore
             modelBuilder.Entity<Purchase>(p =>
             {
                 p.HasKey(pp => pp.Guid);
+                p.Property(s => s.Guid).ValueGeneratedNever();
                 p.HasMany(pp => pp.StorePurchases)
                     .WithOne()
                     .OnDelete(DeleteBehavior.Cascade);

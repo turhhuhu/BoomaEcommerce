@@ -12,6 +12,7 @@ using BoomaEcommerce.Data.EfCore.Repositories;
 using BoomaEcommerce.Data.Migrations;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.ProductOffer;
+using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Purchases;
@@ -32,9 +33,8 @@ using ProductOffer = BoomaEcommerce.Domain.ProductOffer.ProductOffer;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class AdminAcceptanceTests : IAsyncLifetime, IClassFixture<SharedDatabaseFixture>, IDisposable
+    public class AdminAcceptanceTests : TestsBase
     {
-        public SharedDatabaseFixture DataBaseFixture { get; }
         private AdminUserDto _adminUser = new() { UserName = "Ori" };
         private string _adminPassword = "Ori1234";
 
@@ -43,61 +43,13 @@ namespace BoomaEcommerce.AcceptanceTests
         private PurchaseDto _purchase;
         private StoreDto _storeDto;
         private NotificationPublisherStub _notificationPublisher;
-        private DbTransaction _transcation;
-        private ApplicationDbContext _dbContext;
-        public AdminAcceptanceTests(SharedDatabaseFixture dataBaseFixture)
-        {
-            DataBaseFixture = dataBaseFixture;
-        }
-
-        private IFixture _fixture;
-        public async Task InitializeAsync()
+        public AdminAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
         {
             _fixture = new Fixture();
             _fixture.Customize<StoreDto>(s => s.Without(ss => ss.Guid));
-
-            var serviceMockFactory = new ServiceMockFactory();
-            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
-
-
-
-            if (DataBaseFixture.TestConfig.UseStubDataAccess)
-            {
-                var storeService = serviceMockFactory.MockStoreService();
-                var purchaseService = serviceMockFactory.MockPurchaseService();
-                _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
-                var authService = serviceMockFactory.MockAuthenticationService();
-                await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
-                await InitAdminServices(storeService, purchaseService, authService);
-            }
-            else
-            {
-                IServiceCollection serviceCollection = new ServiceCollection();
-
-                var builder = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-                    .Build();
-
-                var startup = new Startup(builder);
-                startup.ConfigureServices(serviceCollection);
-                serviceCollection.AddLogging();
-                serviceCollection.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWorkStub>();
-                _transcation = DataBaseFixture.Connection.BeginTransaction();
-                _dbContext = DataBaseFixture.CreateContext(_transcation);
-                serviceCollection.AddSingleton(_ => _dbContext);
-                var provider = serviceCollection.BuildServiceProvider();
-
-                var storeService = provider.GetRequiredService<StoresService>();
-                var purchaseService = provider.GetRequiredService<PurchasesService>();
-                _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
-                var authService = provider.GetRequiredService<IAuthenticationService>();
-
-                await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
-                await InitAdminServices(storeService, purchaseService, authService);
-
-            }
-
         }
+
+        private readonly IFixture _fixture;
 
         private async Task InitAdminServices(IStoresService storeService, IPurchasesService purchaseService, IAuthenticationService authService)
         {
@@ -304,17 +256,31 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             result.Should().BeEmpty();
         }
-        
 
-        public Task DisposeAsync()
+        public override async Task InitInMemoryDb()
         {
-            return Task.CompletedTask;
+            var serviceMockFactory = new ServiceMockFactory();
+            var storeService = serviceMockFactory.MockStoreService();
+            var purchaseService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
+            var authService = serviceMockFactory.MockAuthenticationService();
+            await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
+            await InitAdminServices(storeService, purchaseService, authService);
         }
 
-        public void Dispose()
+        public override async Task InitEfCoreDb(ServiceProvider provider)
         {
-            _transcation?.Dispose();
-            _dbContext?.Dispose();
+
+            var serviceMockFactory = new ServiceMockFactory();
+            var storeService = provider.GetRequiredService<StoresService>();
+            var purchaseService = provider.GetRequiredService<PurchasesService>();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
+            DataBaseFixture.Services.AddSingleton<INotificationPublisher>(_ => _notificationPublisher);
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+
+            await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
+            await InitAdminServices(storeService, purchaseService, authService);
         }
+
     }
 }
