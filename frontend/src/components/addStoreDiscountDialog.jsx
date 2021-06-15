@@ -7,13 +7,17 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
 import Select from "react-select";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
   addStoreRootDiscount,
   addStoreSubDiscount,
   fetchStoreDiscounts,
 } from "../actions/storeActions";
+import {
+  formatDateWithExactTime,
+  formatDateWithExactTimeNonReadable,
+} from "../utils/utilFunctions";
+import { TextField } from "@material-ui/core";
 
 const typeOptions = [
   { value: "composite", label: "Composite", name: "type" },
@@ -33,18 +37,6 @@ const operatorOptions = [
   { value: "max", label: "Max", name: "operator" },
   { value: "sum", label: "Sum", name: "operator" },
 ];
-
-function formatDate(date) {
-  var d = new Date(date),
-    month = "" + (d.getMonth() + 1),
-    day = "" + d.getDate(),
-    year = d.getFullYear();
-
-  if (month.length < 2) month = "0" + month;
-  if (day.length < 2) day = "0" + day;
-
-  return [year, month, day].join("-");
-}
 
 class AddStorePolicyDiscount extends Component {
   state = {
@@ -68,14 +60,6 @@ class AddStorePolicyDiscount extends Component {
         [event.name]: event.value,
       });
     }
-  };
-
-  handleStartTimeChange = (event) => {
-    this.setState({ startTime: event });
-  };
-
-  handleEndTimeChange = (event) => {
-    this.setState({ endTime: event });
   };
 
   handleClose = (event) => {
@@ -142,8 +126,13 @@ class AddStorePolicyDiscount extends Component {
             addStoreRootDiscount(this.props.storeGuid, {
               type: this.state.type,
               operator: this.state.operator ? this.state.operator : undefined,
-              startTime: formatDate(this.state.startTime),
-              endTime: formatDate(this.state.endTime),
+              productGuid: this.state.productGuid
+                ? this.state.productGuid
+                : undefined,
+              category: this.state.category ? this.state.category : undefined,
+              percentage: this.state.percentage,
+              startTime: formatDateWithExactTime(this.state.startTime),
+              endTime: formatDateWithExactTime(this.state.endTime),
             })
           )
           .then((success) => {
@@ -165,8 +154,8 @@ class AddStorePolicyDiscount extends Component {
                   : undefined,
                 category: this.state.category ? this.state.category : undefined,
                 percentage: this.state.percentage,
-                startTime: formatDate(this.state.startTime),
-                endTime: formatDate(this.state.endTime),
+                startTime: formatDateWithExactTime(this.state.startTime),
+                endTime: formatDateWithExactTime(this.state.endTime),
               }
             )
           )
@@ -205,14 +194,7 @@ class AddStorePolicyDiscount extends Component {
             <Select
               onMenuOpen={this.handleOpenMenu}
               onMenuClose={this.handleCloseMenu}
-              options={
-                this.props.isRoot
-                  ? [
-                      { value: "composite", label: "Composite", name: "type" },
-                      { value: "binary", label: "Binary", name: "type" },
-                    ]
-                  : typeOptions
-              }
+              options={typeOptions}
               onChange={this.handleChange}
             />
             {this.state.type && this.state.type === "product" ? (
@@ -290,18 +272,32 @@ class AddStorePolicyDiscount extends Component {
                 <div className="mt-3">
                   <label>Start time:</label>
                   <br />
-                  <DatePicker
-                    selected={this.state.startTime}
-                    onChange={this.handleStartTimeChange} //only when value has changed
+                  <TextField
+                    onChange={this.handleChange}
+                    defaultValue={formatDateWithExactTimeNonReadable(
+                      this.state.startTime
+                    )}
+                    name="startTime"
+                    type="datetime-local"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </div>
                 <div>
                   <br />
                   <label>End time:</label>
                   <br />
-                  <DatePicker
-                    selected={this.state.endTime}
-                    onChange={this.handleEndTimeChange} //only when value has changed
+                  <TextField
+                    onChange={this.handleChange}
+                    name="endTime"
+                    defaultValue={formatDateWithExactTimeNonReadable(
+                      this.state.endTime
+                    )}
+                    type="datetime-local"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
                   />
                 </div>{" "}
               </React.Fragment>

@@ -15,11 +15,6 @@ import { fetchUserStoreRole } from "../actions/userActions";
 class StoreProductsPage extends Component {
   state = {};
 
-  handleChange = (event) => {
-    this.setState({
-      [event.target.name]: event.target.value,
-    });
-  };
   componentDidMount() {
     if (this.props.match.params.guid) {
       this.props.dispatch(fetchStoreInfo(this.props.match.params.guid));

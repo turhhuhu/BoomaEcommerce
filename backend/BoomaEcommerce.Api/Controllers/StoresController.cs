@@ -408,6 +408,18 @@ namespace BoomaEcommerce.Api.Controllers
             return NoContent();
         }
 
+        [Authorize]
+        [HttpGet("{storeGuid}/purchases")]
+        public async Task<IActionResult> GetStorePurchaseHistory(Guid storeGuid)
+        {
+            var purchaseHistory = await _storesService.GetStorePurchaseHistoryAsync(storeGuid);
+            if (purchaseHistory is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(purchaseHistory.ToList());
+        }
 
 
 

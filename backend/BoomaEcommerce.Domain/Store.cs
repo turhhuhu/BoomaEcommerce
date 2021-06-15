@@ -24,10 +24,22 @@ namespace BoomaEcommerce.Domain
 
         public Store()
         {
-            this.StorePolicy = Policy.Empty;
-            this.StoreDiscount = Discount.Empty;
         }
-        
+
+        public Store(User storeFounder)
+        {
+            StoreFounder = storeFounder;
+            StorePolicy = Policy.Empty;
+            StoreDiscount = Discount.Empty;
+        }
+
+        public Store(User storeFounder, Policy storePolicy, Discount storeDiscount)
+        {
+            StorePolicy = storePolicy;
+            StoreDiscount = storeDiscount;
+            this.StoreFounder = storeFounder;
+        }
+
         public PolicyResult CheckPolicy(StorePurchase purchase)
         {
             return StorePolicy.CheckPolicy(purchase);

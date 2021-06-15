@@ -14,6 +14,8 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 using FluentValidation;
+using BoomaEcommerce.Domain.ProductOffer;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 
 namespace BoomaEcommerce.Services.Stores
 {
@@ -82,14 +84,15 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var product = _mapper.Map<Product>(productDto);
-                var store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
-                if (store is null)
+                product.Store = await _storeUnitOfWork.StoreRepo.FindByIdAsync(product.Store.Guid);
+                if (product.Store is null)
                 {
                     _logger.LogWarning("create UserStore product failed because" +
-                                       " UserStore with guid {UserDto} does not exists", product.Store.Guid);
+                                       " UserStore with guid {UserDto} does not exists", productDto.StoreGuid);
                     return null;
                 }
                 await _storeUnitOfWork.ProductRepo.InsertOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return _mapper.Map<ProductDto>(product);
             }
             catch (Exception e)
@@ -109,8 +112,7 @@ namespace BoomaEcommerce.Services.Stores
                 if (product == null) return false;
                 if (product.IsSoftDeleted) return false;
                 product.IsSoftDeleted = true;
-
-                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -144,7 +146,7 @@ namespace BoomaEcommerce.Services.Stores
                 product.Category = productDto.Category ?? product.Category;
                 product.Rating = productDto.Rating ?? product.Rating;
 
-                await _storeUnitOfWork.ProductRepo.ReplaceOneAsync(product);
+                await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -217,13 +219,14 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-
-
+        
         public async Task<bool> RemoveStoreOwnerAsync(Guid ownerGuidRemoveFrom ,Guid ownerGuid)
         {
             try
             {
                 var storeOwnershipRemoveFrom = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuidRemoveFrom);
+
+                var storeGuid = storeOwnershipRemoveFrom.Store.Guid;
 
                 var owner = storeOwnershipRemoveFrom.GetOwner(ownerGuid);
                 if (owner == null)
@@ -242,6 +245,11 @@ namespace BoomaEcommerce.Services.Stores
                 _storeUnitOfWork.StoreManagementRepo.DeleteRange(managers);
 
                 await _storeUnitOfWork.SaveAsync();
+
+                var isUpdated = await UpdateStoreOffers(storeGuid);
+
+                if(isUpdated)
+                    await _storeUnitOfWork.SaveAsync();
                 return true;
             }
             catch (Exception e)
@@ -249,6 +257,22 @@ namespace BoomaEcommerce.Services.Stores
                 _logger.LogError(e, $"Failed to delete StoreOwnerShip with guid {ownerGuid}");
                 return false;
             }
+        }
+
+        private async Task<bool> UpdateStoreOffers(Guid storeGuid)
+        {
+            var isUpdated = false;
+            var storeOwners = (await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(so => so.Store.Guid == storeGuid)).ToList();
+            var offers = await _storeUnitOfWork.OffersRepo.FilterByAsync(o => o.Product.Store.Guid == storeGuid);
+
+            foreach (var offer in offers)
+            {
+                var res = offer.CheckProductOfferState(storeOwners.ToList());
+                if (res != ProductOfferState.Pending)
+                    isUpdated = true;
+            }
+
+            return isUpdated;
         }
 
         private Task NotifyDismissal(StoreOwnership dismissingOwner, List<StoreOwnership> owners)
@@ -387,8 +411,6 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                var t =await  _storeUnitOfWork.StoreOwnershipRepo.FindAllAsync();
-                var c = t.First();
                 var ownership = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(storeOwnershipGuid);
                 return _mapper.Map<StoreOwnershipDto>(ownership);
             }
@@ -665,7 +687,6 @@ namespace BoomaEcommerce.Services.Stores
                 var discount = _mapper.Map<Discount>(discountDto);
                 store.StoreDiscount = discount;
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.DiscountRepo.InsertOneAsync(discount);
 
                 await _storeUnitOfWork.SaveAsync();
@@ -842,7 +863,6 @@ namespace BoomaEcommerce.Services.Stores
                 var childPolicy = _mapper.Map<Policy>(childPolicyDto);
                 multiPolicy.AddPolicy(childPolicy);
 
-                //TODO: remove when moving to EF core
                 await _storeUnitOfWork.PolicyRepo.InsertOneAsync(childPolicy);
 
                 await _storeUnitOfWork.SaveAsync();
@@ -861,5 +881,162 @@ namespace BoomaEcommerce.Services.Stores
                 return null;
             }
         }
+
+
+        public async Task ApproveOffer(Guid ownerGuid, Guid productOfferGuid)
+        {
+            try
+            {
+                // _logger.LogInformation($"Creating Product offer on product from Store with guid {storeGuid}");
+
+                var productOffer = await _storeUnitOfWork.OffersRepo.FindByIdAsync(productOfferGuid);
+                var storeGuid = productOffer.Product.Store.Guid; 
+
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
+
+                var ownersInStore =
+                    await _storeUnitOfWork.StoreOwnershipRepo.FilterByAsync(o => o.Store.Guid == storeGuid);
+
+                var approveOwner = productOffer.ApproveOffer(owner, ownersInStore.ToList());
+
+
+                if (productOffer.State == ProductOfferState.Approved)
+                    NotifyUserOnApprovedOffer(productOffer);
+
+                if (approveOwner != null)
+                {
+                    await _storeUnitOfWork.ApproversRepo.InsertOneAsync(approveOwner);
+                    await _storeUnitOfWork.SaveAsync();
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                // _logger.LogError(e, $"{ownerGuid}", ownerGuid);
+
+            }
+        }
+
+        private async void NotifyUserOnApprovedOffer(ProductOffer offer)
+        {
+            var user = offer.User;
+
+
+            var notifications = new List<(Guid, NotificationDto)>();
+
+            var notification = new OfferApprovedNotification(offer);
+
+            user.Notifications.Add(notification);
+           
+            notifications.Add((user.Guid, _mapper.Map<OfferApprovedNotificationDto>(notification)));
+            _storeUnitOfWork.Attach(notification);
+
+
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
+
+            await Task.WhenAll(_storeUnitOfWork.SaveAsync(), notifyTask);
+        }
+
+        public async Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid)
+        {
+            try
+            {
+                var offer = await _storeUnitOfWork.OffersRepo.FindByIdAsync(productOfferGuid);
+                offer.State = ProductOfferState.Declined;
+                await NotifyUserOnDeclinedOffer(offer);
+                await _storeUnitOfWork.SaveAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "The following error occurred during decline product offer with guid {productOfferGuid}", productOfferGuid);
+            }
+        }
+
+        private async Task NotifyUserOnDeclinedOffer(ProductOffer offer)
+        {
+            var user = offer.User; 
+
+
+            var notifications = new List<(Guid, NotificationDto)>();
+           
+                var notification = new OfferDeclinedNotification(offer);
+
+                user.Notifications.Add(notification);
+                notifications.Add((user.Guid, _mapper.Map<OfferDeclinedNotificationDto>(notification)));
+                _storeUnitOfWork.Attach(notification);
+            
+
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
+
+            await Task.WhenAll(_storeUnitOfWork.SaveAsync(), notifyTask);
+        }
+
+        public async Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid)
+        {
+            try
+            {
+                var offer = await _storeUnitOfWork.OffersRepo.FindByIdAsync(offerGuid);
+                offer.MakeCounterOffer(counterOfferPrice);
+                await _storeUnitOfWork.SaveAsync();
+
+                return _mapper.Map<ProductOfferDto>(offer);
+            }
+            catch (Exception e)
+            {
+                //_logger.LogError(e, "The following error occurred during make counter offer with guid {offer.Guid}", productOfferGuid);
+                return null;
+            }
+        }
+
+        public async Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
+        {
+            try
+            {
+                var productOffer = await _storeUnitOfWork.OffersRepo.FindByIdAsync(offerGuid);
+                return _mapper.Map<ProductOfferDto>(productOffer);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<ProductOfferDto>> GetAllUserProductOffers(Guid userGuid)
+        {
+            try
+            {
+                var productOffers = await _storeUnitOfWork.OffersRepo.FilterByAsync
+                    (offer => offer.User.Guid == userGuid);
+
+                return _mapper.Map<List<ProductOfferDto>>(productOffers.ToList());
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<ProductOfferDto>> GetAllOwnerProductOffers(Guid ownerGuid)
+        {
+            try
+            {
+                var owner = await _storeUnitOfWork.StoreOwnershipRepo.FindByIdAsync(ownerGuid);
+
+                var productOffers = await _storeUnitOfWork.OffersRepo.FilterByAsync
+                    (offer => offer.Product.Store.Guid == owner.Store.Guid);
+
+                return _mapper.Map<List<ProductOfferDto>>(productOffers.ToList());
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
     }
+
+    
 }

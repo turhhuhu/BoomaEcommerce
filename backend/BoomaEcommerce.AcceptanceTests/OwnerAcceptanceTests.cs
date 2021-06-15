@@ -153,7 +153,7 @@ namespace BoomaEcommerce.AcceptanceTests
             
             var purchaseDto = new PurchaseDto
             {
-                BuyerGuid = buyerToken.UserGuid,
+                UserBuyerGuid = buyerToken.UserGuid,
                 TotalPrice = 10,
                 DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
@@ -218,7 +218,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.CreateStoreProductAsync(productDto);
 
             // Assert
-            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating));
+            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.StoreMetaData).Excluding(p => p.Rating));
             var product = await _ownerStoreService.GetStoreProductAsync(result.Guid);
             product.Should().BeEquivalentTo(result);
         }
@@ -286,7 +286,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             result.Should().BeTrue();
             updatedProduct.Should()
-                .BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+                .BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating).Excluding(p => p.StoreMetaData));
         }
 
         [Fact]
@@ -802,8 +802,15 @@ namespace BoomaEcommerce.AcceptanceTests
             var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
 
             // Assert
-            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt.Excluding(p => p.Guid).Excluding(p => p.PurchaseProducts));
-            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.ProductGuid));
+            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt
+                .Excluding(p => p.Guid)
+                .Excluding(p => p.PurchaseProducts)
+                .Excluding(p => p.StoreMetaData)
+                .Excluding(p => p.UserMetaData));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt
+                .Excluding(p => p.Guid)
+                .Excluding(p => p.ProductGuid)
+                .Excluding(p => p.ProductMetaData));
         }
         
         [Fact]

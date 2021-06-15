@@ -23,6 +23,9 @@ class StorePolicyPage extends Component {
       this.props.dispatch(fetchAllStoreProducts(this.props.match.params.guid));
     }
   }
+  componentDidUpdate() {
+    console.log("page updated");
+  }
   render() {
     return (
       <React.Fragment>

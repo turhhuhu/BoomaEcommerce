@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
@@ -45,6 +46,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         private IDictionary<Guid, Notification> _notifications = new ConcurrentDictionary<Guid, Notification>();
         private IDictionary<Guid, Policy> _policies = new ConcurrentDictionary<Guid, Policy>();
         private IDictionary<Guid, Discount> _discounts = new ConcurrentDictionary<Guid, Discount>();
+        private IDictionary<Guid, ProductOffer> _productOffers = new ConcurrentDictionary<Guid, ProductOffer>();
         private Mock<UserManager<User>> _userManagerMock;
         private INotificationPublisher _notificationPublisherStub = new NotificationPublisherStub();
 
@@ -55,7 +57,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         public IStoresService MockStoreService()
         {
             var storeUnitOfWorkMock = DalMockFactory.MockStoreUnitOfWork(_stores, _storeOwnerships, _storePurchases,
-                _storeManagements, _storeManagementPermissions, _products,_policies, _discounts, _users);
+                _storeManagements, _storeManagementPermissions, _products,_policies, _discounts, _users, _productOffers);
             var loggerMock = new Mock<ILogger<StoresService>>();
             return new StoresService(loggerMock.Object, MapperFactory.GetMapper(), storeUnitOfWorkMock.Object, new NotificationPublisherStub());
         }
@@ -156,7 +158,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             var loggerMock = new Mock<ILogger<UsersService>>();
             var userUnitOfWork =
                 DalMockFactory.MockUserUnitOfWork(_shoppingBaskets, _shoppingCarts, _users);
-            return new UsersService(MapperFactory.GetMapper(), loggerMock.Object, userUnitOfWork.Object);
+            return new UsersService(MapperFactory.GetMapper(), loggerMock.Object, userUnitOfWork.Object, _notificationPublisherStub);
         }
     }
 }

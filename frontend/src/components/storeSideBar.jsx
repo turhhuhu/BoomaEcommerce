@@ -57,6 +57,17 @@ class StoreSideBar extends Component {
               Discounts{" "}
             </a>
           ) : null}
+          {this.props.myRole?.type === "ownership" ? (
+            <a
+              className={`list-group-item ${
+                this.props.isPurchaseHistory ? "active" : null
+              }`}
+              href={`/store/${this.props.guid}/purchases`}
+            >
+              {" "}
+              Purcahse History{" "}
+            </a>
+          ) : null}
           <a
             className={`list-group-item ${
               this.props.isProducts ? "active" : null

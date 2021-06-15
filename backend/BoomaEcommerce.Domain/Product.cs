@@ -25,7 +25,7 @@ namespace BoomaEcommerce.Domain
             get => _price;
             set
             {
-                if (value <= 0)
+                if (value < 0)
                 {
                     throw new ArgumentOutOfRangeException(nameof(Price));
                 }

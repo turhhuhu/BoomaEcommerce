@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -15,11 +16,13 @@ namespace BoomaEcommerce.Data.InMemory
     {
         public InMemoryPurchaseUnitOfWork(
             IRepository<Purchase> purchaseRepository,
-            IRepository<User> userRepository,
+            UserManager<User> userRepository,
             IRepository<Product> productRepository,
             IRepository<ShoppingCart> shoppingCartRepository,
             IRepository<StoreOwnership> storeOwnershipRepository,
-            IRepository<Store> storesRepository)
+            IRepository<Store> storesRepository,
+            IRepository<ProductOffer> offersRepository,
+            IRepository<ShoppingBasket> shoppingBasketRepository)
         {
             PurchaseRepository = purchaseRepository;
             UserRepository = userRepository;
@@ -27,14 +30,17 @@ namespace BoomaEcommerce.Data.InMemory
             ShoppingCartRepository = shoppingCartRepository;
             StoreOwnershipRepository = storeOwnershipRepository;
             StoresRepository = storesRepository;
-
+            OffersRepository = OffersRepository;
+            ShoppingBasketRepository = shoppingBasketRepository;
         }
         public IRepository<Purchase> PurchaseRepository { get; set; }
-        public IRepository<User> UserRepository { get; set; }
+        public UserManager<User> UserRepository { get; set; }
         public IRepository<Product> ProductRepository { get; set; }
         public IRepository<ShoppingCart> ShoppingCartRepository { get; set; }
         public IRepository<StoreOwnership> StoreOwnershipRepository { get; set; }
+        public IRepository<ShoppingBasket> ShoppingBasketRepository { get; set; }
         public IRepository<Store> StoresRepository { get; set; }
+        public IRepository<ProductOffer> OffersRepository { get; set; }
 
         public Task SaveAsync()
         {

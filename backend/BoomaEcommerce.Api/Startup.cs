@@ -27,6 +27,7 @@ using BoomaEcommerce.Data.EfCore.Repositories;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.External.Payment;
 using BoomaEcommerce.Services.External.Supply;
+using BoomaEcommerce.Services.SwaggerFilters;
 using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Converters;
@@ -75,6 +76,7 @@ namespace BoomaEcommerce.Api
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {
+                c.SchemaFilter<SwaggerExcludeFilter>();
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BoomaEcommerce.Api", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -105,6 +107,7 @@ namespace BoomaEcommerce.Api
             services.Configure<AppInitializationSettings>(Configuration.GetSection(AppInitializationSettings.Section));
 
             services.AddSingleton<IUseCaseRunner, UseCaseRunner>();
+
             services.Configure<UseCasesSettings>(Configuration.GetSection(UseCasesSettings.Section));
 
             services.AddAutoMapper(

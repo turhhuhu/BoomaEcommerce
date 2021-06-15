@@ -89,6 +89,8 @@ namespace BoomaEcommerce.Api
         public static IServiceCollection AddTokenAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Section));
+
+
             var tokenValidationParams = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,

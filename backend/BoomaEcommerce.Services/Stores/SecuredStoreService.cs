@@ -8,6 +8,7 @@ using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 
@@ -493,6 +494,98 @@ namespace BoomaEcommerce.Services.Stores
             }
 
             throw new UnAuthorizedException(nameof(CreateDiscountSubPolicy), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task ApproveOffer(Guid ownerGuid, Guid productOfferGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            var offer = await _storeService.GetProductOffer(productOfferGuid);
+            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid ==  offer.Product.StoreGuid)
+            {
+                await _storeService.ApproveOffer(ownerGuid, productOfferGuid);
+                return;
+            }
+
+            throw new UnAuthorizedException(nameof(ApproveOffer), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            var offer = await _storeService.GetProductOffer(productOfferGuid);
+            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.StoreGuid)
+            {
+                await _storeService.DeclineOffer(ownerGuid, productOfferGuid);
+                return;
+            }
+
+            throw new UnAuthorizedException(nameof(DeclineOffer), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            var offer = await _storeService.GetProductOffer(offerGuid);
+
+            // Simple validator 
+
+            if (counterOfferPrice < 0)
+            {
+                throw new ArgumentException("Counter offer price MUST be greater or equal to 0!\n");
+            }
+
+            if (counterOfferPrice > offer.Product.Price)
+            {
+                throw new ArgumentException("Counter offer price MUST not exceed product original price !\n");
+            }
+
+            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.StoreGuid)
+            {
+                return await _storeService.MakeCounterOffer(ownerGuid, counterOfferPrice, offerGuid);
+            
+            }
+
+            throw new UnAuthorizedException(nameof(MakeCounterOffer), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<ProductOfferDto>> GetAllUserProductOffers(Guid userGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            if (userGuidInClaims == userGuid)
+            {
+                return await _storeService.GetAllUserProductOffers(userGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetAllUserProductOffers), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<IEnumerable<ProductOfferDto>> GetAllOwnerProductOffers(Guid ownerGuid)
+        {
+            CheckAuthenticated();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            if (owner != null)
+            {
+                return await _storeService.GetAllOwnerProductOffers(ownerGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetAllOwnerProductOffers), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
+        {
+            throw new NotImplementedException();
         }
     }
 }

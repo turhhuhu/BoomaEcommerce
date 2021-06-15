@@ -7,6 +7,7 @@ using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.ProductOffer;
 
 namespace BoomaEcommerce.Data
 {
@@ -21,6 +22,8 @@ namespace BoomaEcommerce.Data
         IRepository<Policy> PolicyRepo { get; set; }
         IRepository<Discount> DiscountRepo { get; set; }
         IRepository<User> UserRepo { get; set; }
+        IRepository<ProductOffer> OffersRepo { get; set; }
+        IRepository<ApproverOwner> ApproversRepo { get; set; }
         Task SaveAsync();
         void AttachNoChange<TEntity>(TEntity entity) where TEntity : class, IBaseEntity;
 

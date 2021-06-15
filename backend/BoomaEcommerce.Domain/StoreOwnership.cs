@@ -60,6 +60,7 @@ namespace BoomaEcommerce.Domain
             {
                 return;
             }
+
             owner.RemoveSubordinatesRecursively();
             StoreOwnerships.Remove(new StoreOwnership {Guid = ownershipGuid});
         }

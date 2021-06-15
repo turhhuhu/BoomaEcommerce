@@ -103,7 +103,7 @@ class DeliveryForm extends Component {
             <div className="form-group">
               <button
                 onClick={this.handleDelivery}
-                type="submit"
+                type="button"
                 className="btn btn-primary btn-block"
               >
                 {" "}

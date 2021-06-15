@@ -5,7 +5,7 @@ class CartReview extends Component {
   state = {};
 
   getCartItems = () => {
-    return this.props.baskets?.map((basket) => {
+    return this.props.cart.baskets?.map((basket) => {
       return basket.purchaseProducts
         .sort((a, b) => a.guid - b.guid)
         .map((purchaseProduct, index) => (
@@ -21,6 +21,38 @@ class CartReview extends Component {
           </div>
         ));
     });
+  };
+
+  calculateAmountOfProducts = () => {
+    return this.props.cart.baskets.reduce((basketTotalAmount, basket) => {
+      if (basket.purchaseProducts) {
+        return (
+          basketTotalAmount +
+          basket.purchaseProducts.reduce(
+            (totalAmount, purchaseProduct) =>
+              totalAmount + purchaseProduct.amount,
+            0
+          )
+        );
+      }
+      return 0;
+    }, 0);
+  };
+
+  calculateSubTotalPrice = () => {
+    return this.props.cart.baskets.reduce((subTotalPrice, basket) => {
+      if (basket.purchaseProducts) {
+        return (
+          subTotalPrice +
+          basket.purchaseProducts.reduce(
+            (totalPrice, purchaseProduct) =>
+              totalPrice + purchaseProduct.price * purchaseProduct.amount,
+            0
+          )
+        );
+      }
+      return 0;
+    }, 0);
   };
 
   render() {
@@ -42,53 +74,40 @@ class CartReview extends Component {
             <dt className="col-sm-10">
               Subtotal:{" "}
               <span className="float-right text-muted">
-                {this.props.baskets.reduce((basketTotalAmount, basket) => {
-                  if (basket.purchaseProducts) {
-                    return (
-                      basketTotalAmount +
-                      basket.purchaseProducts.reduce(
-                        (totalAmount, purchaseProduct) =>
-                          totalAmount + purchaseProduct.amount,
-                        0
-                      )
-                    );
-                  }
-                  return 0;
-                }, 0)}{" "}
-                items
+                {this.calculateAmountOfProducts()} items
               </span>
             </dt>
             <dd className="col-sm-2 text-right">
-              <strong>
-                $
-                {this.props.baskets.reduce((subTotalPrice, basket) => {
-                  if (basket.purchaseProducts) {
-                    return (
-                      subTotalPrice +
-                      basket.purchaseProducts.reduce(
-                        (totalPrice, purchaseProduct) =>
-                          totalPrice +
-                          purchaseProduct.price * purchaseProduct.amount,
-                        0
-                      )
-                    );
-                  }
-                  return 0;
-                }, 0)}
-              </strong>
+              <strong>${this.calculateSubTotalPrice()}</strong>
             </dd>
 
             <dt className="col-sm-10">
               Discount:{" "}
-              <span className="float-right text-muted">TBD% offer</span>
+              <span className="float-right text-muted">
+                {((
+                  this.calculateSubTotalPrice() -
+                  this.props.cart.discountedPrice
+                ).toFixed(2) /
+                  this.calculateSubTotalPrice()) *
+                  100}
+                % offer
+              </span>
             </dt>
-            <dd className="col-sm-2 text-danger text-right">
-              <strong>$TBD</strong>
+            <dd className="col-sm-2 text-info text-right">
+              <strong>
+                $
+                {(
+                  this.calculateSubTotalPrice() -
+                  this.props.cart.discountedPrice
+                ).toFixed(2)}
+              </strong>
             </dd>
 
             <dt className="col-sm-10">Total:</dt>
             <dd className="col-sm-2 text-right">
-              <strong className="h5 text-dark">$TBD</strong>
+              <strong className="h5 text-dark">
+                ${this.props.cart.discountedPrice}
+              </strong>
             </dd>
           </dl>
         </article>
@@ -109,7 +128,8 @@ class CartReview extends Component {
 
 const mapStateToProps = (store) => {
   return {
-    baskets: store.user.cart.baskets,
+    cart: store.user.cart,
+    isAuthenticated: store.auth.isAuthenticated,
   };
 };
 

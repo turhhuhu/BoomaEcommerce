@@ -1,8 +1,12 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
+using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.External.Payment;
 using BoomaEcommerce.Services.Purchases;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BoomaEcommerce.Api.Controllers
@@ -35,5 +39,6 @@ namespace BoomaEcommerce.Api.Controllers
             var locationUrl = $"{this.GetBaseUrl()}/purchases/{purchaseResult.Guid}";
             return Created(locationUrl, purchaseResult);
         }
+
     }
 }

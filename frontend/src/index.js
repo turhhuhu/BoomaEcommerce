@@ -24,6 +24,9 @@ import CartReviewPage from "./pages/cartReviewPage";
 import PurchaseReviewPage from "./pages/purchaseReviewPage";
 import StoreDiscountsPage from "./pages/storeDiscountsPage";
 import StoreDiscountPolicyPage from "./pages/StoreDiscountPolicyPage";
+import GuestInformationPage from "./pages/guestInformationPage";
+import userPurchaseHistoryPage from "./pages/userPurchaseHistoryPage";
+import StorePurchaseHistoryPage from "./pages/storePurchaseHistoryPage";
 
 const { store, persistor } = configureStore();
 
@@ -36,12 +39,18 @@ ReactDOM.render(
           <Route path="/login" component={LoginPage}></Route>
           <Route path="/products" component={ProductsPage}></Route>
           <Route path="/home" component={ProductsPage}></Route>
+          <Route path="/cart/guest" component={GuestInformationPage}></Route>
           <Route path="/cart/review" component={CartReviewPage}></Route>
           <Route path="/cart/purchase" component={PurchaseReviewPage}></Route>
           <Route path="/cart/payment" component={PaymentPage}></Route>
           <Route path="/cart/delivery" component={DeliveryPage}></Route>
           <Route path="/cart" component={CartPage}></Route>
           <Route exact path="/user/stores" component={UserStoresPage}></Route>
+          <Route
+            exact
+            path="/user/purchases"
+            component={userPurchaseHistoryPage}
+          ></Route>
           <Route
             exact
             path="/user/notifications"
@@ -52,6 +61,11 @@ ReactDOM.render(
             exact
             path="/store/:guid/discounts/:discountGuid"
             component={StoreDiscountPolicyPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/purchases"
+            component={StorePurchaseHistoryPage}
           ></Route>
           <Route
             exact

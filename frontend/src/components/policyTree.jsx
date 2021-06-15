@@ -51,8 +51,14 @@ class PolicyTree extends Component {
   handleRemovePolicy = (policyGuid) => {
     this.props
       .dispatch(this.props.removePolicy(this.props.storeGuid, policyGuid))
-      .then(this.props.fetchPolicy(this.props.storeGuid));
+      .then(() => {
+        this.props.dispatch(this.props.fetchPolicy(this.props.storeGuid));
+      });
   };
+
+  componentDidUpdate() {
+    console.log("updated");
+  }
 
   createPolicyTree = (policy) => {
     if (policy.type === "composite" || policy.type === "binary") {

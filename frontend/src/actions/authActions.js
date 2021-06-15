@@ -133,6 +133,7 @@ export function RegisterUser(userInfo) {
         userName: userInfo.username,
         name: userInfo.name,
         lastName: userInfo.lastName,
+        dateOfBirth: userInfo.dateOfBirth,
       },
       password: userInfo.password,
     }),

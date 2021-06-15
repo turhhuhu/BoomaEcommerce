@@ -56,7 +56,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var store = _fixture.Create<StoreDto>();
             _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).
-                With(pp => pp.BuyerGuid, UserGuid));
+                With(pp => pp.UserBuyerGuid, UserGuid));
 
             _store_withGuid = await _storeService.CreateStoreAsync(store);
             _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.StoreGuid, _store_withGuid.Guid).Without(pp => pp.Rating).With(pp => pp.Price, 2).With(pp => pp.Amount, 12));
@@ -100,7 +100,7 @@ namespace BoomaEcommerce.AcceptanceTests
             store_purchase_lst.Add(storePurchase);
 
             purchase = _fixture.Build<PurchaseDto>()
-                                   .With(p => p.BuyerGuid, UserGuid)
+                                   .With(p => p.UserBuyerGuid, UserGuid)
                                    .With(p => p.StorePurchases, store_purchase_lst)
                                    .Without(p => p.Guid)
                                    .With(p => p.TotalPrice, storePurchase.TotalPrice)
@@ -151,7 +151,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var myPurchase = _fixture.Build<PurchaseDto>()
                 .With(p => p.StorePurchases, sp)
                 .With(p => p.TotalPrice, purchase_product1.Price + purchase_product2.Price)
-                .With(p=> p.BuyerGuid, UserGuid)
+                .With(p=> p.UserBuyerGuid, UserGuid)
                 .Without(p => p.Guid)
                 .Create();
             

@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.Internal;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +23,17 @@ namespace BoomaEcommerce.Services.Users
         private readonly IMapper _mapper;
         private readonly ILogger<UsersService> _logger;
         private readonly IUserUnitOfWork _userUnitOfWork;
+        private readonly INotificationPublisher _notificationPublisher;
 
 
         public UsersService(IMapper mapper, ILogger<UsersService> logger,
-             IUserUnitOfWork userUnitOfWork)
+             IUserUnitOfWork userUnitOfWork, INotificationPublisher notificationPublisher)
         {
             _mapper = mapper;
             _logger = logger;
             _userUnitOfWork = userUnitOfWork;
+            _notificationPublisher = notificationPublisher;
+
         }
 
         public async Task<ShoppingCartDto> GetShoppingCartAsync(Guid userGuid)
@@ -39,6 +46,11 @@ namespace BoomaEcommerce.Services.Users
                 if (shoppingCart is not null) return _mapper.Map<ShoppingCartDto>(shoppingCart);
 
                 var user = await _userUnitOfWork.UserRepository.FindByIdAsync(userGuid);
+
+                if (user is null)
+                {
+                    return null;
+                }
 
                 shoppingCart = new ShoppingCart(user);
                 await _userUnitOfWork.ShoppingCartRepo.InsertOneAsync(shoppingCart);
@@ -90,8 +102,6 @@ namespace BoomaEcommerce.Services.Users
             {
                 var purchaseProduct = _mapper.Map<PurchaseProduct>(purchaseProductDto);
 
-                _userUnitOfWork.AttachNoChange(purchaseProduct.Product);
-
                 var shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketGuid);
 
                 if (shoppingBasket == null)
@@ -99,10 +109,20 @@ namespace BoomaEcommerce.Services.Users
                     return null;
                 }
 
+                if (shoppingBasket.ContainsProduct(purchaseProduct.Product, out var product))
+                {
+                    purchaseProduct.Product = product;
+                }
+                else
+                {
+                    _userUnitOfWork.AttachNoChange(purchaseProduct.Product);
+                }
+
                 if (!shoppingBasket.AddPurchaseProduct(purchaseProduct))
                 {
                     return null;
                 }
+
                 await _userUnitOfWork.SaveAsync();
                 return _mapper.Map<PurchaseProductDto>(purchaseProduct);
             }
@@ -128,7 +148,12 @@ namespace BoomaEcommerce.Services.Users
                 {
                     return false;
                 }
-                await _userUnitOfWork.ShoppingBasketRepo.ReplaceOneAsync(shoppingBasket);
+
+                if (!shoppingBasket.PurchaseProducts.Any())
+                {
+                    await _userUnitOfWork.ShoppingBasketRepo.DeleteByIdAsync(shoppingBasket.Guid);
+                }
+
                 await _userUnitOfWork.SaveAsync();
                 return true;
             }
@@ -226,5 +251,74 @@ namespace BoomaEcommerce.Services.Users
                 return false;
             }
         }
+
+        public async Task<ProductOfferDto> CreateProductOffer(ProductOfferDto offerDto)
+        { 
+            try
+            {
+                var productOffer = _mapper.Map<ProductOffer>(offerDto);
+                var prod = await _userUnitOfWork.ProductRepository.FindByIdAsync(productOffer.Product.Guid);
+                productOffer.Product = prod;
+                var user = await _userUnitOfWork.UserRepository.FindByIdAsync(productOffer.User.Guid);
+                productOffer.User = user;
+                await _userUnitOfWork.ProductOfferRepo.InsertOneAsync(productOffer);
+                await NotifyStoreSellersOnOffer(productOffer);
+                await _userUnitOfWork.SaveAsync();
+
+                return _mapper.Map<ProductOfferDto>(productOffer);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "The following error occurred during The creation of product offer to product with guid {storeGuid}", offerDto.Product.Guid);
+                return null;
+            }
+            
+        }
+
+
+        private async Task NotifyStoreSellersOnOffer(ProductOffer offer)
+        {
+            var ownerships =
+                (await _userUnitOfWork.StoreOwnershipRepo.FilterByAsync(ownership =>
+                    ownership.Store.Guid == offer.Product.Store.Guid)).ToList();
+
+
+            var notifications = new List<(Guid, NotificationDto)>();
+            foreach (var ownership in ownerships)
+            {
+                var notification = new NewOfferNotification(offer);
+
+                ownership.User.Notifications.Add(notification);
+                notifications.Add((ownership.User.Guid, _mapper.Map<NewOfferNotificationDto>(notification)));
+                _userUnitOfWork.Attach(notification);
+            }
+
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
+
+            await Task.WhenAll(_userUnitOfWork.SaveAsync(), notifyTask);
+        }
+
+        /*
+        public async Task<PurchaseProductDto> CreatePurchaseProductFromOffer(Guid userGuid, Guid offerGuid, Guid storeGuid)
+        {
+            var shoppingCart = (await _userUnitOfWork.ShoppingCartRepo.FilterByAsync((sc) => (sc.User.Guid == userGuid))).First();
+            var shoppingBasket = shoppingCart.FindStoreShoppingBasket(storeGuid);
+
+            if (shoppingBasket == null)
+            {
+                var shoppingBasketDto = await CreateShoppingBasketAsync(shoppingCart.Guid, null);
+                shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketDto.Guid);
+            }
+
+            var offer = await _userUnitOfWork.ProductOfferRepo.FindByIdAsync(offerGuid);
+
+            var purchaseProduct = offer.ConvertOfferToPurchaseProduct();
+
+            var purchaseProductDto = _mapper.Map<PurchaseProductDto>(purchaseProduct);
+
+            return await AddPurchaseProductToShoppingBasketAsync(userGuid, shoppingBasket.Guid, purchaseProductDto);
+
+        }*/
     }
 }

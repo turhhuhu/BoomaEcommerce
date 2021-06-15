@@ -56,7 +56,7 @@ namespace BoomaEcommerce.AcceptanceTests
         private async Task InitPurchase(IStoresService storesService)
         {
             // create store
-            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, _userGuid));
+            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.UserBuyerGuid, _userGuid));
 
 
             // create products , diary category
@@ -176,11 +176,12 @@ namespace BoomaEcommerce.AcceptanceTests
             storePurchaseLst.Add(storePurchase);
 
             _purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, _userGuid)
+                .With(p => p.UserBuyerGuid, _userGuid)
                 .With(p => p.StorePurchases, storePurchaseLst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .With(p => p.DiscountedPrice, (decimal)5.4)
+                .Without(p => p.Buyer)
                 .Create();
             
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
@@ -243,10 +244,11 @@ namespace BoomaEcommerce.AcceptanceTests
             storePurchaseLst.Add(storePurchase);
 
             _purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, _userGuid)
+                .With(p => p.UserBuyerGuid, _userGuid)
                 .With(p => p.StorePurchases, storePurchaseLst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Without(p => p.Buyer)
                .Create();
             
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
@@ -332,11 +334,12 @@ namespace BoomaEcommerce.AcceptanceTests
             storePurchaseLst.Add(storePurchase);
 
             _purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, _userGuid)
+                .With(p => p.UserBuyerGuid, _userGuid)
                 .With(p => p.StorePurchases, storePurchaseLst)
                 .Without(p => p.Guid)
                 .With(p => p.DiscountedPrice, (decimal)8.1)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                .Without(p => p.Buyer)
                 .Create();
             
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
@@ -429,11 +432,12 @@ namespace BoomaEcommerce.AcceptanceTests
             var storePurchaseLst = new List<StorePurchaseDto> {storePurchase};
 
             _purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, _userGuid)
+                .With(p => p.UserBuyerGuid, _userGuid)
                 .With(p => p.StorePurchases, storePurchaseLst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .With(p => p.DiscountedPrice, (decimal)15.2)
+                .Without(p => p.Buyer)
                 .Create();
 
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
@@ -571,11 +575,12 @@ namespace BoomaEcommerce.AcceptanceTests
             var storePurchaseLst = new List<StorePurchaseDto> { storePurchase };
 
             _purchase = _fixture.Build<PurchaseDto>()
-                .With(p => p.BuyerGuid, _userGuid)
+                .With(p => p.UserBuyerGuid, _userGuid)
                 .With(p => p.StorePurchases, storePurchaseLst)
                 .Without(p => p.Guid)
                 .With(p => p.TotalPrice, storePurchase.TotalPrice)
                 .With(p => p.DiscountedPrice, (decimal)14.625)
+                .Without(p => p.Buyer)
                 .Create();
 
             var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()

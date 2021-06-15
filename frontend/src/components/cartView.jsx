@@ -7,7 +7,7 @@ class CartView extends Component {
   getCartItems = () => {
     return this.props.cart.baskets?.map((basket) => {
       return basket.purchaseProducts
-        .sort((a, b) => a.guid - b.guid)
+        ?.sort((a, b) => a.guid - b.guid)
         .map((purchaseProduct, index) => (
           <CartItem
             key={index}
@@ -31,9 +31,13 @@ class CartView extends Component {
         <aside className="col-md-3">
           <div className="card">
             <div className="card-body">
-              <a href="cart/review" className="btn btn-primary btn-block">
-                {" "}
-                Review Purchase{" "}
+              <a
+                href={this.props.isAuthenticated ? "cart/review" : "cart/guest"}
+                className="btn btn-primary btn-block"
+              >
+                {this.props.isAuthenticated
+                  ? " Review Purchase "
+                  : " Continue to purchase "}
               </a>
               <a
                 href="/products"
@@ -52,6 +56,7 @@ class CartView extends Component {
 const mapStateToProps = (store) => {
   return {
     cart: store.user.cart,
+    isAuthenticated: store.auth.isAuthenticated,
   };
 };
 

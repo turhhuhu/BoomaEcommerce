@@ -70,7 +70,7 @@ namespace BoomaEcommerce.Api
                 }
             });
         }
-
+        
         public UseCases ReadUseCases()
         {
             var jsonString = File.ReadAllText(_useCasesSettings.FilePath);

@@ -60,7 +60,7 @@ namespace BoomaEcommerce.Services.UseCases
             
             
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 var registerRes = await authService.RegisterAsync(new UserDto
                 {
@@ -89,7 +89,7 @@ namespace BoomaEcommerce.Services.UseCases
 
             var p = await storeService.CreateStoreProductAsync(new ProductDto
             {
-                Amount = 1000001,
+                Amount = 1001,
                 Name = "productMillion",
                 Price = 1,
                 StoreGuid = store1.Guid
@@ -122,32 +122,38 @@ namespace BoomaEcommerce.Services.UseCases
             
             
             
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 var finalPrice = await purchaseService.CreatePurchaseAsync(new PurchaseDetailsDto
                 {
                     PaymentDetails =  new PaymentDetailsDto
                     {
-                        CardNumber = "555555555",
-                        Ccv = "111",
+                        CardNumber = 555555555,
+                        Ccv = 111,
                         HolderName = "DDD",
-                        Id = "11111",
-                        Month = "2",
-                        Year = "2021"
+                        Id = 11111,
+                        Month = 2,
+                        Year = 2021
                     } ,
                     Purchase = new PurchaseDto
                     {
-                        BuyerGuid = user.Guid,
+                        UserBuyerGuid = user.Guid,
                         TotalPrice = 1,
-                        StorePurchases = storePurchaseList
+                        StorePurchases = storePurchaseList,
+                        Buyer = new BasicUserInfoDto
+                        {
+                            UserName = "Benny",
+                            DateOfBirth = new DateTime(2000,5,20)
+                        }
+                        
                     },
-                    SupplyDetails =new SupplyDetailsDto
+                    SupplyDetails = new SupplyDetailsDto
                     {
                         Address = "qaa",
                         City = "ssss",
                         Country = "ssss",
                         Name = "ksl",
-                        Zip = "112334"
+                        Zip = 112334
                     }
                 });
             }

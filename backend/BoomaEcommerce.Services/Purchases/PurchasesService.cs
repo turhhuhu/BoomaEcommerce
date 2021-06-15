@@ -7,7 +7,9 @@ using BoomaEcommerce.Core;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.External;
 using BoomaEcommerce.Services.External.Payment;
 using BoomaEcommerce.Services.External.Supply;
@@ -47,13 +49,10 @@ namespace BoomaEcommerce.Services.Purchases
             
             try
             {
-
                 await using var transaction = await _purchaseUnitOfWork.BeginTransaction();
-
                 var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 
-                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid);
-
+                await CreateOrGetBuyerInfo(purchase, purchaseDetailsDto.Purchase.UserBuyerGuid);
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>
                         storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
@@ -85,14 +84,18 @@ namespace BoomaEcommerce.Services.Purchases
                 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
-                if (purchase.Buyer is not null)
+                if (purchaseDetailsDto.Purchase.UserBuyerGuid.HasValue)
                 {
                     await _purchaseUnitOfWork.ShoppingCartRepository
                         .DeleteOneAsync(cart =>
-                            cart.User.Guid == purchase.Buyer.Guid);
+                            cart.User.Guid == purchaseDetailsDto.Purchase.UserBuyerGuid);
                 }
 
-                supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
+                if (purchaseDetailsDto.SupplyDetails is not null)
+                {
+                    supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
+                }
+
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
 
@@ -113,8 +116,26 @@ namespace BoomaEcommerce.Services.Purchases
             }
 
         }
-        
-        
+
+        private async Task CreateOrGetBuyerInfo(Purchase purchase, Guid? userBuyerGuid)
+        {
+            if (userBuyerGuid.HasValue)
+            {
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(userBuyerGuid.ToString());
+            }
+            else
+            {
+                purchase.Buyer.UserName = "GUEST" +  Guid.NewGuid();
+                var res = await _purchaseUnitOfWork.UserRepository.CreateAsync(purchase.Buyer, Guid.NewGuid().ToString());
+                if (!res.Succeeded)
+                {
+                    throw new UserCreationException("Failed to create guest user for the purchase.");
+                }
+
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByNameAsync(purchase.Buyer.UserName);
+            }
+        }
+
 
         private void RollbackTransactions(int? paymentTransactionId, int? supplyTransactionId)
         {
@@ -188,20 +209,17 @@ namespace BoomaEcommerce.Services.Purchases
                     storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
 
-            var productTasks = purchaseProducts.Select(purchaseProduct =>
-                Task.Run(async () =>
-                {
-                    var product = purchaseProduct.Product;
-                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                }));
+            await purchaseProducts.Select(async purchaseProduct =>
+            {
+                var product = purchaseProduct.Product;
+                purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+            }).WhenAllAwaitEach();
 
-            var storeTasks = purchase.StorePurchases.Select(storePurchase =>
-                Task.Run(async () =>
-                {
-                    storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
-                }));
-
-            await Task.WhenAll(productTasks.Concat(storeTasks));
+            await purchase.StorePurchases.Select(async storePurchase =>
+            {
+                storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                storePurchase.Buyer = purchase.Buyer;
+            }).WhenAllAwaitEach();
             var purchaseResult = purchase.CalculatePurchaseFinalPrice();
             if (purchaseResult.IsPolicyFailure)
             {

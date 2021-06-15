@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using BoomaEcommerce.Domain.ProductOffer;
 
 namespace BoomaEcommerce.Data.EfCore
 {
@@ -23,21 +24,31 @@ namespace BoomaEcommerce.Data.EfCore
     {
         public static IServiceCollection AddEfCoreDb(this IServiceCollection services, string connectionString)
         {
+
+            // Ef core
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentity<User, IdentityRole<Guid>>(x =>
-                {
-                    x.Password.RequireDigit = false;
-                    x.Password.RequireLowercase = false;
-                    x.Password.RequireNonAlphanumeric = false;
-                    x.Password.RequiredLength = 1;
-                    x.Password.RequiredUniqueChars = 0;
-                    x.Password.RequireUppercase = false;
-                })
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddTransient<IRepository<Store>, EfCoreRepository<Store, ApplicationDbContext>>();
-            services.AddTransient<IRepository<Product>, ProductsRepository>();
-            services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
+            {
+                x.Password.RequireDigit = false;
+                x.Password.RequireLowercase = false;
+                x.Password.RequireNonAlphanumeric = false;
+                x.Password.RequiredLength = 1;
+                x.Password.RequiredUniqueChars = 0;
+                x.Password.RequireUppercase = false;
+            }).AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddTransient(typeof(IRepository<>), typeof(EfCoreRepository<>));
+            services.AddTransient<IRepository<ShoppingCart>, EfCoreRepository<ShoppingCart>>();
+            services.AddTransient<IRepository<User>, EfCoreUsersRepository>();
+            services.AddTransient<IRepository<StoreOwnership>, EfCoreStoreOwnershipRepository>();
+            services.AddTransient<IRepository<Policy>, EfCorePolicyRepository>();
+            services.AddTransient<IRepository<Discount>, EfCoreDiscountRepository>();
+            services.AddTransient<IRepository<Store>, EfCoreStoreRepository>();
+            services.AddTransient<IRepository<RefreshToken>, EfCoreRefreshTokenRepository>();
+
+            services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
+            services.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWork>();
+            services.AddTransient<IUserUnitOfWork, UserUnitOfWork>();
 
             return services;
         }
@@ -92,26 +103,32 @@ namespace BoomaEcommerce.Data.EfCore
                     x.Password.RequireUppercase = false;
                 }).AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddTransient<IRepository<Store>, EfCoreRepository<Store, ApplicationDbContext>>();
-            services.AddTransient<IRepository<Product>, EfCoreRepository<Product, ApplicationDbContext>>();
+            services.AddTransient<IRepository<Store>, EfCoreRepository<Store>>();
+            services.AddTransient<IRepository<Product>, EfCoreRepository<Product>>();
             services.AddTransient<IRepository<Policy>, EfCorePolicyRepository>();
             services.AddTransient<IStoreUnitOfWork, StoreUnitOfWork>();
 
-            services.AddTransient<IRepository<StoreManagement>, EfCoreRepository<StoreManagement, ApplicationDbContext>>();
-            services.AddTransient<IRepository<StoreOwnership>, StoreOwnershipRepository>();
-            services.AddTransient<IRepository<ShoppingBasket>, EfCoreRepository<ShoppingBasket, ApplicationDbContext>>();
+            services.AddTransient<IRepository<StoreManagement>, EfCoreRepository<StoreManagement>>();
+            services.AddTransient<IRepository<StoreOwnership>, EfCoreStoreOwnershipRepository>();
+            services.AddTransient<IRepository<ShoppingBasket>, EfCoreRepository<ShoppingBasket>>();
             services.AddTransient<IRepository<User>, EfCoreUsersRepository>();
 
 
-            services.AddTransient<IRepository<Notification>, EfCoreRepository<Notification, ApplicationDbContext>>();
+            services.AddTransient<IRepository<Notification>, EfCoreRepository<Notification>>();
             services.AddTransient<IRepository<Discount>, EfCoreDiscountRepository>();
 
 
             //Purchase Unit Of Work 
-            services.AddTransient<IRepository<ShoppingCart>, EfCoreRepository<ShoppingCart, ApplicationDbContext>>();
+            services.AddTransient<IRepository<ShoppingCart>, EfCoreRepository<ShoppingCart>>();
             services.AddTransient<IUserUnitOfWork, UserUnitOfWork>();
             services.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWork>();
-            services.AddTransient<IRepository<Purchase>, EfCoreRepository<Purchase, ApplicationDbContext>>();
+            services.AddTransient<IRepository<Purchase>, EfCoreRepository<Purchase>>();
+            
+            
+            services.AddTransient<IRepository<ProductOffer>, EfCoreRepository<ProductOffer>>();
+            services.AddTransient<IRepository<ApproverOwner>, EfCoreRepository<ApproverOwner>>();
+
+
             return services;
         }
 

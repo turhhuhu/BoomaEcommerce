@@ -122,7 +122,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var purchaseDto = new PurchaseDto
             {
-                BuyerGuid = notOwnerLoginResponse.UserGuid,
+                UserBuyerGuid = notOwnerLoginResponse.UserGuid,
                 TotalPrice = 10,
                 DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
@@ -149,7 +149,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             var badPurchaseDto = new PurchaseDto
             {
-                BuyerGuid = notOwnerLoginResponse.UserGuid,
+                UserBuyerGuid = notOwnerLoginResponse.UserGuid,
                 TotalPrice = 10,
                 DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>

@@ -2,6 +2,7 @@ import * as UserActionTypes from "../actions/types/userActionsTypes";
 export function user(
   state = {
     isFetching: false,
+    error: undefined,
     userInfo: {},
     userRoles: {},
     cart: {
@@ -11,6 +12,8 @@ export function user(
     notifications: [],
     paymentInfo: {},
     deliveryInfo: {},
+    guestInformation: {},
+    purchaseHistory: {},
   },
   action
 ) {
@@ -28,9 +31,14 @@ export function user(
       });
     case UserActionTypes.USER_INFO_FAILURE:
       console.error(`error occured while getting user info: ${action.error}`);
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.USER_CART_REQUEST:
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     case UserActionTypes.USER_CART_SUCCESS:
       return Object.assign({}, state, {
         cart: action.payload.response,
@@ -38,7 +46,9 @@ export function user(
       });
     case UserActionTypes.USER_CART_FAILURE:
       console.error(`error occured while getting user's cart: ${action.error}`);
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.ADD_PRODUCT_WITH_BASKET_REQUEST:
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
@@ -117,15 +127,28 @@ export function user(
     case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_SUCCESS: {
-      const basketToAddToIndex = state.cart.baskets.findIndex(
+      const basketToRemoveFromIndex = state.cart.baskets.findIndex(
         (basket) => basket.guid === action.extraPayload.basketGuid
       );
-      const basketToRemoveFrom = state.cart.baskets[basketToAddToIndex];
+      const basketToRemoveFrom = state.cart.baskets[basketToRemoveFromIndex];
       const purchaseProductToRemoveIndex =
         basketToRemoveFrom.purchaseProducts.findIndex(
           (purchaseProduct) =>
             purchaseProduct.guid === action.extraPayload.purchaseProductGuid
         );
+      if (
+        state.cart.baskets[basketToRemoveFromIndex].purchaseProducts.length ===
+        1
+      ) {
+        return Object.assign({}, state, {
+          cart: {
+            baskets: [
+              ...state.cart.baskets.slice(0, basketToRemoveFromIndex),
+              ...state.cart.baskets.slice(basketToRemoveFromIndex + 1),
+            ],
+          },
+        });
+      }
       const newBasket = {
         ...basketToRemoveFrom,
         purchaseProducts: [
@@ -141,7 +164,7 @@ export function user(
       return Object.assign({}, state, {
         cart: {
           baskets: Object.assign([], state.cart.baskets, {
-            [basketToAddToIndex]: newBasket,
+            [basketToRemoveFromIndex]: newBasket,
           }),
         },
       });
@@ -155,15 +178,28 @@ export function user(
         isFetching: action.payload.isFetching,
       });
     case UserActionTypes.REMOVE_PRODUCT_FROM_BASKET_AS_GUEST:
-      const basketToAddToIndex = state.cart.baskets.findIndex(
+      const basketToRemoveFromIndex = state.cart.baskets.findIndex(
         (basket) => basket.guid === action.payload.basketGuid
       );
-      const basketToRemoveFrom = state.cart.baskets[basketToAddToIndex];
+      const basketToRemoveFrom = state.cart.baskets[basketToRemoveFromIndex];
       const purchaseProductToRemoveIndex =
         basketToRemoveFrom.purchaseProducts.findIndex(
           (purchaseProduct) =>
             purchaseProduct.guid === action.payload.purchaseProductGuid
         );
+      if (
+        state.cart.baskets[basketToRemoveFromIndex].purchaseProducts.length ===
+        1
+      ) {
+        return Object.assign({}, state, {
+          cart: {
+            baskets: [
+              ...state.cart.baskets.slice(0, basketToRemoveFromIndex),
+              ...state.cart.baskets.slice(basketToRemoveFromIndex + 1),
+            ],
+          },
+        });
+      }
       const newBasket = {
         ...basketToRemoveFrom,
         purchaseProducts: [
@@ -179,7 +215,7 @@ export function user(
       return Object.assign({}, state, {
         cart: {
           baskets: Object.assign([], state.cart.baskets, {
-            [basketToAddToIndex]: newBasket,
+            [basketToRemoveFromIndex]: newBasket,
           }),
         },
       });
@@ -221,7 +257,9 @@ export function user(
       });
     case UserActionTypes.USER_ROLES_FAILURE:
       console.error(`error occured while getting user roles: ${action.error}`);
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.ADD_STORE_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.ADD_STORE_SUCCESS:
@@ -230,7 +268,9 @@ export function user(
       });
     case UserActionTypes.ADD_STORE_FAILURE:
       console.error(`error occured while adding store: ${action.error}`);
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.USER_STORE_ROLE_REQUEST:
       return Object.assign({}, state, action.payload);
     case UserActionTypes.USER_STORE_ROLE_SUCCESS:
@@ -242,7 +282,9 @@ export function user(
       console.error(
         `error occured while getting user store role: ${action.error}`
       );
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case UserActionTypes.START_WEB_SOCKET_CONNECTION:
       return Object.assign({}, state, {
         webSocketConnection: action.payload.webSocketConnection,
@@ -278,24 +320,91 @@ export function user(
       });
     }
     case UserActionTypes.SUBMIT_PAYMENT_INFO: {
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     }
     case UserActionTypes.SUBMIT_DELIVERY_INFO: {
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
     }
     case UserActionTypes.GET_CART_DISCOUNTED_PRICE_REQUEST:
-      return Object.assign({}, state, action.payload);
-    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_SUCCESS:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+      });
+    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_SUCCESS: {
       console.log(action.payload.response);
       return Object.assign({}, state, {
-        ...state.cart,
-        discountedPrice: action.payload.response,
+        cart: Object.assign({}, state.cart, {
+          discountedPrice: action.payload.response,
+        }),
+        isFetching: action.payload.isFetching,
       });
-    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_FAILURE:
-      console.error(`error occured while getting user info: ${action.error}`);
-      return state;
+    }
+    case UserActionTypes.GET_CART_DISCOUNTED_PRICE_FAILURE: {
+      console.error(
+        `error occured while getting cart discounted price: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    }
+    case UserActionTypes.CREATE_PURCHASE_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.CREATE_PURCHASE_SUCCESS: {
+      return Object.assign({}, state, {
+        paymentInfo: {},
+        discountedPrice: {},
+        guestInformation: {},
+        isFetching: action.payload.isFetching,
+      });
+    }
+    case UserActionTypes.CREATE_PURCHASE_FAILURE: {
+      console.error(`error occured while purchasing cart: ${action.error}`);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    }
+
+    case UserActionTypes.SUBMIT_GUEST_INFORMATION:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.CLEAR_GUEST_CART:
+      return Object.assign({}, state, { cart: { baskets: [] } });
 
     default:
       return state;
+
+    case UserActionTypes.GET_PURCHASE_HISTORY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.GET_PURCHASE_HISTORY_SUCCESS:
+      return Object.assign({}, state, {
+        purchaseHistory: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.GET_PURCHASE_HISTORY_FAILURE:
+      console.error(
+        `error occured while fetching purchase history: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
   }
 }

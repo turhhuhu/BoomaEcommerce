@@ -14,6 +14,7 @@ import {
   SEE_NOTIFICATION_URL,
   CREATE_PURCHASE_URL,
   GET_CART_DISCOUNTED_PRICE_URL,
+  USER_PURCHASE_HISTORY_URL,
 } from "../utils/constants";
 import * as UserActionTypes from "./types/userActionsTypes";
 
@@ -399,10 +400,11 @@ export function submitDeliveryInfo(deliveryInfo) {
 }
 
 export function createPurchase(purchaseDetails) {
+  let token = localStorage.getItem("access_token") || null;
   return {
     [CALL_API]: {
       endpoint: CREATE_PURCHASE_URL,
-      authenticated: true,
+      authenticated: token ? true : false,
       types: [
         UserActionTypes.CREATE_PURCHASE_REQUEST,
         UserActionTypes.CREATE_PURCHASE_SUCCESS,
@@ -418,10 +420,11 @@ export function createPurchase(purchaseDetails) {
 }
 
 export function fetchCartDiscountedPrice(cartAsPurchase) {
+  let token = localStorage.getItem("access_token") || null;
   return {
     [CALL_API]: {
       endpoint: GET_CART_DISCOUNTED_PRICE_URL,
-      authenticated: true,
+      authenticated: token ? true : false,
       types: [
         UserActionTypes.GET_CART_DISCOUNTED_PRICE_REQUEST,
         UserActionTypes.GET_CART_DISCOUNTED_PRICE_SUCCESS,
@@ -432,6 +435,35 @@ export function fetchCartDiscountedPrice(cartAsPurchase) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cartAsPurchase),
       },
+    },
+  };
+}
+
+export function submitGuestInformation(guestInformation) {
+  return {
+    type: UserActionTypes.SUBMIT_GUEST_INFORMATION,
+    payload: {
+      guestInformation,
+    },
+  };
+}
+
+export function clearGuestCart() {
+  return {
+    type: UserActionTypes.CLEAR_GUEST_CART,
+  };
+}
+
+export function fetchUserPurchaseHistory() {
+  return {
+    [CALL_API]: {
+      endpoint: USER_PURCHASE_HISTORY_URL,
+      authenticated: true,
+      types: [
+        UserActionTypes.GET_PURCHASE_HISTORY_REQUEST,
+        UserActionTypes.GET_PURCHASE_HISTORY_SUCCESS,
+        UserActionTypes.GET_PURCHASE_HISTORY_FAILURE,
+      ],
     },
   };
 }
