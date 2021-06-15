@@ -44,7 +44,7 @@ namespace BoomaEcommerce.AcceptanceTests
                     DataBaseFixture.Services.AddTransient(_ => _dbContext);
                     var notfPublisher = new NotificationPublisherStub();
                     DataBaseFixture.Services.AddSingleton<INotificationPublisher, NotificationPublisherStub>(_ => notfPublisher);
-                    DataBaseFixture.Services.AddSingleton<NotificationPublisherStub>(_ => notfPublisher);
+                    DataBaseFixture.Services.AddSingleton(_ => notfPublisher);
 
                     var provider = DataBaseFixture.Services.BuildServiceProvider();
                     var roleManager = provider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
