@@ -83,7 +83,8 @@ namespace BoomaEcommerce.Services.Users
                     pp.Product = await _userUnitOfWork.ProductRepository.FindByIdAsync(pp.Product.Guid);
                 }).WhenAllAwaitEach();
 
-                shoppingBasket.Store = shoppingBasket.PurchaseProducts.FirstOrDefault()?.Product?.Store;
+                shoppingBasket.Store = 
+                    shoppingBasket.PurchaseProducts.FirstOrDefault()?.Product?.Store;
 
                 if (!shoppingCart.AddShoppingBasket(shoppingBasket))
                 {
