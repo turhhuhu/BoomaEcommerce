@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.DTO.ProductOffer;
@@ -21,6 +22,7 @@ namespace BoomaEcommerce.AcceptanceTests
     public class ProductOfferAcceptanceTests : TestsBase
     {
         private IStoresService _storeService;
+        private IStoresService _userStoresService;
         private IUsersService _usersService;
         
         private IAuthenticationService _storeOwnerAuthService;
@@ -29,25 +31,24 @@ namespace BoomaEcommerce.AcceptanceTests
         private Guid UserGuid;
         private StoreOwnershipDto _storeOwnership;
         private ProductDto product;
-        private ProductOfferDto productOffer; 
+        private ProductOfferDto productOffer;
 
 
 
         public ProductOfferAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
         {
-
         }
-
         public override async Task InitEfCoreDb(ServiceProvider provider)
         {
             _fixture = new Fixture();
-            var serviceMockFactory = new ServiceMockFactory();
-            var storeService = serviceMockFactory.MockStoreService();
-            var userService = serviceMockFactory.MockUserService();
-            var authService = serviceMockFactory.MockAuthenticationService();
-            var storeOwnerAuthService = serviceMockFactory.MockAuthenticationService();
-            await InitUser(authService,userService);
-            await InitOwnerUser(storeService,storeOwnerAuthService);
+
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+            
+            var userService = provider.GetRequiredService<UsersService>();
+            var storeOwnerAuthService = provider.GetRequiredService<IAuthenticationService>();
+            await InitUser(authService, userService, storeService);
+            await InitOwnerUser(storeService, storeOwnerAuthService);
             await InitOffer();
         }
 
@@ -59,7 +60,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var userService = serviceMockFactory.MockUserService();
             var authService = serviceMockFactory.MockAuthenticationService();
             var storeOwnerAuthService = serviceMockFactory.MockAuthenticationService();
-            await InitUser(authService, userService);
+            await InitUser(authService, userService, storeService);
             await InitOwnerUser(storeService, storeOwnerAuthService);
             await InitOffer();
         }
@@ -115,7 +116,7 @@ namespace BoomaEcommerce.AcceptanceTests
             }
         }
 
-        private async Task InitUser(IAuthenticationService authService, IUsersService userService)
+        private async Task InitUser(IAuthenticationService authService, IUsersService userService, IStoresService storeService)
         {
             var user = new UserDto { UserName = "Benjaminio" };
             const string password = "OMG";
@@ -131,6 +132,14 @@ namespace BoomaEcommerce.AcceptanceTests
             if (!createUserServiceResult)
             {
                 throw new Exception("This shouldn't happen");
+            }
+
+            var result = SecuredStoreService.CreateSecuredStoreService(loginResponse.Token,
+                ServiceMockFactory.Secret, storeService, out _userStoresService);
+            if (!result)
+            {
+                throw new Exception("This shouldn't happen");
+
             }
 
         }
@@ -154,19 +163,45 @@ namespace BoomaEcommerce.AcceptanceTests
             //Arrange
 
             //Act
-            var offers = await _storeService.GetAllUserProductOffers(UserGuid);
+            var offers = await _userStoresService.GetAllUserProductOffers(UserGuid);
             //Assert
             offers.Count().Should().Be(1);
             offers.Should().Contain(po => po.Guid == productOffer.Guid);
         }
 
-        // public async Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
-        //public async Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid)
-        //public async Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid)
-        //public async Task ApproveOffer(Guid ownerGuid, Guid productOfferGuid)
+        [Fact]
+        public async Task ApproveOffer_ShouldChangeOfferStateToApprove_WhenOnlyOwnerApprovesOffer()
+        {
+            await _storeService.ApproveOffer(_storeOwnership.Guid, productOffer.Guid);
+            var offers = await _userStoresService.GetAllUserProductOffers(UserGuid);
+            var offer = (offers.Where(offer => offer.Guid == productOffer.Guid)).FirstOrDefault();
+            //Assert
+            offer.Should().NotBeNull();
+            offer.State.Should().Be(ProductOfferState.Approved);
+        }
 
+        [Fact]
+        public async Task DeclineOffer_ShouldChangeOfferStateToDeclined_WhenANYOwnerDeclinesOffer()
+        {
+            await _storeService.DeclineOffer(_storeOwnership.Guid, productOffer.Guid);
+            var offers = await _userStoresService.GetAllUserProductOffers(UserGuid);
+            var offer = (offers.Where(offer => offer.Guid == productOffer.Guid)).FirstOrDefault();
+            //Assert
+            offer.Should().NotBeNull();
+            offer.State.Should().Be(ProductOfferState.Declined);
+        }
 
-
-
+        [Fact]
+        public async Task MakeCounterOffer_ShouldChangeOfferStateAndUpdateCounterOfferPrice_WhenANYOwnerSuggestsCounteOffer()
+        {
+            decimal cop = 8;
+            await _storeService.MakeCounterOffer(_storeOwnership.Guid,8 ,productOffer.Guid);
+            var offers = await _userStoresService.GetAllUserProductOffers(UserGuid);
+            var offer = (offers.Where(offer => offer.Guid == productOffer.Guid)).FirstOrDefault();
+            //Assert
+            offer.Should().NotBeNull();
+            offer.State.Should().Be(ProductOfferState.CounterOfferReceived);
+            offer.CounterOfferPrice.Should().Be(cop);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
@@ -27,10 +28,11 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products,
-            IDictionary<Guid, User> users)
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ApproverOwner> approverOwners)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products , null, null, users, null);
+                storeManagements, storeManagementPermissions, products , null, null, users, null, approverOwners);
             
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
@@ -76,7 +78,7 @@ namespace BoomaEcommerce.Services.Tests
             };
 
             var sut = GetStoreService(entitiesStores, entitiesOwnerships, null,
-                entitiesManagements, null, null, entitiesUsers);
+                entitiesManagements, null, null, entitiesUsers, null);
 
             var taskList = new List<Task<bool>>
             {
