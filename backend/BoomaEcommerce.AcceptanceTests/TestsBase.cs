@@ -19,7 +19,7 @@ namespace BoomaEcommerce.AcceptanceTests
 {
     public abstract class TestsBase : IAsyncLifetime, IClassFixture<SharedDatabaseFixture>
     {
-        private static SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        private static readonly SemaphoreSlim Semaphore = new(1);
         public SharedDatabaseFixture DataBaseFixture { get; }
         private DbTransaction _transaction;
         private ApplicationDbContext _dbContext;
@@ -37,7 +37,7 @@ namespace BoomaEcommerce.AcceptanceTests
             {
                 try
                 {
-                    await _semaphore.WaitAsync();
+                    await Semaphore.WaitAsync();
                     DataBaseFixture.Services.AddTransient<IPurchaseUnitOfWork, PurchaseUnitOfWorkStub>();
                     _transaction = DataBaseFixture.Connection.BeginTransaction();
                     _dbContext = DataBaseFixture.CreateContext(_transaction);
@@ -56,7 +56,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 }
                 catch
                 {
-                    _semaphore.Release();
+                    Semaphore.Release();
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace BoomaEcommerce.AcceptanceTests
                 await _dbContext.DisposeAsync();
             }
 
-            _semaphore.Release();
+            Semaphore.Release();
         }
 
         public virtual Task InitInMemoryDb()

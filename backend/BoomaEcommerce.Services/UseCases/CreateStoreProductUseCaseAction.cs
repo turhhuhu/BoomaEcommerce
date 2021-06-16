@@ -17,7 +17,7 @@ namespace BoomaEcommerce.Services.UseCases
         public string StoreLabel { get; set; }
         
         [JsonRequired]
-        public ProductDto NewPoduct { get; set; }
+        public ProductDto NewProduct { get; set; }
         
         public CreateStoreProductUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
         {
@@ -47,9 +47,9 @@ namespace BoomaEcommerce.Services.UseCases
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            NewPoduct.StoreGuid = store.Guid;
+            NewProduct.StoreGuid = store.Guid;
 
-            var product = await storeService.CreateStoreProductAsync(NewPoduct);
+            var product = await storeService.CreateStoreProductAsync(NewProduct);
             dict.Add(Label,product);
             
             scope.Dispose();

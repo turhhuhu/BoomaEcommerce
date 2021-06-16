@@ -60,7 +60,7 @@ namespace BoomaEcommerce.Services.UseCases
             
             
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100; i++)
             {
                 var registerRes = await authService.RegisterAsync(new UserDto
                 {
@@ -71,10 +71,10 @@ namespace BoomaEcommerce.Services.UseCases
 
 
             var store1 = new StoreDto();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100; i++)
             {
                 store1 = await storeService.CreateStoreAsync(StoreToCreate);
-                for (int j = 0; j < 1000; j++)
+                for (int j = 0; j < 100; j++)
                 {
                     var product = await storeService.CreateStoreProductAsync(new ProductDto
                     {
@@ -84,12 +84,11 @@ namespace BoomaEcommerce.Services.UseCases
                         StoreGuid = store1.Guid
                     });
                 }
-                Console.WriteLine(i);
             }
 
             var p = await storeService.CreateStoreProductAsync(new ProductDto
             {
-                Amount = 1001,
+                Amount = 100,
                 Name = "productMillion",
                 Price = 1,
                 StoreGuid = store1.Guid
@@ -122,7 +121,7 @@ namespace BoomaEcommerce.Services.UseCases
             
             
             
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100; i++)
             {
                 var finalPrice = await purchaseService.CreatePurchaseAsync(new PurchaseDetailsDto
                 {
