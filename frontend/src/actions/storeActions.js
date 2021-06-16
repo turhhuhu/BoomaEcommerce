@@ -20,6 +20,7 @@ import {
   MANAGER_PERMISSIONS_URL,
   STORE_PRODUCT_OFFERS_URL,
   STORE_PRODUCT_COUNTER_OFFER_URL,
+  APPROVE_PRODUCT_OFFER_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -542,6 +543,27 @@ export function counterOfferProductPrice(ownershipGuid, offerGuid, price) {
         StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_REQUEST,
         StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_SUCCESS,
         StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      },
+    },
+  };
+}
+
+export function approveProductOffer(ownershipGuid, offerGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: APPROVE_PRODUCT_OFFER_URL.replace(
+        "{ownershipGuid}",
+        ownershipGuid
+      ).replace("{offerGuid}", offerGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_REQUEST,
+        StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_SUCCESS,
+        StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_FAILURE,
       ],
       config: {
         method: "POST",

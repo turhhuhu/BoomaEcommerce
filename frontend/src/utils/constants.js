@@ -68,8 +68,7 @@ export const REMOVE_SUBORDINATE_URL =
 export const STORE_PRODUCT_OFFERS_URL = ROLES_URL + "/{ownershipGuid}/offers";
 export const STORE_PRODUCT_OFFER_URL =
   STORE_PRODUCT_OFFERS_URL + "/{offerGuid}";
-export const APPROVE_PRODUCT_OFFER_URL =
-  STORE_PRODUCT_OFFERS_URL + "/ApprovedOwners";
+export const APPROVE_PRODUCT_OFFER_URL = STORE_PRODUCT_OFFER_URL + "/approve";
 export const STORE_PRODUCT_COUNTER_OFFER_URL =
   STORE_PRODUCT_OFFER_URL + "?counterOfferPrice={price}";
 

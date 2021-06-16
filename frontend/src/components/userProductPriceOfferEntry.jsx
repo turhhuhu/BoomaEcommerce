@@ -1,7 +1,63 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import {
+  addProductToBasket,
+  createBasketWithProduct,
+} from "../actions/userActions";
 
 class UserProductPriceOfferEntry extends Component {
   state = {};
+  handleAddToCart = () => {
+    const product = this.props.productOffer.product;
+    const price = this.props.productOffer.counterOfferPrice
+      ? this.props.productOffer.counterOfferPrice
+      : this.props.productOffer.offerPrice;
+    let basketToAddTo = this.props.baskets.find(
+      (basket) => basket.storeGuid === this.props.storeGuid
+    );
+    if (basketToAddTo) {
+      this.props.dispatch(
+        addProductToBasket(
+          {
+            basketGuid: basketToAddTo.guid,
+            purchaseProduct: {
+              productGuid: product.guid,
+              amount: product.amount,
+              price: price,
+            },
+            product: {
+              name: product.name,
+              category: product.category,
+            },
+          },
+          { name: product.name, category: product.category }
+        )
+      );
+    } else {
+      this.props.dispatch(
+        createBasketWithProduct(
+          {
+            storeGuid: product.storeGuid,
+            purchaseProducts: [
+              {
+                productGuid: product.guid,
+                amount: product.amount,
+                price: price,
+              },
+            ],
+            store: {
+              storeName: product.storeMetaData.storeName,
+            },
+          },
+          { name: product.name, category: product.category }
+        )
+      );
+    }
+  };
+
+  handleRemoveOffer = () => {
+    console.log(this.props.productOffer);
+  };
   render() {
     return (
       <tr>
@@ -37,9 +93,13 @@ class UserProductPriceOfferEntry extends Component {
                 <i className="ml-2 fa fa-shopping-cart"></i>
               </button>
             ) : null}
-          </div>
-          <div>
-            <button className="btn btn-outline-primary"> Remove </button>
+            <button
+              onClick={this.handleRemoveOffer}
+              className="btn btn-outline-primary ml-2"
+            >
+              {" "}
+              Remove{" "}
+            </button>
           </div>
         </td>
       </tr>
@@ -47,4 +107,10 @@ class UserProductPriceOfferEntry extends Component {
   }
 }
 
-export default UserProductPriceOfferEntry;
+const mapStateToProps = (store) => {
+  return {
+    baskets: store.user.cart.baskets,
+  };
+};
+
+export default connect(mapStateToProps)(UserProductPriceOfferEntry);

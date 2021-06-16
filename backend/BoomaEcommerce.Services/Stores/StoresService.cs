@@ -917,8 +917,8 @@ namespace BoomaEcommerce.Services.Stores
             }
             catch (Exception e)
             {
-                // _logger.LogError(e, $"{ownerGuid}", ownerGuid);
-
+                _logger.LogError("error");
+                
             }
         }
 

@@ -34,7 +34,7 @@ class StoreProductPriceOffersPage extends Component {
               <StoreSideBar
                 isProductOffers="true"
                 guid={this.props.match.params.guid}
-                colClass="col-3"
+                colClass="col-2"
               />
               <StoreProductPriceOffersView />
             </div>
