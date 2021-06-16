@@ -23,6 +23,7 @@ namespace BoomaEcommerce.Services.DTO.ProductOffer
         Approved,
         Declined,
         CounterOfferReceived,
-        Error
+        Error,
+        Purchased
     }
 }

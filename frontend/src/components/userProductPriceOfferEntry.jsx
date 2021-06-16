@@ -66,6 +66,11 @@ class UserProductPriceOfferEntry extends Component {
             <strong>Offered price:</strong> $
             {this.props.productOffer.offerPrice}
           </span>
+          <br />
+          <span className="title mb-0">
+            <strong>Product name:</strong>{" "}
+            {this.props.productOffer.product.name}
+          </span>
         </td>
         <td>
           {this.props.productOffer?.counterOfferPrice ? (
@@ -93,13 +98,6 @@ class UserProductPriceOfferEntry extends Component {
                 <i className="ml-2 fa fa-shopping-cart"></i>
               </button>
             ) : null}
-            <button
-              onClick={this.handleRemoveOffer}
-              className="btn btn-outline-primary ml-2"
-            >
-              {" "}
-              Remove{" "}
-            </button>
           </div>
         </td>
       </tr>

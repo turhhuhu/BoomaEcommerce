@@ -110,6 +110,7 @@ namespace BoomaEcommerce.Domain.ProductOffer
         Approved,
         Declined,
         CounterOfferReceived,
-        Error
+        Error,
+        Purchased
     }
 }
