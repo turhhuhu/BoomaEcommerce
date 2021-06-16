@@ -620,8 +620,7 @@ namespace BoomaEcommerce.Services.Stores
                 var fullPolicy = await _storeUnitOfWork.PolicyRepo.FindByIdAsync(policy.Guid);
 
                 _logger.LogInformation("Successfully got policy {policyGuid} from store with guid {storeGuid}.", policy.Guid, storeGuid);
-                return _mapper.Map<PolicyDto>(fullPolicy
-);
+                return _mapper.Map<PolicyDto>(fullPolicy);
             }
             catch (Exception e)
             {

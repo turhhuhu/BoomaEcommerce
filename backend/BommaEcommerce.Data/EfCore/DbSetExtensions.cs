@@ -34,7 +34,7 @@ namespace BoomaEcommerce.Data.EfCore
             return dbSetProperties;
 
         }
-        public static IEnumerable<string> GetIncludePaths(this DbContext context, Type clrEntityType, int maxDepth = int.MaxValue)
+        public static IEnumerable<string> GetIncludePaths(this DbContext context, Type clrEntityType, int maxDepth = 20)
         {
             if (maxDepth < 0) throw new ArgumentOutOfRangeException(nameof(maxDepth));
             var entityType = context.Model.FindEntityType(clrEntityType);

@@ -58,12 +58,11 @@ namespace BoomaEcommerce.Domain
             if (offer == default) return Price == Product.CalculatePrice(Amount);
             if (offer.CounterOfferPrice.HasValue)
             {
-                return Price == offer.CounterOfferPrice;
+                DiscountedPrice = offer.CounterOfferPrice.Value;
+                return Price == offer.CounterOfferPrice.Value * Amount;
             }
-            else
-            {
-                return Price == offer.OfferPrice;
-            }
+            DiscountedPrice = offer.OfferPrice;
+            return Price == offer.OfferPrice * Amount;
         }
         
     }

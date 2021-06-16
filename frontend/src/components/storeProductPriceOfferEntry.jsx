@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { approveProductOffer } from "../actions/storeActions";
+import {
+  approveProductOffer,
+  fetchStoreProductOffers,
+} from "../actions/storeActions";
 import CounterOfferDialog from "./counterOfferDialog";
 
 class StoreProductPriceOfferEntry extends Component {
@@ -12,12 +15,20 @@ class StoreProductPriceOfferEntry extends Component {
     this.setState({ isDialogOpen: false });
   };
   handleApproveOffer = () => {
-    this.props.dispatch(
-      approveProductOffer(
-        this.props.storeRole.guid,
-        this.props.productOffer.guid
+    this.props
+      .dispatch(
+        approveProductOffer(
+          this.props.storeRole.guid,
+          this.props.productOffer.guid
+        )
       )
-    );
+      .then((action) => {
+        if (action) {
+          this.props.dispatch(
+            fetchStoreProductOffers(this.props.storeRole.guid)
+          );
+        }
+      });
   };
   render() {
     return (

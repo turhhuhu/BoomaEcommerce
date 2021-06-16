@@ -85,12 +85,12 @@ class CartReview extends Component {
             <dt className="col-sm-10">
               Discount:{" "}
               <span className="float-right text-muted">
-                {((
-                  this.calculateSubTotalPrice() -
-                  this.props.cart.discountedPrice
-                ).toFixed(2) /
-                  this.calculateSubTotalPrice()) *
-                  100}
+                {(
+                  (
+                    this.calculateSubTotalPrice() -
+                    this.props.cart.discountedPrice
+                  ).toFixed(4) / this.calculateSubTotalPrice()
+                ).toFixed(4) * 100}
                 % offer
               </span>
             </dt>
