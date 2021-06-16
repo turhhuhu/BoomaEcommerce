@@ -313,6 +313,7 @@ class AddStorePolicyDialog extends Component {
 const mapStateToProps = (store) => {
   return {
     storeProducts: store.store.products,
+    error: store.store.error,
   };
 };
 

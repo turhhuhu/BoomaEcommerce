@@ -274,7 +274,12 @@ export function user(
         isFetching: action.payload.isFetching,
       });
     case UserActionTypes.ADD_STORE_REQUEST:
-      return Object.assign({}, state, action.payload);
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+
     case UserActionTypes.ADD_STORE_SUCCESS:
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
@@ -283,6 +288,7 @@ export function user(
       console.error(`error occured while adding store: ${action.error}`);
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
+        error: action.error,
       });
     case UserActionTypes.USER_STORE_ROLE_REQUEST:
       return Object.assign({}, state, action.payload);
@@ -432,6 +438,25 @@ export function user(
         isFetching: action.payload.isFetching,
       });
     case UserActionTypes.GET_PRODUCT_OFFERS_FAILURE:
+      console.error(
+        `error occured while fetching product offers: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    case UserActionTypes.OFFER_PRODUCT_PRICE_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.OFFER_PRODUCT_PRICE_SUCCESS:
+      return Object.assign({}, state, {
+        productOffers: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.OFFER_PRODUCT_PRICE_FAILURE:
       console.error(
         `error occured while fetching product offers: ${action.error}`
       );

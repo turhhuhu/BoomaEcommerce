@@ -77,9 +77,7 @@ class StoreProductPriceOfferEntry extends Component {
             <strong>State:</strong> {this.props.productOffer.state}
           </span>
         </td>
-        {this.props.productOffer.state !== "purchased" &&
-        this.props.productOffer.state !== "declined" &&
-        this.props.productOffer.state !== "counterOfferReceived" ? (
+        {this.props.productOffer.state === "pending" ? (
           <td className="row  ">
             <div>
               <button

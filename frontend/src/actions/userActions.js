@@ -461,7 +461,7 @@ export function offerProductPrice(offer) {
       authenticated: true,
       types: [
         UserActionTypes.OFFER_PRODUCT_PRICE_REQUEST,
-        UserActionTypes.OFFER_PRODUCT_PRICE_SUCESS,
+        UserActionTypes.OFFER_PRODUCT_PRICE_SUCCESS,
         UserActionTypes.OFFER_PRODUCT_PRICE_FAILURE,
       ],
       config: {

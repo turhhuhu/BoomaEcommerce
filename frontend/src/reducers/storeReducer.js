@@ -57,12 +57,14 @@ export function store(
       return Object.assign({}, state, {
         ...action.payload,
         error: undefined,
+        isFetching: action.payload.isFetching,
       });
     case StoreActionTypes.ADD_PRODUCT_TO_STORE_SUCCESS: {
       const newProducts = [...state.products, action.payload.response];
       return Object.assign({}, state, {
         products: newProducts,
         filteredProducts: newProducts,
+        isFetching: action.payload.isFetching,
       });
     }
     case StoreActionTypes.ADD_PRODUCT_TO_STORE_FAILURE:
@@ -119,6 +121,7 @@ export function store(
       return Object.assign({}, state, {
         ...action.payload,
         error: undefined,
+        isFetching: action.payload.isFetching,
       });
     case StoreActionTypes.EDIT_PRODUCT_FROM_STORE_SUCCESS:
       const productToEditIndexInProducts = state.products.findIndex(
@@ -151,6 +154,7 @@ export function store(
           productToEditIndexInFilteredProducts !== -1
             ? newFilteredProducts
             : state.filteredProducts,
+        isFetching: action.payload.isFetching,
       });
     case StoreActionTypes.EDIT_PRODUCT_FROM_STORE_FAILURE:
       console.error(
@@ -199,7 +203,9 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.ADD_STORE_OWNER_SUCCESS: {
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     }
     case StoreActionTypes.ADD_STORE_OWNER_FAILURE:
       console.error(`error occured while adding store owner: ${action.error}`);
@@ -214,7 +220,9 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.ADD_STORE_MANAGER_SUCCESS: {
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     }
     case StoreActionTypes.ADD_STORE_MANAGER_FAILURE: {
       console.error(`error occured while adding store owner: ${action.error}`);
@@ -229,7 +237,9 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.REMOVE_STORE_MANAGER_SUCCESS:
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case StoreActionTypes.REMOVE_STORE_MANAGER_FAILURE: {
       console.error(
         `error occured while remvoving store manager: ${action.error}`
@@ -245,7 +255,9 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.REMOVE_STORE_OWNER_SUCCESS:
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case StoreActionTypes.REMOVE_STORE_OWNER_FAILURE: {
       console.error(
         `error occured while remvoving store owner: ${action.error}`
@@ -279,7 +291,9 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.REMOVE_STORE_POLICY_SUCCESS: {
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     }
     case StoreActionTypes.REMOVE_STORE_POLICY_FAILURE: {
       console.error(
@@ -296,7 +310,9 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.ADD_STORE_POLICY_ROOT_SUCCESS:
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case StoreActionTypes.ADD_STORE_POLICY_ROOT_FAILURE: {
       console.error(`error occured while adding store policy: ${action.error}`);
       return Object.assign({}, state, {
@@ -310,11 +326,12 @@ export function store(
         error: undefined,
       });
     case StoreActionTypes.ADD_STORE_SUB_POLICY_SUCCESS:
-      return state;
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
     case StoreActionTypes.ADD_STORE_SUB_POLICY_FAILURE: {
       console.error(`error occured while adding store policy: ${action.error}`);
       return Object.assign({}, state, {
-        error: action.error,
         isFetching: action.payload.isFetching,
       });
     }
@@ -389,6 +406,92 @@ export function store(
       );
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,
+      });
+
+    case StoreActionTypes.ADD_STORE_DISCOUNT_ROOT_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+
+    case StoreActionTypes.ADD_STORE_DISCOUNT_ROOT_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.ADD_STORE_DISCOUNT_ROOT_FAILURE:
+      console.error(`error occured: ${action.error}`);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    case StoreActionTypes.ADD_STORE_SUB_DISCOUNT_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+
+    case StoreActionTypes.ADD_STORE_SUB_DISCOUNT_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.ADD_STORE_SUB_DISCOUNT_FAILURE:
+      console.error(`error occured: ${action.error}`);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    case StoreActionTypes.ADD_STORE_DISCOUNT_POLICY_ROOT_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+
+    case StoreActionTypes.ADD_STORE_DISCOUNT_POLICY_ROOT_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.ADD_STORE_DISCOUNT_POLICY_ROOT_FAILURE:
+      console.error(`error occured: ${action.error}`);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    case StoreActionTypes.ADD_STORE_DISCOUNT_SUB_POLICY_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+
+    case StoreActionTypes.ADD_STORE_DISCOUNT_SUB_POLICY_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.ADD_STORE_DISCOUNT_SUB_POLICY_FAILURE:
+      console.error(`error occured: ${action.error}`);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    case StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+
+    case StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_FAILURE:
+      console.error(`error occured: ${action.error}`);
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
       });
 
     default:

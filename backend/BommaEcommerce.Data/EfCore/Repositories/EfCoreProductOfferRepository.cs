@@ -14,7 +14,6 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
         public EfCoreProductOfferRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
         }
-
         public override async Task<IEnumerable<ProductOffer>> FilterByAsync(Expression<Func<ProductOffer, bool>> predicateExp)
         {
             return await DbContext.ProductOffers
