@@ -22,6 +22,14 @@ class StoreProductPriceOffersView extends Component {
               overflowY: "scroll",
             }}
           >
+            {this.props.isFetching ? (
+              <div className="d-flex justify-content-center">
+                <div
+                  className="spinner-border text-primary"
+                  role="status"
+                ></div>
+              </div>
+            ) : null}
             <table className="table table-hover">
               <tbody>
                 {this.props.productOffers.map((productOffer, index) => (
@@ -42,6 +50,7 @@ class StoreProductPriceOffersView extends Component {
 const mapStateToProps = (store) => {
   return {
     productOffers: store.store.productOffers,
+    isFetching: store.store.isFetching,
   };
 };
 

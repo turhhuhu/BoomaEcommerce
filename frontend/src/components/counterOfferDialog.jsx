@@ -6,7 +6,10 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
-import { counterOfferProductPrice } from "../actions/storeActions";
+import {
+  counterOfferProductPrice,
+  fetchStoreProductOffers,
+} from "../actions/storeActions";
 
 class CounterOfferDialog extends Component {
   state = {
@@ -42,6 +45,9 @@ class CounterOfferDialog extends Component {
         )
         .then((success) => {
           if (success) {
+            this.props.dispatch(
+              fetchStoreProductOffers(this.props.storeRole.guid)
+            );
             this.props.closeDialog();
           }
         });

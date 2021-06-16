@@ -109,7 +109,7 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/ApprovedOwners")]
+        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/approve")]
         public async Task<IActionResult> ApproveProductOffer(Guid ownershipGuid, Guid offerGuid)
         {
             await _storesService.ApproveOffer(ownershipGuid, offerGuid);

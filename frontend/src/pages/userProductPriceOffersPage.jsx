@@ -21,7 +21,7 @@ class UserProductPriceOffersPage extends Component {
     return (
       <React.Fragment>
         <Header />
-        <div className="container" style={{ maxWidth: "1000px" }}>
+        <div className="container" style={{ maxWidth: "1300px" }}>
           <section className="section-conten padding-y">
             <div className="row mt-2">
               <ProfileSideBar isProductOffers="true" />

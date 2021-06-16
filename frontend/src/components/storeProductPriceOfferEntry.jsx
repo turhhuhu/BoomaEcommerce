@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { approveProductOffer } from "../actions/storeActions";
 import CounterOfferDialog from "./counterOfferDialog";
 
 class StoreProductPriceOfferEntry extends Component {
@@ -8,6 +10,14 @@ class StoreProductPriceOfferEntry extends Component {
   };
   closeCounterOfferDialog = () => {
     this.setState({ isDialogOpen: false });
+  };
+  handleApproveOffer = () => {
+    this.props.dispatch(
+      approveProductOffer(
+        this.props.storeRole.guid,
+        this.props.productOffer.guid
+      )
+    );
   };
   render() {
     return (
@@ -19,10 +29,14 @@ class StoreProductPriceOfferEntry extends Component {
           </span>
         </td>
         <td>
-          <span className="title mb-0">
-            <strong>Current Counter Offer price:</strong> $
-            {this.props.productOffer.counterOfferPrice}
-          </span>
+          {this.props.productOffer.counterOfferPrice ? (
+            <span className="title mb-0">
+              <div>
+                <strong>Current Counter Offer price:</strong> ${" "}
+                {this.props.productOffer.counterOfferPrice}
+              </div>
+            </span>
+          ) : null}
         </td>
         <td>
           <span className="title mb-0">
@@ -31,7 +45,13 @@ class StoreProductPriceOfferEntry extends Component {
         </td>
         <td className="row  ">
           <div>
-            <button className="btn btn-outline-primary col"> Approve </button>
+            <button
+              onClick={this.handleApproveOffer}
+              className="btn btn-outline-primary col"
+            >
+              {" "}
+              Approve{" "}
+            </button>
           </div>
           <div>
             <button
@@ -59,4 +79,10 @@ class StoreProductPriceOfferEntry extends Component {
   }
 }
 
-export default StoreProductPriceOfferEntry;
+const mapStateToProps = (store) => {
+  return {
+    storeRole: store.user.storeRole,
+  };
+};
+
+export default connect(mapStateToProps)(StoreProductPriceOfferEntry);
