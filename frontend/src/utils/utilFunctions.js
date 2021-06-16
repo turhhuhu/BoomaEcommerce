@@ -1,3 +1,7 @@
+export function isNormalInteger(str) {
+  return /^(0|[1-9]\d*)$/.test(str);
+}
+
 export function turnCartIntoPurchase(cart, buyerGuid) {
   return {
     storePurchases: cart.baskets.map((basket) => {

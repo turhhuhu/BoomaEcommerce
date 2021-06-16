@@ -35,14 +35,19 @@ class CartView extends Component {
         <aside className="col-md-3">
           <div className="card">
             <div className="card-body">
-              <a
-                href={this.props.isAuthenticated ? "cart/review" : "cart/guest"}
-                className="btn btn-primary btn-block"
-              >
-                {this.props.isAuthenticated
-                  ? " Review Purchase "
-                  : " Continue to purchase "}
-              </a>
+              {this.props.cart?.baskets.length > 0 ? (
+                <a
+                  href={
+                    this.props.isAuthenticated ? "cart/review" : "cart/guest"
+                  }
+                  className="btn btn-primary btn-block"
+                >
+                  {this.props.isAuthenticated
+                    ? " Review Purchase "
+                    : " Continue to purchase "}
+                </a>
+              ) : null}
+
               <a
                 href="/products"
                 className="btn btn-outline-secondary btn-block"

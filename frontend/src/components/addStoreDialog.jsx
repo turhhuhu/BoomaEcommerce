@@ -56,7 +56,7 @@ class AddStoreDialog extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add product</DialogTitle>
+        <DialogTitle id="form-dialog-title">Add store</DialogTitle>
         <form>
           <DialogContent>
             <DialogContentText>

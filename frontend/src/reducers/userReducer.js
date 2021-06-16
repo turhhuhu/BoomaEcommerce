@@ -382,6 +382,7 @@ export function user(
     case UserActionTypes.CREATE_PURCHASE_SUCCESS: {
       return Object.assign({}, state, {
         paymentInfo: {},
+        deliveryInfo: {},
         discountedPrice: {},
         guestInformation: {},
         isFetching: action.payload.isFetching,
@@ -403,9 +404,6 @@ export function user(
       });
     case UserActionTypes.CLEAR_GUEST_CART:
       return Object.assign({}, state, { cart: { baskets: [] } });
-
-    default:
-      return state;
 
     case UserActionTypes.GET_PURCHASE_HISTORY_REQUEST:
       return Object.assign({}, state, {
@@ -464,5 +462,7 @@ export function user(
         isFetching: action.payload.isFetching,
         error: action.error,
       });
+    default:
+      return state;
   }
 }

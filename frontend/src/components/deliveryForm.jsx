@@ -1,24 +1,57 @@
+import { Alert } from "@material-ui/lab";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { submitDeliveryInfo } from "../actions/userActions";
 import { countriesArray } from "../utils/constants";
+import { isNormalInteger } from "../utils/utilFunctions";
 
 class DeliveryForm extends Component {
   state = {
-    name: "",
-    country: "",
-    city: "",
-    address: "",
-    zip: "",
+    error: undefined,
+    name: this.props.deliveryInfo.name ? this.props.deliveryInfo.name : "",
+    country: this.props.deliveryInfo.country
+      ? this.props.deliveryInfo.country
+      : "",
+    city: this.props.deliveryInfo.city ? this.props.deliveryInfo.city : "",
+    address: this.props.deliveryInfo.address
+      ? this.props.deliveryInfo.address
+      : "",
+    zip: this.props.deliveryInfo.zip ? this.props.deliveryInfo.zip : "",
   };
   handleChange = (event) => {
     this.setState({
       [event.target.name]: event.target.value,
     });
   };
+
+  handleSkipDelivery = () => {
+    this.props.history.push("/cart/purchase");
+  };
   handleDelivery = () => {
-    this.props.dispatch(submitDeliveryInfo(this.state));
+    if (
+      !this.state.name ||
+      !this.state.country ||
+      !this.state.city ||
+      !this.state.address ||
+      !this.state.zip
+    ) {
+      this.setState({ error: "Please fill out all fields" });
+      return;
+    }
+    if (!isNormalInteger(this.state.zip)) {
+      this.setState({ error: "zip must be a number" });
+      return;
+    }
+    this.props.dispatch(
+      submitDeliveryInfo({
+        name: this.state.name,
+        country: this.state.country,
+        city: this.state.city,
+        address: this.state.address,
+        zip: this.state.zip,
+      })
+    );
     this.props.history.push("/cart/purchase");
   };
 
@@ -109,6 +142,21 @@ class DeliveryForm extends Component {
                 {" "}
                 Continue to review purchase{" "}
               </button>
+              <button
+                onClick={this.handleSkipDelivery}
+                type="button"
+                className="btn btn-outline-secondary btn-block"
+              >
+                {" "}
+                Skip delivery and review purchase{" "}
+              </button>
+              {(this.props.error || this.state.error) && (
+                <div className="mt-2">
+                  <Alert severity="error" onClick={() => this.setState(null)}>
+                    {this.props.error || this.state.error}
+                  </Alert>
+                </div>
+              )}
             </div>
           </form>
         </div>
@@ -117,4 +165,10 @@ class DeliveryForm extends Component {
   }
 }
 
-export default withRouter(connect()(DeliveryForm));
+const mapStateToProps = (store) => {
+  return {
+    deliveryInfo: store.user.deliveryInfo,
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(DeliveryForm));

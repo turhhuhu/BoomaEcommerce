@@ -18,7 +18,7 @@ class PurchaseReview extends Component {
   startLoading = () => {
     setTimeout(() => {
       this.setState({ loading: false });
-    }, 2000);
+    }, 3000);
   };
 
   getCartItems = () => {
@@ -84,6 +84,7 @@ class PurchaseReview extends Component {
         )
         .then((success) => {
           if (success) {
+            this.setState({ loading: true });
             this.startLoading();
             this.props.dispatch(clearGuestCart());
             this.setState({ success: true });
