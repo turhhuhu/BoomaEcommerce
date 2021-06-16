@@ -18,6 +18,9 @@ import {
   STORE_DISCOUNT_SUB_POLICIES_URL,
   STORE_PURCHASE_HISTORY_URL,
   MANAGER_PERMISSIONS_URL,
+  STORE_PRODUCT_OFFERS_URL,
+  STORE_PRODUCT_COUNTER_OFFER_URL,
+  APPROVE_PRODUCT_OFFER_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -504,6 +507,67 @@ export function editManagerPermissions(permissions, managementGuid) {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(permissions),
+      },
+    },
+  };
+}
+
+export function fetchStoreProductOffers(ownershipGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PRODUCT_OFFERS_URL.replace(
+        "{ownershipGuid}",
+        ownershipGuid
+      ),
+      authenticated: true,
+      types: [
+        StoreActionTypes.GET_STORE_PRODUCT_OFFERS_REQUEST,
+        StoreActionTypes.GET_STORE_PRODUCT_OFFERS_SUCCESS,
+        StoreActionTypes.GET_STORE_PRODUCT_OFFERS_FAILURE,
+      ],
+    },
+  };
+}
+
+export function counterOfferProductPrice(ownershipGuid, offerGuid, price) {
+  return {
+    [CALL_API]: {
+      endpoint: STORE_PRODUCT_COUNTER_OFFER_URL.replace(
+        "{ownershipGuid}",
+        ownershipGuid
+      )
+        .replace("{offerGuid}", offerGuid)
+        .replace("{price}", price),
+      authenticated: true,
+      types: [
+        StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_REQUEST,
+        StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_SUCCESS,
+        StoreActionTypes.COUNTER_OFFER_STORE_PRODUCT_PRICE_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      },
+    },
+  };
+}
+
+export function approveProductOffer(ownershipGuid, offerGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: APPROVE_PRODUCT_OFFER_URL.replace(
+        "{ownershipGuid}",
+        ownershipGuid
+      ).replace("{offerGuid}", offerGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_REQUEST,
+        StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_SUCCESS,
+        StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       },
     },
   };

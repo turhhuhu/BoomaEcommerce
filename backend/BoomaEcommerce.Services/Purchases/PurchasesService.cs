@@ -46,7 +46,7 @@ namespace BoomaEcommerce.Services.Purchases
         {
             int? paymentTransactionId = null;
             int? supplyTransactionId = null;
-            
+
             try
             {
                 await using var transaction = await _purchaseUnitOfWork.BeginTransaction();
@@ -66,7 +66,8 @@ namespace BoomaEcommerce.Services.Purchases
 
                 await purchase.StorePurchases.Select(async storePurchase =>
                 {
-                    storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                    storePurchase.Store =
+                        await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
                     storePurchase.Buyer = purchase.Buyer;
                 }).WhenAllAwaitEach();
 
@@ -80,8 +81,9 @@ namespace BoomaEcommerce.Services.Purchases
                 {
                     return null;
                 }
+
                 paymentTransactionId = await _paymentClient.MakePayment(purchaseDetailsDto.PaymentDetails);
-                
+
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
                 if (purchaseDetailsDto.Purchase.UserBuyerGuid.HasValue)
@@ -103,14 +105,25 @@ namespace BoomaEcommerce.Services.Purchases
 
                 return _mapper.Map<PurchaseDto>(purchase);
             }
-            catch (PolicyValidationException)
+            catch (PolicyValidationException e)
             {
-                _logger.LogError("Store policies for purchase failed.");
+                _logger.LogError(e, "Store policies for purchase failed.");
+                throw;
+            }
+            catch (PaymentFailureException e)
+            {
+                RollbackTransactions(paymentTransactionId, supplyTransactionId);
+                _logger.LogError(e, "External payment system failure");
+                throw;
+            }
+            catch (SupplyFailureException e)
+            {
+                RollbackTransactions(paymentTransactionId, supplyTransactionId);
+                _logger.LogError(e, "External supply system failure");
                 throw;
             }
             catch (Exception e)
             {
-                RollbackTransactions(paymentTransactionId, supplyTransactionId);
                 _logger.LogError(e, "Failed to make purchase.");
                 return null;
             }

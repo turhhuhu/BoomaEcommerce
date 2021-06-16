@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Alert } from "@material-ui/lab";
 
 class CartReview extends Component {
-  state = {};
+  state = { error: undefined };
 
   getCartItems = () => {
     return this.props.cart.baskets?.map((basket) => {
@@ -121,6 +122,11 @@ class CartReview extends Component {
             <i className="fa fa-chevron-left"></i> Continue shopping{" "}
           </a>
         </div>
+        {(this.props.error || this.state.error) && (
+          <Alert severity="error" onClick={() => this.setState(null)}>
+            {this.props.error || this.state.error}
+          </Alert>
+        )}
       </div>
     );
   }
@@ -130,6 +136,7 @@ const mapStateToProps = (store) => {
   return {
     cart: store.user.cart,
     isAuthenticated: store.auth.isAuthenticated,
+    error: store.user.error,
   };
 };
 

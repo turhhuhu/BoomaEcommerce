@@ -10,7 +10,8 @@ export function store(
     storePolicy: {},
     storeDiscount: {},
     storeDiscountPolicy: {},
-    purchaseHistory: {},
+    purchaseHistory: [],
+    productOffers: [],
   },
   action
 ) {
@@ -368,6 +369,23 @@ export function store(
     case StoreActionTypes.GET_STORE_PURCHASE_HISTORY_FAILURE:
       console.error(
         `error occured while fetching purchase history: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_PRODUCT_OFFERS_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_PRODUCT_OFFERS_SUCCESS:
+      return Object.assign({}, state, {
+        productOffers: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case StoreActionTypes.GET_STORE_PRODUCT_OFFERS_FAILURE:
+      console.error(
+        `error occured while fetching product offers: ${action.error}`
       );
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,

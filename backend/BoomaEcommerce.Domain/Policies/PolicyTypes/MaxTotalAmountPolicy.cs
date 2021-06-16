@@ -18,7 +18,7 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 
         private MaxTotalAmountPolicy()
         {
-            
+            ErrorMessage = "Purchase\\Basket must at-most have '{1}' amount but has '{2}' amount.";
         }
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {

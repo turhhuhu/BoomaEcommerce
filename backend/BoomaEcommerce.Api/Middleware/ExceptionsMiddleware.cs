@@ -46,11 +46,22 @@ namespace BoomaEcommerce.Api.Middleware
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsJsonAsync(policyException.PolicyErrors);
             }
+            catch (PaymentFailureException paymentFailureException)
+            {
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await context.Response.WriteAsJsonAsync(paymentFailureException.Message);
+            }
+            catch (SupplyFailureException supplyFailureException )
+            {
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await context.Response.WriteAsJsonAsync(supplyFailureException.Message);
+            }
             catch (Exception exception)
             {
                 _logger.LogError(exception,
                     $"Request {context.Request?.Method}: {context.Request?.Path.Value} failed");
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await context.Response.WriteAsJsonAsync("Unexpected error has occured");
             }
         }
     }

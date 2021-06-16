@@ -40,6 +40,15 @@ class ProfileSideBar extends Component {
             {" "}
             Purchase history{" "}
           </a>
+          <a
+            className={`list-group-item ${
+              this.props.isProductOffers ? "active" : null
+            }`}
+            href="/user/offers"
+          >
+            {" "}
+            Product offers{" "}
+          </a>
         </ul>
         <br />
         <a

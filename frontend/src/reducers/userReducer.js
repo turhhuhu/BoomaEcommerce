@@ -13,7 +13,8 @@ export function user(
     paymentInfo: {},
     deliveryInfo: {},
     guestInformation: {},
-    purchaseHistory: {},
+    purchaseHistory: [],
+    productOffers: [],
   },
   action
 ) {
@@ -350,6 +351,7 @@ export function user(
         `error occured while getting cart discounted price: ${action.error}`
       );
       return Object.assign({}, state, {
+        error: action.error,
         isFetching: action.payload.isFetching,
       });
     }
@@ -401,6 +403,25 @@ export function user(
     case UserActionTypes.GET_PURCHASE_HISTORY_FAILURE:
       console.error(
         `error occured while fetching purchase history: ${action.error}`
+      );
+      return Object.assign({}, state, {
+        isFetching: action.payload.isFetching,
+        error: action.error,
+      });
+    case UserActionTypes.GET_PRODUCT_OFFERS_REQUEST:
+      return Object.assign({}, state, {
+        ...action.payload,
+        error: undefined,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.GET_PRODUCT_OFFERS_SUCCESS:
+      return Object.assign({}, state, {
+        productOffers: action.payload.response,
+        isFetching: action.payload.isFetching,
+      });
+    case UserActionTypes.GET_PRODUCT_OFFERS_FAILURE:
+      console.error(
+        `error occured while fetching product offers: ${action.error}`
       );
       return Object.assign({}, state, {
         isFetching: action.payload.isFetching,

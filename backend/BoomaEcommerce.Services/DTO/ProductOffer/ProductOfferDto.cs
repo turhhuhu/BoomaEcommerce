@@ -21,6 +21,8 @@ namespace BoomaEcommerce.Services.DTO.ProductOffer
     {
         Pending,
         Approved,
-        Declined
+        Declined,
+        CounterOfferReceived,
+        Error
     }
 }

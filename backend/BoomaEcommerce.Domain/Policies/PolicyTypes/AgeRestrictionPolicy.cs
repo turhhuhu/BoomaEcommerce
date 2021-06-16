@@ -17,6 +17,7 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
         }
         private AgeRestrictionPolicy()
         {
+            ErrorMessage = "User '{0}' must at-least be of age {1} to purchase {2}.";
         }
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {

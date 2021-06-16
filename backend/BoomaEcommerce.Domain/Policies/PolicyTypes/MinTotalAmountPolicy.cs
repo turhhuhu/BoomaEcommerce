@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
 
         private MinTotalAmountPolicy()
         {
-            
+            ErrorMessage = "Purchase\\Basket must at-least have '{1}' amount but has '{2}' amount.";
         }
     }
 }

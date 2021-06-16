@@ -86,6 +86,17 @@ namespace BoomaEcommerce.Domain
             {
                 return PurchaseResult.Fail();
             }
+            var failedPolicyResults = StorePurchases
+                .Select(sp => (sp.Store.Guid, sp.CheckPolicyCompliance()))
+                .Where(result => !result.Item2.IsOk)
+                .Select(res => new PolicyError(res.Item1, res.Item2.PolicyError))
+                .ToList();
+            
+            if (failedPolicyResults.Any())
+            {
+                return PurchaseResult.Fail(failedPolicyResults);
+            }
+            
             decimal discounted = 0;
 
             foreach (var sp in StorePurchases)
