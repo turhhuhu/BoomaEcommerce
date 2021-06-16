@@ -38,7 +38,7 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var sut = new StorePurchase {PurchaseProducts = TestData.GetTestValidProductsPurchases(), TotalPrice = 150};
 
-            var result = sut.ValidatePrice();
+            var result = sut.ValidatePrice(new List<ProductOffer.ProductOffer>());
 
             result.Should().BeTrue();
         }
@@ -48,7 +48,7 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var sut = new StorePurchase {PurchaseProducts = TestData.GetTestInvalidProductsPurchases(), TotalPrice = 150};
 
-            var result = sut.ValidatePrice();
+            var result = sut.ValidatePrice(new List<ProductOffer.ProductOffer>());
 
             result.Should().BeFalse();
         }

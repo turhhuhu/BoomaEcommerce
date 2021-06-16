@@ -52,9 +52,18 @@ namespace BoomaEcommerce.Domain
             return Product.ValidateAmountToPurchase(Amount);
         }
 
-        public bool ValidatePrice()
+        public bool ValidatePrice(List<ProductOffer.ProductOffer> productOffers)
         {
-            return Price == Product.CalculatePrice(Amount);
+            var offer = productOffers.FirstOrDefault();
+            if (offer == default) return Price == Product.CalculatePrice(Amount);
+            if (offer.CounterOfferPrice.HasValue)
+            {
+                return Price == offer.CounterOfferPrice;
+            }
+            else
+            {
+                return Price == offer.OfferPrice;
+            }
         }
         
     }
