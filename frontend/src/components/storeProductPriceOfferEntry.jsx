@@ -38,6 +38,11 @@ class StoreProductPriceOfferEntry extends Component {
             <strong>Offered price:</strong> $
             {this.props.productOffer.offerPrice}
           </span>
+          <br />
+          <span className="title mb-0">
+            <strong>Product name:</strong>{" "}
+            {this.props.productOffer.product.name}
+          </span>
         </td>
         <td>
           {this.props.productOffer.counterOfferPrice ? (
@@ -54,37 +59,39 @@ class StoreProductPriceOfferEntry extends Component {
             <strong>State:</strong> {this.props.productOffer.state}
           </span>
         </td>
-        <td className="row  ">
-          <div>
-            <button
-              onClick={this.handleApproveOffer}
-              className="btn btn-outline-primary col"
-            >
-              {" "}
-              Approve{" "}
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={this.handleCounterOffer}
-              className="btn btn-outline-info col ml-2"
-            >
-              {" "}
-              Counter Offer
-            </button>
-            <CounterOfferDialog
-              offerGuid={this.props.productOffer.guid}
-              isDialogOpen={this.state.isDialogOpen}
-              closeDialog={this.closeCounterOfferDialog}
-            />
-          </div>
-          <div>
-            <button className="btn btn-outline-secondary col ml-3">
-              {" "}
-              Decline{" "}
-            </button>
-          </div>
-        </td>
+        {this.props.productOffer.state !== "purchased" ? (
+          <td className="row  ">
+            <div>
+              <button
+                onClick={this.handleApproveOffer}
+                className="btn btn-outline-primary col"
+              >
+                {" "}
+                Approve{" "}
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={this.handleCounterOffer}
+                className="btn btn-outline-info col ml-2"
+              >
+                {" "}
+                Counter Offer
+              </button>
+              <CounterOfferDialog
+                offerGuid={this.props.productOffer.guid}
+                isDialogOpen={this.state.isDialogOpen}
+                closeDialog={this.closeCounterOfferDialog}
+              />
+            </div>
+            <div>
+              <button className="btn btn-outline-secondary col ml-3">
+                {" "}
+                Decline{" "}
+              </button>
+            </div>
+          </td>
+        ) : null}
       </tr>
     );
   }
