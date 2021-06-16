@@ -160,19 +160,6 @@ namespace BoomaEcommerce.AcceptanceTests
             offers.Should().Contain(po => po.Guid == productOffer.Guid);
         }
 
-
-        [Fact]
-        public async Task GetProductOffer_ShouldReturnProductOffer()
-        {
-            //Arrange
-
-            //Act
-            var offers = await _storeService.GetAllUserProductOffers(UserGuid);
-            //Assert
-            offers.Count().Should().Be(1);
-            offers.Should().Contain(po => po.Guid == productOffer.Guid);
-        }
-
         // public async Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
         //public async Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid)
         //public async Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid)

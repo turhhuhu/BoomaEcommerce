@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
@@ -24,9 +25,10 @@ namespace BoomaEcommerce.Services.Tests
         private UsersService GetUserService(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
+            IDictionary<Guid, ProductOffer> offers,
             IDictionary<Guid, User> users = null)
         {
-            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts,null, users);
+            var userUnitOfWork = DalMockFactory.MockUserUnitOfWork(shoppingBaskets, shoppingCarts,null, offers, users);
             return new UsersService(_mapper, _logger.Object, userUnitOfWork.Object,null);
         }
 
@@ -53,10 +55,11 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var shoppingCartsDict = new Dictionary<Guid, ShoppingCart>();
             var users = new Dictionary<Guid, User>();
+            var offers = new Dictionary<Guid, ProductOffer>();
             var userGuid = Guid.NewGuid();
             users[userGuid] = (new User { Guid = userGuid });
 
-            var sut = GetUserService(null, shoppingCartsDict, users);
+            var sut = GetUserService(null, shoppingCartsDict, offers, users);
             
             // Act
             var result = await sut.GetShoppingCartAsync(userGuid);
@@ -77,6 +80,7 @@ namespace BoomaEcommerce.Services.Tests
                 Guid = Guid.NewGuid()
             };
             var users = new Dictionary<Guid, User>();
+            var offers = new Dictionary<Guid, ProductOffer>();
             users[user.Guid] = user;
 
             var shoppingBasketGuid = Guid.NewGuid();
@@ -84,7 +88,7 @@ namespace BoomaEcommerce.Services.Tests
 
             shoppingBasketDict[shoppingBasketGuid] = shoppingBasket;
             var purchaseProductDto = new PurchaseProductDto();
-            var sut = GetUserService(shoppingBasketDict, null, users);
+            var sut = GetUserService(shoppingBasketDict, null, offers, users);
             
             // Act
             var result = await sut.AddPurchaseProductToShoppingBasketAsync(user.Guid, shoppingBasketGuid, purchaseProductDto);
@@ -99,8 +103,9 @@ namespace BoomaEcommerce.Services.Tests
         {
             // Arrange
             var shoppingBasketDict = new Dictionary<Guid, ShoppingBasket>();
+            var offers = new Dictionary<Guid, ProductOffer>();
             var purchaseProductDto = new PurchaseProductDto();
-            var sut = GetUserService(shoppingBasketDict, null);
+            var sut = GetUserService(shoppingBasketDict, null, offers);
             
             // Act
             var result = await sut.AddPurchaseProductToShoppingBasketAsync(Guid.NewGuid(), Guid.NewGuid(), purchaseProductDto);
@@ -122,7 +127,7 @@ namespace BoomaEcommerce.Services.Tests
             var shoppingBasket = new ShoppingBasket {Guid = shoppingBasketGuid};
             shoppingBasket.AddPurchaseProduct(purchaseProduct);
             shoppingBasketDict[shoppingBasketGuid] = shoppingBasket;
-            var sut = GetUserService(shoppingBasketDict, null);
+            var sut = GetUserService(shoppingBasketDict, null, null);
 
             // Act
             var result = await sut.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
@@ -142,7 +147,7 @@ namespace BoomaEcommerce.Services.Tests
             var shoppingBasketGuid = Guid.NewGuid();
             var shoppingBasket = new ShoppingBasket {Guid = shoppingBasketGuid};
             shoppingBasketDict[shoppingBasketGuid] = shoppingBasket;
-            var sut = GetUserService(shoppingBasketDict, null);
+            var sut = GetUserService(shoppingBasketDict, null, null);
             
             // Act
             var result = await sut.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
