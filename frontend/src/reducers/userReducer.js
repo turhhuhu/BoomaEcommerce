@@ -83,6 +83,43 @@ export function user(
         (basket) => basket.guid === action.extraPayload
       );
       const basketToAddTo = state.cart.baskets[basketToAddToIndex];
+      if (
+        basketToAddTo.purchaseProducts
+          .map((pp) => pp.productGuid)
+          .includes(action.payload.response.productGuid)
+      ) {
+        const purchaseProductToEditIndex =
+          basketToAddTo.purchaseProducts.findIndex(
+            (purchaseProduct) =>
+              purchaseProduct.productGuid ===
+              action.payload.response.productGuid
+          );
+        let purchaseProductToEdit =
+          basketToAddTo.purchaseProducts[purchaseProductToEditIndex];
+        console.log(basketToAddTo);
+        purchaseProductToEdit.amount = action.payload.response.amount;
+        const newBasket = {
+          ...basketToAddTo,
+          purchaseProducts: [
+            ...basketToAddTo.purchaseProducts.slice(
+              0,
+              purchaseProductToEditIndex
+            ),
+            purchaseProductToEdit,
+            ...basketToAddTo.purchaseProducts.slice(
+              purchaseProductToEditIndex + 1
+            ),
+          ],
+        };
+        return Object.assign({}, state, {
+          cart: {
+            baskets: Object.assign([], state.cart.baskets, {
+              [basketToAddToIndex]: newBasket,
+            }),
+          },
+          isFetching: action.payload.isFetching,
+        });
+      }
       const newBasket = {
         ...basketToAddTo,
         purchaseProducts: [
@@ -96,6 +133,7 @@ export function user(
             [basketToAddToIndex]: newBasket,
           }),
         },
+        isFetching: action.payload.isFetching,
       });
     }
     case UserActionTypes.ADD_PRODUCT_TO_BASKET_FAILURE:
@@ -148,6 +186,7 @@ export function user(
               ...state.cart.baskets.slice(basketToRemoveFromIndex + 1),
             ],
           },
+          isFetching: action.payload.isFetching,
         });
       }
       const newBasket = {
@@ -168,6 +207,7 @@ export function user(
             [basketToRemoveFromIndex]: newBasket,
           }),
         },
+        isFetching: action.payload.isFetching,
       });
     }
 
@@ -217,34 +257,6 @@ export function user(
         cart: {
           baskets: Object.assign([], state.cart.baskets, {
             [basketToRemoveFromIndex]: newBasket,
-          }),
-        },
-      });
-    case UserActionTypes.CHANGE_PRODUCT_AMOUNT_IN_BASKET:
-      const basketToChangeIndex = state.cart.baskets.findIndex(
-        (basket) => basket.guid === action.payload.basketGuid
-      );
-      const basketToChange = state.cart.baskets[basketToChangeIndex];
-      const purchaseProductToChangeIndex =
-        basketToChange.purchaseProducts.findIndex(
-          (purchaseProduct) =>
-            purchaseProduct.guid === action.payload.purchaseProductGuid
-        );
-      const purchaseProductToChange =
-        basketToChange.purchaseProducts[purchaseProductToChangeIndex];
-      const { amount, ...changedPurhcaseProduct } = purchaseProductToChange;
-      changedPurhcaseProduct["amount"] = parseInt(action.payload.newAmount, 10);
-      const newPurchaseProducts = basketToChange.purchaseProducts.slice(0);
-      newPurchaseProducts[purchaseProductToChangeIndex] =
-        changedPurhcaseProduct;
-      const newBasketAfterChange = {
-        ...basketToChange,
-        purchaseProducts: newPurchaseProducts,
-      };
-      return Object.assign({}, state, {
-        cart: {
-          baskets: Object.assign([], state.cart.baskets, {
-            [basketToChangeIndex]: newBasketAfterChange,
           }),
         },
       });

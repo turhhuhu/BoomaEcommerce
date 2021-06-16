@@ -48,7 +48,11 @@ class Product extends Component {
               category: this.props.category,
             },
           },
-          { name: this.props.name, category: this.props.category }
+          {
+            name: this.props.name,
+            category: this.props.category,
+            amount: this.props.amount,
+          }
         )
       );
     } else {
@@ -67,7 +71,11 @@ class Product extends Component {
               storeName: this.props.storeName,
             },
           },
-          { name: this.props.name, category: this.props.category }
+          {
+            name: this.props.name,
+            category: this.props.category,
+            amount: this.props.amount,
+          }
         )
       );
     }

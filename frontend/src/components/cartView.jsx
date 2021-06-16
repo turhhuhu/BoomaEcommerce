@@ -8,17 +8,21 @@ class CartView extends Component {
     return this.props.cart.baskets?.map((basket) => {
       return basket.purchaseProducts
         ?.sort((a, b) => a.guid - b.guid)
-        .map((purchaseProduct, index) => (
-          <CartItem
-            key={index}
-            product={purchaseProduct.product}
-            purchaseProductGuid={purchaseProduct.guid}
-            price={purchaseProduct.price}
-            maxQuantity={purchaseProduct.amount}
-            storeName={basket.store?.storeName}
-            basketGuid={basket.guid}
-          />
-        ));
+        .map((purchaseProduct, index) => {
+          console.log(purchaseProduct);
+          return (
+            <CartItem
+              key={index}
+              product={purchaseProduct.product}
+              purchaseProductGuid={purchaseProduct.guid}
+              quantity={purchaseProduct.amount}
+              price={purchaseProduct.price}
+              maxQuantity={purchaseProduct.product?.amount}
+              storeName={basket.store?.storeName}
+              basketGuid={basket.guid}
+            />
+          );
+        });
     });
   };
 

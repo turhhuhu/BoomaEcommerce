@@ -180,21 +180,6 @@ export function removeCartItem(basketGuid, purchaseProductGuid) {
   };
 }
 
-export function changeCartProductAmount(
-  basketGuid,
-  purchaseProductGuid,
-  newAmount
-) {
-  return {
-    type: UserActionTypes.CHANGE_PRODUCT_AMOUNT_IN_BASKET,
-    payload: {
-      basketGuid,
-      purchaseProductGuid,
-      newAmount,
-    },
-  };
-}
-
 export function addProductToBasket(purchaseProduct, product) {
   return (dispatch, getState) => {
     if (getState().auth.isAuthenticated) {

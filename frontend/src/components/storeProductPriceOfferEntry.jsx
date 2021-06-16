@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import {
   approveProductOffer,
+  declineProductOffer,
   fetchStoreProductOffers,
 } from "../actions/storeActions";
 import CounterOfferDialog from "./counterOfferDialog";
@@ -30,6 +31,23 @@ class StoreProductPriceOfferEntry extends Component {
         }
       });
   };
+  handleDeclineOffer = () => {
+    this.props
+      .dispatch(
+        declineProductOffer(
+          this.props.storeRole.guid,
+          this.props.productOffer.guid
+        )
+      )
+      .then((action) => {
+        if (action) {
+          this.props.dispatch(
+            fetchStoreProductOffers(this.props.storeRole.guid)
+          );
+        }
+      });
+  };
+
   render() {
     return (
       <tr>
@@ -59,7 +77,9 @@ class StoreProductPriceOfferEntry extends Component {
             <strong>State:</strong> {this.props.productOffer.state}
           </span>
         </td>
-        {this.props.productOffer.state !== "purchased" ? (
+        {this.props.productOffer.state !== "purchased" &&
+        this.props.productOffer.state !== "declined" &&
+        this.props.productOffer.state !== "counterOfferReceived" ? (
           <td className="row  ">
             <div>
               <button
@@ -85,7 +105,10 @@ class StoreProductPriceOfferEntry extends Component {
               />
             </div>
             <div>
-              <button className="btn btn-outline-secondary col ml-3">
+              <button
+                onClick={this.handleDeclineOffer}
+                className="btn btn-outline-secondary col ml-3"
+              >
                 {" "}
                 Decline{" "}
               </button>

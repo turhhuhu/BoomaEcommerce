@@ -66,10 +66,10 @@ namespace BoomaEcommerce.Services.Stores
 
         public Task<StoreDto> CreateStoreAsync(StoreDto store)
         {
-            ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
             store.FounderUserGuid = userGuid;
+            ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             return _storeService.CreateStoreAsync(store);
         }
 
