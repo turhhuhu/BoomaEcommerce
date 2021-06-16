@@ -278,9 +278,7 @@ namespace BoomaEcommerce.Services.Users
                 _logger.LogError(e, "The following error occurred during The creation of product offer to product with guid {storeGuid}", offerDto.Product.Guid);
                 return null;
             }
-            
         }
-
 
         private async Task NotifyStoreSellersOnOffer(ProductOffer offer)
         {
@@ -298,33 +296,8 @@ namespace BoomaEcommerce.Services.Users
                 notifications.Add((ownership.User.Guid, _mapper.Map<NewOfferNotificationDto>(notification)));
                 _userUnitOfWork.Attach(notification);
             }
-
-            var notifyTask =
-                _notificationPublisher.NotifyManyAsync(notifications);
-
-            await Task.WhenAll(_userUnitOfWork.SaveAsync(), notifyTask);
+            
+            await _notificationPublisher.NotifyManyAsync(notifications);
         }
-
-        /*
-        public async Task<PurchaseProductDto> CreatePurchaseProductFromOffer(Guid userGuid, Guid offerGuid, Guid storeGuid)
-        {
-            var shoppingCart = (await _userUnitOfWork.ShoppingCartRepo.FilterByAsync((sc) => (sc.User.Guid == userGuid))).First();
-            var shoppingBasket = shoppingCart.FindStoreShoppingBasket(storeGuid);
-
-            if (shoppingBasket == null)
-            {
-                var shoppingBasketDto = await CreateShoppingBasketAsync(shoppingCart.Guid, null);
-                shoppingBasket = await _userUnitOfWork.ShoppingBasketRepo.FindByIdAsync(shoppingBasketDto.Guid);
-            }
-
-            var offer = await _userUnitOfWork.ProductOfferRepo.FindByIdAsync(offerGuid);
-
-            var purchaseProduct = offer.ConvertOfferToPurchaseProduct();
-
-            var purchaseProductDto = _mapper.Map<PurchaseProductDto>(purchaseProduct);
-
-            return await AddPurchaseProductToShoppingBasketAsync(userGuid, shoppingBasket.Guid, purchaseProductDto);
-
-        }*/
     }
 }

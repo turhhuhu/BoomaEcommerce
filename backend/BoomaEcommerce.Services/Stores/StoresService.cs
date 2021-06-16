@@ -904,16 +904,14 @@ namespace BoomaEcommerce.Services.Stores
                 var approveOwner = productOffer.ApproveOffer(owner, ownersInStore.ToList());
 
 
-                if (productOffer.State == ProductOfferState.Approved)
-                    NotifyUserOnApprovedOffer(productOffer);
-
                 if (approveOwner != null)
                 {
+                    if (productOffer.State == ProductOfferState.Approved) 
+                        await NotifyUserOnApprovedOffer(productOffer);
+
                     await _storeUnitOfWork.ApproversRepo.InsertOneAsync(approveOwner);
                     await _storeUnitOfWork.SaveAsync();
                 }
-
-
             }
             catch (Exception e)
             {
@@ -922,7 +920,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        private async void NotifyUserOnApprovedOffer(ProductOffer offer)
+        private Task NotifyUserOnApprovedOffer(ProductOffer offer)
         {
             var user = offer.User;
 
@@ -937,10 +935,7 @@ namespace BoomaEcommerce.Services.Stores
             _storeUnitOfWork.Attach(notification);
 
 
-            var notifyTask =
-                _notificationPublisher.NotifyManyAsync(notifications);
-
-            await Task.WhenAll(_storeUnitOfWork.SaveAsync(), notifyTask);
+            return _notificationPublisher.NotifyManyAsync(notifications);
         }
 
         public async Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid)
@@ -958,7 +953,7 @@ namespace BoomaEcommerce.Services.Stores
             }
         }
 
-        private async Task NotifyUserOnDeclinedOffer(ProductOffer offer)
+        private Task NotifyUserOnDeclinedOffer(ProductOffer offer)
         {
             var user = offer.User; 
 
@@ -972,10 +967,7 @@ namespace BoomaEcommerce.Services.Stores
                 _storeUnitOfWork.Attach(notification);
             
 
-            var notifyTask =
-                _notificationPublisher.NotifyManyAsync(notifications);
-
-            await Task.WhenAll(_storeUnitOfWork.SaveAsync(), notifyTask);
+            return _notificationPublisher.NotifyManyAsync(notifications);
         }
 
         public async Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid)
