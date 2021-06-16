@@ -238,6 +238,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StoreOwnership> ownerships,
             IDictionary<Guid, Notification> notifications,
             IDictionary<Guid, Store> stores,
+            IDictionary<Guid, ProductOffer> offers,
             IDictionary<Guid, StorePurchase> storePurchases = null,
             IDictionary<Guid, PurchaseProduct> purchaseProducts = null)
         {
@@ -265,6 +266,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             var shoppingCartMock = MockRepository(shoppingCarts);
             var ownershipsMock = MockRepository(ownerships);
             var notificationsMock = MockRepository(notifications);
+            var offerMock = MockRepository(offers);
             var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
             purchaseUnitOfWork.SetupGet(x => x.StoreOwnershipRepository).Returns(ownershipsMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock?.Object);
@@ -272,6 +274,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.StoresRepository).Returns(storesRepoMock?.Object);
+            purchaseUnitOfWork.SetupGet(x => x.OffersRepository).Returns(offerMock?.Object);
             purchaseUnitOfWork.Setup(x => x.BeginTransaction())
                 .ReturnsAsync(Mock.Of<ITransactionContext>());
 

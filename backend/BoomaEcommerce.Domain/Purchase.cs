@@ -15,17 +15,19 @@ namespace BoomaEcommerce.Domain
         public decimal TotalPrice { get; set; }
         public decimal DiscountedPrice { get; set; }
 
-        public Task<PurchaseResult> MakePurchase()
+        public Task<PurchaseResult> MakePurchase(List<ProductOffer.ProductOffer> usersOffers)
         {
-            return !ValidatePurchase() ? Task.FromResult(PurchaseResult.Fail()) : PurchaseStoreProducts();
+            return !ValidatePurchase(usersOffers) ? Task.FromResult(PurchaseResult.Fail()) : PurchaseStoreProducts();
         }
 
-        public bool ValidatePurchase()
+        public bool ValidatePurchase(List<ProductOffer.ProductOffer> usersOffers)
         {
             var calculatedTotalPrice = 0.0m;
             foreach (var storePurchase in StorePurchases)
             {
-                if (!storePurchase.ValidatePrice())
+                var storesOffers = (usersOffers.Where(offer => offer.Product.Store.Guid == storePurchase.Store.Guid)).ToList();
+
+                if (!storePurchase.ValidatePrice(storesOffers))
                 {
                     return false;
                 }
@@ -80,9 +82,9 @@ namespace BoomaEcommerce.Domain
                 : PurchaseResult.Fail();
         }
 
-        public PurchaseResult CalculatePurchaseFinalPrice()
+        public PurchaseResult CalculatePurchaseFinalPrice(List<ProductOffer.ProductOffer> usersOffers)
         {
-            if (!ValidatePurchase())
+            if (!ValidatePurchase(usersOffers))
             {
                 return PurchaseResult.Fail();
             }

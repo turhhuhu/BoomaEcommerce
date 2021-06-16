@@ -62,12 +62,13 @@ namespace BoomaEcommerce.Domain
             }
         }
 
-        public bool ValidatePrice()
+        public bool ValidatePrice(List<ProductOffer.ProductOffer> storesOffers)
         {
             var calculateTotalPrice = 0.0m;
             foreach (var productsPurchase in PurchaseProducts)
             {
-                if (!productsPurchase.ValidatePrice())
+                var productOffers = (storesOffers.Where(offer => offer.Product.Guid == productsPurchase.Product.Guid)).ToList();
+                if (!productsPurchase.ValidatePrice(productOffers))
                 {
                     return false;
                 }

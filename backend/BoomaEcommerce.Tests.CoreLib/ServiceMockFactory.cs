@@ -77,7 +77,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         public IPurchasesService MockPurchaseService()
         {
             var purchasesUnitOfWork = DalMockFactory
-                .MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _storeOwnerships, _notifications, _stores, _storePurchases, _purchaseProducts);
+                .MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _storeOwnerships, _notifications, _stores, _productOffers, _storePurchases, _purchaseProducts);
 
             var loggerMock = new Mock<ILogger<PurchasesService>>();
 
@@ -103,7 +103,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         public IPurchasesService MockPurchaseServiceWithCollapsingExternalSystem()
         {
             var purchasesUnitOfWork = DalMockFactory
-                .MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _storeOwnerships, _notifications, _stores, _storePurchases, _purchaseProducts);
+                .MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _storeOwnerships, _notifications, _stores, _productOffers, _storePurchases, _purchaseProducts);
 
             var loggerMock = new Mock<ILogger<PurchasesService>>();
 
@@ -124,7 +124,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         public IPurchasesService MockPurchaseServiceWithCollapsingSupplyExternalSystem()
         {
             var purchasesUnitOfWork = DalMockFactory
-                .MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _storeOwnerships, _notifications, _stores,_storePurchases, _purchaseProducts);
+                .MockPurchasesUnitOfWork(_purchases, _products, _users, _shoppingCarts, _storeOwnerships, _notifications, _stores, _productOffers, _storePurchases, _purchaseProducts);
 
             var loggerMock = new Mock<ILogger<PurchasesService>>();
 

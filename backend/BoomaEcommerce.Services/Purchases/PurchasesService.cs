@@ -71,7 +71,11 @@ namespace BoomaEcommerce.Services.Purchases
                     storePurchase.Buyer = purchase.Buyer;
                 }).WhenAllAwaitEach();
 
-                var purchaseResult = await purchase.MakePurchase();
+                var usersOffers =
+                    (await _purchaseUnitOfWork.OffersRepository.FilterByAsync(offer =>
+                        offer.User.Guid == purchase.Buyer.Guid && offer.State == ProductOfferState.Approved || offer.State == ProductOfferState.CounterOfferReceived)).ToList();
+
+                var purchaseResult = await purchase.MakePurchase(usersOffers);
                 if (purchaseResult.IsPolicyFailure)
                 {
                     throw new PolicyValidationException(purchaseResult.Errors);
@@ -81,6 +85,8 @@ namespace BoomaEcommerce.Services.Purchases
                 {
                     return null;
                 }
+
+
 
                 paymentTransactionId = await _paymentClient.MakePayment(purchaseDetailsDto.PaymentDetails);
 
@@ -217,10 +223,16 @@ namespace BoomaEcommerce.Services.Purchases
         public async Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
         {
             var purchase = _mapper.Map<Purchase>(purchaseDto);
+            if (purchaseDto.UserBuyerGuid.HasValue)
+            {
+                purchase.Buyer =
+                    await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchaseDto.UserBuyerGuid.Value.ToString());
+            }
+            
             var purchaseProducts = purchase.StorePurchases
                 .SelectMany(storePurchase =>
                     storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
-
+            
 
             await purchaseProducts.Select(async purchaseProduct =>
             {
@@ -233,10 +245,20 @@ namespace BoomaEcommerce.Services.Purchases
                 storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
                 storePurchase.Buyer = purchase.Buyer;
             }).WhenAllAwaitEach();
-            var purchaseResult = purchase.CalculatePurchaseFinalPrice();
+
+            var usersOffers = purchase.Buyer == null 
+                ? new List<ProductOffer>()
+                : (await _purchaseUnitOfWork.OffersRepository.FilterByAsync(offer =>
+                    offer.User.Guid == purchase.Buyer.Guid && offer.State == ProductOfferState.Approved || offer.State == ProductOfferState.CounterOfferReceived)).ToList();
+
+            var purchaseResult = purchase.CalculatePurchaseFinalPrice(usersOffers);
             if (purchaseResult.IsPolicyFailure)
             {
                 throw new PolicyValidationException(purchaseResult.Errors);
+            }
+            if (!purchaseResult.Success)
+            {
+                throw new Exception("Calculate price failure");
             }
             return purchaseResult.Price;
         }

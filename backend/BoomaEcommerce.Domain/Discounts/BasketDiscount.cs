@@ -39,7 +39,7 @@ namespace BoomaEcommerce.Domain.Discounts
                 discountInfo += "Applied " + Percentage + "% discount to " + pp.Product.Name +
                                 " product that belongs to " + sp.Store.StoreName + " store\n";
 
-                moneySaved += (productPriceBeforeDiscount - pp.DiscountedPrice);
+                moneySaved += productPriceBeforeDiscount - pp.DiscountedPrice;
             }
 
             sp.DiscountedPrice -= moneySaved;

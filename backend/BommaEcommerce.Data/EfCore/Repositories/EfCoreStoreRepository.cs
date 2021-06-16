@@ -14,6 +14,13 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
         {
         }
 
+        public override async Task InsertOneAsync(Store entity)
+        {
+            await DbContext.Policies.AddAsync(entity.StorePolicy);
+            await DbContext.Discounts.AddAsync(entity.StoreDiscount); 
+            await base.InsertOneAsync(entity);
+        }
+
         public override async Task<Store> FindByIdAsync(Guid guid)
         {
             await DbContext.Stores
