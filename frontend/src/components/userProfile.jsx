@@ -105,9 +105,9 @@ class UserProfile extends Component {
                 </div>
               </div>
 
-              <button className="btn btn-outline-primary btn-block">
+              {/* <button className="btn btn-outline-primary btn-block">
                 Save info
-              </button>
+              </button> */}
             </form>
           </div>
         </main>

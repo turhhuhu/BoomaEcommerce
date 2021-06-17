@@ -72,11 +72,12 @@ namespace BoomaEcommerce.Domain.ProductOffer
             return pp;
         }
 
-        public void MakeCounterOffer(decimal counterOfferPrice)
+        public bool MakeCounterOffer(decimal counterOfferPrice)
         {
-            if (this.State == ProductOfferState.CounterOfferReceived) return;
+            if (this.State == ProductOfferState.CounterOfferReceived) return false;
             this.State = ProductOfferState.CounterOfferReceived;
             this.CounterOfferPrice = counterOfferPrice;
+            return true;
         }
 
         public ProductOffer(User user)

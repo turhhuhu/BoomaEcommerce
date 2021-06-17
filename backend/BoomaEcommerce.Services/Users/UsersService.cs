@@ -266,7 +266,7 @@ namespace BoomaEcommerce.Services.Users
                 var existingOffer =
                     await _userUnitOfWork.ProductOfferRepo.FilterByAsync(o => o.Product.Guid == productOffer.Product.Guid);
 
-                if (existingOffer != null)
+                if (existingOffer != null && existingOffer.Any())
                 {
                     return null;
                 }
