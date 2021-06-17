@@ -274,6 +274,7 @@ namespace BoomaEcommerce.Services.Users
                 productOffer.Product = prod;
                 var user = await _userUnitOfWork.UserRepository.FindByIdAsync(productOffer.User.Guid);
                 productOffer.User = user;
+                productOffer.ApprovedOwners = new List<ApproverOwner>();
                 await _userUnitOfWork.ProductOfferRepo.InsertOneAsync(productOffer);
                 await NotifyStoreSellersOnOffer(productOffer);
                 await _userUnitOfWork.SaveAsync();
