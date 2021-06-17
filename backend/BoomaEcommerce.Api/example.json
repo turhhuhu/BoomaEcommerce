@@ -1,95 +1,250 @@
 ﻿{
-  "examples" :
-  [
+  "UseCases": [
     {
-      "Type": "RegisterAction",
-      "Label" : "Benny",
-      "UserName": "Benny",
-      "Password": "Benny"
-    },
-    {
-      "Type": "LoginAction",
-      "Label" : "",
-      "UserName": "Benny",
-      "Password": "Benny"
-    },
-    {
-      "Type": "CreateStoreAction",
-      "UserLabel": "Benny",
-      "Label" : "Rami Levi",
-      "StoreToCreate": {
-        "StoreName": "Rami Levi",
-        "Description": "Blah"
-      }
-    },
-    {
-      "Type": "GetOwnershipAction",
-      "UserLabel": "Benny",
-      "StoreLabel": "Rami Levi",
-      "Label" : "Benny Rami Levi Ownership"
-    },
-    {
-      "Type": "NominateManagerAction",
-      "UserToNominateLabel": "Ori",
-      "OwnershipLabel": "Benny Rami Levi Ownership",
-      "Label" : "",
-      "ManagerPermissions": {
-        "CanAddProduct":  true,
-        "CanDeleteProduct": true,
-        "CanUpdateProduct": true
-      }
-    },
-    {
-      "Type": "CreateProductAction",
-      "Label" : "test",
-      "StoreLabel": "Rami Levi",
-      "ProductName": "Bambda",
-      "ProductAmount": 20,
-      "ProductPrice": 30
-    },
-    {
-      "Type": "CreateDiscountAction",
-      "Label": "Category 10 percent",
-      "StoreLabel": "Rami Levi",
-      "Discount": {
-        "Type": "Category",
-        "Percentage": 10
-      }
-    },
-    {
-      "Type": "AddDiscountAction",
-      "Label" : "",
-      "StoreLabel": "Rami Levi",
-      "DiscountLabel": "Category 10 percent",
-      "Discount": {
-        "Type": "Category",
-        "Percentage": 10
-      }
-    },
-    {
-      "Type": "GetShoppingCartAction",
-      "Label": "benny shopping cart",
-      "UserLabel": "Benny"
-    },
-    {
-      "Type": "CreateShoppingBasketAction",
-      "Label": "benny rami levi basket",
-      "ShoppingCartLabel": "benny shopping cart",
-      "StoreLabel": "Rami Levi",
-      "NewShoppingBasket": {
-        "PurchaseProducts": []
-      }
-    },
-    {
-      "Type": "AddPurchaseProductToShoppingBasketActon",
-      "Label": "benny rami levi basket",
-      "UserLabel": "Benny",
-      "ShoppingBasketLabel": "added bamba to benny basket",
-      "NewPurchaseProduct": {
-        "Amount": "1",
-        "Price": 30
-      }
+      "Actions": [
+        {
+          "Type": "RegisterAction",
+          "Label" : "Benny",
+          "UserName": "Benny",
+          "Password": "Benny"
+        },
+        {
+          "Type": "RegisterAction",
+          "Label" : "Arik",
+          "UserName": "Arik",
+          "Password": "Arik"
+        },
+        {
+          "Type": "RegisterAction",
+          "Label" : "Ori",
+          "UserName": "Ori",
+          "Password": "Ori"
+        },
+        {
+          "Type": "RegisterAction",
+          "Label" : "Omer",
+          "UserName": "Omer",
+          "Password": "Omer"
+        },
+        {
+          "Type": "RegisterAction",
+          "Label" : "Matan",
+          "UserName": "Matan",
+          "Password": "Matan"
+        },
+        {
+          "Type": "LoginAction",
+          "Label" : "",
+          "UserName": "Matan",
+          "Password": "Matan"
+        },
+        {
+          "Type": "CreateStoreAction",
+          "UserLabel": "Matan",
+          "Label" : "Store1",
+          "StoreToCreate": {
+            "StoreName": "Store1",
+            "Description": "Blah"
+          }
+        },
+        {
+          "Type": "GetOwnershipAction",
+          "UserLabel": "Matan",
+          "StoreLabel": "Store1",
+          "Label" : "Matan Store1 Ownership"
+        },
+        {
+          "Type": "NominateOwnerAction",
+          "UserToNominateLabel": "Omer",
+          "OwnershipLabel": "Matan Store1 Ownership",
+          "Label" : ""
+        },
+        {
+          "Type": "GetOwnershipAction",
+          "UserLabel": "Omer",
+          "StoreLabel": "Store1",
+          "Label" : "Omer Store1 Ownership"
+        },
+        {
+          "Type": "RemoveStoreOwnerAction",
+          "UserToRemoveLabel": "Omer Store1 Ownership",
+          "UserToRemoveFromLabel": "Matan Store1 Ownership",
+          "Label" : ""
+        },
+        {
+          "Type": "NominateManagerAction",
+          "UserToNominateLabel": "Benny",
+          "OwnershipLabel": "Matan Store1 Ownership",
+          "Label" : "",
+          "ManagerPermissions": {
+            "CanAddProduct":  true,
+            "CanDeleteProduct": true,
+            "CanUpdateProduct": true
+          }
+        },
+        {
+          "Type": "GetManagementAction",
+          "UserLabel": "Benny",
+          "StoreLabel": "Store1",
+          "Label" : "Benny Store1 Management"
+        },
+        {
+          "Type": "UpdatePermissionsAction",
+          "ManagementLabel": "Benny Store1 Management",
+          "Label" : "",
+          "ManagerPermissions": {
+            "CanAddProduct": false,
+            "CanDeleteProduct": true,
+            "CanUpdateProduct": true
+          }
+        },
+        {
+          "Type": "RemoveManagerAction",
+          "UserToRemoveLabel": "Benny Store1 Management",
+          "UserToRemoveFromLabel": "Matan Store1 Ownership",
+          "Label" : ""
+        },
+        {
+          "Type": "CreateProductAction",
+          "Label" : "Bisli",
+          "StoreLabel": "Store1",
+          "NewProduct": {
+            "Name": "Bisli",
+            "Amount": 30,
+            "Price": 5,
+            "Category": "Snacks"
+          }
+        },
+        {
+          "Type": "CreateProductAction",
+          "Label" : "Chips",
+          "StoreLabel": "Store1",
+          "NewProduct": {
+            "Name": "Chips",
+            "Amount": 30,
+            "Price": 5,
+            "Category": "Snacks"
+          }
+        },
+        {
+          "Type": "CreateProductAction",
+          "Label" : "Bamba",
+          "StoreLabel": "Store1",
+          "NewProduct": {
+            "Name": "Bambda",
+            "Amount": 30,
+            "Price": 5,
+            "Category": "Snacks"
+          }
+        },
+        {
+          "Type": "UpdateProductAction",
+          "Label" : "",
+          "ProductLabel": "Bamba",
+          "StoreLabel": "Store1",
+          "UpdatedProduct": {
+            "Amount": 25
+          }
+
+        },
+        {
+          "Type": "DeleteProductAction",
+          "Label" : "",
+          "ProductLabel": "Bamba"
+        },
+        {
+          "Type": "GetBasicUserInfoAction",
+          "Username": "Matan",
+          "Label" : "Matan User Info"
+        },
+        {
+          "Type": "GetStorePurchaseHistoryAction",
+          "StoreLabel": "Store1",
+          "Label" : "Store1 Purchase History"
+        },
+        {
+          "Type": "GetSubOridinatesAction",
+          "OwnershipLabel": "Matan Store1 Ownership",
+          "Label" : "Matan user info"
+        },
+        {
+          "Type": "GetStoreAction",
+          "StoreLabel": "Store1",
+          "Label" : ""
+        },
+        {
+          "Type": "GetStoresAction",
+          "Label" : "Stores"
+        },
+        {
+          "Type": "GetShoppingCartAction",
+          "UserLabel": "Matan",
+          "Label" : "Matan Shopping Cart"
+        },
+        {
+          "Type": "CreateShoppingBasketAction",
+          "Label" : "Matan Store1 Basket",
+          "StoreLabel": "Store1",
+          "ShoppingCartLabel": "Matan Shopping Cart",
+          "ProductLabel": "Bisli",
+          "NewShoppingBasket": {
+            "PurchaseProducts": [{
+              "Amount": 1,
+              "Price": 5
+            }]
+          }
+        },
+        {
+          "Type": "AddPurchaseProductToShoppingBasketAction",
+          "UserLabel": "Matan",
+          "ShoppingBasketLabel": "Matan Store1 Basket",
+          "ProductLabel": "Chips",
+          "Label" : "added chips",
+          "NewPurchaseProduct": {
+            "Amount": 1,
+            "Price": 5
+          }
+        },
+        {
+          "Type": "CreatePurchaseAction",
+          "Label" : "Matan Purchase Bisli",
+          "UserLabel": "Matan",
+          "StoreLabel": "Store1",
+          "ProductLabel": "Bisli",
+          "PurchaseDetails": {
+            "Purchase": {
+              "StorePurchases": [
+                {
+                  "PurchaseProducts": [
+                    {
+                      "Amount": 1,
+                      "Price": 5
+                    }
+                  ],
+                  "TotalPrice": 5
+                }
+              ],
+              "TotalPrice": 5,
+              "DiscountedPrice": 5
+            },
+            "PaymentDetails":{
+              "CardNumber" : 12312313,
+              "Month" : 1,
+              "Year" : 2021,
+              "HolderName" : "matan",
+              "Ccv": 112,
+              "Id":1212
+            },
+            "SupplyDetails": {
+              "Name" : "matan",
+              "Address": "aaa",
+              "City":"beersheva" ,
+              "Country": "israel",
+              "Zip": 1221
+            }
+          }
+        }
+      ]
     }
   ]
 }
-

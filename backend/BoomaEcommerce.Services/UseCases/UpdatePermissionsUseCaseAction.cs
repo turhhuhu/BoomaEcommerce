@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace BoomaEcommerce.Services.UseCases
 {
-    public class UpdatePermissionsUseCaeAction : UseCaseAction
+    public class UpdatePermissionsUseCaseAction : UseCaseAction
     {
         [JsonRequired]
         public string ManagementLabel { get; set; }
@@ -19,17 +19,17 @@ namespace BoomaEcommerce.Services.UseCases
         [JsonRequired]
         public StoreManagementPermissionsDto ManagerPermissions {get; set; }
 
-        public UpdatePermissionsUseCaeAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) :
+        public UpdatePermissionsUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) :
             base(next, sp, accessor)
         {
         }
 
-        public UpdatePermissionsUseCaeAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
+        public UpdatePermissionsUseCaseAction(IServiceProvider sp, IHttpContextAccessor accessor) : base(sp, accessor)
         {
 
         }
 
-        public UpdatePermissionsUseCaeAction()
+        public UpdatePermissionsUseCaseAction()
         {
         }
         public override async Task NextAction(Dictionary<string,object> dict = null, ClaimsPrincipal claims = null)
@@ -40,12 +40,12 @@ namespace BoomaEcommerce.Services.UseCases
             }
 
             var managementsoObj = dict[ManagementLabel];
-            if (managementsoObj is not StoreManagement manahement)
+            if (managementsoObj is not StoreManagementDto management)
             {
                 throw new ArgumentException(nameof(managementsoObj));
             }
 
-            ManagerPermissions.Guid = manahement.Permissions.Guid;
+            ManagerPermissions.Guid = management.Guid;
 
             using var scope = Sp.CreateScope();
 

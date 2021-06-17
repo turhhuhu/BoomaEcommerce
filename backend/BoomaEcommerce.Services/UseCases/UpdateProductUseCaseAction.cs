@@ -14,11 +14,11 @@ namespace BoomaEcommerce.Services.UseCases
     {
         [JsonRequired]
         public string ProductLabel { get; set; }
-        public int? NewAmount { get; set; }
-        public decimal? NewPrice { get; set; }
-        public decimal? NewRating { get; set; }
-        public string? NewCategory { get; set; }
-        public string? NewName { get; set; }
+        [JsonRequired]
+        public string StoreLabel { get; set; }
+        [JsonRequired]
+        public ProductDto UpdatedProduct { get; set; }
+        
 
         
         public UpdateProductUseCaseAction(IUseCaseAction next, IServiceProvider sp, IHttpContextAccessor accessor) : base(next, sp, accessor)
@@ -45,22 +45,21 @@ namespace BoomaEcommerce.Services.UseCases
             {
                 throw new ArgumentException(nameof(productshipObj));
             }
+            var storeObj = dict[StoreLabel];
+            if (storeObj is not StoreDto store)
+            {
+                throw new ArgumentException(nameof(storeObj));
+            }
+
+            UpdatedProduct.StoreGuid = store.Guid;
+            UpdatedProduct.Guid = product.Guid;
 
             
             using var scope = Sp.CreateScope();
 
             var storeService = scope.ServiceProvider.GetRequiredService<IStoresService>();
 
-            var updatedProduct = await storeService.UpdateProductAsync(new ProductDto
-            {
-                Guid = product.Guid,
-                Amount = NewAmount ?? product.Amount,
-                Name = NewName ?? product.Name,
-                Price = NewPrice ?? product.Price,
-                Rating = NewRating ?? product.Rating,
-                Category = NewCategory ?? product.Category
-                
-            });
+            var updatedProduct = await storeService.UpdateProductAsync(UpdatedProduct);
             scope.Dispose();
             await Next(dict, claims);
         }
