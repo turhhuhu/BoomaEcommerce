@@ -451,7 +451,6 @@ export function user(
       });
     case UserActionTypes.OFFER_PRODUCT_PRICE_SUCCESS:
       return Object.assign({}, state, {
-        productOffers: action.payload.response,
         isFetching: action.payload.isFetching,
       });
     case UserActionTypes.OFFER_PRODUCT_PRICE_FAILURE:
