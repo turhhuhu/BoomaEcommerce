@@ -17,6 +17,8 @@ namespace BoomaEcommerce.Services.UseCases
         [JsonRequired]
         public string UserLabel { get; set; }
         [JsonRequired]
+        public string ProductLabel { get; set; }
+        [JsonRequired]
         public PurchaseProductDto NewPurchaseProduct { get; set; }
         
         
@@ -52,7 +54,13 @@ namespace BoomaEcommerce.Services.UseCases
             {
                 throw new ArgumentException(nameof(ShoppingBasketObj));
             }
+            var productObj = dict[ProductLabel];
+            if (productObj is not ProductDto product)
+            {
+                throw new ArgumentException(nameof(productObj));
+            }
 
+            NewPurchaseProduct.ProductGuid = product.Guid;
 
             using var scope = Sp.CreateScope();
 

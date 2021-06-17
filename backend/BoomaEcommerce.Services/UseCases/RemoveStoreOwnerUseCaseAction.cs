@@ -39,12 +39,12 @@ namespace BoomaEcommerce.Services.UseCases
             }
 
             var UserToRemoveFromObj = dict[UserToRemoveFromLabel];
-            if (UserToRemoveFromObj is not UserDto userToRemoveFrom)
+            if (UserToRemoveFromObj is not StoreOwnershipDto userToRemoveFrom)
             {
                 throw new ArgumentException(nameof(UserToRemoveFromObj));
             }
             var UserToRemoveObj = dict[UserToRemoveLabel];
-            if (UserToRemoveObj is not UserDto userToRemove)
+            if (UserToRemoveObj is not StoreOwnershipDto userToRemove)
             {
                 throw new ArgumentException(nameof(UserToRemoveObj));
             }
