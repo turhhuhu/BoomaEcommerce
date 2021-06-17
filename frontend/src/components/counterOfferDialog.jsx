@@ -60,7 +60,7 @@ class CounterOfferDialog extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Offer new price</DialogTitle>
+        <DialogTitle id="form-dialog-title">Offer counter price</DialogTitle>
         <form>
           <DialogContent>
             <DialogContentText>

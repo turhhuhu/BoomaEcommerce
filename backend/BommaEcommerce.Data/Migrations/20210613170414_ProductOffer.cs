@@ -1,4 +1,5 @@
 ﻿using System;
+using BoomaEcommerce.Core;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BoomaEcommerce.Data.Migrations

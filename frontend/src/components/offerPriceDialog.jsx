@@ -99,7 +99,7 @@ class OfferPriceDialog extends Component {
 
 const mapStateToProps = (store) => {
   return {
-    error: store.store.error,
+    error: store.user.error,
     userInfo: store.user.userInfo,
   };
 };

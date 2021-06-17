@@ -18,7 +18,13 @@ class CartPage extends Component {
       <React.Fragment>
         <Header />
         <section className="section-conten padding-y">
-          <CartView />
+          {this.props.isFetching ? (
+            <div className="d-flex justify-content-center">
+              <div className="spinner-border text-primary" role="status"></div>
+            </div>
+          ) : (
+            <CartView />
+          )}
         </section>
       </React.Fragment>
     );
@@ -28,6 +34,7 @@ class CartPage extends Component {
 const mapStateToProps = (store) => {
   return {
     isAuthenticated: store.auth.isAuthenticated,
+    isFetching: store.user.isFetching,
   };
 };
 

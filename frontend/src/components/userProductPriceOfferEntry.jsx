@@ -22,15 +22,20 @@ class UserProductPriceOfferEntry extends Component {
             basketGuid: basketToAddTo.guid,
             purchaseProduct: {
               productGuid: product.guid,
-              amount: product.amount,
+              amount: 1,
               price: price,
             },
             product: {
               name: product.name,
               category: product.category,
+              amount: product.amount,
             },
           },
-          { name: product.name, category: product.category }
+          {
+            name: product.name,
+            category: product.category,
+            amount: product.amount,
+          }
         )
       );
     } else {
@@ -41,7 +46,7 @@ class UserProductPriceOfferEntry extends Component {
             purchaseProducts: [
               {
                 productGuid: product.guid,
-                amount: product.amount,
+                amount: 1,
                 price: price,
               },
             ],
@@ -49,7 +54,11 @@ class UserProductPriceOfferEntry extends Component {
               storeName: product.storeMetaData.storeName,
             },
           },
-          { name: product.name, category: product.category }
+          {
+            name: product.name,
+            category: product.category,
+            amount: product.amount,
+          }
         )
       );
     }
@@ -66,11 +75,16 @@ class UserProductPriceOfferEntry extends Component {
             <strong>Offered price:</strong> $
             {this.props.productOffer.offerPrice}
           </span>
+          <br />
+          <span className="title mb-0">
+            <strong>Product name:</strong>{" "}
+            {this.props.productOffer.product.name}
+          </span>
         </td>
         <td>
           {this.props.productOffer?.counterOfferPrice ? (
             <span className="title mb-0">
-              <strong>Counter Offer price:</strong> $
+              <strong>Counter Offer price:</strong>$
               {this.props.productOffer.counterOfferPrice}
             </span>
           ) : null}
@@ -93,13 +107,6 @@ class UserProductPriceOfferEntry extends Component {
                 <i className="ml-2 fa fa-shopping-cart"></i>
               </button>
             ) : null}
-            <button
-              onClick={this.handleRemoveOffer}
-              className="btn btn-outline-primary ml-2"
-            >
-              {" "}
-              Remove{" "}
-            </button>
           </div>
         </td>
       </tr>

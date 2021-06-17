@@ -21,6 +21,8 @@ import {
   STORE_PRODUCT_OFFERS_URL,
   STORE_PRODUCT_COUNTER_OFFER_URL,
   APPROVE_PRODUCT_OFFER_URL,
+  DECLINE_PRODUCT_OFFER_URL,
+  STORE_DISCOUNT_POLICY_URL,
 } from "../utils/constants";
 import * as StoreActionTypes from "./types/storeActionsTypes";
 
@@ -458,7 +460,7 @@ export function removeStoreDiscountPolicy(discountGuid) {
   return function (storeGuid, policyToDeleteGuid) {
     return {
       [CALL_API]: {
-        endpoint: STORE_DISCOUNT_POLICIES_URL.replace("{storeGuid}", storeGuid)
+        endpoint: STORE_DISCOUNT_POLICY_URL.replace("{storeGuid}", storeGuid)
           .replace("{discountGuid}", discountGuid)
           .replace("{policyGuid}", policyToDeleteGuid),
         authenticated: true,
@@ -564,6 +566,27 @@ export function approveProductOffer(ownershipGuid, offerGuid) {
         StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_REQUEST,
         StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_SUCCESS,
         StoreActionTypes.APPROVE_STORE_PRODUCT_OFFER_FAILURE,
+      ],
+      config: {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      },
+    },
+  };
+}
+
+export function declineProductOffer(ownershipGuid, offerGuid) {
+  return {
+    [CALL_API]: {
+      endpoint: DECLINE_PRODUCT_OFFER_URL.replace(
+        "{ownershipGuid}",
+        ownershipGuid
+      ).replace("{offerGuid}", offerGuid),
+      authenticated: true,
+      types: [
+        StoreActionTypes.DECLINE_STORE_PRODUCT_OFFER_REQUEST,
+        StoreActionTypes.DECLINE_STORE_PRODUCT_OFFER_SUCCESS,
+        StoreActionTypes.DECLINE_STORE_PRODUCT_OFFER_FAILURE,
       ],
       config: {
         method: "POST",

@@ -890,7 +890,7 @@ namespace BoomaEcommerce.Services.Stores
         {
             try
             {
-                // _logger.LogInformation($"Creating Product offer on product from Store with guid {storeGuid}");
+                _logger.LogInformation($"Owner with guid {ownerGuid} is approving offer with guid {productOfferGuid}");
 
                 var productOffer = await _storeUnitOfWork.OffersRepo.FindByIdAsync(productOfferGuid);
                 var storeGuid = productOffer.Product.Store.Guid; 
@@ -974,14 +974,17 @@ namespace BoomaEcommerce.Services.Stores
             try
             {
                 var offer = await _storeUnitOfWork.OffersRepo.FindByIdAsync(offerGuid);
-                offer.MakeCounterOffer(counterOfferPrice);
+                if (!offer.MakeCounterOffer(counterOfferPrice))
+                {
+                    return null;
+                }
                 await _storeUnitOfWork.SaveAsync();
 
                 return _mapper.Map<ProductOfferDto>(offer);
             }
             catch (Exception e)
             {
-                //_logger.LogError(e, "The following error occurred during make counter offer with guid {offer.Guid}", productOfferGuid);
+                _logger.LogError(e, $"The following error occurred during make counter offer with guid {offerGuid}");
                 return null;
             }
         }

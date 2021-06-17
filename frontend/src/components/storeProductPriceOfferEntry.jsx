@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import {
   approveProductOffer,
+  declineProductOffer,
   fetchStoreProductOffers,
 } from "../actions/storeActions";
 import CounterOfferDialog from "./counterOfferDialog";
@@ -30,6 +31,23 @@ class StoreProductPriceOfferEntry extends Component {
         }
       });
   };
+  handleDeclineOffer = () => {
+    this.props
+      .dispatch(
+        declineProductOffer(
+          this.props.storeRole.guid,
+          this.props.productOffer.guid
+        )
+      )
+      .then((action) => {
+        if (action) {
+          this.props.dispatch(
+            fetchStoreProductOffers(this.props.storeRole.guid)
+          );
+        }
+      });
+  };
+
   render() {
     return (
       <tr>
@@ -37,6 +55,11 @@ class StoreProductPriceOfferEntry extends Component {
           <span className="title mb-0">
             <strong>Offered price:</strong> $
             {this.props.productOffer.offerPrice}
+          </span>
+          <br />
+          <span className="title mb-0">
+            <strong>Product name:</strong>{" "}
+            {this.props.productOffer.product.name}
           </span>
         </td>
         <td>
@@ -54,37 +77,42 @@ class StoreProductPriceOfferEntry extends Component {
             <strong>State:</strong> {this.props.productOffer.state}
           </span>
         </td>
-        <td className="row  ">
-          <div>
-            <button
-              onClick={this.handleApproveOffer}
-              className="btn btn-outline-primary col"
-            >
-              {" "}
-              Approve{" "}
-            </button>
-          </div>
-          <div>
-            <button
-              onClick={this.handleCounterOffer}
-              className="btn btn-outline-info col ml-2"
-            >
-              {" "}
-              Counter Offer
-            </button>
-            <CounterOfferDialog
-              offerGuid={this.props.productOffer.guid}
-              isDialogOpen={this.state.isDialogOpen}
-              closeDialog={this.closeCounterOfferDialog}
-            />
-          </div>
-          <div>
-            <button className="btn btn-outline-secondary col ml-3">
-              {" "}
-              Decline{" "}
-            </button>
-          </div>
-        </td>
+        {this.props.productOffer.state === "pending" ? (
+          <td className="row  ">
+            <div>
+              <button
+                onClick={this.handleApproveOffer}
+                className="btn btn-outline-primary col"
+              >
+                {" "}
+                Approve{" "}
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={this.handleCounterOffer}
+                className="btn btn-outline-info col ml-2"
+              >
+                {" "}
+                Counter Offer
+              </button>
+              <CounterOfferDialog
+                offerGuid={this.props.productOffer.guid}
+                isDialogOpen={this.state.isDialogOpen}
+                closeDialog={this.closeCounterOfferDialog}
+              />
+            </div>
+            <div>
+              <button
+                onClick={this.handleDeclineOffer}
+                className="btn btn-outline-secondary col ml-3"
+              >
+                {" "}
+                Decline{" "}
+              </button>
+            </div>
+          </td>
+        ) : null}
       </tr>
     );
   }

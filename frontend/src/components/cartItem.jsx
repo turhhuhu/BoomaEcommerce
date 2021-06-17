@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import {
-  changeCartProductAmount,
-  removeCartItem,
-} from "../actions/userActions";
+import { removeCartItem } from "../actions/userActions";
 
 class CartItem extends Component {
   state = {
@@ -14,9 +11,9 @@ class CartItem extends Component {
 
   componentDidMount() {
     this.setState({
-      quantity: this.props.maxQuantity,
+      quantity: this.props.quantity,
       maxQuantity: this.props.maxQuantity,
-      currentPrice: this.props.price * this.props.maxQuantity,
+      currentPrice: this.props.price * this.props.quantity,
     });
   }
 
@@ -28,20 +25,6 @@ class CartItem extends Component {
 
   handleInputDisable = (event) => {
     event.preventDefault();
-  };
-
-  handleQuantityChange = (event) => {
-    this.setState({
-      [event.target.name]: event.target.value,
-    });
-    this.setState({ currentPrice: this.props.price * event.target.value });
-    this.props.dispatch(
-      changeCartProductAmount(
-        this.props.basketGuid,
-        this.props.purchaseProductGuid,
-        event.target.value
-      )
-    );
   };
 
   removeCartItem = () => {
@@ -67,36 +50,16 @@ class CartItem extends Component {
             </figcaption>
           </div>
           <div>
-            <form className="form-inline">
-              <div className="form-group">
-                <div className="mr-3">
-                  <label htmlFor="quantity" className="medium text-dark">
-                    quantity:{" "}
-                  </label>
-                  <label htmlFor="quantity" className="small text-muted">
-                    max quantity: {this.state.maxQuantity}
-                  </label>
-                </div>
-                <input
-                  id="quantity"
-                  className="form-control w-60"
-                  onKeyDown={this.handleInputDisable}
-                  min={1}
-                  max={this.state.maxQuantity}
-                  placeholder={this.state.minPrice}
-                  value={this.state.quantity}
-                  onChange={this.handleQuantityChange}
-                  name="quantity"
-                  type="number"
-                ></input>
-              </div>
-            </form>
+            <span className="medium text-dark mr-3">
+              <strong>Quantity:</strong> {this.state.quantity}
+            </span>
           </div>
 
           <div className="col-2 price-wrap">
-            <var className="price">{this.state.currentPrice}$</var>
-            <br />
-            <small className="text-muted"> {this.props.price}$ each </small>
+            <span>
+              <strong>Price:</strong>
+              <var className="price"> ${this.state.currentPrice}</var>
+            </span>
           </div>
           <div className="pr-2">
             <button

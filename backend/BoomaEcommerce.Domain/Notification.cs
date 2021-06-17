@@ -26,7 +26,7 @@ namespace BoomaEcommerce.Domain
         public ProductOffer.ProductOffer Offer { get; set; }
 
         public NewOfferNotification(ProductOffer.ProductOffer offer, 
-            string message = "New offer has recived.") : base(message)
+            string message = "A New offer has been received.") : base(message)
         {
             Offer = offer;
         }

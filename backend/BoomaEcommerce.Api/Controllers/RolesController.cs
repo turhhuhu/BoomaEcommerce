@@ -117,7 +117,7 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpDelete(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}")]
+        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/decline")]
         public async Task<IActionResult> DeclineProductOffer(Guid ownershipGuid, Guid offerGuid)
         {
             await _storesService.DeclineOffer(ownershipGuid, offerGuid);
@@ -125,7 +125,7 @@ namespace BoomaEcommerce.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}")]
+        [HttpPost(ApiRoutes.Roles.Ownerships.OwnershipGuid + "/offers/{offerGuid}/counterOffer")]
         public async Task<IActionResult> ProposeCounterOffer(Guid ownershipGuid, Guid offerGuid, decimal counterOfferPrice)
         {
             var offerDto = await _storesService.MakeCounterOffer(ownershipGuid, counterOfferPrice, offerGuid);
