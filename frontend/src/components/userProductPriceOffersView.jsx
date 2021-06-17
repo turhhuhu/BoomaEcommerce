@@ -32,7 +32,7 @@ class UserProductPriceOfferView extends Component {
             ) : null}
             <table className="table table-hover">
               <tbody>
-                {this.props.productOffers.map((productOffer, index) => (
+                {this.props.productOffers?.map((productOffer, index) => (
                   <UserProductPriceOfferEntry
                     key={index}
                     productOffer={productOffer}

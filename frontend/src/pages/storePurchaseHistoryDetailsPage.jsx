@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router";
 import Header from "../components/header";
-import StorePurchaseHistoryDetails from "../components/StorePurchaseHistoryDetails";
+import StorePurchaseHistoryDetails from "../components/storePurchaseHistoryDetails";
 
 class StorePurchaseHistoryDetailsPage extends Component {
   state = {};

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.Internal;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
@@ -76,6 +77,7 @@ namespace BoomaEcommerce.Services.Purchases
                         offer.User.Guid == purchase.Buyer.Guid && offer.State == ProductOfferState.Approved || offer.State == ProductOfferState.CounterOfferReceived)).ToList();
 
                 var purchaseResult = await purchase.MakePurchase(usersOffers);
+
                 if (purchaseResult.IsPolicyFailure)
                 {
                     throw new PolicyValidationException(purchaseResult.Errors);
@@ -103,6 +105,15 @@ namespace BoomaEcommerce.Services.Purchases
                 {
                     supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
                 }
+                
+                var boughtPurchaseProducts = purchase
+                    .StorePurchases
+                    .SelectMany(p => p.PurchaseProducts)
+                    .ToList();
+                
+                usersOffers.Where(o => boughtPurchaseProducts
+                        .Exists(p => p.Product.Guid == o.Product.Guid))
+                    .ForAll(p => p.State = ProductOfferState.Purchased);
 
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();

@@ -47,6 +47,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         private IDictionary<Guid, Policy> _policies = new ConcurrentDictionary<Guid, Policy>();
         private IDictionary<Guid, Discount> _discounts = new ConcurrentDictionary<Guid, Discount>();
         private IDictionary<Guid, ProductOffer> _productOffers = new ConcurrentDictionary<Guid, ProductOffer>();
+        private IDictionary<Guid, ApproverOwner> _approverOwners = new ConcurrentDictionary<Guid, ApproverOwner>();
         private Mock<UserManager<User>> _userManagerMock;
         private INotificationPublisher _notificationPublisherStub = new NotificationPublisherStub();
 
@@ -57,7 +58,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         public IStoresService MockStoreService()
         {
             var storeUnitOfWorkMock = DalMockFactory.MockStoreUnitOfWork(_stores, _storeOwnerships, _storePurchases,
-                _storeManagements, _storeManagementPermissions, _products,_policies, _discounts, _users, _productOffers);
+                _storeManagements, _storeManagementPermissions, _products,_policies, _discounts, _users, _productOffers, _approverOwners );
             var loggerMock = new Mock<ILogger<StoresService>>();
             return new StoresService(loggerMock.Object, MapperFactory.GetMapper(), storeUnitOfWorkMock.Object, new NotificationPublisherStub());
         }
@@ -157,7 +158,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         {
             var loggerMock = new Mock<ILogger<UsersService>>();
             var userUnitOfWork =
-                DalMockFactory.MockUserUnitOfWork(_shoppingBaskets, _shoppingCarts, _products, _users);
+                DalMockFactory.MockUserUnitOfWork(_shoppingBaskets, _shoppingCarts, _products, _productOffers, _storeOwnerships, _users);
             return new UsersService(MapperFactory.GetMapper(), loggerMock.Object, userUnitOfWork.Object, _notificationPublisherStub);
         }
     }

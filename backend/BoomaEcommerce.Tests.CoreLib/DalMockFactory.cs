@@ -156,7 +156,8 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid,Policy> policies,
             IDictionary<Guid, Discount> discounts,
             IDictionary<Guid, User> users,
-            IDictionary<Guid, ProductOffer> offers
+            IDictionary<Guid, ProductOffer> offers,
+            IDictionary<Guid, ApproverOwner> approvers
         )
         {
             var offersRepoMock = MockRepository(offers);
@@ -167,6 +168,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             var storeManagementRepoMock = MockRepository(storeManagements);
             var storePolicyRepoMock = MockRepository(policies);
             var storeDiscountRepoMock = MockRepository(discounts);
+            var approversRepoMock = MockRepository(approvers);
 
 
             // Mock do to delete on cascade 
@@ -220,6 +222,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.DiscountRepo).Returns(storeDiscountRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.UserRepo).Returns(userRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.OffersRepo).Returns(offersRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.ApproversRepo).Returns(approversRepoMock?.Object);
             if (storeDiscountRepoMock != null)
             {
                 storeDiscountRepoMock.Setup(x => x.FindByIdAsync<CompositeDiscount>(It.IsAny<Guid>()))
@@ -285,18 +288,25 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
             IDictionary<Guid, Product> products,
+            IDictionary<Guid, ProductOffer> offers,
+            IDictionary<Guid, StoreOwnership> owners,
             IDictionary<Guid, User> users = null)
         {
             var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
             var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
             var usersRepoMock = DalMockFactory.MockRepository(users);
             var productsRepoMock = MockRepository(products);
+            var ownersRepoMock = MockRepository(owners);
+            var offerMock = MockRepository(offers);
 
             var userUnitOfWork = new Mock<IUserUnitOfWork>();
             userUnitOfWork.SetupGet(x => x.ShoppingBasketRepo).Returns(shoppingBasketRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.ShoppingCartRepo).Returns(shoppingCartRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.UserRepository).Returns(usersRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productsRepoMock?.Object);
+            userUnitOfWork.SetupGet(x => x.ProductOfferRepo).Returns(offerMock?.Object);
+            userUnitOfWork.SetupGet(x => x.StoreOwnershipRepo).Returns(ownersRepoMock?.Object);
+
             return userUnitOfWork;
         }
     }

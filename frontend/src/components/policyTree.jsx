@@ -12,7 +12,7 @@ const mapPolicyTypeToLabel = {
   maxCategoryAmount: "Max Category Amount",
   maxProductAmount: "Max Product Amount",
   maxTotalAmount: "Max Total Amount",
-  minTotalAmount: "Max Total Amount",
+  minTotalAmount: "Min Total Amount",
   minCategoryAmount: "Min Category Amount",
   minProductAmount: "Min Product Amount",
 };

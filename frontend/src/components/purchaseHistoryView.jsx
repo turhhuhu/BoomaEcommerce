@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import PurchaseHistoryEntry from "./PurchaseHistoryEntry";
+import PurchaseHistoryEntry from "./purchaseHistoryEntry";
 class PurchaseHistoryView extends Component {
   state = {};
   render() {

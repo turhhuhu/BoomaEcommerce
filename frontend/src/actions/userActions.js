@@ -180,21 +180,6 @@ export function removeCartItem(basketGuid, purchaseProductGuid) {
   };
 }
 
-export function changeCartProductAmount(
-  basketGuid,
-  purchaseProductGuid,
-  newAmount
-) {
-  return {
-    type: UserActionTypes.CHANGE_PRODUCT_AMOUNT_IN_BASKET,
-    payload: {
-      basketGuid,
-      purchaseProductGuid,
-      newAmount,
-    },
-  };
-}
-
 export function addProductToBasket(purchaseProduct, product) {
   return (dispatch, getState) => {
     if (getState().auth.isAuthenticated) {
@@ -476,7 +461,7 @@ export function offerProductPrice(offer) {
       authenticated: true,
       types: [
         UserActionTypes.OFFER_PRODUCT_PRICE_REQUEST,
-        UserActionTypes.OFFER_PRODUCT_PRICE_SUCESS,
+        UserActionTypes.OFFER_PRODUCT_PRICE_SUCCESS,
         UserActionTypes.OFFER_PRODUCT_PRICE_FAILURE,
       ],
       config: {

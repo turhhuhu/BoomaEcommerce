@@ -30,13 +30,14 @@ namespace BoomaEcommerce.Data.EfCore.Repositories
                 .OfType<TType>().FirstOrDefaultAsync(p => p.Guid == guid);
         }
 
-        public override Task InsertOneAsync(Policy policy)
+        public override async Task InsertOneAsync(Policy policy)
         {
             if (policy is ProductPolicy productPolicy)
             {
-                DbContext.Products.Attach(productPolicy.Product);
+                var product = await DbContext.Products.FindAsync(productPolicy.Product.Guid);
+                productPolicy.Product = product;
             }
-            return base.InsertOneAsync(policy);
+            await base.InsertOneAsync(policy);
         }
 
         public override Task<Policy> FindByIdAsync(Guid guid)

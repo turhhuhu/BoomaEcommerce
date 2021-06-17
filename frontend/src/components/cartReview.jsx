@@ -70,48 +70,54 @@ class CartReview extends Component {
           </header>
           <div className="row card-body">{this.getCartItems()}</div>
         </article>
-        <article className="card-body border-top">
-          <dl className="row">
-            <dt className="col-sm-10">
-              Subtotal:{" "}
-              <span className="float-right text-muted">
-                {this.calculateAmountOfProducts()} items
-              </span>
-            </dt>
-            <dd className="col-sm-2 text-right">
-              <strong>${this.calculateSubTotalPrice()}</strong>
-            </dd>
+        {this.props.isFetching ? (
+          <div className="d-flex justify-content-center mb-3">
+            <div className="spinner-border text-primary" role="status"></div>
+          </div>
+        ) : (
+          <article className="card-body border-top">
+            <dl className="row">
+              <dt className="col-sm-10">
+                Subtotal:{" "}
+                <span className="float-right text-muted">
+                  {this.calculateAmountOfProducts()} items
+                </span>
+              </dt>
+              <dd className="col-sm-2 text-right">
+                <strong>${this.calculateSubTotalPrice()}</strong>
+              </dd>
 
-            <dt className="col-sm-10">
-              Discount:{" "}
-              <span className="float-right text-muted">
-                {(
-                  (
+              <dt className="col-sm-10">
+                Discount:{" "}
+                <span className="float-right text-muted">
+                  {(
+                    (
+                      this.calculateSubTotalPrice() -
+                      this.props.cart.discountedPrice
+                    ).toFixed(4) / this.calculateSubTotalPrice()
+                  ).toFixed(4) * 100}
+                  % offer
+                </span>
+              </dt>
+              <dd className="col-sm-2 text-info text-right">
+                <strong>
+                  $
+                  {(
                     this.calculateSubTotalPrice() -
                     this.props.cart.discountedPrice
-                  ).toFixed(4) / this.calculateSubTotalPrice()
-                ).toFixed(4) * 100}
-                % offer
-              </span>
-            </dt>
-            <dd className="col-sm-2 text-info text-right">
-              <strong>
-                $
-                {(
-                  this.calculateSubTotalPrice() -
-                  this.props.cart.discountedPrice
-                ).toFixed(2)}
-              </strong>
-            </dd>
+                  ).toFixed(2)}
+                </strong>
+              </dd>
 
-            <dt className="col-sm-10">Total:</dt>
-            <dd className="col-sm-2 text-right">
-              <strong className="h5 text-dark">
-                ${this.props.cart.discountedPrice}
-              </strong>
-            </dd>
-          </dl>
-        </article>
+              <dt className="col-sm-10">Total:</dt>
+              <dd className="col-sm-2 text-right">
+                <strong className="h5 text-dark">
+                  ${this.props.cart.discountedPrice}
+                </strong>
+              </dd>
+            </dl>
+          </article>
+        )}
         <div className="card-body border-top">
           <a href="/cart/payment" className="btn btn-primary float-md-right">
             {" "}
@@ -137,6 +143,7 @@ const mapStateToProps = (store) => {
     cart: store.user.cart,
     isAuthenticated: store.auth.isAuthenticated,
     error: store.user.error,
+    isFetching: store.user.isFetching,
   };
 };
 

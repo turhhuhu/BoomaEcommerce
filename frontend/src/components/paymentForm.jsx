@@ -1,11 +1,14 @@
+import { Alert } from "@material-ui/lab";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import { submitPaymentInfo } from "../actions/userActions";
 import { yearsArray, monthsArray } from "../utils/constants";
+import { isNormalInteger } from "../utils/utilFunctions";
 
 class PaymentForm extends Component {
   state = {
+    error: undefined,
     holderName: this.props.paymentInfo.holderName
       ? this.props.paymentInfo.holderName
       : "",
@@ -25,7 +28,35 @@ class PaymentForm extends Component {
   };
 
   handlePayment = (isWithDelivery) => {
-    this.props.dispatch(submitPaymentInfo(this.state));
+    if (
+      !this.state.holderName ||
+      !this.state.id ||
+      !this.state.cardNumber ||
+      !this.state.month ||
+      !this.state.year ||
+      !this.state.ccv
+    ) {
+      this.setState({ error: "Please fill out all fields" });
+      return;
+    }
+    if (
+      !isNormalInteger(this.state.id) ||
+      !isNormalInteger(this.state.cardNumber) ||
+      !isNormalInteger(this.state.ccv)
+    ) {
+      this.setState({ error: "Id, Card number, and Ccv must be numbers" });
+      return;
+    }
+    this.props.dispatch(
+      submitPaymentInfo({
+        holderName: this.state.holderName,
+        id: this.state.id,
+        cardNumber: this.state.cardNumber,
+        month: this.state.month,
+        year: this.state.year,
+        ccv: this.state.ccv,
+      })
+    );
     if (isWithDelivery) {
       this.props.history.push("/cart/delivery");
     } else {
@@ -95,6 +126,7 @@ class PaymentForm extends Component {
                   <div className="form-inline" style={{ minWidth: "220px" }}>
                     <select
                       onChange={this.handleChange}
+                      defaultValue={this.state.month ? this.state.month : null}
                       className="form-control"
                       name="month"
                       style={{ width: "120px" }}
@@ -113,6 +145,7 @@ class PaymentForm extends Component {
                     <select
                       onChange={this.handleChange}
                       name="year"
+                      defaultValue={this.state.year ? this.state.year : null}
                       className="form-control"
                       style={{ width: "100px" }}
                     >
@@ -150,12 +183,19 @@ class PaymentForm extends Component {
             </button>
             <button
               onClick={() => this.handlePayment(true)}
-              className="btn btn-outline-primary btn-block"
+              className="btn btn-outline-info btn-block"
               type="button"
             >
               {" "}
               Continue and order delivery{" "}
             </button>
+            {(this.props.error || this.state.error) && (
+              <div className="mt-2">
+                <Alert severity="error" onClick={() => this.setState(null)}>
+                  {this.props.error || this.state.error}
+                </Alert>
+              </div>
+            )}
           </form>
         </div>
       </div>

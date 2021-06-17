@@ -263,10 +263,18 @@ namespace BoomaEcommerce.Services.Users
             try
             {
                 var productOffer = _mapper.Map<ProductOffer>(offerDto);
+                var existingOffer =
+                    await _userUnitOfWork.ProductOfferRepo.FilterByAsync(o => o.Product.Guid == productOffer.Product.Guid);
+
+                if (existingOffer != null && existingOffer.Any())
+                {
+                    return null;
+                }
                 var prod = await _userUnitOfWork.ProductRepository.FindByIdAsync(productOffer.Product.Guid);
                 productOffer.Product = prod;
                 var user = await _userUnitOfWork.UserRepository.FindByIdAsync(productOffer.User.Guid);
                 productOffer.User = user;
+                productOffer.ApprovedOwners = new List<ApproverOwner>();
                 await _userUnitOfWork.ProductOfferRepo.InsertOneAsync(productOffer);
                 await NotifyStoreSellersOnOffer(productOffer);
                 await _userUnitOfWork.SaveAsync();

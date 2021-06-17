@@ -184,7 +184,7 @@ class AddStorePolicyDiscount extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add product</DialogTitle>
+        <DialogTitle id="form-dialog-title">Add discount</DialogTitle>
         <form>
           <DialogContent style={this.dynamicStyle()}>
             <DialogContentText>
