@@ -28,9 +28,9 @@ namespace BoomaEcommerce.Api
                 : Task.CompletedTask;
         }
 
-        public Task NotifyManyAsync(NotificationDto notification, IEnumerable<Guid> usersToNotify)
+        public Task NotifyManyAsync(IEnumerable<(Guid userGuid, NotificationDto notification)> userNotificationPairs)
         {
-            return Task.WhenAll(usersToNotify.Select(userGuid => NotifyAsync(notification, userGuid)));
+            return Task.WhenAll(userNotificationPairs.Select(p => NotifyAsync(p.notification, p.userGuid)));
         }
     }
 }

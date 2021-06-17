@@ -6,7 +6,9 @@ using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Core.Exceptions;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 
@@ -64,10 +66,10 @@ namespace BoomaEcommerce.Services.Stores
 
         public Task<StoreDto> CreateStoreAsync(StoreDto store)
         {
-            ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             CheckAuthenticated();
             var userGuid = ClaimsPrincipal.GetUserGuid();
             store.FounderUserGuid = userGuid;
+            ServiceUtilities.ValidateDto<StoreDto, StoreServiceValidators.CreateStore>(store);
             return _storeService.CreateStoreAsync(store);
         }
 
@@ -180,6 +182,7 @@ namespace BoomaEcommerce.Services.Stores
             ServiceUtilities.ValidateDto<StoreManagementDto, StoreServiceValidators.NominateNewStoreManager>(newManagementDto);
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            
             var storeOwner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
             if (storeOwner != null && storeOwner.User.Guid == userGuidInClaims)
             {
@@ -399,6 +402,190 @@ namespace BoomaEcommerce.Services.Stores
             }
 
             throw new UnAuthorizedException(nameof(GetPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<DiscountDto> AddDiscountAsync(Guid storeGuid, Guid discountGuid, DiscountDto discountDto)
+        {
+            ServiceUtilities.ValidateDto<CreateDiscountDto, StoreServiceValidators.AddDiscountValidator>(new CreateDiscountDto { DiscountToCreate = discountDto });
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.AddDiscountAsync(storeGuid, discountGuid, discountDto);
+            }
+
+            throw new UnAuthorizedException(nameof(AddDiscountAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<bool> DeleteDiscountAsync(Guid storeGuid, Guid discountGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanDeleteDiscount, storeGuid))
+            {
+                return await _storeService.DeleteDiscountAsync(storeGuid, discountGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(DeleteDiscountAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<DiscountDto> CreateDiscountAsync(Guid storeGuid, DiscountDto discountDto)
+        {
+            ServiceUtilities.ValidateDto<CreateDiscountDto, StoreServiceValidators.CreateDiscountAsync>(new CreateDiscountDto { DiscountToCreate = discountDto });
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.CreateDiscountAsync(storeGuid, discountDto);
+            }
+
+            throw new UnAuthorizedException(nameof(CreateDiscountAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<DiscountDto> GetDiscountAsync(Guid storeGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanGetDiscountInfo, storeGuid))
+            {
+                return await _storeService.GetDiscountAsync(storeGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetDiscountAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<PolicyDto> GetDiscountPolicyAsync(Guid storeGuid, Guid discountGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanGetDiscountInfo, storeGuid))
+            {
+                return await _storeService.GetDiscountPolicyAsync(storeGuid, discountGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetDiscountPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<PolicyDto> CreateDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, PolicyDto policyDto)
+        {
+            ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = policyDto });
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.CreateDiscountPolicyAsync(storeGuid, discountGuid, policyDto);
+            }
+
+            throw new UnAuthorizedException(nameof(CreateDiscountPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<bool> DeleteDiscountPolicyAsync(Guid storeGuid, Guid discountGuid, Guid policyGuid)
+        {
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanDeleteDiscount, storeGuid))
+            {
+                return await _storeService.DeleteDiscountPolicyAsync(storeGuid, discountGuid, policyGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(DeleteDiscountPolicyAsync), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<PolicyDto> CreateDiscountSubPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid, PolicyDto policyDto)
+        {
+            ServiceUtilities.ValidateDto<CreatePolicyDto, StoreServiceValidators.CreatePolicyValidator>(new CreatePolicyDto { PolicyToCreate = policyDto });
+            CheckAuthenticated();
+            if (await CanPerformSellerAction(permissions => permissions.CanCreateDiscounts, storeGuid))
+            {
+                return await _storeService.CreateDiscountSubPolicy(storeGuid, discountGuid, policyGuid, policyDto);
+            }
+
+            throw new UnAuthorizedException(nameof(CreateDiscountSubPolicy), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task ApproveOffer(Guid ownerGuid, Guid productOfferGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            var offer = await _storeService.GetProductOffer(productOfferGuid);
+            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid ==  offer.Product.StoreGuid)
+            {
+                await _storeService.ApproveOffer(ownerGuid, productOfferGuid);
+                return;
+            }
+
+            throw new UnAuthorizedException(nameof(ApproveOffer), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task DeclineOffer(Guid ownerGuid, Guid productOfferGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            var offer = await _storeService.GetProductOffer(productOfferGuid);
+            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.StoreGuid)
+            {
+                await _storeService.DeclineOffer(ownerGuid, productOfferGuid);
+                return;
+            }
+
+            throw new UnAuthorizedException(nameof(DeclineOffer), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<ProductOfferDto> MakeCounterOffer(Guid ownerGuid, decimal counterOfferPrice, Guid offerGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            var offer = await _storeService.GetProductOffer(offerGuid);
+
+            // Simple validator 
+
+            if (counterOfferPrice < 0)
+            {
+                throw new ArgumentException("Counter offer price MUST be greater or equal to 0!\n");
+            }
+
+            if (counterOfferPrice > offer.Product.Price)
+            {
+                throw new ArgumentException("Counter offer price MUST not exceed product original price !\n");
+            }
+
+            if (owner != null && owner.User.Guid == userGuidInClaims && owner.Store.Guid == offer.Product.StoreGuid)
+            {
+                return await _storeService.MakeCounterOffer(ownerGuid, counterOfferPrice, offerGuid);
+            
+            }
+
+            throw new UnAuthorizedException(nameof(MakeCounterOffer), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public Task<ProductOfferDto> GetProductOffer(Guid storeGuid, Guid userGuid, Guid offerGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<ProductOfferDto>> GetAllUserProductOffers(Guid userGuid)
+        {
+            CheckAuthenticated();
+            var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
+            if (userGuidInClaims == userGuid)
+            {
+                return await _storeService.GetAllUserProductOffers(userGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetAllUserProductOffers), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public async Task<IEnumerable<ProductOfferDto>> GetAllOwnerProductOffers(Guid ownerGuid)
+        {
+            CheckAuthenticated();
+            var owner = await _storeService.GetStoreOwnershipAsync(ownerGuid);
+            if (owner != null)
+            {
+                return await _storeService.GetAllOwnerProductOffers(ownerGuid);
+            }
+
+            throw new UnAuthorizedException(nameof(GetAllOwnerProductOffers), ClaimsPrincipal.GetUserGuid());
+        }
+
+        public Task<ProductOfferDto> GetProductOffer(Guid offerGuid)
+        {
+            throw new NotImplementedException();
         }
     }
 }

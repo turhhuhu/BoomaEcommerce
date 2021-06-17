@@ -6,11 +6,16 @@ using System.Linq;
 using AutoMapper;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Discounts.Operators;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Domain.Policies.Operators;
 using BoomaEcommerce.Domain.Policies.PolicyTypes;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 
 namespace BoomaEcommerce.Services.MappingProfiles
 {
@@ -21,15 +26,17 @@ namespace BoomaEcommerce.Services.MappingProfiles
     {
         public DtoToDomainProfile()
         {
-            CreateMap<UserDto, User>();
+            CreateMap<UserDto, User>()
+                .IncludeAllDerived()
+                .ForMember(x => x.Guid, x => x.Condition(xx => xx.Guid != default));
 
             CreateMap<StoreDto, Store>()
-                .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}));
+                .ForMember(store => store.StoreFounder, x => x.MapFrom(dto => new User {Guid = dto.FounderUserGuid}))
+                .ForMember(store => store.StoreDiscount, x => x.MapFrom(_ => Discount.Empty))
+                .ForMember(store => store.StorePolicy, x => x.MapFrom(_ => Policy.Empty));
 
-            CreateMap<List<PurchaseProductDto>, IDictionary<Guid, PurchaseProduct>>()
-                .ConstructUsing((x, y) => new ConcurrentDictionary<Guid, PurchaseProduct>(
-                    x.Select(ppDto => y.Mapper.Map<PurchaseProduct>(ppDto))
-                        .ToDictionary(pp => pp.Guid)));
+            CreateMap<List<PurchaseProductDto>, ISet<PurchaseProduct>>()
+                .ConstructUsing((x, y) => x.Select(pp => y.Mapper.Map<PurchaseProduct>(pp)).ToHashSet(new EqualityComparers.SameGuid<PurchaseProduct>()));
 
             CreateMap<ShoppingBasketDto, ShoppingBasket>()
                 .ForMember(basket => basket.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}))
@@ -42,19 +49,17 @@ namespace BoomaEcommerce.Services.MappingProfiles
 
             CreateMap<PurchaseProductDto, PurchaseProduct>()
                 .ForMember(purchaseProduct => purchaseProduct.Product,
-                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}));
-
+                    x => x.MapFrom(dto => new Product {Guid = dto.ProductGuid}))
+                .ForMember(purchaseProduct => purchaseProduct.DiscountedPrice, x => x.MapFrom(dto => dto.Price));
+            
             CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }))
-                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }));
-
+                .ForMember(store => store.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}))
+                .ForMember(store => store.DiscountedPrice, x => x.MapFrom(dto => dto.TotalPrice))
+                .ForMember(store => store.Store, x => x.MapFrom(dto => new Store {Guid = dto.StoreGuid}));
+            
             CreateMap<PurchaseDto, Purchase>()
-                .ForMember(purchase => purchase.Buyer, x => x.MapFrom(dto => new User {Guid = dto.BuyerGuid}));
-
-            CreateMap<StorePurchaseDto, StorePurchase>()
-                .ForMember(storePurchase => storePurchase.Store, x => x.MapFrom(dto => new Store { Guid = dto.StoreGuid }))
-                .ForMember(storePurchase => storePurchase.Buyer, x => x.MapFrom(dto => new User { Guid = dto.BuyerGuid }));
-
+                .ForMember(purchase => purchase.Buyer, x => x.Condition(p => p.Buyer != null));
+            
             CreateMap<StoreManagementDto, StoreManagement>()
                 .ForMember(x => x.Permissions, x => x.Condition(xx => xx.Permissions != null));
 
@@ -66,9 +71,14 @@ namespace BoomaEcommerce.Services.MappingProfiles
                 .IncludeAllDerived()
                 .ForMember(x => x.Guid, x => x.Condition(xx => xx.Guid != default));
 
+
             CreateMap<AdminUserDto, AdminUser>();
             CreateMap<NotificationDto, Notification>();
             CreateMap<StorePurchaseNotificationDto, StorePurchaseNotification>();
+            CreateMap<NewOfferNotificationDto, NewOfferNotification>();
+            CreateMap<OfferApprovedNotificationDto, OfferApprovedNotification>();
+            CreateMap<OfferDeclinedNotificationDto, OfferDeclinedNotification>();
+
 
             CreateMap<PolicyDto, Policy>()
                 .Include<AgeRestrictionPolicyDto, AgeRestrictionPolicy>()
@@ -124,6 +134,36 @@ namespace BoomaEcommerce.Services.MappingProfiles
                         OperatorType.Xor => new XorPolicyOperator(),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
                     });
+
+            CreateMap<DiscountDto, Discount>()
+                .Include<ProductDiscountDto, ProductDiscount>()
+                .Include<CategoryDiscountDto, CategoryDiscount>()
+                .Include<BasketDiscountDto, BasketDiscount>()
+                .Include<CompositeDiscountDto, CompositeDiscount>();
+
+            CreateMap<CategoryDiscountDto, CategoryDiscount>();
+
+            CreateMap<BasketDiscountDto, BasketDiscount>();
+
+            CreateMap<BasicUserInfoDto, User>();
+
+            CreateMap<ProductDiscountDto, ProductDiscount>()
+                .ConstructUsing((discountDto, _) => new ProductDiscount(new Product { Guid = discountDto.ProductGuid }));
+
+            CreateMap<CompositeDiscountDto, CompositeDiscount>()
+                .ConstructUsing((discountDto, context) => new CompositeDiscount(context.Mapper.Map<DiscountOperator>(discountDto.Operator)));
+
+            CreateMap<OperatorTypeDiscount, DiscountOperator>()
+                .ConstructUsing((type, _) =>
+                    type switch
+                    {
+                        OperatorTypeDiscount.Max => new MaxDiscountOperator(),
+                        OperatorTypeDiscount.Sum => new SumDiscountOperator(),
+                        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                    });
+
+            CreateMap<ProductOfferDto, ProductOffer>()
+                .ForMember(offer => offer.User, x => x.MapFrom(dto => new User { Guid = dto.UserGuid }));
         }
     }
 }

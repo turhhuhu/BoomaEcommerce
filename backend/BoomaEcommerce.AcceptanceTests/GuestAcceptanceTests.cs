@@ -15,11 +15,12 @@ using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class GuestAcceptanceTests : IAsyncLifetime
+    public class GuestAcceptanceTests : TestsBase
     {
         private IFixture _fixture;
 
@@ -35,7 +36,23 @@ namespace BoomaEcommerce.AcceptanceTests
         private ProductDto p1Dto;
         private ProductDto p2Dto;
 
-        public async Task InitializeAsync()
+
+
+        public GuestAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
+        {
+        }
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+            _fixture = new Fixture();
+
+            storesServiceWithData = provider.GetRequiredService<StoresService>();
+            authService = provider.GetRequiredService<IAuthenticationService>();
+            productsService = provider.GetRequiredService<IProductsService>();
+            usersService = provider.GetRequiredService<UsersService>();
+            await InitStoreWithData(storesServiceWithData, authService);
+        }
+
+        public override async Task InitInMemoryDb()
         {
             _fixture = new Fixture();
 
@@ -75,7 +92,6 @@ namespace BoomaEcommerce.AcceptanceTests
                 .With(p => p.Name, "Shampoo")
                 .Without(p => p.Rating)
                 .With(p => p.Price, 1)
-               
                 .Create();
 
             await storesService.CreateStoreProductAsync(p1Dto);
@@ -161,11 +177,11 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Act 
             var storeData = await storesServiceWithData.GetStoresAsync();
-            StoreDto myStore = storeData.First();
+            var myStore = storeData.FirstOrDefault(x => x.Description == "myStore");
             
 
             // Assert
-            myStore.Description.Should().BeEquivalentTo("myStore");
+            myStore.Should().NotBeNull();
         }
 
         [Fact]
@@ -184,7 +200,7 @@ namespace BoomaEcommerce.AcceptanceTests
         {
             // Act 
             var storeData = await storesServiceWithData.GetStoresAsync();
-            StoreDto myStore = storeData.First();
+            var store = storeData.First();
             var products = await storesServiceWithData.GetProductsFromStoreAsync(myStore.Guid);
 
             // Assert
@@ -228,9 +244,6 @@ namespace BoomaEcommerce.AcceptanceTests
         }
 
 
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
+
     }
 }

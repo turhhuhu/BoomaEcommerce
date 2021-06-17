@@ -8,7 +8,7 @@ using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Data
 {
-    public interface IRepository<T> where T : BaseEntity
+    public interface IRepository<T> where T : class, IBaseEntity
     {
 
 
@@ -117,6 +117,8 @@ namespace BoomaEcommerce.Data
         /// </returns>
         Task DeleteManyAsync(Expression<Func<T, bool>> predicate);
 
+        void DeleteRange(IEnumerable<T> entities);
+
         /// <summary>
         /// Finds entity of type TType with provided guid.
         /// </summary>
@@ -126,6 +128,13 @@ namespace BoomaEcommerce.Data
         /// The found entity.
         /// </returns>
         Task<TType> FindByIdAsync<TType>(Guid guid)
-            where TType : BaseEntity;
+            where TType : class, IBaseEntity;
+
+        /// <summary>
+        /// Attaches the given entity to the context underlying the repository.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        void Attach(T entity);
     }
 }

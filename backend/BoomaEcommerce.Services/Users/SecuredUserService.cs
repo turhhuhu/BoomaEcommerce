@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.Stores;
 using UnAuthorizedException = BoomaEcommerce.Core.Exceptions.UnAuthorizedException;
 
@@ -60,7 +61,7 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Guid == shoppingCartGuid)
+            if (shoppingCart != null && shoppingCart.Guid == shoppingCartGuid)
             {
                 return await _next.CreateShoppingBasketAsync(shoppingCartGuid, shoppingBasket);
             }
@@ -92,7 +93,7 @@ namespace BoomaEcommerce.Services.Users
 
             var shoppingCart = await _next.GetShoppingCartAsync(userGuidInToken);
 
-            if (shoppingCart.Baskets.FirstOrDefault(basket => basket.Guid == shoppingBasketGuid) != null)
+            if (shoppingCart?.Baskets.FirstOrDefault(basket => basket.Guid == shoppingBasketGuid) != null)
             {
                 return await _next.DeletePurchaseProductFromShoppingBasketAsync(shoppingBasketGuid, purchaseProductGuid);
             }
@@ -147,5 +148,31 @@ namespace BoomaEcommerce.Services.Users
         {
             return _next.GetBasicUserInfoAsync(userName);
         }
+
+        public Task<bool> SetNotificationAsSeen(Guid userGuid, Guid notificationGuid)
+        {
+            var userInClaims = ClaimsPrincipal.GetUserGuid();
+            if (userGuid == userInClaims)
+            {
+                return _next.SetNotificationAsSeen(userGuid, notificationGuid);
+            }
+
+            throw new UnAuthorizedException(
+                $"User with guid {userInClaims} is not authorized to set notifications of user with guid {userGuid}");
+        }
+
+        public async Task<ProductOfferDto> CreateProductOffer(ProductOfferDto offerDto)
+        {
+            ServiceUtilities.ValidateDto<ProductOfferDto, UserServiceValidators.CreateProductOffer>(offerDto);
+            CheckAuthenticated();
+            return await _next.CreateProductOffer(offerDto);
+        }
+
+        /*
+         * public Task<PurchaseProductDto> createPurchaseProductFromOffer(Guid userGuid, Guid offerGuid, Guid storeGuid)
+        {
+            throw new NotImplementedException();
+        }
+        */
     }
 }

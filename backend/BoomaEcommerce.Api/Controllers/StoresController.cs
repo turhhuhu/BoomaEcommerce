@@ -9,6 +9,7 @@ using BoomaEcommerce.Api.Responses;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain.Policies;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
@@ -140,7 +141,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Stores.Roles.Ownerships.Post)]
         public async Task<IActionResult> PostOwnershipRole(Guid storeGuid, [FromBody] CreateOwnershipRequest request)
         {
-            if (!request.NominatedUserGuid.HasValue)
+            if (request.NominatedUserGuid == default)
             {
                 request = await PopulateWithUserGuid(request);
                 if (request == null)
@@ -166,7 +167,7 @@ namespace BoomaEcommerce.Api.Controllers
         [HttpPost(ApiRoutes.Stores.Roles.Managements.Post)] 
         public async Task<IActionResult> PostManagementRole(Guid storeGuid, [FromBody] CreateManagementRequest request)
         {
-            if (!request.NominatedUserGuid.HasValue)
+            if (request.NominatedUserGuid == default)
             {
                 request = await PopulateWithUserGuid(request);
                 if (request == null)
@@ -260,6 +261,7 @@ namespace BoomaEcommerce.Api.Controllers
 
             return NoContent();
         }
+
         [Authorize]
         [HttpGet("{storeGuid}/policy")]
         public async Task<IActionResult> GetPolicy(Guid storeGuid)
@@ -273,5 +275,153 @@ namespace BoomaEcommerce.Api.Controllers
 
             return Ok(policy);
         }
+        
+        // Post store Discount 
+
+        [Authorize]
+        [HttpPost("{storeGuid}/discount")]
+        public async Task<IActionResult> CreateDiscount(Guid storeGuid, [FromBody] DiscountDto discount)
+        {
+            var createdDiscount = await _storesService.CreateDiscountAsync(storeGuid, discount);
+
+            if (createdDiscount == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/discounts/{createdDiscount.Guid}";
+
+            return Created(locationUrl, createdDiscount);
+        }
+
+        // Get Store Discount
+
+        [Authorize]
+        [HttpGet("{storeGuid}/discount")]
+        public async Task<IActionResult> GetDiscount(Guid storeGuid)
+        {
+            var discount = await _storesService.GetDiscountAsync(storeGuid);
+
+            if (discount == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(discount);
+        }
+
+        // Post sub discount in Store discount
+
+        [Authorize]
+        [HttpPost("{storeGuid}/discount/{discountGuid}/sub-discounts")]
+        public async Task<IActionResult> CreateSubDiscount(Guid storeGuid, Guid discountGuid, [FromBody] DiscountDto discount)
+        {
+            var createdDiscount = await _storesService.AddDiscountAsync(storeGuid, discountGuid, discount);
+
+            if (createdDiscount == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/discounts/{createdDiscount.Guid}";
+
+            return Created(locationUrl, createdDiscount);
+        }
+
+        // post store discount policy
+
+        [Authorize]
+        [HttpPost("{storeGuid}/discount/{discountGuid}/policy")]
+        public async Task<IActionResult> CreateDiscountPolicy(Guid storeGuid, Guid discountGuid, [FromBody] PolicyDto policy)
+        {
+
+            var createdPolicy = await _storesService.CreateDiscountPolicyAsync(storeGuid, discountGuid, policy);
+
+            if (createdPolicy == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/discounts/{createdPolicy.Guid}";
+
+            return Created(locationUrl, createdPolicy);
+        }
+
+        // Get store discount policy
+
+        [Authorize]
+        [HttpGet("{storeGuid}/discount/{discountGuid}/policy")]
+        public async Task<IActionResult> GetDiscountPolicy(Guid storeGuid, Guid discountGuid)
+        {
+            var policy = await _storesService.GetDiscountPolicyAsync(storeGuid, discountGuid);
+
+            if (policy == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/discount/{policy.Guid}";
+
+            return Created(locationUrl, policy);
+        }
+
+        [Authorize]
+        [HttpPost("{storeGuid}/discount/{discountGuid}/policy/{policyGuid}/sub-policies")]
+        public async Task<IActionResult> CreateDiscountSubPolicies(Guid storeGuid, Guid discountGuid, Guid policyGuid, [FromBody] PolicyDto policy)
+        {
+            var createdSubPolicy = await _storesService.AddPolicyAsync(storeGuid, policyGuid, policy);
+
+            if (createdSubPolicy == null)
+            {
+                return NotFound();
+            }
+            var locationUrl = $"{this.GetBaseUrl()}/discount/{discountGuid}/policy/{policyGuid}/{createdSubPolicy.Guid}";
+
+            return Created(locationUrl, createdSubPolicy);
+        }
+
+        // Delete store discount
+
+        [Authorize]
+        [HttpDelete("{storeGuid}/discount/{discountGuid}")]
+        public async Task<IActionResult> DeleteDiscount(Guid storeGuid, Guid discountGuid)
+        {
+            var deletionResult = await _storesService.DeleteDiscountAsync(storeGuid, discountGuid);
+
+            if (!deletionResult)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        // Delete store discount's policy
+
+        [Authorize]
+        [HttpDelete("{storeGuid}/discount/{discountGuid}/policy/{policyGuid}")]
+        public async Task<IActionResult> DeleteDiscountPolicy(Guid storeGuid, Guid discountGuid, Guid policyGuid)
+        {
+            var deletionResult = await _storesService.DeleteDiscountPolicyAsync(storeGuid, discountGuid, policyGuid);
+
+            if (!deletionResult)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet("{storeGuid}/purchases")]
+        public async Task<IActionResult> GetStorePurchaseHistory(Guid storeGuid)
+        {
+            var purchaseHistory = await _storesService.GetStorePurchaseHistoryAsync(storeGuid);
+            if (purchaseHistory is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(purchaseHistory.ToList());
+        }
+
+
+
     }
 }

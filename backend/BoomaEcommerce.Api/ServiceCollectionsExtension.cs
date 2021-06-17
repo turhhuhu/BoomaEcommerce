@@ -9,6 +9,8 @@ using BoomaEcommerce.Data;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Products;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Services.Settings;
@@ -28,8 +30,7 @@ namespace BoomaEcommerce.Api
     {
         public static IServiceCollection AddStoresService(this IServiceCollection services)
         {
-            services.AddSingleton<IStoreUnitOfWork, InMemoryStoreUnitOfWork>();
-            services.AddSingleton<StoresService>();
+            services.AddTransient<StoresService>();
             services.AddTransient<IStoresService, SecuredStoreService>(sp =>
             {
                 var storeService = sp.GetService<StoresService>();
@@ -41,8 +42,7 @@ namespace BoomaEcommerce.Api
 
         public static IServiceCollection AddUsersService(this IServiceCollection services)
         {
-            services.AddSingleton<IUserUnitOfWork, InMemoryUserUnitOfWork>();
-            services.AddSingleton<UsersService>();
+            services.AddTransient<UsersService>();
             services.AddTransient<IUsersService, SecuredUserService>(sp =>
             {
                 var userService = sp.GetService<UsersService>();
@@ -52,12 +52,22 @@ namespace BoomaEcommerce.Api
             return services;
         }
 
-        public static IServiceCollection AddPurchasesService(this IServiceCollection services)
+        public static IServiceCollection AddPurchasesService(this IServiceCollection services,
+            IConfiguration configuration)
         {
-            services.AddSingleton<IPurchaseUnitOfWork, InMemoryPurchaseUnitOfWork>();
-            services.AddSingleton(_ => Mock.Of<IPaymentClient>());
-            services.AddSingleton(_ => Mock.Of<ISupplyClient>());
-            services.AddSingleton<PurchasesService>();
+            if (configuration.GetSection("UseStubExternalSystems").Get<bool>())
+            {
+                services.AddTransient(_ => Mock.Of<IPaymentClient>());
+                services.AddTransient(_ => Mock.Of<ISupplyClient>());
+            }
+            else
+            {
+                services.AddTransient<IPaymentClient, PaymentClient>();
+                services.AddTransient<ISupplyClient, SupplyClient>();
+                services.AddHttpClient("externalClient", x => x.BaseAddress = new Uri("https://cs-bgu-wsep.herokuapp.com/"));
+            }
+
+            services.AddTransient<PurchasesService>();
             services.AddTransient<IPurchasesService, SecuredPurchaseService>(sp =>
             {
                 var purchaseService = sp.GetService<PurchasesService>();
@@ -68,17 +78,19 @@ namespace BoomaEcommerce.Api
         }
         public static IServiceCollection AddProductsService(this IServiceCollection services)
         {
-            services.AddSingleton<IProductsService, ProductsService>();
+            services.AddTransient<IProductsService, ProductsService>();
             var mistakeCorrectionMock = new Mock<IMistakeCorrection>();
             mistakeCorrectionMock.Setup(x => x.CorrectMistakeIfThereIsAny(It.IsAny<string>()))
                 .Returns<string>(x => x);
 
-            services.AddSingleton(_ => mistakeCorrectionMock.Object);
+            services.AddTransient(_ => mistakeCorrectionMock.Object);
             return services;
         }
         public static IServiceCollection AddTokenAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Section));
+
+
             var tokenValidationParams = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -101,7 +113,7 @@ namespace BoomaEcommerce.Api
                     x.TokenValidationParameters = tokenValidationParams;
                 });
 
-            services.AddSingleton<IAuthorizationHandler, TokenHasUserGuidAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, TokenHasUserGuidAuthorizationHandler>();
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("TokenHasUserGuidPolicy", policy =>
@@ -109,7 +121,7 @@ namespace BoomaEcommerce.Api
                     policy.Requirements.Add(new TokenHasUserGuidRequirement());
                 });
             });
-            services.AddSingleton<IAuthenticationService, AuthenticationService>();
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
 
             services.AddTransient(_ => tokenValidationParams);
 

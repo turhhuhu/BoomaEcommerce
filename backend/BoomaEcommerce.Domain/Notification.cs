@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BoomaEcommerce.Core;
 
 namespace BoomaEcommerce.Domain
@@ -17,6 +13,55 @@ namespace BoomaEcommerce.Domain
             Message = message;
             WasSeen = false;
         }
+
+        protected Notification()
+        {
+            Message = "";
+            WasSeen = false;
+        }
+    }
+
+    public class NewOfferNotification : Notification
+    {
+        public ProductOffer.ProductOffer Offer { get; set; }
+
+        public NewOfferNotification(ProductOffer.ProductOffer offer, 
+            string message = "A New offer has been received.") : base(message)
+        {
+            Offer = offer;
+        }
+
+        private NewOfferNotification() : base()
+        { }
+    }
+
+
+    public class OfferDeclinedNotification : Notification
+    {
+        public ProductOffer.ProductOffer Offer { get; set; }
+
+        public OfferDeclinedNotification(ProductOffer.ProductOffer offer,
+            string message = "Your offer has been declined.") : base(message)
+        {
+            Offer = offer;
+        }
+
+        private OfferDeclinedNotification() : base()
+        { }
+    }
+
+    public class OfferApprovedNotification : Notification
+    {
+        public ProductOffer.ProductOffer Offer { get; set; }
+
+        public OfferApprovedNotification(ProductOffer.ProductOffer offer,
+            string message = "Your offer has been approved.") : base(message)
+        {
+            Offer = offer;
+        }
+
+        private OfferApprovedNotification() : base()
+        { }
     }
 
     public class StorePurchaseNotification : Notification
@@ -25,13 +70,16 @@ namespace BoomaEcommerce.Domain
         public Store Store { get; set; }
         public Guid StorePurchaseGuid { get; set; }
 
-        public StorePurchaseNotification(User buyer, Guid storePurchaseGuid, Store store, string message = "A store purchase has been made.") 
+        public StorePurchaseNotification(User buyer, Guid storePurchaseGuid, Store store, string message = "A store purchase has been made.")
             : base(message)
         {
             Buyer = buyer;
             StorePurchaseGuid = storePurchaseGuid;
             Store = store;
         }
+
+        private StorePurchaseNotification() : base()
+        {}
     }
     public class RoleDismissalNotification : Notification
     {
@@ -45,5 +93,8 @@ namespace BoomaEcommerce.Domain
             DismissingUser = dismissingUser;
             Store = store;
         }
+
+        private RoleDismissalNotification() : base()
+        { }
     }
 }

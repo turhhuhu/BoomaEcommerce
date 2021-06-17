@@ -7,8 +7,13 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
@@ -32,6 +37,8 @@ namespace BoomaEcommerce.Services.Tests
             _fixture.Customize<PurchaseDto>(p => p
                 .With(x => x.StorePurchases, TestData.GetTestValidStorePurchasesDtos())
                 .With(x => x.TotalPrice, 450)
+                .With(x => x.DiscountedPrice, 450)
+                .Without(p => p.Buyer)
                 .Without(x => x.Guid));
         }
 
@@ -40,10 +47,11 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, Product> products,
             IDictionary<Guid, User> users,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
-            IDictionary<Guid, Store> stores)
+            IDictionary<Guid, Store> stores,
+            IDictionary<Guid, ProductOffer> offers)
         {
             var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts
-                , new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>(), stores);
+                , new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>(), stores, offers);
             return new PurchasesService(_mapper, _loggerMock.Object, _paymentClientMock.Object,
                 purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
@@ -59,12 +67,16 @@ namespace BoomaEcommerce.Services.Tests
             var storesDict = new Dictionary<Guid, Store>();
 
             var purchaseDtoFixture = _fixture.Create<PurchaseDto>();
-
-            var userFixture = _fixture.Build<User>()
-                .With(x => x.Guid, purchaseDtoFixture.BuyerGuid)
+            
+            var purchaseDetailsFixture = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchaseDtoFixture)
                 .Create();
 
-            userDict[purchaseDtoFixture.BuyerGuid] = userFixture;
+            var userFixture = _fixture.Build<User>()
+                .With(x => x.Guid, purchaseDtoFixture.UserBuyerGuid)
+                .Create();
+
+            userDict[purchaseDtoFixture.UserBuyerGuid.Value] = userFixture;
 
             var shoppingCartGuid = Guid.NewGuid();
             var cart = new ShoppingCart(userFixture) {Guid = shoppingCartGuid};
@@ -77,14 +89,14 @@ namespace BoomaEcommerce.Services.Tests
                     var testProductGuid = productsPurchaseDto.ProductGuid;
                     var testProduct = TestData.GetTestProduct(testProductGuid);
                     productDict[testProductGuid] = testProduct;
-                    storesDict[storePurchaseDto.StoreGuid] = new Store() { Guid = storePurchaseDto.StoreGuid };
+                    storesDict[storePurchaseDto.StoreGuid] = new Store(new User(), Policy.Empty, Discount.Empty) { Guid = storePurchaseDto.StoreGuid };
                 }
             }
 
-            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, storesDict);
+            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, storesDict, new Dictionary<Guid, ProductOffer>());
             
             // Act
-            var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
+            var res = await sut.CreatePurchaseAsync(purchaseDetailsFixture);
 
             // Assert
             res.Should().NotBeNull();
@@ -98,7 +110,8 @@ namespace BoomaEcommerce.Services.Tests
                 opt => opt
                     .Excluding(p => p.Guid)
                     .Excluding(p => p.StorePurchases)
-                    .Excluding(p => p.BuyerGuid));
+                    .Excluding(p => p.UserBuyerGuid)
+                    .Excluding(p => p.Buyer));
         }
         
         [Fact]
@@ -115,11 +128,15 @@ namespace BoomaEcommerce.Services.Tests
                 .With(x => x.TotalPrice, 450)
                 .Without(x => x.Guid)
                 .Create();
-            
-            var userFixture = _fixture.Build<User>()
-                .With(x => x.Guid, purchaseDtoFixture.BuyerGuid)
+
+            var purchaseDetailsFixture = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchaseDtoFixture)
                 .Create();
-            userDict[purchaseDtoFixture.BuyerGuid] = userFixture;
+
+            var userFixture = _fixture.Build<User>()
+                .With(x => x.Guid, purchaseDtoFixture.UserBuyerGuid)
+                .Create();
+            userDict[purchaseDtoFixture.UserBuyerGuid!.Value] = userFixture;
             
             var shoppingCartGuid = Guid.NewGuid();
             var cart = new ShoppingCart(userFixture);
@@ -135,10 +152,10 @@ namespace BoomaEcommerce.Services.Tests
                 }
             }
 
-            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, null);
+            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, null, new Dictionary<Guid, ProductOffer>());
             
             // Act
-            var res = await sut.CreatePurchaseAsync(purchaseDtoFixture);
+            var res = await sut.CreatePurchaseAsync(purchaseDetailsFixture);
 
             // Assert
             res.Should().BeNull();
@@ -160,7 +177,7 @@ namespace BoomaEcommerce.Services.Tests
            
             var matanUser = TestData.CreateUserObject("Matan");
 
-            var sut = GetPurchaseService(entitiesPurchases, productDict, userDict, null, null);
+            var sut = GetPurchaseService(entitiesPurchases, productDict, userDict, null, null, new Dictionary<Guid, ProductOffer>());
             
             //Act
             var result = await sut.GetAllUserPurchaseHistoryAsync(matanUser.Guid);
@@ -194,7 +211,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesPurchases[matanNikeShoePurchase.Guid] = matanNikeShoePurchase;
             entitiesPurchases[matanAdidasShirtPurchase.Guid] = matanAdidasShirtPurchase;
             
-            var sut = GetPurchaseService(entitiesPurchases, productDict, userDict, null, null);
+            var sut = GetPurchaseService(entitiesPurchases, productDict, userDict, null, null, new Dictionary<Guid, ProductOffer>());
             
             //Act
             var result = await sut.GetAllUserPurchaseHistoryAsync(matanUser.Guid);

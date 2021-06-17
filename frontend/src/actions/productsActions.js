@@ -1,5 +1,4 @@
-//import { CALL_API } from "../middleware/api";
-import { GET_ALL_PRODUCTS_URL, STORE_URL } from "../utils/constants";
+import { GET_ALL_PRODUCTS_URL } from "../utils/constants";
 import * as ProductsActionTypes from "./types/productsActionsTypes";
 
 export function fetchAllProducts(searchFilter) {
@@ -29,15 +28,6 @@ export function fetchAllProducts(searchFilter) {
       })
       .catch((err) => Promise.reject(err));
 
-    let productsPromises = response.map((product) =>
-      fetch(STORE_URL.replace("{storeGuid}", product.storeGuid))
-        .then((response) => response.json())
-        .then((store) => (product["store"] = store))
-    );
-
-    await Promise.all(productsPromises).catch((error) =>
-      dispatch(productsError(error))
-    );
     dispatch(receiveProducts(response));
   };
 }
@@ -58,16 +48,6 @@ function receiveProducts(response) {
       isFetching: false,
       response: response,
     },
-  };
-}
-
-function productsError(error) {
-  return {
-    type: ProductsActionTypes.GET_ALL_PRODUCTS_FAILURE,
-    payload: {
-      isFetching: false,
-    },
-    error,
   };
 }
 

@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.Internal;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Data;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using Microsoft.Extensions.Logging;
 
 namespace BoomaEcommerce.Services.Purchases
@@ -37,35 +43,41 @@ namespace BoomaEcommerce.Services.Purchases
             _notificationPublisher = notificationPublisher;
         }
 
-        public async Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchaseDto)
+        public async Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto)
         {
+            int? paymentTransactionId = null;
+            int? supplyTransactionId = null;
+
             try
             {
-                var purchase = _mapper.Map<Purchase>(purchaseDto);
+                await using var transaction = await _purchaseUnitOfWork.BeginTransaction();
+                var purchase = _mapper.Map<Purchase>(purchaseDetailsDto.Purchase);
 
-                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchase.Buyer.Guid.ToString());
-
+                await CreateOrGetBuyerInfo(purchase, purchaseDetailsDto.Purchase.UserBuyerGuid);
                 var purchaseProducts = purchase.StorePurchases
                     .SelectMany(storePurchase =>
                         storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
 
 
-                var productTasks = purchaseProducts.Select(purchaseProduct =>
-                    Task.Run(async () =>
-                    {
-                        var product = purchaseProduct.Product;
-                        purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
-                    }));
+                await purchaseProducts.Select(async purchaseProduct =>
+                {
+                    var product = purchaseProduct.Product;
+                    purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+                }).WhenAllAwaitEach();
 
-                var storeTasks = purchase.StorePurchases.Select(storePurchase =>
-                    Task.Run(async () =>
-                    {
-                        storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
-                    }));
+                await purchase.StorePurchases.Select(async storePurchase =>
+                {
+                    storePurchase.Store =
+                        await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                    storePurchase.Buyer = purchase.Buyer;
+                }).WhenAllAwaitEach();
 
-                await Task.WhenAll(productTasks.Concat(storeTasks));
+                var usersOffers =
+                    (await _purchaseUnitOfWork.OffersRepository.FilterByAsync(offer =>
+                        offer.User.Guid == purchase.Buyer.Guid && offer.State == ProductOfferState.Approved || offer.State == ProductOfferState.CounterOfferReceived)).ToList();
 
-                var purchaseResult = await purchase.MakePurchase();
+                var purchaseResult = await purchase.MakePurchase(usersOffers);
+
                 if (purchaseResult.IsPolicyFailure)
                 {
                     throw new PolicyValidationException(purchaseResult.Errors);
@@ -75,26 +87,56 @@ namespace BoomaEcommerce.Services.Purchases
                 {
                     return null;
                 }
-                await _paymentClient.MakeOrder(purchase);
+
+
+
+                paymentTransactionId = await _paymentClient.MakePayment(purchaseDetailsDto.PaymentDetails);
 
                 await _purchaseUnitOfWork.PurchaseRepository.InsertOneAsync(purchase);
 
-                if (purchase.Buyer is not null)
+                if (purchaseDetailsDto.Purchase.UserBuyerGuid.HasValue)
                 {
                     await _purchaseUnitOfWork.ShoppingCartRepository
                         .DeleteOneAsync(cart =>
-                            cart.User.Guid == purchase.Buyer.Guid);
+                            cart.User.Guid == purchaseDetailsDto.Purchase.UserBuyerGuid);
                 }
 
-                await _supplyClient.NotifyOrder(purchase);
+                if (purchaseDetailsDto.SupplyDetails is not null)
+                {
+                    supplyTransactionId = await _supplyClient.MakeOrder(purchaseDetailsDto.SupplyDetails);
+                }
+                
+                var boughtPurchaseProducts = purchase
+                    .StorePurchases
+                    .SelectMany(p => p.PurchaseProducts)
+                    .ToList();
+                
+                usersOffers.Where(o => boughtPurchaseProducts
+                        .Exists(p => p.Product.Guid == o.Product.Guid))
+                    .ForAll(p => p.State = ProductOfferState.Purchased);
+
                 await NotifyOnPurchase(purchase);
                 await _purchaseUnitOfWork.SaveAsync();
 
+                await transaction.CommitAsync();
+
                 return _mapper.Map<PurchaseDto>(purchase);
             }
-            catch (PolicyValidationException)
+            catch (PolicyValidationException e)
             {
-                _logger.LogError("Store policies for purchase failed.");
+                _logger.LogError(e, "Store policies for purchase failed.");
+                throw;
+            }
+            catch (PaymentFailureException e)
+            {
+                RollbackTransactions(paymentTransactionId, supplyTransactionId);
+                _logger.LogError(e, "External payment system failure");
+                throw;
+            }
+            catch (SupplyFailureException e)
+            {
+                RollbackTransactions(paymentTransactionId, supplyTransactionId);
+                _logger.LogError(e, "External supply system failure");
                 throw;
             }
             catch (Exception e)
@@ -105,9 +147,45 @@ namespace BoomaEcommerce.Services.Purchases
 
         }
 
-        private Task NotifyOnPurchase(Purchase purchaseDto)
+        private async Task CreateOrGetBuyerInfo(Purchase purchase, Guid? userBuyerGuid)
         {
-            return Task.WhenAll(purchaseDto.StorePurchases.Select(NotifyStoreSellersOnPurchase));
+            if (userBuyerGuid.HasValue)
+            {
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByIdAsync(userBuyerGuid.ToString());
+            }
+            else
+            {
+                purchase.Buyer.UserName = "GUEST" +  Guid.NewGuid();
+                var res = await _purchaseUnitOfWork.UserRepository.CreateAsync(purchase.Buyer, Guid.NewGuid().ToString());
+                if (!res.Succeeded)
+                {
+                    throw new UserCreationException("Failed to create guest user for the purchase.");
+                }
+
+                purchase.Buyer = await _purchaseUnitOfWork.UserRepository.FindByNameAsync(purchase.Buyer.UserName);
+            }
+        }
+
+
+        private void RollbackTransactions(int? paymentTransactionId, int? supplyTransactionId)
+        {
+            if (paymentTransactionId.HasValue)
+            {
+                _paymentClient.CancelPayment(paymentTransactionId.Value);
+            }
+
+            if (supplyTransactionId.HasValue)
+            {
+                _supplyClient.CancelOrder(supplyTransactionId.Value);
+            }
+        }
+
+        private async Task NotifyOnPurchase(Purchase purchaseDto)
+        {
+            foreach (var storePurchase in purchaseDto.StorePurchases)
+            {
+                await NotifyStoreSellersOnPurchase(storePurchase);
+            }
         }
 
 
@@ -117,14 +195,19 @@ namespace BoomaEcommerce.Services.Purchases
                 (await _purchaseUnitOfWork.StoreOwnershipRepository.FilterByAsync(ownership =>
                     ownership.Store.Guid == storePurchase.Store.Guid)).ToList();
 
-            var notification = new StorePurchaseNotification(storePurchase.Buyer, storePurchase.Guid, storePurchase.Store);
 
+            var notifications = new List<(Guid, NotificationDto)>();
             foreach (var ownership in ownerships)
             {
+                var notification = new StorePurchaseNotification(storePurchase.Buyer, storePurchase.Guid, storePurchase.Store);
+
                 ownership.User.Notifications.Add(notification);
+                notifications.Add((ownership.User.Guid, _mapper.Map<StorePurchaseNotificationDto>(notification)));
+                _purchaseUnitOfWork.Attach(notification);
             }
-            var notifyTask = _notificationPublisher.NotifyManyAsync(_mapper.Map<StorePurchaseNotificationDto>(notification),
-                ownerships.Select(ownership => ownership.User.Guid));
+
+            var notifyTask =
+                _notificationPublisher.NotifyManyAsync(notifications);
 
             await Task.WhenAll(_purchaseUnitOfWork.SaveAsync(), notifyTask);
         }
@@ -146,6 +229,49 @@ namespace BoomaEcommerce.Services.Purchases
                 return null;
             }
             
+        }
+
+        public async Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
+        {
+            var purchase = _mapper.Map<Purchase>(purchaseDto);
+            if (purchaseDto.UserBuyerGuid.HasValue)
+            {
+                purchase.Buyer =
+                    await _purchaseUnitOfWork.UserRepository.FindByIdAsync(purchaseDto.UserBuyerGuid.Value.ToString());
+            }
+            
+            var purchaseProducts = purchase.StorePurchases
+                .SelectMany(storePurchase =>
+                    storePurchase.PurchaseProducts, (_, purchaseProduct) => purchaseProduct);
+            
+
+            await purchaseProducts.Select(async purchaseProduct =>
+            {
+                var product = purchaseProduct.Product;
+                purchaseProduct.Product = await _purchaseUnitOfWork.ProductRepository.FindByIdAsync(product.Guid);
+            }).WhenAllAwaitEach();
+
+            await purchase.StorePurchases.Select(async storePurchase =>
+            {
+                storePurchase.Store = await _purchaseUnitOfWork.StoresRepository.FindByIdAsync(storePurchase.Store.Guid);
+                storePurchase.Buyer = purchase.Buyer;
+            }).WhenAllAwaitEach();
+
+            var usersOffers = purchase.Buyer == null 
+                ? new List<ProductOffer>()
+                : (await _purchaseUnitOfWork.OffersRepository.FilterByAsync(offer =>
+                    offer.User.Guid == purchase.Buyer.Guid && offer.State == ProductOfferState.Approved || offer.State == ProductOfferState.CounterOfferReceived)).ToList();
+
+            var purchaseResult = purchase.CalculatePurchaseFinalPrice(usersOffers);
+            if (purchaseResult.IsPolicyFailure)
+            {
+                throw new PolicyValidationException(purchaseResult.Errors);
+            }
+            if (!purchaseResult.Success)
+            {
+                throw new Exception("Calculate price failure");
+            }
+            return purchaseResult.Price;
         }
 
         // function not supported yet.

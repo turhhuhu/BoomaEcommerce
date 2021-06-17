@@ -8,6 +8,16 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import { Alert } from "@material-ui/lab";
 import Select from "react-select";
 
+const mapPolicyTypeToValueName = {
+  ageRestriction: "minAge",
+  maxCategoryAmount: "amount",
+  maxProductAmount: "amount",
+  maxTotalAmount: "amount",
+  minTotalAmount: "amount",
+  minCategoryAmount: "amount",
+  minProductAmount: "amount",
+};
+
 const typeOptions = [
   { value: "composite", label: "Composite", name: "type" },
   { value: "binary", label: "Binary", name: "type" },
@@ -36,6 +46,16 @@ const typeOptions = [
     label: "Min Product Amount",
     name: "type",
   },
+  {
+    value: "maxTotalAmount",
+    label: "Max Total Amount",
+    name: "type",
+  },
+  {
+    value: "minTotalAmount",
+    label: "Min Total Amount",
+    name: "type",
+  },
 ];
 const operatorOptions = [
   { value: "and", label: "And", name: "operator" },
@@ -49,12 +69,13 @@ class AddStorePolicyDialog extends Component {
     type: "",
     operator: "",
     value: "",
-    isTypeMenuOpen: false,
-    isTypeOperatorMenuOpen: false,
+    productGuid: "",
+    category: "",
+    isMenuOpen: false,
   };
 
   handleChange = (event) => {
-    if (this.event?.target) {
+    if (event?.target) {
       this.setState({
         [event.target.name]: event.target.value,
       });
@@ -70,57 +91,102 @@ class AddStorePolicyDialog extends Component {
     this.props.closeDialog();
   };
 
-  handleOpenTypeMenu = () => {
-    this.setState({ isTypeMenuOpen: true });
+  handleOpenMenu = () => {
+    this.setState({ isMenuOpen: true });
   };
 
-  handleCloseTypeMenu = () => {
-    this.setState({ isTypeMenuOpen: false });
+  handleCloseMenu = () => {
+    this.setState({ isMenuOpen: false });
   };
 
-  handleOpenOperatorMenu = () => {
-    this.setState({ isTypeOperatorMenuOpen: true });
-  };
-
-  handleCloseOperatorMenu = () => {
-    this.setState({ isTypeOperatorMenuOpen: false });
+  dynamicStyle = () => {
+    if (this.state.isMenuOpen) {
+      if (this.props.isRoot) {
+        return { height: "450px" };
+      }
+      return { height: "450px" };
+    }
+    return null;
   };
 
   handleSubmit = (event) => {
+    event.preventDefault();
     if (!this.state.type) {
       this.setState({ error: "Policy type is required" });
       return;
-    } else if (
+    }
+    if (
       (this.state.type === "composite" || this.state.type === "binary") &&
       !this.state.operator
     ) {
       this.setState({
         error: "Operator is needed with composite or binary policy type",
       });
-    } else if (
+      return;
+    }
+    if (
       this.state.type &&
       this.state.type !== "composite" &&
       this.state.type !== "binary" &&
       !this.state.value
     ) {
       this.setState({ error: "Value is needed with selected policy type" });
-    } else {
-      event.preventDefault();
-      this.setState({ error: undefined });
-      //   this.props
-      //     .dispatch(
-      //       addStorePolicy({
-      //         type: this.state.name,
-      //         description: this.state.description,
-      //       })
-      //     )
-      //     .then((success) => {
-      //       if (success) {
-      //         this.props.closeDialog();
-      //         this.props.dispatch(fetchUserRoles());
-      //       }
-      //     });
+      return;
     }
+    this.setState({ error: undefined });
+    this.props.isRoot
+      ? this.props
+          .dispatch(
+            this.props.addRootPolicy(this.props.storeGuid, {
+              type: this.state.type,
+              operator: this.state.operator ? this.state.operator : undefined,
+              [mapPolicyTypeToValueName[this.state.type]]: this.state.value
+                ? this.state.value
+                : undefined,
+              productGuid: this.state.productGuid
+                ? this.state.productGuid
+                : undefined,
+              category: this.state.category ? this.state.category : undefined,
+            })
+          )
+          .then((success) => {
+            if (success) {
+              this.props.closeDialog();
+              this.props.dispatch(this.props.fetchPolicy(this.props.storeGuid));
+            }
+          })
+      : this.props
+          .dispatch(
+            this.props.addSubPolicy(
+              this.props.storeGuid,
+              this.props.fatherPolicyGuid,
+              {
+                type: this.state.type,
+                operator: this.state.operator ? this.state.operator : undefined,
+                [mapPolicyTypeToValueName[this.state.type]]: this.state.value
+                  ? this.state.value
+                  : undefined,
+                productGuid: this.state.productGuid
+                  ? this.state.productGuid
+                  : undefined,
+                category: this.state.category ? this.state.category : undefined,
+              }
+            )
+          )
+          .then((success) => {
+            if (success) {
+              this.props.closeDialog();
+              this.setState({
+                error: undefined,
+                type: "",
+                operator: "",
+                value: "",
+                isTypeMenuOpen: false,
+                isTypeOperatorMenuOpen: false,
+              });
+              this.props.dispatch(this.props.fetchPolicy(this.props.storeGuid));
+            }
+          });
   };
 
   render() {
@@ -130,33 +196,73 @@ class AddStorePolicyDialog extends Component {
         onClose={this.handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add product</DialogTitle>
+        <DialogTitle id="form-dialog-title">Add policy</DialogTitle>
         <form>
-          <DialogContent
-            style={
-              this.state.isTypeMenuOpen || this.state.isTypeOperatorMenuOpen
-                ? { height: "450px" }
-                : null
-            }
-          >
+          <DialogContent style={this.dynamicStyle()}>
             <DialogContentText>
               Please fill out the following policy details:
             </DialogContentText>
             <label>Type:</label>
             <Select
-              onMenuOpen={this.handleOpenTypeMenu}
-              onMenuClose={this.handleCloseTypeMenu}
+              onMenuOpen={this.handleOpenMenu}
+              onMenuClose={this.handleCloseMenu}
               options={typeOptions}
               onChange={this.handleChange}
             />
-
+            {(this.state.type && this.state.type === "ageRestriction") ||
+            this.state.type === "maxProductAmount" ||
+            this.state.type === "minProductAmount" ? (
+              <React.Fragment>
+                <br />
+                <label>Product:</label>
+                <Select
+                  maxMenuHeight={200}
+                  onMenuOpen={this.handleOpenMenu}
+                  onMenuClose={this.handleCloseMenu}
+                  options={this.props?.storeProducts.map((product) => {
+                    return {
+                      value: product.guid,
+                      label: product.name,
+                      name: "productGuid",
+                    };
+                  })}
+                  onChange={this.handleChange}
+                />{" "}
+              </React.Fragment>
+            ) : null}
+            {(this.state.type && this.state.type === "maxCategoryAmount") ||
+            this.state.type === "minCategoryAmount" ? (
+              <React.Fragment>
+                <br />
+                <label>Category:</label>
+                <Select
+                  maxMenuHeight={200}
+                  onMenuOpen={this.handleOpenMenu}
+                  onMenuClose={this.handleCloseMenu}
+                  options={[
+                    ...new Set(
+                      this.props.storeProducts?.map(
+                        (product) => product.category
+                      )
+                    ),
+                  ].map((category) => {
+                    return {
+                      value: category,
+                      label: category,
+                      name: "category",
+                    };
+                  })}
+                  onChange={this.handleChange}
+                />{" "}
+              </React.Fragment>
+            ) : null}
             {this.state.type === "composite" || this.state.type === "binary" ? (
               <React.Fragment>
                 <br />
                 <label>Operator:</label>
                 <Select
-                  onMenuOpen={this.handleOpenOperatorMenu}
-                  onMenuClose={this.handleCloseOperatorMenu}
+                  onMenuOpen={this.handleOpenMenu}
+                  onMenuClose={this.handleCloseMenu}
                   options={operatorOptions}
                   onChange={this.handleChange}
                 />{" "}
@@ -171,9 +277,9 @@ class AddStorePolicyDialog extends Component {
                 <input
                   type="text"
                   className="form-control mb-2"
-                  name="nominatedUserName"
+                  name="value"
                   required
-                  value={this.state.nominatedUserName}
+                  value={this.state.value}
                   onChange={this.handleChange}
                 ></input>
               </React.Fragment>
@@ -204,4 +310,11 @@ class AddStorePolicyDialog extends Component {
   }
 }
 
-export default connect()(AddStorePolicyDialog);
+const mapStateToProps = (store) => {
+  return {
+    storeProducts: store.store.products,
+    error: store.store.error,
+  };
+};
+
+export default connect(mapStateToProps)(AddStorePolicyDialog);

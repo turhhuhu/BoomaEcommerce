@@ -10,50 +10,69 @@ using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
+using BoomaEcommerce.Data.EfCore;
 
 namespace BoomaEcommerce.Services
 {
     public class AppInitializer
     {
         private readonly ILogger<AppInitializer> _logger;
-        private readonly UserManager<User> _userManager;
-        private readonly IStoreUnitOfWork _storeUnitOfWork;
+        private UserManager<User> _userManager;
+        private readonly IServiceProvider _sp;
+        private IStoreUnitOfWork _storeUnitOfWork;
         private readonly IEnumerable<IUseCase> _useCases;
         private readonly AppInitializationSettings _settings;
+        private RoleManager<IdentityRole<Guid>> _roleManager;
         public AppInitializer(ILogger<AppInitializer> logger,
-            UserManager<User> userManager,
-            IStoreUnitOfWork storeUnitOfWork,
+            IServiceProvider sp,
             IOptions<AppInitializationSettings> options,
             IEnumerable<IUseCase> useCases)
         {
             _logger = logger;
-            _userManager = userManager;
-            _storeUnitOfWork = storeUnitOfWork;
+            _sp = sp;
             _useCases = useCases;
             _settings = options.Value;
         }
         public async Task InitializeAsync()
         {
+            using var scope = _sp.CreateScope();
+            _storeUnitOfWork = scope.ServiceProvider.GetRequiredService<IStoreUnitOfWork>();
+            _userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            _roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole<Guid>>>();
+
+
+
             var user = await InitAdmin();
             if (_settings.SeedDummyData)
             {
-                await SeedData(user);
+                try
+                {
+                    await SeedData(user);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Failed to seed some of the data. (Mixed db could be the cause).");
+                }
             }
 
-            await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
+            await _storeUnitOfWork.SaveAsync();
+
+            try
+            {
+                if (_settings.UseCases.Any())
+                    await Task.WhenAll(_useCases.Where(uc => _settings.UseCases.Contains(uc.GetType().Name)).Select(uc => uc.RunUseCaseAsync()));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed some use cases fully. (Mixed db could be the cause).");
+            }
         }
 
         private async Task SeedData(User user)
         {
             _logger.LogInformation("Seeding dummy data...");
-            var store = new Store
-            {
-                StoreFounder = user,
-                StoreName = "AdminStore",
-                Description = "AdminStore",
-                Rating = 10
-            };
-
+            var store = new Store(user) {StoreName = "AdminStore", Description = "AdminStore", Rating = 10};
 
             await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
 
@@ -74,7 +93,9 @@ namespace BoomaEcommerce.Services
                 User = user
             };
             await _storeUnitOfWork.StoreRepo.InsertOneAsync(store);
+
             await _storeUnitOfWork.StoreOwnershipRepo.InsertOneAsync(ownership);
+
         }
 
         private async Task<User> InitAdmin()
@@ -101,6 +122,10 @@ namespace BoomaEcommerce.Services
             var roles = await _userManager.GetRolesAsync(admin);
             if (!roles.Contains(UserRoles.AdminRole))
             {
+                if (_roleManager != null && !await _roleManager.RoleExistsAsync(UserRoles.AdminRole))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole<Guid>(UserRoles.AdminRole));
+                }
                 _logger.LogWarning("Admin role was not found for admin user, making attempt to insert the role.");
                 var roleResult = await _userManager.AddToRoleAsync(admin, UserRoles.AdminRole);
                 if (!roleResult.Succeeded)

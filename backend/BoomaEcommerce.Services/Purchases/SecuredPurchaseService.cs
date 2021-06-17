@@ -10,6 +10,8 @@ using BoomaEcommerce.Core.Exceptions;
 using BoomaEcommerce.Services.Products;
 using Microsoft.AspNetCore.Authorization;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 
 namespace BoomaEcommerce.Services.Purchases
 {
@@ -41,23 +43,23 @@ namespace BoomaEcommerce.Services.Purchases
             }
         }
 
-        public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchase)
+        public Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto)
         {
-            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchase);
+            ServiceUtilities.ValidateDto<PurchaseDetailsDto, PurchaseServiceValidators.CreatePurchaseAsync>(purchaseDetailsDto);
             
             // Visitor purchase
-            if (purchase.BuyerGuid == default) return _purchaseService.CreatePurchaseAsync(purchase);
+            if (!purchaseDetailsDto.Purchase.UserBuyerGuid.HasValue) return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
 
             CheckAuthenticated();
             var userGuidInClaims = ClaimsPrincipal.GetUserGuid();
 
             // Different user than the buyer trying to make the purchase. (only if registered)
-            if (userGuidInClaims != purchase.BuyerGuid)
+            if (userGuidInClaims != purchaseDetailsDto.Purchase.UserBuyerGuid)
             {
-                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchase.BuyerGuid} found in purchase.");
+                throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {purchaseDetailsDto.Purchase.UserBuyerGuid} found in purchase.");
             }
 
-            return _purchaseService.CreatePurchaseAsync(purchase);
+            return _purchaseService.CreatePurchaseAsync(purchaseDetailsDto);
         }
 
         public Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userGuid)
@@ -76,6 +78,12 @@ namespace BoomaEcommerce.Services.Purchases
             }
 
             throw new UnAuthorizedException($"User {userGuidInClaims} found in claims does not match user {userGuid} provided to get history for.");
+        }
+
+        public Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto)
+        {
+            ServiceUtilities.ValidateDto<PurchaseDto, PurchaseServiceValidators.PurchaseValidator>(purchaseDto);
+            return _purchaseService.GetPurchaseFinalPrice(purchaseDto);
         }
 
         public Task DeletePurchaseAsync(Guid purchaseGuid)

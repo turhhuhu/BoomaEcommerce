@@ -6,6 +6,8 @@ async function callApi(endpoint, authenticated, config) {
   let token = localStorage.getItem("access_token") || null;
   if (!config) {
     config = {};
+  } else {
+    console.log(config);
   }
 
   if (authenticated) {
@@ -34,16 +36,38 @@ async function callApi(endpoint, authenticated, config) {
       }
       return response
         .text()
-        .then((text) => (text ? JSON.parse(text) : {}))
+        .then((text) => {
+          const errorText = text.substring(1, text.length - 1);
+          if (response.status === 400 && !errorText.startsWith('"type":')) {
+            if (errorText.startsWith("{")) {
+              const error = JSON.parse(text);
+              const errorMsg = error
+                .map((errorObj) => errorObj.error)
+                .join("\n");
+              return Promise.reject(errorMsg);
+            }
+            return Promise.reject(errorText);
+          }
+          if (response.status === 500) {
+            return Promise.reject(errorText);
+          }
+          return text ? JSON.parse(text) : {};
+        })
         .then((responsePayLoad) => ({ responsePayLoad, response }));
     })
     .then(({ responsePayLoad, response }) => {
       if (!response.ok) {
         if (response.status === 400) {
-          return Promise.reject("Bad request");
+          return Promise.reject("Bad request or unexpected error");
         }
         if (response.status === 401) {
           return Promise.reject("Unauthorized");
+        }
+        if (response.status === 404) {
+          return Promise.reject("Not found");
+        }
+        if (response.status === 500) {
+          return Promise.reject("Internal server error");
         }
         return responsePayLoad.errors
           ? Promise.reject(responsePayLoad.errors[""][0])
@@ -58,6 +82,9 @@ async function callApi(endpoint, authenticated, config) {
 }
 
 const middleware = (store) => (next) => (action) => {
+  if (action === undefined) {
+    return next({ type: "UNDEFINED_ACTION" });
+  }
   const callAPI = action[CALL_API];
 
   // So the middleware doesn't get applied to every single action
@@ -87,7 +114,6 @@ const middleware = (store) => (next) => (action) => {
         extraPayload: extraPayload,
       }),
     (error) => {
-      console.log(error);
       next({
         error: error || "There was an error.",
         payload: {

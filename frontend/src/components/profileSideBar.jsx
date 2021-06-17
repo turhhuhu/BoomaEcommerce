@@ -33,12 +33,21 @@ class ProfileSideBar extends Component {
           </a>
           <a
             className={`list-group-item ${
-              this.props.isPurchases ? "active" : null
+              this.props.isPurchaseHistory ? "active" : null
             }`}
             href="/user/purchases"
           >
             {" "}
-            Purchases{" "}
+            Purchase history{" "}
+          </a>
+          <a
+            className={`list-group-item ${
+              this.props.isProductOffers ? "active" : null
+            }`}
+            href="/user/offers"
+          >
+            {" "}
+            Product offers{" "}
           </a>
         </ul>
         <br />

@@ -10,21 +10,32 @@ namespace BoomaEcommerce.Domain
     public struct PurchaseResult
     {
         public bool Success { get; set; }
-        public List<StorePolicyError> Errors { get; set; }
+        public List<PolicyError> Errors { get; set; }
 
         public bool IsPolicyFailure => !Success && Errors.Any();
 
-        public PurchaseResult(List<StorePolicyError> errors)
+        public decimal Price { get; set; }
+
+        public PurchaseResult(List<PolicyError> errors)
         {
             Success = false;
             Errors = errors;
+            Price = 0;
         }
         public PurchaseResult(bool state)
         {
             Success = state;
-            Errors = new List<StorePolicyError>();
+            Errors = new List<PolicyError>();
+            Price = 0;
         }
-        public static PurchaseResult Fail(List<StorePolicyError> failedPolicyResults)
+
+        public PurchaseResult(decimal price)
+        {
+            Success = true;
+            Errors = new List<PolicyError>();
+            Price = price;
+        }
+        public static PurchaseResult Fail(List<PolicyError> failedPolicyResults)
         {
             return new PurchaseResult(failedPolicyResults);
         }
@@ -35,6 +46,11 @@ namespace BoomaEcommerce.Domain
         public static PurchaseResult Ok()
         {
             return new PurchaseResult(true);
+        }
+
+        public static PurchaseResult Ok(decimal price)
+        {
+            return new PurchaseResult(price);
         }
     }
 }

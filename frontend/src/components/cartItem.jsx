@@ -4,19 +4,27 @@ import { removeCartItem } from "../actions/userActions";
 
 class CartItem extends Component {
   state = {
-    quantity: this.props.maxQuantity,
-    currentPrice: this.props.price * this.props.maxQuantity,
+    quantity: 0,
+    maxQuantity: 0,
+    currentPrice: 0,
   };
+
+  componentDidMount() {
+    this.setState({
+      quantity: this.props.quantity,
+      maxQuantity: this.props.maxQuantity,
+      currentPrice: this.props.price * this.props.quantity,
+    });
+  }
+
+  componentDidUpdate() {
+    if (this.props.maxQuantity > this.state.maxQuantity) {
+      this.setState({ maxQuantity: this.props.maxQuantity });
+    }
+  }
 
   handleInputDisable = (event) => {
     event.preventDefault();
-  };
-
-  handleQuantityChange = (event) => {
-    this.setState({
-      [event.target.name]: event.target.value,
-    });
-    this.setState({ currentPrice: this.props.price * event.target.value });
   };
 
   removeCartItem = () => {
@@ -29,7 +37,7 @@ class CartItem extends Component {
     return (
       <article className="card card-body mb-3">
         <div className="row align-items-center">
-          <div className="col-md-6">
+          <div className="col">
             <figcaption className="info">
               <h6 className="title text-dark">{this.props.product?.name}</h6>
               <span className="text-muted small">
@@ -41,37 +49,17 @@ class CartItem extends Component {
               </span>
             </figcaption>
           </div>
-          <div className="col-md-3">
-            <form className="form-inline">
-              <div className="form-group">
-                <div className="mr-3">
-                  <label htmlFor="quantity" className="medium text-dark">
-                    quantity:{" "}
-                  </label>
-                  <label htmlFor="quantity" className="small text-muted">
-                    max quantity: {this.props.maxQuantity}
-                  </label>
-                </div>
-                <input
-                  id="quantity"
-                  className="form-control w-60"
-                  onKeyDown={this.handleInputDisable}
-                  min={1}
-                  max={this.props.maxQuantity}
-                  placeholder={this.state.minPrice}
-                  value={this.state.quantity}
-                  onChange={this.handleQuantityChange}
-                  name="quantity"
-                  type="number"
-                ></input>
-              </div>
-            </form>
+          <div>
+            <span className="medium text-dark mr-3">
+              <strong>Quantity:</strong> {this.state.quantity}
+            </span>
           </div>
 
-          <div className="col price-wrap">
-            <var className="price">{this.state.currentPrice}$</var>
-            <br />
-            <small className="text-muted"> {this.props.price}$ each </small>
+          <div className="col-2 price-wrap">
+            <span>
+              <strong>Price:</strong>
+              <var className="price"> ${this.state.currentPrice}</var>
+            </span>
           </div>
           <div className="pr-2">
             <button

@@ -28,13 +28,13 @@ namespace BoomaEcommerce.Tests.CoreLib
             return Task.CompletedTask;
         }
 
-        public Task NotifyManyAsync(NotificationDto notification, IEnumerable<Guid> usersToNotify)
+        public Task NotifyManyAsync(IEnumerable<(Guid userGuid, NotificationDto notification)> userNotificationPairs)
         {
-            foreach (var user in usersToNotify)
+            foreach (var (userGuid, notification) in userNotificationPairs)
             {
-                if (_notificationsMap.ContainsKey(user))
+                if (_notificationsMap.ContainsKey(userGuid))
                 {
-                    _notificationsMap[user].Add(notification);
+                    _notificationsMap[userGuid].Add(notification);
                 }
             }
 

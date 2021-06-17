@@ -4,6 +4,8 @@ import { RegisterUser } from "../actions/authActions";
 import { connect } from "react-redux";
 import { Redirect } from "react-router";
 import { Alert } from "@material-ui/lab";
+import { TextField } from "@material-ui/core";
+import { formatDate } from "../utils/utilFunctions";
 
 class SignUpForm extends Component {
   state = {
@@ -11,6 +13,7 @@ class SignUpForm extends Component {
     lastName: "",
     username: "",
     password: "",
+    dateOfBirth: Date.now(),
     error: undefined,
     wasButtonPressed: false,
     loading: false,
@@ -40,6 +43,7 @@ class SignUpForm extends Component {
       lastName: this.state.lastName,
       username: this.state.username.trim(),
       password: this.state.password.trim(),
+      dateOfBirth: this.state.dateOfBirth,
     };
     this.props.dispatch(RegisterUser(userInfo));
   };
@@ -109,6 +113,18 @@ class SignUpForm extends Component {
                 placeholder=""
                 required
               ></input>
+              <div className="mt-3">
+                <label>Date of birth:</label>
+                <TextField
+                  onChange={this.handleChange}
+                  defaultValue={formatDate(this.state.dateOfBirth)}
+                  name="dateOfBirth"
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </div>
             </div>
             <div className="form-group mt-3">
               {this.props.isFetching || this.props.isAuthenticated ? (

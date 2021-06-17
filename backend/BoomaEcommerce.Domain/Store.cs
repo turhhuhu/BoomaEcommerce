@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Core;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Domain
@@ -14,6 +15,7 @@ namespace BoomaEcommerce.Domain
         public User StoreFounder { get; set; }
         public float Rating { get; set; }
         public Policy StorePolicy { get; set; }
+        public Discount StoreDiscount { get; set; }
 
         public Store(Policy storePolicy)
         {
@@ -22,9 +24,22 @@ namespace BoomaEcommerce.Domain
 
         public Store()
         {
-            this.StorePolicy = Policy.Empty;
         }
-        
+
+        public Store(User storeFounder)
+        {
+            StoreFounder = storeFounder;
+            StorePolicy = Policy.Empty;
+            StoreDiscount = Discount.Empty;
+        }
+
+        public Store(User storeFounder, Policy storePolicy, Discount storeDiscount)
+        {
+            StorePolicy = storePolicy;
+            StoreDiscount = storeDiscount;
+            this.StoreFounder = storeFounder;
+        }
+
         public PolicyResult CheckPolicy(StorePurchase purchase)
         {
             return StorePolicy.CheckPolicy(purchase);
@@ -33,6 +48,17 @@ namespace BoomaEcommerce.Domain
         {
             return StorePolicy.CheckPolicy(user, basket);
         }
+
+        public string ApplyDiscount(StorePurchase sp)
+        {
+            return StoreDiscount.ApplyDiscount(sp);
+        }
+
+        public string ApplyDiscount(User user, ShoppingBasket basket)
+        {
+            return StoreDiscount.ApplyDiscount(user, basket);
+        }
+
     }
 
 }

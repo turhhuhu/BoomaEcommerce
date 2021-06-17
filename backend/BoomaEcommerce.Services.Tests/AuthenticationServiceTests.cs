@@ -25,7 +25,7 @@ namespace BoomaEcommerce.Services.Tests
         private readonly IFixture _fixture;
         private const string Secret = "aaaaaaaaaaaaaaaaaaa";
 
-        private List<User> _userStore;
+        private Dictionary<Guid, User> _userStore;
         private Mock<UserManager<User>> _mockUserManager;
         private Mock<ILogger<AuthenticationService>> _loggerMock;
         private AuthenticationService _authService;
@@ -34,7 +34,7 @@ namespace BoomaEcommerce.Services.Tests
         public AuthenticationServiceTests()
         {
             _fixture = new Fixture();
-            _userStore = new List<User>();
+            _userStore = new Dictionary<Guid, User>();
             _mockUserManager = DalMockFactory.MockUserManager(_userStore);
             _loggerMock = new Mock<ILogger<AuthenticationService>>();
             _refreshTokens = new Dictionary<Guid, RefreshToken>();
@@ -63,7 +63,7 @@ namespace BoomaEcommerce.Services.Tests
             var refreshToken = _refreshTokens.Values.FirstOrDefault(rfToken => rfToken.Token == response.RefreshToken);
             refreshToken.Should().NotBeNull();
             var token = tokenHandler.ReadJwtToken(response.Token);
-            ValidateTokenWithUser(token, _userStore.First(usr => usr.UserName == "user"));
+            ValidateTokenWithUser(token, _userStore.Values.First(usr => usr.UserName == "user"));
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace BoomaEcommerce.Services.Tests
             var refreshToken = _refreshTokens.Values.FirstOrDefault(rfToken => rfToken.Token == response.RefreshToken);
             refreshToken.Should().NotBeNull();
             var token = tokenHandler.ReadJwtToken(response.Token);
-            ValidateTokenWithUser(token, _userStore.First(usr => usr.UserName == "user"));
+            ValidateTokenWithUser(token, _userStore.Values.First(usr => usr.UserName == "user"));
             var adminRoleClaim = token.Claims.FirstOrDefault(claim => claim.Value == UserRoles.AdminRole );
             adminRoleClaim.Should().NotBeNull();
         }

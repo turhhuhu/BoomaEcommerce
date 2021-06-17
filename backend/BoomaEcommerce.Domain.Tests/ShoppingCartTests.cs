@@ -10,7 +10,7 @@ namespace BoomaEcommerce.Domain.Tests
         public void AddShoppingBasket_ReturnsTrueAndAddsShoppingBasket_WhenShoppingBasketNotNull()
         {
             // Arrange
-            var shoppingBasket = new ShoppingBasket{Store = new Store(null)};
+            var shoppingBasket = new ShoppingBasket{Store = new Store()};
             shoppingBasket.Store.Guid = Guid.NewGuid();
             var sut = new ShoppingCart(new User());
             
@@ -19,7 +19,7 @@ namespace BoomaEcommerce.Domain.Tests
             
             // Assert
             result.Should().BeTrue();
-            sut.StoreGuidToBaskets.ContainsKey(shoppingBasket.Store.Guid).Should().BeTrue();
+            sut.ShoppingBaskets.Contains(shoppingBasket).Should().BeTrue();
         }
         
         [Fact]
@@ -38,22 +38,22 @@ namespace BoomaEcommerce.Domain.Tests
         [Fact]
         public void RemoveShoppingBasket_ReturnsTrueAndRemovesShoppingBasket_WhenShoppingBasketExists()
         {
-            var shoppingBasket = new ShoppingBasket{Store = new Store(null){Guid = Guid.NewGuid()}};
+            var shoppingBasket = new ShoppingBasket{Store = new Store{Guid = Guid.NewGuid()}};
             var sut = new ShoppingCart(new User());
-            sut.StoreGuidToBaskets.TryAdd(shoppingBasket.Store.Guid, shoppingBasket);
+            sut.AddShoppingBasket(shoppingBasket);
             
             // Act
             var result = sut.RemoveShoppingBasket(shoppingBasket.Store.Guid);
             
             // Assert
             result.Should().BeTrue();
-            sut.StoreGuidToBaskets.ContainsKey(shoppingBasket.Store.Guid).Should().BeFalse();
+            sut.ShoppingBaskets.Contains(shoppingBasket).Should().BeFalse();
         }
         
         [Fact]
         public void RemoveShoppingBasket_ReturnsFalse_WhenPShoppingBasketDoesNotExists()
         {
-            var shoppingBasket = new ShoppingBasket{Store = new Store(null){Guid = Guid.NewGuid()}};
+            var shoppingBasket = new ShoppingBasket{Store = new Store{Guid = Guid.NewGuid()}};
             var sut = new ShoppingCart(new User());
 
             // Act
@@ -61,7 +61,7 @@ namespace BoomaEcommerce.Domain.Tests
             
             // Assert
             result.Should().BeFalse();
-            sut.StoreGuidToBaskets.ContainsKey(shoppingBasket.Store.Guid).Should().BeFalse();
+            sut.ShoppingBaskets.Contains(shoppingBasket).Should().BeFalse();
         }
     }
 }

@@ -14,12 +14,29 @@ namespace BoomaEcommerce.Domain
         public Store Store { get; set; }
         public User User { get; set; }
 
-        public ConcurrentDictionary<Guid, StoreOwnership> StoreOwnerships { get; set; } = new();
-        public ConcurrentDictionary<Guid, StoreManagement> StoreManagements { get; set; } = new();
+
+        public ISet<StoreOwnership> StoreOwnerships { get; set; }
+        public ISet<StoreManagement> StoreManagements { get; set; }
+
+        public StoreOwnership()
+        {
+            StoreOwnerships = new HashSet<StoreOwnership>(new EqualityComparers.SameGuid<StoreOwnership>());
+            StoreManagements = new HashSet<StoreManagement>(new EqualityComparers.SameGuid<StoreManagement>());
+        }
+
+        public void AddOwner(StoreOwnership owner)
+        {
+            StoreOwnerships.Add(owner);
+        }
+        public void AddManager(StoreManagement manager)
+        {
+            StoreManagements.Add(manager);
+        }
+
 
         public bool RemoveManager(Guid managerToRemove)
         {
-            return StoreManagements.TryRemove(managerToRemove, out _);
+            return StoreManagements.Remove(new StoreManagement {Guid = managerToRemove});
         }
 
 
@@ -27,13 +44,13 @@ namespace BoomaEcommerce.Domain
         {
             if (level > 0 || !level.HasValue)
             {
-                var sellers = StoreOwnerships.Values.Select(owner => owner.GetSubordinates(level - 1)).ToList();
-                var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships.Values).ToList();
-                var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements.Values).ToList();
+                var sellers = StoreOwnerships.Select(owner => owner.GetSubordinates(level - 1)).ToList();
+                var owners = sellers.SelectMany(pair => pair.Item1).Concat(StoreOwnerships).ToList();
+                var managers = sellers.SelectMany(pair => pair.Item2).Concat(StoreManagements).ToList();
                 return (owners, managers);
             }
 
-            return (StoreOwnerships.Values.ToList(), StoreManagements.Values.ToList());
+            return (StoreOwnerships.ToList(), StoreManagements.ToList());
         }
 
         public void RemoveOwner(Guid ownershipGuid)
@@ -43,14 +60,15 @@ namespace BoomaEcommerce.Domain
             {
                 return;
             }
+
             owner.RemoveSubordinatesRecursively();
-            StoreOwnerships.TryRemove(ownershipGuid, out _);
+            StoreOwnerships.Remove(new StoreOwnership {Guid = ownershipGuid});
         }
 
         public void RemoveSubordinatesRecursively()
         {
             this.StoreManagements.Clear(); // Remove all managers 
-            foreach (var (guid, ownership) in this.StoreOwnerships) // Call Recursively 
+            foreach (var ownership in StoreOwnerships) // Call Recursively 
             { 
                 ownership.RemoveSubordinatesRecursively();
             }
@@ -59,13 +77,18 @@ namespace BoomaEcommerce.Domain
 
         public StoreOwnership GetOwner(Guid ownerGuid)
         {
-            return StoreOwnerships.TryGetValue(ownerGuid, out var ownership) 
-                ? ownership 
-                : null;
+            return StoreOwnerships.FirstOrDefault(o => o.Guid == ownerGuid);
         }
+
+        public bool ContainsManagement(Guid managementGuid)
+        {
+            return StoreManagements.Contains(new StoreManagement {Guid = managementGuid});
+        }
+        public bool ContainsOwnership(Guid ownershipGuid)
+        {
+            return StoreOwnerships.Contains(new StoreOwnership { Guid = ownershipGuid });
+        }
+
     }
-    
-    
-    
-    
+
 }

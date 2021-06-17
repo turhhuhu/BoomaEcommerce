@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using AutoFixture;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Policies;
 
 namespace BoomaEcommerce.Domain.Tests
 {
@@ -22,9 +24,9 @@ namespace BoomaEcommerce.Domain.Tests
         {
             var validProductsPurchases = new List<PurchaseProduct>
             {
-                new(GetTestProduct(), 5, 50),
-                new(GetTestProduct(), 5, 50),
-                new(GetTestProduct(), 5, 50)
+                new(GetTestProduct(), 5, 50, 50),
+                new(GetTestProduct(), 5, 50, 50),
+                new(GetTestProduct(), 5, 50, 50)
             };
 
             return validProductsPurchases;
@@ -48,20 +50,23 @@ namespace BoomaEcommerce.Domain.Tests
             {
                 new ()
                 {
-                    Store = new Store(),
+                    Store = new Store(new User(), Policy.Empty, Discount.Empty),
                     PurchaseProducts = GetTestValidProductsPurchases(),
+                    DiscountedPrice = 150,
                     TotalPrice = 150
                 },
                 new ()
                 {
-                    Store = new Store(),
+                    Store = new Store(new User(), Policy.Empty, Discount.Empty),
                     PurchaseProducts = GetTestValidProductsPurchases(),
+                    DiscountedPrice = 150,
                     TotalPrice = 150
                 },
                 new ()
                 {
-                    Store = new Store(),
+                    Store = new Store(new User(), Policy.Empty, Discount.Empty),
                     PurchaseProducts = GetTestValidProductsPurchases(),
+                    DiscountedPrice = 150,
                     TotalPrice = 150
                 }
             };

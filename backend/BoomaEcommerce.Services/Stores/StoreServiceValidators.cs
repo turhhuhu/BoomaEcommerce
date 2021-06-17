@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.Discounts;
 using BoomaEcommerce.Services.DTO.Policies;
 using FluentValidation;
 using FluentValidation.Validators;
@@ -64,7 +66,7 @@ namespace BoomaEcommerce.Services.Stores
                 RuleFor(store => store.Rating)
                     .Null();
                 RuleFor(store => store.FounderUserGuid)
-                    .Must(founder => founder == default);
+                    .Must(founder => founder != default);
             }
         }
 
@@ -76,9 +78,10 @@ namespace BoomaEcommerce.Services.Stores
                     .Must(guid => guid == default);
 
                 RuleFor(sm => sm.Store)
-                    .Must(store => store != default);
+                    .Must(store => store != default && store.Guid != default);
+
                 RuleFor(sm => sm.User)
-                    .Must(user => user != default);
+                    .Must(user => user != default && (user.Guid != default || !string.IsNullOrEmpty(user.UserName)));
             }
         }
         public class NominateNewStoreOwner : AbstractValidator<StoreOwnershipDto>
@@ -87,10 +90,12 @@ namespace BoomaEcommerce.Services.Stores
             {
                 RuleFor(sm => sm.Guid)
                     .Must(guid => guid == default);
+
                 RuleFor(sm => sm.Store)
-                    .Must(store => store != default);
+                    .Must(store => store != default && store.Guid != default);
+
                 RuleFor(sm => sm.User)
-                    .Must(user => user != default);
+                    .Must(user => user != default && (user.Guid != default || !string.IsNullOrEmpty(user.UserName)));
             }
         }
 
@@ -120,6 +125,7 @@ namespace BoomaEcommerce.Services.Stores
                     });
             }
         }
+
         public class AgeRestrictionPolicyValidator : AbstractValidator<AgeRestrictionPolicyDto>
         {
             public AgeRestrictionPolicyValidator()
@@ -184,5 +190,94 @@ namespace BoomaEcommerce.Services.Stores
                     .NotNull();
             }
         }
+
+        public class AddDiscountValidator : AbstractValidator<CreateDiscountDto>
+        {
+            public AddDiscountValidator()
+            {
+                RuleFor(c => c.DiscountToCreate)
+                    .SetInheritanceValidator(v =>
+                    {
+                        v.Add(new ProductDiscountValidator());
+                        v.Add(new CategoryDiscountValidator());
+                        v.Add(new CompositeDiscountValidator());
+                        v.Add(new BasketDiscountValidator());
+                    });
+            }
+        }
+
+        public class CreateDiscountAsync : AbstractValidator<CreateDiscountDto>
+        {
+            public CreateDiscountAsync()
+            {
+                RuleFor(c => c.DiscountToCreate)
+                    .SetInheritanceValidator(v =>
+                    {
+                        v.Add(new ProductDiscountValidator());
+                        v.Add(new CategoryDiscountValidator());
+                        v.Add(new CompositeDiscountValidator());
+                        v.Add(new BasketDiscountValidator());
+                    });
+            }
+        }
+
+        public class ProductDiscountValidator : AbstractValidator<ProductDiscountDto>
+        {
+            public ProductDiscountValidator()
+            {
+                RuleFor(discount => discount.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(discount => discount.Percentage)
+                    .GreaterThanOrEqualTo(0);
+
+                RuleFor(discount => discount.ProductGuid)
+                    .Must(guid => guid != default);
+            }
+        }
+
+        public class CategoryDiscountValidator : AbstractValidator<CategoryDiscountDto>
+        {
+            public CategoryDiscountValidator()
+            {
+                RuleFor(discount => discount.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(discount => discount.Percentage)
+                    .GreaterThanOrEqualTo(0);
+
+                RuleFor(discount => discount.Category)
+                    .NotEmpty();
+            }
+        }
+
+        public class BasketDiscountValidator : AbstractValidator<BasketDiscountDto>
+        {
+            public BasketDiscountValidator()
+            {
+                RuleFor(discount => discount.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(discount => discount.Percentage)
+                    .GreaterThanOrEqualTo(0);
+            }
+        }
+
+        public class CompositeDiscountValidator : AbstractValidator<CompositeDiscountDto>
+        {
+            public CompositeDiscountValidator()
+            {
+                RuleFor(discount => discount.Guid)
+                    .Must(guid => guid == default);
+
+                RuleFor(discount => discount.Percentage)
+                    .GreaterThanOrEqualTo(0);
+
+                RuleFor(discount => discount.Operator)
+                    .NotNull();
+
+            }
+        }
+
     }
 }

@@ -14,11 +14,12 @@ using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class OwnerAcceptanceTests : IAsyncLifetime
+    public class OwnerAcceptanceTests : TestsBase
     {
         private IStoresService _ownerStoreService;
         private StoreOwnershipDto _storeOwnership;
@@ -37,6 +38,51 @@ namespace BoomaEcommerce.AcceptanceTests
 
         private PurchaseDto _purchase;
         private IFixture _fixture;
+
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+            _fixture = new Fixture();
+            _fixture.Customize<StoreDto>(s =>
+                s.Without(ss => ss.Guid).Without(ss => ss.Rating));
+
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+            var purchaseService = provider.GetRequiredService<PurchasesService>();
+            _notificationPublisher = provider.GetRequiredService<NotificationPublisherStub>();
+            await InitOwnerUser(storeService, authService);
+            await InitNotOwnerUserArik(storeService, authService);
+            await InitNotOwnerUserOmer(storeService, authService);
+            await InitNotOwnerUserMatan(storeService, authService);
+            var product = await CreateStoreProduct(storeService);
+            await PurchaseProduct(purchaseService, product, authService);
+
+            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).Without(pp => pp.Rating)
+                .With(pp => pp.StoreGuid, _storeOwnership.Store.Guid));
+        }
+
+        public override async Task InitInMemoryDb()
+        {
+            await base.InitInMemoryDb();
+            _fixture = new Fixture();
+            _fixture.Customize<StoreDto>(s =>
+                s.Without(ss => ss.Guid).Without(ss => ss.Rating));
+
+            var serviceMockFactory = new ServiceMockFactory();
+            var storeService = serviceMockFactory.MockStoreService();
+            var authService = serviceMockFactory.MockAuthenticationService();
+            var purchaseService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
+            await InitOwnerUser(storeService, authService);
+            await InitNotOwnerUserArik(storeService, authService);
+            await InitNotOwnerUserOmer(storeService, authService);
+            await InitNotOwnerUserMatan(storeService, authService);
+            var product = await CreateStoreProduct(storeService);
+            await PurchaseProduct(purchaseService, product, authService);
+
+            _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).Without(pp => pp.Rating)
+                .With(pp => pp.StoreGuid, _storeOwnership.Store.Guid));
+
+        }
 
         public async Task InitializeAsync()
         {
@@ -153,8 +199,9 @@ namespace BoomaEcommerce.AcceptanceTests
             
             var purchaseDto = new PurchaseDto
             {
-                BuyerGuid = buyerToken.UserGuid,
+                UserBuyerGuid = buyerToken.UserGuid,
                 TotalPrice = 10,
+                DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
                 {
                     new()
@@ -176,8 +223,10 @@ namespace BoomaEcommerce.AcceptanceTests
             };
             _purchase = purchaseDto;
             // added 
-            
-            var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
+            var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseProductDetails);
             if (didPurchasedSucceeded == null)
             {
                 throw new Exception("This shouldn't happen");
@@ -215,7 +264,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var result = await _ownerStoreService.CreateStoreProductAsync(productDto);
 
             // Assert
-            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.Rating));
+            result.Should().BeEquivalentTo(productDto, opt => opt.Excluding(p => p.Guid).Excluding(p => p.StoreMetaData).Excluding(p => p.Rating));
             var product = await _ownerStoreService.GetStoreProductAsync(result.Guid);
             product.Should().BeEquivalentTo(result);
         }
@@ -283,7 +332,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             result.Should().BeTrue();
             updatedProduct.Should()
-                .BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating));
+                .BeEquivalentTo(updateProduct, options => options.Excluding(product => product.Rating).Excluding(p => p.StoreMetaData));
         }
 
         [Fact]
@@ -335,7 +384,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newOwner = _fixture
                 .Build<StoreOwnershipDto>()
-                .With(ownership => ownership.User, new UserDto { Guid = _notOwnerUserArik })
+                .With(ownership => ownership.User, new UserDto {UserName = "Arik", Guid = _notOwnerUserArik })
                 .With(ownership => ownership.Store, _storeOwnership.Store)
                 .Without(ownership => ownership.Guid)
                 .Create();
@@ -418,7 +467,7 @@ namespace BoomaEcommerce.AcceptanceTests
             // Arrange
             var newManager = _fixture
                 .Build<StoreManagementDto>()
-                .With(management => management.User, new UserDto {Guid = _notOwnerUserArik})
+                .With(management => management.User, new UserDto {UserName = "Arik", Guid = _notOwnerUserArik})
                 .With(management => management.Store, _storeOwnership.Store)
                 .Without(management => management.Guid)
                 .Create();
@@ -509,6 +558,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var newManager = _fixture
                 .Build<StoreManagementDto>()
                 .With(management => management.Store, _storeOwnership.Store)
+                .With(management => management.User, new UserDto {Guid = _notOwnerUserArik})
                 .Without(management => management.Guid)
                 .Without(management => management.Permissions)
                 .Create();
@@ -558,10 +608,7 @@ namespace BoomaEcommerce.AcceptanceTests
         }
         #endregion
 
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
+
 
 
         /*
@@ -798,8 +845,15 @@ namespace BoomaEcommerce.AcceptanceTests
             var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
 
             // Assert
-            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt.Excluding(p => p.Guid).Excluding(p => p.PurchaseProducts));
-            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt.Excluding(p => p.Guid).Excluding(p => p.ProductGuid));
+            storePurchase.Should().BeEquivalentTo(realStorePurchase, opt => opt
+                .Excluding(p => p.Guid)
+                .Excluding(p => p.PurchaseProducts)
+                .Excluding(p => p.StoreMetaData)
+                .Excluding(p => p.UserMetaData));
+            purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, opt => opt
+                .Excluding(p => p.Guid)
+                .Excluding(p => p.ProductGuid)
+                .Excluding(p => p.ProductMetaData));
         }
         
         [Fact]
@@ -880,5 +934,8 @@ namespace BoomaEcommerce.AcceptanceTests
 
         }
 
+        public OwnerAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
+        {
+        }
     }
 }

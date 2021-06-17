@@ -6,9 +6,10 @@ import {
   addProductToBasket,
   createBasketWithProduct,
 } from "../actions/userActions";
+import OfferPriceDialog from "./offerPriceDialog";
 
 class Product extends Component {
-  state = { quantity: 1 };
+  state = { quantity: 1, isDialogOpen: false };
 
   handleChange = (event) => {
     this.setState({
@@ -18,6 +19,14 @@ class Product extends Component {
 
   handleInputDisable = (event) => {
     event.preventDefault();
+  };
+
+  handleOfferPrice = () => {
+    this.setState({ isDialogOpen: true });
+  };
+
+  closeOfferPrice = () => {
+    this.setState({ isDialogOpen: false });
   };
 
   handleAddToCart = () => {
@@ -39,7 +48,11 @@ class Product extends Component {
               category: this.props.category,
             },
           },
-          { name: this.props.name, category: this.props.category }
+          {
+            name: this.props.name,
+            category: this.props.category,
+            amount: this.props.amount,
+          }
         )
       );
     } else {
@@ -58,7 +71,11 @@ class Product extends Component {
               storeName: this.props.storeName,
             },
           },
-          { name: this.props.name, category: this.props.category }
+          {
+            name: this.props.name,
+            category: this.props.category,
+            amount: this.props.amount,
+          }
         )
       );
     }
@@ -83,7 +100,6 @@ class Product extends Component {
               <div className="price-wrap mt-2 product-card-item">
                 <label>Price:</label>
                 <span className="price"> {this.props.price}</span>
-                {/* <del className="price-old">$1980</del> */}
               </div>
               <div className="form-group col-md flex-grow-0">
                 <label>Quantity:</label>
@@ -144,6 +160,21 @@ class Product extends Component {
               Add to cart
               <i className="ml-2 fa fa-shopping-cart"></i>
             </button>
+            {this.props.isAuthenticated ? (
+              <button
+                onClick={this.handleOfferPrice}
+                className="btn btn-outline-primary btn-block"
+              >
+                {" "}
+                Offer new price
+                <i className="ml-2 fa fa-sticky-note"></i>
+              </button>
+            ) : null}
+            <OfferPriceDialog
+              isDialogOpen={this.state.isDialogOpen}
+              closeDialog={this.closeOfferPrice}
+              productGuid={this.props.guid}
+            />
           </figcaption>
         </figure>
       </div>
@@ -154,6 +185,7 @@ class Product extends Component {
 const mapStateToProps = (store) => {
   return {
     baskets: store.user.cart.baskets,
+    isAuthenticated: store.auth.isAuthenticated,
   };
 };
 

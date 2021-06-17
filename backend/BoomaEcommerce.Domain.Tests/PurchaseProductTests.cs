@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -93,7 +94,7 @@ namespace BoomaEcommerce.Domain.Tests
             var testProduct = TestData.GetTestProduct();
             var sut = new PurchaseProduct(testProduct, amount, expected);
 
-            var result = sut.ValidatePrice();
+            var result = sut.ValidatePrice(new List<ProductOffer.ProductOffer>());
 
             result.Should().BeTrue();
         }
@@ -107,7 +108,7 @@ namespace BoomaEcommerce.Domain.Tests
             var testProduct = TestData.GetTestProduct();
             var sut = new PurchaseProduct(testProduct, amount, expected);
 
-            var result = sut.ValidatePrice();
+            var result = sut.ValidatePrice(new List<ProductOffer.ProductOffer>());
 
             result.Should().BeFalse();
         }

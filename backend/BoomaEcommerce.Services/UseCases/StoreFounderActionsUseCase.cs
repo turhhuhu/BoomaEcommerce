@@ -18,27 +18,33 @@ namespace BoomaEcommerce.Services.UseCases
     public class StoreFounderActionsUseCase : IUseCase
     {
         private readonly IHttpContextAccessor _accessor;
-        private readonly IAuthenticationService _authService;
+        private IAuthenticationService _authService;
         private readonly IServiceProvider _sp;
         private readonly JwtSettings _jwtSettings;
 
         public StoreFounderActionsUseCase(
             IHttpContextAccessor accessor,
-            IAuthenticationService authService,
             IServiceProvider sp,
             IOptions<JwtSettings> jwtSettings)
         {
             _accessor = accessor;
-            _authService = authService;
             _sp = sp;
             _jwtSettings = jwtSettings.Value;
         }
         public async Task RunUseCaseAsync()
         {
 
+
             await RegisterUsers();
 
+            using var scope = _sp.CreateScope();
+            _authService = scope.ServiceProvider.GetService<IAuthenticationService>();
+
             var loginRes = await _authService.LoginAsync("u2", "u2pass");
+
+            scope.Dispose();
+
+
 
             var claims = SecuredServiceBase.ValidateToken(loginRes.Token, _jwtSettings.Secret);
 
@@ -47,8 +53,10 @@ namespace BoomaEcommerce.Services.UseCases
                 User = claims
             };
 
-            var storeService = _sp.GetRequiredService<IStoresService>();
-            var userService = _sp.GetRequiredService<IUsersService>();
+            using var createStoreScope = _sp.CreateScope();
+
+            var storeService = createStoreScope.ServiceProvider.GetRequiredService<IStoresService>();
+            var userService = createStoreScope.ServiceProvider.GetRequiredService<IUsersService>();
 
             var createdStore = await storeService.CreateStoreAsync(new StoreDto
             {
@@ -89,6 +97,9 @@ namespace BoomaEcommerce.Services.UseCases
 
         private async Task RegisterUsers()
         {
+            using var scope = _sp.CreateScope();
+            _authService = scope.ServiceProvider.GetService<IAuthenticationService>();
+
             var userU1 = new AdminUserDto
             {
                 UserName = "u1",

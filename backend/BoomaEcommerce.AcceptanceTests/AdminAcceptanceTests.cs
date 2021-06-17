@@ -1,19 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
+using BoomaEcommerce.Api;
+using BoomaEcommerce.Data;
+using BoomaEcommerce.Data.EfCore;
+using BoomaEcommerce.Data.EfCore.Repositories;
+using BoomaEcommerce.Data.Migrations;
+using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
+using BoomaEcommerce.Services;
 using BoomaEcommerce.Services.Authentication;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Purchases;
+using BoomaEcommerce.Services.Settings;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
+using Castle.Core.Logging;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
+using ProductOffer = BoomaEcommerce.Domain.ProductOffer.ProductOffer;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class AdminAcceptanceTests : IAsyncLifetime
+    public class AdminAcceptanceTests : TestsBase
     {
         private AdminUserDto _adminUser = new() { UserName = "Ori" };
         private string _adminPassword = "Ori1234";
@@ -23,24 +43,13 @@ namespace BoomaEcommerce.AcceptanceTests
         private PurchaseDto _purchase;
         private StoreDto _storeDto;
         private NotificationPublisherStub _notificationPublisher;
-
-
-        private IFixture _fixture;
-        public async Task InitializeAsync()
+        public AdminAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
         {
             _fixture = new Fixture();
             _fixture.Customize<StoreDto>(s => s.Without(ss => ss.Guid));
-            
-            var serviceMockFactory = new ServiceMockFactory(); 
-            var storeService = serviceMockFactory.MockStoreService();
-            var purchaseService = serviceMockFactory.MockPurchaseService();
-            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
-            var authService = serviceMockFactory.MockAuthenticationService();
-
-            await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
-            
-            await InitAdminServices(storeService, purchaseService, authService);
         }
+
+        private readonly IFixture _fixture;
 
         private async Task InitAdminServices(IStoresService storeService, IPurchasesService purchaseService, IAuthenticationService authService)
         {
@@ -125,8 +134,9 @@ namespace BoomaEcommerce.AcceptanceTests
             
             var purchaseDto = new PurchaseDto
             {
-                BuyerGuid = buyerToken.UserGuid,
+                UserBuyerGuid = buyerToken.UserGuid,
                 TotalPrice = 10,
+                DiscountedPrice = 10,
                 StorePurchases = new List<StorePurchaseDto>
                 {
                     new()
@@ -147,7 +157,10 @@ namespace BoomaEcommerce.AcceptanceTests
                 }
             };
             _purchase = purchaseDto;
-            var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseDto);
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, _purchase)
+                .Create();
+            var didPurchasedSucceeded = await purchasesService.CreatePurchaseAsync(purchaseProductDetails);
             if (didPurchasedSucceeded == null)
             {
                 throw new Exception("This shouldn't happen");
@@ -162,7 +175,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
             // Act
             var result = await _adminStoreService.GetStorePurchaseHistoryAsync(storeGuid);
-            var storePurchase = result.First();
+            var storePurchase = result.First(x => x.BuyerGuid == _purchase.StorePurchases.First().BuyerGuid);
             var purchaseProduct = storePurchase.PurchaseProducts.First();
             var realStorePurchase = _purchase.StorePurchases.First();
             var realPurchaseProduct = realStorePurchase.PurchaseProducts.First();
@@ -171,11 +184,14 @@ namespace BoomaEcommerce.AcceptanceTests
             storePurchase.Should().BeEquivalentTo(realStorePurchase, 
                 opt => opt
                         .Excluding(p => p.Guid)
-                        .Excluding(p => p.PurchaseProducts));
+                        .Excluding(p => p.PurchaseProducts)
+                        .Excluding(p => p.StoreMetaData)
+                        .Excluding(p => p.UserMetaData));
             purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.ProductGuid));
+                    .Excluding(p => p.ProductGuid)
+                    .Excluding(p => p.ProductMetaData));
         }
         
         [Fact]
@@ -196,10 +212,10 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task GetAllUserPurchaseHistoryAsync_ReturnsAllUserPurchaseHistory_WhenUserExists()
         {
             // Arrange
-            var userGuid = _purchase.BuyerGuid;
+            var userGuid = _purchase.UserBuyerGuid;
             
             // Act
-            var result = await _adminPurchaseService.GetAllUserPurchaseHistoryAsync(userGuid);
+            var result = await _adminPurchaseService.GetAllUserPurchaseHistoryAsync(userGuid!.Value);
             
             // Assert
             result.Should().NotBeNull().And.NotBeEmpty();
@@ -207,7 +223,9 @@ namespace BoomaEcommerce.AcceptanceTests
             purchase.Should().BeEquivalentTo(_purchase,
                 opt => opt
                     .Excluding(p => p.StorePurchases)
-                    .Excluding(p => p.Guid));
+                    .Excluding(p => p.Guid)
+                    .Excluding(p => p.Buyer));
+
             var storePurchase = purchase.StorePurchases.First();
             var purchaseProduct = storePurchase.PurchaseProducts.First();
             var realStorePurchase = _purchase.StorePurchases.First();
@@ -215,11 +233,14 @@ namespace BoomaEcommerce.AcceptanceTests
             storePurchase.Should().BeEquivalentTo(realStorePurchase, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.PurchaseProducts));
+                    .Excluding(p => p.PurchaseProducts)
+                    .Excluding(p => p.StoreMetaData)
+                    .Excluding(p => p.UserMetaData));
             purchaseProduct.Should().BeEquivalentTo(realPurchaseProduct, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.ProductGuid));
+                    .Excluding(p => p.ProductGuid)
+                    .Excluding(p => p.ProductMetaData));
         }
         
         [Fact]
@@ -235,11 +256,31 @@ namespace BoomaEcommerce.AcceptanceTests
             // Assert
             result.Should().BeEmpty();
         }
-        
 
-        public Task DisposeAsync()
+        public override async Task InitInMemoryDb()
         {
-            return Task.CompletedTask;
+            var serviceMockFactory = new ServiceMockFactory();
+            var storeService = serviceMockFactory.MockStoreService();
+            var purchaseService = serviceMockFactory.MockPurchaseService();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
+            var authService = serviceMockFactory.MockAuthenticationService();
+            await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
+            await InitAdminServices(storeService, purchaseService, authService);
         }
+
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+
+            var serviceMockFactory = new ServiceMockFactory();
+            var storeService = provider.GetRequiredService<StoresService>();
+            var purchaseService = provider.GetRequiredService<PurchasesService>();
+            _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
+            DataBaseFixture.Services.AddSingleton<INotificationPublisher>(_ => _notificationPublisher);
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+
+            await InitStoreWithProductAndPurchase(storeService, authService, purchaseService);
+            await InitAdminServices(storeService, purchaseService, authService);
+        }
+
     }
 }

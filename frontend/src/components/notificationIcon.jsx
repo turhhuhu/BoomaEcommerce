@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import {
   receiveRegularNotification,
   receiveRoleDismissalNotification,
+  receiveStorePurchaseNotification,
 } from "../actions/userActions";
 import { setupSignalRConnection } from "../signalR";
 import { NOTIFICATION_HUB_URL } from "../utils/constants";
@@ -29,12 +30,39 @@ class NotificationIcon extends Component {
           return receiveRegularNotification(notification);
         },
         roleDismissalNotification: (notification) => {
-          const message = `owner ${notification?.dismissingUserMetaData?.userName} from ${notification?.storeMetaData.storeName} store, has dissmissed you from your role at the store`;
           this.setState({
             isSnackBarOpen: true,
-            snackBarMessage: message,
+            snackBarMessage: notification?.message,
           });
-          return receiveRoleDismissalNotification(notification, message);
+          return receiveRoleDismissalNotification(notification);
+        },
+        storePurchaseNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
+        },
+        newOfferNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
+        },
+        offerDeclinedNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
+        },
+        offerApprovedNotification: (notification) => {
+          this.setState({
+            isSnackBarOpen: true,
+            snackBarMessage: notification?.message,
+          });
+          return receiveStorePurchaseNotification(notification);
         },
       });
       this.props.dispatch(setupEventsHub);

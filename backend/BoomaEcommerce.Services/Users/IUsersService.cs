@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 
 namespace BoomaEcommerce.Services.Users
 {
@@ -80,5 +81,9 @@ namespace BoomaEcommerce.Services.Users
         Task<bool> UpdateUserInfoAsync(UserDto userDto);
 
         Task<BasicUserInfoDto> GetBasicUserInfoAsync(string userName);
+        Task<bool> SetNotificationAsSeen(Guid userGuid, Guid notificationGuid);
+
+        Task<ProductOfferDto> CreateProductOffer(ProductOfferDto offerDto);
+
     }
 }

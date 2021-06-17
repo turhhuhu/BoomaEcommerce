@@ -5,8 +5,11 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
@@ -32,10 +35,11 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
-            IDictionary<Guid, Product> products)
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, ApproverOwner> approverOwners)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products, null);
+                storeManagements, storeManagementPermissions, products, null, null, null, null, approverOwners);
             
             return new StoresService(_storeLoggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
@@ -44,10 +48,11 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, Purchase> purchases,
             IDictionary<Guid, Product> products,
             IDictionary<Guid, User> users,
-            IDictionary<Guid, ShoppingCart> shoppingCarts)
+            IDictionary<Guid, ShoppingCart> shoppingCarts,
+            IDictionary<Guid, ProductOffer> offers)
         {
             var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts
-                , new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>(), new ConcurrentDictionary<Guid, Store>());
+                , new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>(), new ConcurrentDictionary<Guid, Store>(), offers);
             return new PurchasesService(_mapper, _purchaseLoggerMock.Object, _paymentClientMock.Object,
                 purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
@@ -64,7 +69,7 @@ namespace BoomaEcommerce.Services.Tests
             var product = new Product {Guid = productGuid};
             productsDict[productGuid] = product;
             var storeService = GetStoreService(null, null,
-                null, null, null, productsDict);
+                null, null, null, productsDict, null);
             var purchaseDto = new PurchaseDto
             {
                 StorePurchases = new List<StorePurchaseDto>
@@ -81,9 +86,9 @@ namespace BoomaEcommerce.Services.Tests
                     }
                 }
             };
-            var purchaseService = GetPurchaseService(null, productsDict, null, null);
+            var purchaseService = GetPurchaseService(null, productsDict, null, null, new Dictionary<Guid, ProductOffer>());
             var taskDelete = storeService.DeleteProductAsync(productGuid);
-            var taskPurchase = purchaseService.CreatePurchaseAsync(purchaseDto);
+            var taskPurchase = purchaseService.CreatePurchaseAsync(new PurchaseDetailsDto{Purchase = purchaseDto});
 
             // Act
             var deleteResult = await taskDelete;

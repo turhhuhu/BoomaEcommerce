@@ -12,11 +12,12 @@ using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Services.Users;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace BoomaEcommerce.AcceptanceTests
 {
-    public class UserAcceptanceTests : IAsyncLifetime
+    public class UserAcceptanceTests : TestsBase
     {
         private IStoresService _storeService;
         private IPurchasesService _purchaseService;
@@ -31,14 +32,16 @@ namespace BoomaEcommerce.AcceptanceTests
         private PurchaseProductDto purchase_product1;
         private PurchaseProductDto purchase_product2;
         private NotificationPublisherStub _notificationPublisher;
+        private Guid _founderGuid;
 
 
-        public async Task InitializeAsync()
+        public override async Task InitInMemoryDb()
         {
+            await base.InitInMemoryDb();
             _fixture = new Fixture();
-            
 
-           
+            _founderGuid = Guid.NewGuid();
+
             var serviceMockFactory = new ServiceMockFactory();
 
             var storeService = serviceMockFactory.MockStoreService();
@@ -47,20 +50,45 @@ namespace BoomaEcommerce.AcceptanceTests
             _notificationPublisher = serviceMockFactory.GetNotificationPublisherStub();
             var usersService = serviceMockFactory.MockUserService();
 
-            await InitUser(storeService, authService, purchasesService ,usersService);
+            await InitUser(storeService, authService, purchasesService, usersService);
             _fixture.Customize<StoreDto>(s => s
                 .Without(ss => ss.Guid)
                 .Without(ss => ss.Rating)
-                .Without(ss => ss.FounderUserGuid));
+                .With(ss => ss.FounderUserGuid, _founderGuid));
 
             await InitPurchase(storeService);
+        }
+
+        public override async Task InitEfCoreDb(ServiceProvider provider)
+        {
+            _fixture = new Fixture();
+
+            _founderGuid = Guid.NewGuid();
+
+            var storeService = provider.GetRequiredService<StoresService>();
+            var authService = provider.GetRequiredService<IAuthenticationService>();
+            var purchasesService = provider.GetRequiredService<PurchasesService>();
+            _notificationPublisher = provider.GetRequiredService<NotificationPublisherStub>();
+            var usersService = provider.GetRequiredService<UsersService>();
+
+            await InitUser(storeService, authService, purchasesService, usersService);
+            _fixture.Customize<StoreDto>(s => s
+                .Without(ss => ss.Guid)
+                .Without(ss => ss.Rating)
+                .With(ss => ss.FounderUserGuid, _founderGuid));
+
+            await InitPurchase(storeService);
+        }
+
+        public UserAcceptanceTests(SharedDatabaseFixture dataBaseFixture) : base(dataBaseFixture)
+        {
         }
 
         private async Task InitPurchase(IStoresService storesService)
         {
 
             var store = _fixture.Create<StoreDto>();
-            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.BuyerGuid, UserGuid));
+            _fixture.Customize<PurchaseDto>(p => p.Without(pp => pp.Guid).With(pp => pp.UserBuyerGuid, UserGuid));
 
             _store_withGuid = await _storeService.CreateStoreAsync(store);
             _fixture.Customize<ProductDto>(p => p.Without(pp => pp.Guid).With(pp => pp.StoreGuid, _store_withGuid.Guid).Without(pp => pp.Rating).With(pp => pp.Price, 2).With(pp => pp.Amount, 1));
@@ -104,10 +132,11 @@ namespace BoomaEcommerce.AcceptanceTests
             store_purchase_lst.Add(storePurchase);
 
             purchase = _fixture.Build<PurchaseDto>()
-                                   .With(p => p.BuyerGuid, UserGuid)
+                                   .With(p => p.UserBuyerGuid, UserGuid)
                                    .With(p => p.StorePurchases, store_purchase_lst)
                                    .Without(p => p.Guid)
                                    .With(p => p.TotalPrice, storePurchase.TotalPrice)
+                                   .With(p => p.DiscountedPrice, storePurchase.TotalPrice)
                                    .Create();
         }
 
@@ -151,8 +180,12 @@ namespace BoomaEcommerce.AcceptanceTests
         [Fact]
         public async Task ViewPurchasesHistory_ShouldReturnPurchases_WhenPurchasesHistoryExists()
         {
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, purchase)
+                .Create();
+            purchaseProductDetails.Purchase.Buyer = null;
             //Arrange 
-            await _purchaseService.CreatePurchaseAsync(purchase);
+            await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
         
             //Act
             var res = await _purchaseService.GetAllUserPurchaseHistoryAsync(UserGuid);
@@ -160,10 +193,16 @@ namespace BoomaEcommerce.AcceptanceTests
             //Assert 
             res.First().Should().BeEquivalentTo(purchase, x => x.Excluding(p => p.Guid)
                                                                 .Excluding(p=> p.StorePurchases[0].PurchaseProducts[0].ProductGuid)
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[0].ProductMetaData)
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[0].ProductGuid)
                                                                 .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].ProductGuid)
                                                                 .Excluding(p=> p.StorePurchases[0].Guid)
+                                                                .Excluding(p => p.StorePurchases[0].UserMetaData)
+                                                                .Excluding(p => p.StorePurchases[0].StoreMetaData)
                                                                 .Excluding(p=> p.StorePurchases[0].PurchaseProducts[0].Guid)
-                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].Guid));;
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].ProductMetaData)
+                                                                .Excluding(p => p.StorePurchases[0].PurchaseProducts[1].Guid)
+                                                                .Excluding(p =>p.Buyer));
 
         }
 
@@ -171,9 +210,11 @@ namespace BoomaEcommerce.AcceptanceTests
         public async Task CreateStore_ShouldAddStore_WhenStoreDetailsAreValid()
         {
             //Arrange
+            var newFounderGuid = Guid.NewGuid();
+
             var fixtureStore = _fixture
                 .Build<StoreDto>()
-                .Without(s => s.FounderUserGuid)
+                .With(s => s.FounderUserGuid, newFounderGuid)
                 .Without(s => s.Rating)
                 .Without(s => s.Guid)
                 .Create();
@@ -206,7 +247,7 @@ namespace BoomaEcommerce.AcceptanceTests
             var res = await _usersService.AddPurchaseProductToShoppingBasketAsync(UserGuid, shoppingBasket.Guid, purchase_product1);
             var shoppingCart1 = await _usersService.GetShoppingCartAsync(UserGuid);
             var basket = shoppingCart1.Baskets.First();
-            basket.PurchaseProducts.First(x => x.ProductGuid == purchase_product1.ProductGuid).Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid));
+            basket.PurchaseProducts.First(x => x.ProductGuid == purchase_product1.ProductGuid).Should().BeEquivalentTo(purchase_product1, x => x.Excluding(y => y.Guid).Excluding(y => y.Amount).Excluding(y => y.ProductMetaData));
             res.Should().NotBeNull();    
         }
 
@@ -262,13 +303,19 @@ namespace BoomaEcommerce.AcceptanceTests
             var myPurchase = _fixture.Build<PurchaseDto>()
                 .With(p => p.StorePurchases, sp)
                 .With(p => p.TotalPrice, purchase_product1.Price + purchase_product2.Price)
-                .Without(p => p.BuyerGuid)
+                .With(p => p.DiscountedPrice, purchase_product1.Price + purchase_product2.Price)
+                .With(p => p.UserBuyerGuid, UserGuid)
                 .Without(p => p.Guid)
+                .Without(p => p.Buyer)
+                .Create();
+            
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, myPurchase)
                 .Create();
 
             // Act 
 
-            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
+            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseWasSuccessful.Should().NotBeNull();
@@ -289,17 +336,22 @@ namespace BoomaEcommerce.AcceptanceTests
             List<StorePurchaseDto> sp = new List<StorePurchaseDto>();
             sp.Add(myStorePurchase);
 
+
             var myPurchase = _fixture.Build<PurchaseDto>()
                 .With(p => p.StorePurchases, sp)
                 .With(p => p.TotalPrice, purchase_product1.Price + purchase_product2.Price + 1)
-                .Without(p => p.BuyerGuid)
+                .With(p => p.UserBuyerGuid, UserGuid)
                 .Without(p => p.Guid)
+                .Without(p => p.Buyer)
                 .Create();
 
+            var purchaseProductDetails = _fixture.Build<PurchaseDetailsDto>()
+                .With(pd => pd.Purchase, myPurchase)
+                .Create();
            
 
             // Act 
-            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(myPurchase);
+            var purchaseWasSuccessful = await _purchaseService.CreatePurchaseAsync(purchaseProductDetails);
 
             // Assert
             purchaseWasSuccessful.Should().BeNull();
@@ -331,7 +383,7 @@ namespace BoomaEcommerce.AcceptanceTests
 
 
             // Assert
-            list.Find(p => p.Guid == guidToDelete).Should().BeNull();
+            list.FirstOrDefault(p => p.Guid == guidToDelete).Should().BeNull();
             success.Should().BeTrue();
 
         }
@@ -364,15 +416,6 @@ namespace BoomaEcommerce.AcceptanceTests
             success.Should().BeFalse();
 
         }
-
-
-
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-
 
     }
 }

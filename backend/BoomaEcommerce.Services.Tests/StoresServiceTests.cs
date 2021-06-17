@@ -3,8 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
 using AutoMapper;
+using BoomaEcommerce.Core;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
@@ -12,6 +15,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using User = BoomaEcommerce.Domain.User;
 
 namespace BoomaEcommerce.Services.Tests
 {
@@ -26,10 +30,13 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
-            IDictionary<Guid, Product> products)
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ProductOffer> offers,
+            IDictionary<Guid, ApproverOwner> approverOwners)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products,null);
+                storeManagements, storeManagementPermissions, products, null, null, users, offers, approverOwners);
             
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
@@ -40,10 +47,13 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
-            IDictionary<Guid, Product> products)
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ProductOffer> entitiesOffers,
+            IDictionary<Guid, ApproverOwner> approverOwners)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products,null);
+                storeManagements, storeManagementPermissions, products,null, null, users, entitiesOffers, approverOwners);
 
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
@@ -54,7 +64,10 @@ namespace BoomaEcommerce.Services.Tests
             //Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
+            var entitiesOffers = new Dictionary<Guid, ProductOffer>();
 
+            var store = new Store { Guid = Guid.NewGuid() };
 
             var matanUser = TestData.CreateUserObject("Matan");
             var bennyUser = TestData.CreateUserObject("Benny");
@@ -62,24 +75,41 @@ namespace BoomaEcommerce.Services.Tests
             var arikUser = TestData.CreateUserObject("Arik");
             var oriUser = TestData.CreateUserObject("Ori");
 
+
+            entitiesUsers[matanUser.Guid] = matanUser;
+            entitiesUsers[bennyUser.Guid] = bennyUser;
+            entitiesUsers[omerUser.Guid] = omerUser;
+            entitiesUsers[arikUser.Guid] = arikUser;
+            entitiesUsers[oriUser.Guid] = oriUser;
+
+
             var storeMangementMatan = new StoreManagement {Guid = Guid.NewGuid() , User = matanUser };
             
-            var storeOwnerShipBenny = new StoreOwnership { Guid = Guid.NewGuid(), User = bennyUser };
+            var storeOwnerShipBenny = new StoreOwnership { Guid = Guid.NewGuid(), User = bennyUser , Store = store };
 
-            var storeOwnerShipOmerOwners = new ConcurrentDictionary<Guid, StoreOwnership>();
-            storeOwnerShipOmerOwners.TryAdd(storeOwnerShipBenny.Guid,storeOwnerShipBenny);
-            var storeManagmentOmerOwners = new ConcurrentDictionary<Guid, StoreManagement>();
-            storeManagmentOmerOwners.TryAdd(storeMangementMatan.Guid, storeMangementMatan);
-            var storeOwnerShipOmer = new StoreOwnership { Guid = Guid.NewGuid(), User = omerUser, StoreOwnerships = storeOwnerShipOmerOwners,StoreManagements=storeManagmentOmerOwners };
+            var storeOwnerShipOmerOwners = new HashSet<StoreOwnership>(new EqualityComparers.SameGuid<StoreOwnership>());
+            storeOwnerShipOmerOwners.Add(storeOwnerShipBenny);
+            var storeManagmentOmerOwners =
+                new HashSet<StoreManagement>(new EqualityComparers.SameGuid<StoreManagement>());
+            storeManagmentOmerOwners.Add(storeMangementMatan);
+            var storeOwnerShipOmer = new StoreOwnership 
+            { 
+                Guid = Guid.NewGuid(),
+                User = omerUser,
+                StoreOwnerships = 
+                    storeOwnerShipOmerOwners.ToHashSet(),
+                StoreManagements=storeManagmentOmerOwners,
+                Store = store
+            };
 
-            var storeOwnerShipArik = new StoreOwnership { Guid = Guid.NewGuid(), User = arikUser};
-            
-            var storeOwnerShipOriOwners = new ConcurrentDictionary<Guid, StoreOwnership>();
-            storeOwnerShipOriOwners.TryAdd(storeOwnerShipOmer.Guid, storeOwnerShipOmer);
-            storeOwnerShipOriOwners.TryAdd(storeOwnerShipArik.Guid, storeOwnerShipArik);
+            var storeOwnerShipArik = new StoreOwnership { Guid = Guid.NewGuid(), User = arikUser , Store =store};
+
+            var storeOwnerShipOriOwners = new HashSet<StoreOwnership>(new EqualityComparers.SameGuid<StoreOwnership>());
+            storeOwnerShipOriOwners.Add(storeOwnerShipOmer);
+            storeOwnerShipOriOwners.Add(storeOwnerShipArik);
            
 
-            var storeOwnerShipOri = new StoreOwnership { Guid = Guid.NewGuid(), User = oriUser, StoreOwnerships = storeOwnerShipOriOwners };
+            var storeOwnerShipOri = new StoreOwnership { Guid = Guid.NewGuid(), User = oriUser, StoreOwnerships = storeOwnerShipOriOwners, Store =store };
 
 
             entitiesManagements.Add(storeMangementMatan.Guid, storeMangementMatan);
@@ -88,7 +118,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships.Add(storeOwnerShipBenny.Guid, storeOwnerShipBenny);
             entitiesOwnerships.Add(storeOwnerShipOmer.Guid, storeOwnerShipOmer);
 
-            var storeService = GetStoreServiceRemoveOwner(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var storeService = GetStoreServiceRemoveOwner(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, entitiesOffers, null);
 
             //Act
             var result = await storeService.RemoveStoreOwnerAsync(storeOwnerShipOri.Guid, storeOwnerShipOmer.Guid);
@@ -100,7 +130,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships.ContainsKey(storeOwnerShipArik.Guid).Should().BeTrue();
             entitiesOwnerships.Count.Should().Be(2);
             entitiesOwnerships[storeOwnerShipOri.Guid].StoreOwnerships.Count.Should().Be(1);
-            entitiesOwnerships[storeOwnerShipOri.Guid].StoreOwnerships.ContainsKey(storeOwnerShipArik.Guid).Should().BeTrue();
+            entitiesOwnerships[storeOwnerShipOri.Guid].ContainsOwnership(storeOwnerShipArik.Guid).Should().BeTrue();
 
         }
 
@@ -110,18 +140,22 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
-
+            var entitiesStores = new Dictionary<Guid, Store>();
             var nikeStore = TestData.CreateStoreObject("nike");
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var matanUser = TestData.CreateUserObject("Matan");
             var bennyUser = TestData.CreateUserObject("Benny");
-            
-            var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
-            
 
+            entitiesUsers[matanUser.Guid] = matanUser;
+            entitiesUsers[bennyUser.Guid] = bennyUser;
+
+            var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
+
+            entitiesStores[storeOwnershipMatanNike.Store.Guid] = storeOwnershipMatanNike.Store;
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
             
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var us = GetStoreService(entitiesStores, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
             
             var storeOwnershipBennyNike = TestData.CreateStoreOwnershipObject(nikeStore, bennyUser);
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipBennyNike);
@@ -140,7 +174,7 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
-
+            var entitiesUsers = new Dictionary<Guid, User>();
             var nikeStore = TestData.CreateStoreObject("nike");
             var adidasStore = TestData.CreateStoreObject("adidas");
 
@@ -149,10 +183,14 @@ namespace BoomaEcommerce.Services.Tests
 
             
             StoreOwnership storeOwnershipBennyAdidas = TestData.CreateStoreOwnershipObject(adidasStore, bennyUser);
-            
+
+            entitiesUsers[bennyUser.Guid] = bennyUser;
+            entitiesUsers[oriUser.Guid] = oriUser;
+
+
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
-            
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
 
             
             var storeOwnershipOriNike = TestData.CreateStoreOwnershipObject(nikeStore, oriUser);
@@ -172,13 +210,17 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var nikeStore = TestData.CreateStoreObject("nike");
            
             var oriUser = TestData.CreateUserObject("Ori");
             var arikUser = TestData.CreateUserObject("Arik");
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            entitiesUsers[oriUser.Guid] = oriUser;
+            entitiesUsers[arikUser.Guid] = arikUser;
+
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
             
             var storeOwnershipOriNike = TestData.CreateStoreOwnershipObject(nikeStore, oriUser);
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipOriNike);
@@ -199,12 +241,15 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var adidasStore = TestData.CreateStoreObject("adidas");
 
             var matanUser = TestData.CreateUserObject("Matan");
             var bennyUser = TestData.CreateUserObject("Benny");
-          
+
+            entitiesUsers[matanUser.Guid] = matanUser;
+            entitiesUsers[bennyUser.Guid] = bennyUser;
 
             var storeOwnershipMatanAdidas = TestData.CreateStoreOwnershipObject(adidasStore, matanUser);
 
@@ -213,7 +258,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships[storeOwnershipMatanAdidas.Guid] = storeOwnershipMatanAdidas;
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
 
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipBennyAdidas);
             newOwner.Guid = Guid.Empty;
@@ -231,18 +276,23 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var adidasStore = TestData.CreateStoreObject("adidas");
 
             var bennyUser = TestData.CreateUserObject("Benny");
             var omerUser = TestData.CreateUserObject("Omer");
+
+            entitiesUsers[bennyUser.Guid] = bennyUser;
+            entitiesUsers[omerUser.Guid] = omerUser;
+
             var storeOwnershipBennyAdidas = TestData.CreateStoreOwnershipObject(adidasStore, bennyUser);
             var storeManagementsOmerAdidas = TestData.CreateStoreManagementObject(adidasStore, omerUser);
             
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
             entitiesManagements[storeManagementsOmerAdidas.Guid] = storeManagementsOmerAdidas;
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
             
             var storeOwnershipOmerAdidas = TestData.CreateStoreOwnershipObject(adidasStore, omerUser);
             var newOwner = _mapper.Map<StoreOwnershipDto>(storeOwnershipOmerAdidas);
@@ -264,21 +314,25 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesStores = new Dictionary<Guid, Store>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var nikeStore = TestData.CreateStoreObject("nike");
             
 
             var matanUser = TestData.CreateUserObject("Matan");
             var bennyUser = TestData.CreateUserObject("Benny");
-           
+
+            entitiesUsers[matanUser.Guid] = matanUser;
+            entitiesUsers[bennyUser.Guid] = bennyUser;
 
             var storeOwnershipMatanNike = TestData.CreateStoreOwnershipObject(nikeStore, matanUser);
-           
 
+            entitiesStores[nikeStore.Guid] = nikeStore;
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
 
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+           var us = GetStoreService(entitiesStores, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
 
 
             //SUCCESS
@@ -300,19 +354,21 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var nikeStore = TestData.CreateStoreObject("nike");
             var adidasStore = TestData.CreateStoreObject("adidas");
 
             var bennyUser = TestData.CreateUserObject("Benny");
             var oriUser = TestData.CreateUserObject("Ori");
+            entitiesUsers[bennyUser.Guid] = bennyUser;
+            entitiesUsers[oriUser.Guid] = oriUser;
 
-           
             var storeOwnershipBennyAdidas = TestData.CreateStoreOwnershipObject(adidasStore, bennyUser);
            
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
 
 
             //FAIL:bennyUser is an owner of another UserStore
@@ -333,14 +389,16 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var nikeStore = TestData.CreateStoreObject("nike");
             
             var oriUser = TestData.CreateUserObject("Ori");
             var arikUser = TestData.CreateUserObject("Arik");
+            entitiesUsers[oriUser.Guid] = oriUser;
+            entitiesUsers[arikUser.Guid] = arikUser;
 
-
-           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+           var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
 
 
             var storeManagementsOriNike = TestData.CreateStoreManagementObject(nikeStore, oriUser);
@@ -359,6 +417,7 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var nikeStore = TestData.CreateStoreObject("nike");
 
@@ -373,7 +432,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships[storeOwnershipMatanNike.Guid] = storeOwnershipMatanNike;
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
            
             var storeManagementBennyNike = TestData.CreateStoreManagementObject(nikeStore, bennyUser);
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementBennyNike);
@@ -392,6 +451,7 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new Dictionary<Guid, StoreOwnership>();
             var entitiesManagements = new Dictionary<Guid, StoreManagement>();
+            var entitiesUsers = new Dictionary<Guid, User>();
 
             var adidasStore = TestData.CreateStoreObject("adidas");
 
@@ -404,7 +464,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesOwnerships[storeOwnershipBennyAdidas.Guid] = storeOwnershipBennyAdidas;
             entitiesManagements[storeManagementsOmerAdidas.Guid] = storeManagementsOmerAdidas;
 
-            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var us = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null, entitiesUsers, null, null);
             
             var newManager = _mapper.Map<StoreManagementDto>(storeManagementsOmerAdidas);
             newManager.Guid = Guid.Empty;
@@ -444,7 +504,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStoreOwnerships[soArye.Guid] = soArye;
 
             var s = GetStoreService(null, entitiesStoreOwnerships, null,
-                entitiesStoreManagements, null, null);
+                entitiesStoreManagements, null, null, null, null, null);
 
             var lsm = new List<StoreManagementDto>
             {
@@ -478,7 +538,7 @@ namespace BoomaEcommerce.Services.Tests
             var entitiesStoreOwnerships = new Dictionary<Guid, StoreOwnership>();
 
             var s = GetStoreService(null, entitiesStoreOwnerships, null,
-                entitiesStoreManagements, null, null);
+                entitiesStoreManagements, null, null, null, null, null);
 
             // Act 
             var response = await s.GetAllSellersInformationAsync(Guid.NewGuid());
@@ -496,7 +556,7 @@ namespace BoomaEcommerce.Services.Tests
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = TestData.GetTestProduct(productGuid);
 
-            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            var sut = GetStoreService(null, null, null, null, null, productsDict, null, null, null);
             
             //Act
             var result = await sut.DeleteProductAsync(productGuid);
@@ -511,7 +571,7 @@ namespace BoomaEcommerce.Services.Tests
         {
             //Arrange
             var productsDict = new Dictionary<Guid, Product>();
-            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            var sut = GetStoreService(null, null, null, null, null, productsDict, null, null, null);
 
             //Act
             var result = await sut.DeleteProductAsync(Guid.NewGuid());
@@ -527,7 +587,7 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
-            var sut = GetStoreService(null, null, null, null, null, productsDict);
+            var sut = GetStoreService(null, null, null, null, null, productsDict, null, null, null);
 
             //Act
             var result = await sut.DeleteProductAsync(productGuid);
@@ -544,11 +604,11 @@ namespace BoomaEcommerce.Services.Tests
             var productsDict = new Dictionary<Guid, Product>();
             var storesDict = new Dictionary<Guid, Store>();
             var storeGuid = Guid.NewGuid();
-            storesDict[storeGuid] = new Store(null) { Guid = storeGuid};
+            storesDict[storeGuid] = new Store { Guid = storeGuid};
 
             var productToReplaceGuid = Guid.NewGuid();
             productsDict[productToReplaceGuid] = TestData.GetTestProduct(productToReplaceGuid, storeGuid);
-            var sut = GetStoreService(storesDict, null, null, null, null, productsDict);
+            var sut = GetStoreService(storesDict, null, null, null, null, productsDict, null, null, null);
 
             var replacementProductDto =
                 new ProductDto
@@ -571,7 +631,8 @@ namespace BoomaEcommerce.Services.Tests
             resultProduct.Should().BeEquivalentTo(replacementProductDto, 
                 opt => opt
                     .Excluding(p => p.Guid)
-                    .Excluding(p => p.StoreGuid));
+                    .Excluding(p => p.StoreGuid)
+                    .Excluding(p => p.StoreMetaData));
         }
         
         [Fact]
@@ -580,7 +641,7 @@ namespace BoomaEcommerce.Services.Tests
             //Arrange
             var productsDict = new Dictionary<Guid, Product>();
             var sut = GetStoreService(null, null, null, null, 
-                null, productsDict);
+                null, productsDict, null, null, null);
             var productDto = new ProductDto
             {
                 Guid = Guid.NewGuid(),
@@ -602,7 +663,7 @@ namespace BoomaEcommerce.Services.Tests
             var productGuid = Guid.NewGuid();
             productsDict[productGuid] = new Product{Guid = productGuid, IsSoftDeleted = true};
             var sut = GetStoreService(null, null, null,
-                null, null, productsDict);
+                null, null, productsDict, null, null, null);
             var productDto = new ProductDto
             {
                 Guid = Guid.NewGuid(),
@@ -636,7 +697,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(storeAdidas.Guid, storeAdidas);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null, null, null);
 
             //Act
             var res = await storesService.GetStoresAsync();
@@ -661,7 +722,7 @@ namespace BoomaEcommerce.Services.Tests
             var storeTopShop = TestData.CreateStoreObject("TopShop", storeTopShopGuid);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null, null, null);
 
             //Act
             var res = await storesService.GetStoreAsync(storeTopShop.Guid);
@@ -683,7 +744,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(storeBenny.Guid, storeBenny);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null, null, null);
             //Act
             var res = await storesService.GetStoreAsync(storeBenny.Guid);
             
@@ -732,7 +793,7 @@ namespace BoomaEcommerce.Services.Tests
             entitiesStores.Add(store_Nike.Guid, store_Nike);
 
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases, 
-                null, null, null);
+                null, null, null, null, null, null);
 
             //Act
             var res = await storesService.GetStorePurchaseHistoryAsync(store_Adidas.Guid);
@@ -754,7 +815,7 @@ namespace BoomaEcommerce.Services.Tests
 
             var store_Ikea = TestData.CreateStoreObject("Ikea");
             var storesService = GetStoreService(entitiesStores, null, entitiesStorePurchases,
-                null, null, null);
+                null, null, null, null, null, null);
 
             //Act
             var res = await storesService.GetStorePurchaseHistoryAsync(store_Ikea.Guid);

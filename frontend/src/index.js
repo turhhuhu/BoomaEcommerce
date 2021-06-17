@@ -18,6 +18,19 @@ import StoreProductsPage from "./pages/storeProductsPage";
 import StoreManagementPage from "./pages/storeManagementPage";
 import NotificationsPage from "./pages/notificationsPage";
 import StorePolicyPage from "./pages/storePolicyPage";
+import PaymentPage from "./pages/paymentPage";
+import DeliveryPage from "./pages/deliveryPage";
+import CartReviewPage from "./pages/cartReviewPage";
+import PurchaseReviewPage from "./pages/purchaseReviewPage";
+import StoreDiscountsPage from "./pages/storeDiscountsPage";
+import StoreDiscountPolicyPage from "./pages/StoreDiscountPolicyPage";
+import GuestInformationPage from "./pages/guestInformationPage";
+import UserPurchaseHistoryPage from "./pages/userPurchaseHistoryPage";
+import StorePurchaseHistoryPage from "./pages/storePurchaseHistoryPage";
+import UserPurchaseHistoryDetailsPage from "./pages/userPurchaseHistoryDetailsPage";
+import storePurchaseHistoryDetailsPage from "./pages/storePurchaseHistoryDetailsPage";
+import UserProductPriceOffersPage from "./pages/userProductPriceOffersPage";
+import StoreProductPriceOffersPage from "./pages/storeProductPriceOffersPage";
 
 const { store, persistor } = configureStore();
 
@@ -30,14 +43,59 @@ ReactDOM.render(
           <Route path="/login" component={LoginPage}></Route>
           <Route path="/products" component={ProductsPage}></Route>
           <Route path="/home" component={ProductsPage}></Route>
+          <Route path="/cart/guest" component={GuestInformationPage}></Route>
+          <Route path="/cart/review" component={CartReviewPage}></Route>
+          <Route path="/cart/purchase" component={PurchaseReviewPage}></Route>
+          <Route path="/cart/payment" component={PaymentPage}></Route>
+          <Route path="/cart/delivery" component={DeliveryPage}></Route>
           <Route path="/cart" component={CartPage}></Route>
+          <Route
+            exact
+            path="/user/purchases/:guid"
+            component={UserPurchaseHistoryDetailsPage}
+          ></Route>
           <Route exact path="/user/stores" component={UserStoresPage}></Route>
+          <Route
+            exact
+            path="/user/purchases"
+            component={UserPurchaseHistoryPage}
+          ></Route>
+          <Route
+            exact
+            path="/user/offers"
+            component={UserProductPriceOffersPage}
+          ></Route>
           <Route
             exact
             path="/user/notifications"
             component={NotificationsPage}
           ></Route>
           <Route exact path="/user" component={ProfilePage}></Route>
+          <Route
+            exact
+            path="/store/:guid/offers"
+            component={StoreProductPriceOffersPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/discounts/:discountGuid"
+            component={StoreDiscountPolicyPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/purchases/:guid"
+            component={storePurchaseHistoryDetailsPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/purchases"
+            component={StorePurchaseHistoryPage}
+          ></Route>
+          <Route
+            exact
+            path="/store/:guid/discounts"
+            component={StoreDiscountsPage}
+          ></Route>
           <Route
             exact
             path="/store/:guid/products"

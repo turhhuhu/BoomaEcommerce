@@ -7,7 +7,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Data;
+using System.Net.Http;
 using System.Text.Json.Serialization;
+using BoomaEcommerce.Api.Config;
 using BoomaEcommerce.Api.Middleware;
 using BoomaEcommerce.Data.InMemory;
 using BoomaEcommerce.Domain;
@@ -20,6 +22,12 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Microsoft.AspNetCore.Http.Connections;
 using BoomaEcommerce.Api.Hubs;
+using BoomaEcommerce.Data.EfCore;
+using BoomaEcommerce.Data.EfCore.Repositories;
+using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
+using BoomaEcommerce.Services.SwaggerFilters;
 using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json.Converters;
@@ -29,9 +37,14 @@ namespace BoomaEcommerce.Api
 {
     public class Startup
     {
+        public string ConnectionString { get; set; }
+        public DbMode DbMode { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            ConnectionString = Configuration.GetConnectionString("DefaultConnectionString");
+            DbMode = Configuration.GetSection("DbMode").Get<DbMode>();
         }
 
         public IConfiguration Configuration { get; }
@@ -40,8 +53,7 @@ namespace BoomaEcommerce.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-
-            services.AddControllers();
+                services.AddControllers();
 
             services.AddMvc()
                 .AddNewtonsoftJson(x =>
@@ -49,9 +61,9 @@ namespace BoomaEcommerce.Api
                     x.SerializerSettings.Converters.Add(new NotificationCreationConverter());
                     x.SerializerSettings.Converters.Add(new StringEnumConverter(typeof(CamelCaseNamingStrategy)));
                     x.SerializerSettings.Converters.Add(new PolicyCreationConverter());
+                    x.SerializerSettings.Converters.Add(new DiscountCreationConverter());
 
-                })
-                .AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
+                }).AddJsonOptions(x => x.JsonSerializerOptions.IgnoreNullValues = true);
 
             services.AddSignalR(hubOptions =>
             {
@@ -64,6 +76,7 @@ namespace BoomaEcommerce.Api
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {
+                c.SchemaFilter<SwaggerExcludeFilter>();
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BoomaEcommerce.Api", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -89,23 +102,13 @@ namespace BoomaEcommerce.Api
                 });
             });
 
-            services.AddSingleton<AppInitializer>();
+            services.AddTransient<AppInitializer>();
 
             services.Configure<AppInitializationSettings>(Configuration.GetSection(AppInitializationSettings.Section));
 
-            services.AddSingleton(_ => new UserManager<User>(
-                new InMemoryUserStore(), Options.Create
-                    (new IdentityOptions
-                    {
-                        Stores = new StoreOptions { ProtectPersonalData = false }
-                    }),
-                new PasswordHasher<User>(),
-                new IUserValidator<User>[0],
-                new IPasswordValidator<User>[0],
-                new UpperInvariantLookupNormalizer(),
-                new IdentityErrorDescriber(),
-                new DataColumn(),
-                new Logger<UserManager<User>>(new LoggerFactory())));
+            services.AddSingleton<IUseCaseRunner, UseCaseRunner>();
+
+            services.Configure<UseCasesSettings>(Configuration.GetSection(UseCasesSettings.Section));
 
             services.AddAutoMapper(
                 typeof(DomainToDtoProfile),
@@ -113,21 +116,34 @@ namespace BoomaEcommerce.Api
                 typeof(DtoToResponseMappingProfile),
                 typeof(RequestToDtoMappingProfile));
 
+
+            switch (DbMode)
+            {
+                case DbMode.EfCore:
+                    services.AddEfCoreDb(ConnectionString);
+                    break;
+                case DbMode.InMemory:
+                    services.AddInMemoryDb();
+                    break;
+                case DbMode.Mixed:
+                    services.AddMixedDb(ConnectionString);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             services.AddTokenAuthentication(Configuration);
 
-            services.AddSingleton(typeof(IRepository<>), typeof(InMemoryRepository<>));
-            services.AddSingleton<IRepository<StoreOwnership>, InMemoryOwnershipRepository>();
-            services.AddSingleton<IRepository<StoreManagement>, InMemoryManagementRepository>();
             services
                 .AddStoresService()
                 .AddUsersService()
-                .AddPurchasesService()
+                .AddPurchasesService(Configuration)
                 .AddProductsService();
-
+            
             services.AddSingleton<INotificationPublisher, NotificationPublisher>();
             services.AddSingleton<IConnectionContainer, ConnectionContainer>();
 
-            services.AddSingleton<IUseCase, StoreFounderActionsUseCase>();
+            services.AddTransient<IUseCase, StoreFounderActionsUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

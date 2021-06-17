@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
+using BoomaEcommerce.Services.DTO.ProductOffer;
 
 namespace BoomaEcommerce.Services.Purchases
 {
@@ -12,11 +14,11 @@ namespace BoomaEcommerce.Services.Purchases
         /// <summary>
         /// Creates a product.
         /// </summary>
-        /// <param name="purchase"></param>
+        /// <param name="purchaseDetailsDto"></param>
         /// <returns>
         /// A task that represents the asynchronous operation
         /// </returns>
-        Task<PurchaseDto> CreatePurchaseAsync(PurchaseDto purchase);
+        Task<PurchaseDto> CreatePurchaseAsync(PurchaseDetailsDto purchaseDetailsDto);
 
         /// <summary>
         /// Gets all user purchase history.
@@ -27,6 +29,16 @@ namespace BoomaEcommerce.Services.Purchases
         /// The task result contains the purchase collection.
         /// </returns>
         Task<IReadOnlyCollection<PurchaseDto>> GetAllUserPurchaseHistoryAsync(Guid userId);
+
+        /// <summary>
+        /// Gets the purchase final price after discount calculation
+        /// </summary>
+        /// <param name="purchaseDto"></param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the purchase final price
+        /// </returns>
+        Task<decimal> GetPurchaseFinalPrice(PurchaseDto purchaseDto);
 
 
         /// <summary>
@@ -46,5 +58,6 @@ namespace BoomaEcommerce.Services.Purchases
         /// A task that represents the asynchronous operation
         /// </returns>
         Task UpdatePurchaseAsync(PurchaseDto purchase);
+
     }
 }

@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.Stores;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -25,10 +27,12 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, StorePurchase> storePurchases,
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
-            IDictionary<Guid, Product> products)
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ApproverOwner> approverOwners)
         {
             var storeUnitOfWork = DalMockFactory.MockStoreUnitOfWork(stores, storeOwnerships, storePurchases,
-                storeManagements, storeManagementPermissions, products , null);
+                storeManagements, storeManagementPermissions, products , null, null, users, null, approverOwners);
             
             return new StoresService(_loggerMock.Object, _mapper, storeUnitOfWork.Object, new NotificationPublisherStub());
         }
@@ -40,21 +44,41 @@ namespace BoomaEcommerce.Services.Tests
             // Arrange
             var entitiesOwnerships = new ConcurrentDictionary<Guid, StoreOwnership>();
             var entitiesManagements = new ConcurrentDictionary<Guid, StoreManagement>();
+            var entitiesStores = new ConcurrentDictionary<Guid, Store>();
+            var entitiesUsers = new ConcurrentDictionary<Guid, User>();
+            var store = new Store {Guid = Guid.NewGuid()};
+            var user1 = new User
+            {
+                Guid = Guid.NewGuid()
+            };
 
-            var storeGuid = Guid.NewGuid();
-            var firstStoreOwner = new StoreOwnership {Store = new Store(null) {Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
-            var secondStoreOwner = new StoreOwnership {Store = new Store(null) { Guid = storeGuid}, User = new User{Guid = Guid.NewGuid()}};
+            var user2 = new User
+            {
+                Guid = Guid.NewGuid()
+            };
+
+            var userToNominate = new User
+            {
+                Guid = Guid.NewGuid()
+            };
+            var firstStoreOwner = new StoreOwnership {Store = store, User = user1};
+            var secondStoreOwner = new StoreOwnership {Store = store, User = user2};
+            entitiesUsers[user1.Guid] = user1;
+            entitiesUsers[user2.Guid] = user2;
+            entitiesUsers[userToNominate.Guid] = userToNominate;
             entitiesOwnerships[firstStoreOwner.Guid] = firstStoreOwner;
             entitiesOwnerships[secondStoreOwner.Guid] = secondStoreOwner;
+            entitiesStores[store.Guid] = store;
 
             var storeManagementDto = new StoreManagementDto
             {
-                Store = new StoreDto { Guid = storeGuid },
-                User = new UserDto { Guid = Guid.NewGuid() },
+                Store = new StoreDto { Guid = store.Guid },
+                User = new UserDto { Guid = userToNominate.Guid},
                 Permissions = new StoreManagementPermissionsDto()
             };
 
-            var sut = GetStoreService(null, entitiesOwnerships, null, entitiesManagements, null, null);
+            var sut = GetStoreService(entitiesStores, entitiesOwnerships, null,
+                entitiesManagements, null, null, entitiesUsers, null);
 
             var taskList = new List<Task<bool>>
             {

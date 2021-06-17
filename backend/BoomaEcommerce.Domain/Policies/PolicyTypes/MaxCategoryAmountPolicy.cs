@@ -17,10 +17,15 @@ namespace BoomaEcommerce.Domain.Policies.PolicyTypes
             MaxAmount = maxAmount;
             ErrorMessage = "Category '{0}' must at-most have '{1}' amount of products but has '{2}' amount.";
         }
+
+        private MaxCategoryAmountPolicy()
+        {
+            ErrorMessage = "Category '{0}' must at-most have '{1}' amount of products but has '{2}' amount.";
+        }
+
         public override PolicyResult CheckPolicy(User user, ShoppingBasket basket)
         {
             var totalAmount = basket.PurchaseProducts
-                .Values
                 .Where(p => p.Product.Category == Category)
                 .Sum(p => p.Amount);
 

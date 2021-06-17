@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 using AutoFixture;
 using AutoMapper;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
+using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.ProductOffer;
 using BoomaEcommerce.Services.DTO;
 using BoomaEcommerce.Services.External;
+using BoomaEcommerce.Services.External.Payment;
+using BoomaEcommerce.Services.External.Supply;
 using BoomaEcommerce.Services.Purchases;
 using BoomaEcommerce.Tests.CoreLib;
 using FluentAssertions;
@@ -30,10 +35,11 @@ namespace BoomaEcommerce.Services.Tests
             IDictionary<Guid, Product> products,
             IDictionary<Guid, User> users,
             IDictionary<Guid, ShoppingCart> shoppingCarts,
-            IDictionary<Guid, Store>  stores)
+            IDictionary<Guid, Store>  stores,
+            IDictionary<Guid, ProductOffer> offers)
         {
             var purchaseUnitOfWorkMock = DalMockFactory.MockPurchasesUnitOfWork(purchases, products, users, shoppingCarts,
-                new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>(), stores);
+                new ConcurrentDictionary<Guid, StoreOwnership>(), new ConcurrentDictionary<Guid, Notification>(), stores, offers);
             return new PurchasesService(_mapper, _loggerMock.Object, _paymentClientMock.Object,
                 purchaseUnitOfWorkMock.Object, _supplyClientMock.Object, Mock.Of<INotificationPublisher>());
         }
@@ -59,7 +65,7 @@ namespace BoomaEcommerce.Services.Tests
             var cart = new ShoppingCart(userFixture) {Guid = shoppingCartGuid};
             shoppingCartDict[shoppingCartGuid] = cart;
 
-            var store = new Store();
+            var store = new Store(new User(), Policy.Empty, Discount.Empty);
             storesDict[store.Guid] = store;
 
             var productGuid = Guid.NewGuid();
@@ -68,13 +74,13 @@ namespace BoomaEcommerce.Services.Tests
 
 
 
-            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, storesDict);
+            var sut = GetPurchaseService(purchasesDict, productDict, userDict, shoppingCartDict, storesDict, new Dictionary<Guid, ProductOffer>());
             
             // Act
             var taskList = new List<Task<PurchaseDto>>
             {
-                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid)),
-                sut.CreatePurchaseAsync(TestData.GetPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid))
+                sut.CreatePurchaseAsync(TestData.GetPurchaseDetailsWithPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid)),
+                sut.CreatePurchaseAsync(TestData.GetPurchaseDetailsWithPurchaseWithSingleProductWithAmountOf1(userGuid, productGuid, product.Store.Guid))
             };
             var res = await Task.WhenAll(taskList);
             

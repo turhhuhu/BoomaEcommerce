@@ -47,8 +47,10 @@ class StoreManagersTable extends Component {
                       <StoreManagerEntry
                         isSubordinate={true}
                         key={managementship.guid}
+                        storeGuid={this.props.storeGuid}
                         username={managementship.userMetaData?.userName}
                         permissions={managementship.permissions}
+                        management={managementship}
                         guid={managementship.guid}
                       />
                     );
@@ -57,8 +59,10 @@ class StoreManagersTable extends Component {
                     <StoreManagerEntry
                       isSubordinate={false}
                       key={managementship.guid}
+                      storeGuid={this.props.storeGuid}
                       username={managementship.userMetaData?.userName}
                       permissions={managementship.permissions}
+                      management={managementship}
                       guid={managementship.guid}
                     />
                   );

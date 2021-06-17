@@ -4,8 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using BoomaEcommerce.Core;
 using BoomaEcommerce.Data;
+using BoomaEcommerce.Data.EfCore;
 using BoomaEcommerce.Domain;
+using BoomaEcommerce.Domain.Discounts;
 using BoomaEcommerce.Domain.Policies;
+using BoomaEcommerce.Domain.ProductOffer;
 using Microsoft.AspNetCore.Identity;
 using Moq;
 
@@ -13,11 +16,11 @@ namespace BoomaEcommerce.Tests.CoreLib
 {
     public static class DalMockFactory
     {
-        public static Mock<UserManager<User>> MockUserManager(List<User> ls)
+        public static Mock<UserManager<User>> MockUserManager(IDictionary<Guid, User> ls)
         {
             if (ls == null)
             {
-                throw new NullReferenceException("User or user list must be provided to mock the UserManager.");
+                return null;
             }
             var store = new Mock<IUserStore<User>>();
             var mgr = new Mock<UserManager<User>>(store.Object, null, null, null, null, null, null, null, null);
@@ -29,7 +32,7 @@ namespace BoomaEcommerce.Tests.CoreLib
             mgr.Object.PasswordValidators.Add(new PasswordValidator<User>());
             
             mgr.Setup(userManger => userManger.FindByIdAsync(It.IsAny<string>()))
-                .ReturnsAsync((string guid) => ls.FirstOrDefault(x => x.Guid.ToString().Equals(guid)));
+                .ReturnsAsync((string guid) => ls.Values.FirstOrDefault(x => x.Guid.ToString().Equals(guid)));
 
             mgr.Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
@@ -38,7 +41,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync(IdentityResult.Success)
                 .Callback<User, string>((x, y) =>
                 {
-                    ls.Add(x);
+                    ls.Add(x.Guid, x);
                     passwordStore.Add(x.Guid, y);
                 });
 
@@ -49,7 +52,7 @@ namespace BoomaEcommerce.Tests.CoreLib
                 .ReturnsAsync((User user, string password) => passwordStore[user.Guid].Equals(password));
 
             mgr.Setup(userManager => userManager.FindByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((string username) => ls.FirstOrDefault(usr => usr.UserName == username));
+                .ReturnsAsync((string username) => ls.Values.FirstOrDefault(usr => usr.UserName == username));
 
             mgr.Setup(userManager => userManager.AddToRoleAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success)
@@ -71,7 +74,7 @@ namespace BoomaEcommerce.Tests.CoreLib
         }
 
         public static Mock<IRepository<TEntity>> MockRepository<TEntity>(IDictionary<Guid, TEntity> entities)
-            where TEntity : BaseEntity
+            where TEntity : class, IBaseEntity
         {
             if (entities == null)
             {
@@ -90,6 +93,15 @@ namespace BoomaEcommerce.Tests.CoreLib
                     foreach (var key in keysToRemove)
                     {
                         entities.Remove(key, out _);
+                    }
+                });
+
+            repoMock.Setup(x => x.DeleteRange(It.IsAny<IEnumerable<TEntity>>()))
+                .Callback<IEnumerable<TEntity>>(entitiesToRemove =>
+                {
+                    foreach (var entity in entitiesToRemove)
+                    {
+                        entities.Remove(entity.Guid);
                     }
                 });
 
@@ -141,15 +153,22 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StoreManagement> storeManagements,
             IDictionary<Guid, StoreManagementPermissions> storeManagementPermissions,
             IDictionary<Guid, Product> products,
-            IDictionary<Guid,Policy> policies
+            IDictionary<Guid,Policy> policies,
+            IDictionary<Guid, Discount> discounts,
+            IDictionary<Guid, User> users,
+            IDictionary<Guid, ProductOffer> offers,
+            IDictionary<Guid, ApproverOwner> approvers
         )
         {
-
+            var offersRepoMock = MockRepository(offers);
+            var userRepoMock = MockRepository(users);
             var storeRepoMock = MockRepository(stores);
             var storeOwnershipRepoMock = MockRepository(storeOwnerships);
             var storePurchasesRepoMock = MockRepository(storePurchases);
             var storeManagementRepoMock = MockRepository(storeManagements);
-            var storePolicyRepoMock = MockRepository(policies); 
+            var storePolicyRepoMock = MockRepository(policies);
+            var storeDiscountRepoMock = MockRepository(discounts);
+            var approversRepoMock = MockRepository(approvers);
 
 
             // Mock do to delete on cascade 
@@ -198,10 +217,17 @@ namespace BoomaEcommerce.Tests.CoreLib
             storeUnitOfWorkMock.SetupGet(x => x.StoreOwnershipRepo).Returns(storeOwnershipRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StorePurchaseRepo).Returns(storePurchasesRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.StoreManagementRepo).Returns(storeManagementRepoMock?.Object);
-            storeUnitOfWorkMock.SetupGet(x => x.StoreManagementPermissionsRepo).Returns(storeManagementPermissionsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.ProductRepo).Returns(productsRepoMock?.Object);
             storeUnitOfWorkMock.SetupGet(x => x.PolicyRepo).Returns(storePolicyRepoMock?.Object);
-
+            storeUnitOfWorkMock.SetupGet(x => x.DiscountRepo).Returns(storeDiscountRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.UserRepo).Returns(userRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.OffersRepo).Returns(offersRepoMock?.Object);
+            storeUnitOfWorkMock.SetupGet(x => x.ApproversRepo).Returns(approversRepoMock?.Object);
+            if (storeDiscountRepoMock != null)
+            {
+                storeDiscountRepoMock.Setup(x => x.FindByIdAsync<CompositeDiscount>(It.IsAny<Guid>()))
+                    .ReturnsAsync((Guid guid) => (CompositeDiscount) discounts[guid]);
+            }
 
             return storeUnitOfWorkMock;
         }
@@ -215,9 +241,9 @@ namespace BoomaEcommerce.Tests.CoreLib
             IDictionary<Guid, StoreOwnership> ownerships,
             IDictionary<Guid, Notification> notifications,
             IDictionary<Guid, Store> stores,
+            IDictionary<Guid, ProductOffer> offers,
             IDictionary<Guid, StorePurchase> storePurchases = null,
-            IDictionary<Guid, PurchaseProduct> purchaseProducts = null,
-            Mock<UserManager<User>> userManagerMock = null)
+            IDictionary<Guid, PurchaseProduct> purchaseProducts = null)
         {
             var purchaseRepoMock = MockRepository(purchases);
             purchaseRepoMock?.Setup(x => x.InsertOneAsync(It.IsAny<Purchase>()))
@@ -239,10 +265,11 @@ namespace BoomaEcommerce.Tests.CoreLib
 
             var storesRepoMock = MockRepository(stores);
             var productRepoMock = MockRepository(products);
-            var userRepoMock = userManagerMock ?? MockUserManager(users is null ? new List<User>() : users.Values.ToList());
+            var userRepoMock = MockUserManager(users);
             var shoppingCartMock = MockRepository(shoppingCarts);
             var ownershipsMock = MockRepository(ownerships);
             var notificationsMock = MockRepository(notifications);
+            var offerMock = MockRepository(offers);
             var purchaseUnitOfWork = new Mock<IPurchaseUnitOfWork>();
             purchaseUnitOfWork.SetupGet(x => x.StoreOwnershipRepository).Returns(ownershipsMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.PurchaseRepository).Returns(purchaseRepoMock?.Object);
@@ -250,24 +277,36 @@ namespace BoomaEcommerce.Tests.CoreLib
             purchaseUnitOfWork.SetupGet(x => x.UserRepository).Returns(userRepoMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.ShoppingCartRepository).Returns(shoppingCartMock?.Object);
             purchaseUnitOfWork.SetupGet(x => x.StoresRepository).Returns(storesRepoMock?.Object);
+            purchaseUnitOfWork.SetupGet(x => x.OffersRepository).Returns(offerMock?.Object);
+            purchaseUnitOfWork.Setup(x => x.BeginTransaction())
+                .ReturnsAsync(Mock.Of<ITransactionContext>());
+
             return purchaseUnitOfWork;
         }
         
         public static Mock<IUserUnitOfWork> MockUserUnitOfWork(
             IDictionary<Guid, ShoppingBasket> shoppingBaskets,
-            IDictionary<Guid, ShoppingCart> shoppingCarts, 
-            IDictionary<Guid, PurchaseProduct> purchaseProducts,
-            Mock<UserManager<User>> userManagerMock = null)
+            IDictionary<Guid, ShoppingCart> shoppingCarts,
+            IDictionary<Guid, Product> products,
+            IDictionary<Guid, ProductOffer> offers,
+            IDictionary<Guid, StoreOwnership> owners,
+            IDictionary<Guid, User> users = null)
         {
             var shoppingBasketRepoMock = DalMockFactory.MockRepository(shoppingBaskets);
             var shoppingCartRepoMock = DalMockFactory.MockRepository(shoppingCarts);
-            var purchaseProductRepoMock = DalMockFactory.MockRepository(purchaseProducts);
+            var usersRepoMock = DalMockFactory.MockRepository(users);
+            var productsRepoMock = MockRepository(products);
+            var ownersRepoMock = MockRepository(owners);
+            var offerMock = MockRepository(offers);
 
             var userUnitOfWork = new Mock<IUserUnitOfWork>();
             userUnitOfWork.SetupGet(x => x.ShoppingBasketRepo).Returns(shoppingBasketRepoMock?.Object);
             userUnitOfWork.SetupGet(x => x.ShoppingCartRepo).Returns(shoppingCartRepoMock?.Object);
-            userUnitOfWork.SetupGet(x => x.PurchaseProductRepo).Returns(purchaseProductRepoMock?.Object);
-            userUnitOfWork.SetupGet(x => x.UserManager).Returns(userManagerMock?.Object);
+            userUnitOfWork.SetupGet(x => x.UserRepository).Returns(usersRepoMock?.Object);
+            userUnitOfWork.SetupGet(x => x.ProductRepository).Returns(productsRepoMock?.Object);
+            userUnitOfWork.SetupGet(x => x.ProductOfferRepo).Returns(offerMock?.Object);
+            userUnitOfWork.SetupGet(x => x.StoreOwnershipRepo).Returns(ownersRepoMock?.Object);
+
             return userUnitOfWork;
         }
     }
