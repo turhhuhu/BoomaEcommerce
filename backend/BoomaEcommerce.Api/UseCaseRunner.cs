@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using BoomaEcommerce.Services.Settings;
 using BoomaEcommerce.Services.UseCases;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
 
 namespace BoomaEcommerce.Api
 {
@@ -40,35 +42,46 @@ namespace BoomaEcommerce.Api
         private readonly JwtSettings _jwtSettings;
         private readonly UseCasesSettings _useCasesSettings;
         private readonly IHttpContextAccessor _accesor;
-        public UseCaseRunner(IServiceProvider sp, IOptions<JwtSettings> jwtSettings, IOptions<UseCasesSettings> useCaseSettings, IHttpContextAccessor accesor)
+        private readonly ILogger<UseCaseRunner> _logger;
+
+        public UseCaseRunner(IServiceProvider sp, IOptions<JwtSettings> jwtSettings, IOptions<UseCasesSettings> useCaseSettings, IHttpContextAccessor accesor, ILogger<UseCaseRunner> logger)
         {
             _sp = sp;
             _accesor = accesor;
+            _logger = logger;
             _jwtSettings = jwtSettings.Value;
             _useCasesSettings = useCaseSettings.Value;
         }
 
         public void RunAsync()
         {
-            var useCases = ReadUseCases();
-            useCases.Value.ToList().ForEach(useCase =>
+            try
             {
-                useCase.Actions.Aggregate((acc, curr) => acc.NextUseCaseAction = curr);
-            });
-
-            var useCaseAggregated =
-                useCases.Value
-                    .Select(useCase => useCase.Actions.FirstOrDefault())
-                    .Where(u => u != null)
-                    .ToList();
-
-            useCaseAggregated.ForEach(async u =>
-            {
-                for (int i = 0; i < u.AmountToRun; i++)
+                var useCases = ReadUseCases();
+                useCases.Value.ToList().ForEach(useCase =>
                 {
-                    await u.NextAction();
-                }
-            });
+                    useCase.Actions.Aggregate((acc, curr) => acc.NextUseCaseAction = curr);
+                });
+
+                var useCaseAggregated =
+                    useCases.Value
+                        .Select(useCase => useCase.Actions.FirstOrDefault())
+                        .Where(u => u != null)
+                        .ToList();
+
+                useCaseAggregated.ForEach(async u =>
+                {
+                    for (int i = 0; i < u.AmountToRun; i++)
+                    {
+                        await u.NextAction();
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to run use cases");
+            }
+
         }
         
         public UseCases ReadUseCases()
